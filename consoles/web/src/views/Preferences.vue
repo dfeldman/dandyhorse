@@ -2,9 +2,10 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { api, ApiError } from '../api'
 import { store, loadMe, logout } from '../session'
-import type { Game, GamesResponse, JsonSchemaProperty, Me, UnitSystem } from '../types'
+import type { Game, GamesResponse, GlobalPreferences, JsonSchemaProperty, Me, UnitSystem } from '../types'
 import * as u from '../units'
 import { THEMES, readTheme, setTheme, type Theme } from '../theme'
+import { DEFAULT_RESTING_HR, FITNESS_LEVELS, globalSteadyWatts, levelHint, numberOrNull, paceFromForm, paceOf, positiveOrNull, steadyHeartRate, steadyText } from '../fitness'
 import DevicesSection from '../components/DevicesSection.vue'
 
 // --- look -------------------------------------------------------------------
@@ -34,6 +35,12 @@ const form = reactive({
   maxHr: null as number | null,
   efficiency: null as number | null,
   allowSimulatorInRealSessions: false,
+  // Fitness (fitness.ts); the treadmill pace speed is in the form's units
+  steadyWatts: null as number | null,
+  paceSpeed: null as number | null,
+  paceIncline: null as number | null,
+  restingHr: null as number | null,
+  steadyHr: null as number | null,
 })
 const sys = computed(() => form.unitSystem)
 
@@ -53,21 +60,47 @@ function fill(me: Me) {
   form.maxHr = typeof p.maxHr === 'number' ? p.maxHr : null
   form.efficiency = typeof p.efficiency === 'number' ? p.efficiency : null
   form.allowSimulatorInRealSessions = !!p.allowSimulatorInRealSessions
+  form.steadyWatts = positiveOrNull(p.steadyWatts)
+  const pace = paceOf(p.steadyPace)
+  form.paceSpeed = pace ? u.speed(pace.speed, me.unitSystem, 2).value : null
+  form.paceIncline = pace ? pace.incline : null
+  form.restingHr = numberOrNull(p.restingHr)
+  form.steadyHr = numberOrNull(p.steadyHr)
 }
 
-// When the unit system select changes, re-express body values in the new units without changing the SI value.
+// When the unit system select changes, re-express body values and the treadmill pace in the new units without
+// changing the SI value. Sync, so fill() (which sets the unit system before the values) is not converted twice.
 watch(
   () => form.unitSystem,
   (next, prev) => {
     if (next === prev) return
     form.height = u.height(u.heightToSI(form.height, prev), next, 1).value
     form.weight = u.mass(u.massToSI(form.weight, prev), next, 1).value
+    form.paceSpeed = u.speed(u.speedToSI(numberOrNull(form.paceSpeed), prev), next, 2).value
   },
+  { flush: 'sync' },
 )
 
 function say(msg: string) {
   notice.value = msg
   window.setTimeout(() => (notice.value = null), 2500)
+}
+
+/** Set a numeric preference, or remove it when the field is blank (a cleared number input gives '', not null). */
+function setNum(prefs: GlobalPreferences, k: string, v: unknown) {
+  const n = numberOrNull(v)
+  if (n === null) delete prefs[k]
+  else prefs[k] = n
+}
+
+/** The Fitness keys from the form; a blank field removes its key. */
+function putFitness(prefs: GlobalPreferences) {
+  setNum(prefs, 'steadyWatts', positiveOrNull(form.steadyWatts))
+  const pace = paceFromForm(form.paceSpeed, form.paceIncline, sys.value)
+  if (pace) prefs.steadyPace = pace
+  else delete prefs.steadyPace
+  setNum(prefs, 'restingHr', positiveOrNull(form.restingHr))
+  setNum(prefs, 'steadyHr', positiveOrNull(form.steadyHr))
 }
 
 async function save() {
@@ -76,15 +109,13 @@ async function save() {
   error.value = null
   try {
     const prefs = { ...store.me.preferences }
-    const setNum = (k: string, v: number | null) => {
-      if (v === null || Number.isNaN(v)) delete prefs[k]
-      else prefs[k] = v
-    }
-    setNum('defaultDuration', form.defaultDurationMin === null ? null : Math.round(form.defaultDurationMin) * 60)
-    setNum('ftp', form.ftp)
-    setNum('maxHr', form.maxHr)
-    setNum('efficiency', form.efficiency)
+    const mins = numberOrNull(form.defaultDurationMin)
+    setNum(prefs, 'defaultDuration', mins === null ? null : Math.round(mins) * 60)
+    setNum(prefs, 'ftp', form.ftp)
+    setNum(prefs, 'maxHr', form.maxHr)
+    setNum(prefs, 'efficiency', form.efficiency)
     prefs.allowSimulatorInRealSessions = form.allowSimulatorInRealSessions
+    putFitness(prefs)
     const bodyData: Record<string, unknown> = {}
     const h = u.heightToSI(form.height, sys.value)
     const w = u.massToSI(form.weight, sys.value)
@@ -109,6 +140,33 @@ async function save() {
   } finally {
     busy.value = false
   }
+}
+
+// --- fitness ----------------------------------------------------------------
+// Steady pace for effort-paced games (Kingdom Trek). A level button saves at once; the exact numbers are under
+// Advanced. "What the game will use" follows the form as it stands (Training's FTP and max HR too), so it shows a
+// change before Save.
+const fitnessAdvanced = ref(false)
+const draft = computed<GlobalPreferences>(() => {
+  const p: GlobalPreferences = { ...(store.me?.preferences ?? {}) }
+  setNum(p, 'ftp', form.ftp)
+  setNum(p, 'maxHr', form.maxHr)
+  putFitness(p)
+  return p
+})
+const uses = computed(() => steadyText(draft.value, sys.value))
+const wattsPlaceholder = computed(() => String(Math.round(globalSteadyWatts({ ...draft.value, steadyWatts: null }).watts)))
+const steadyHrPlaceholder = computed(() => String(Math.round(steadyHeartRate({ ...draft.value, steadyHr: null }, numberOrNull(form.age)).steady)))
+
+function pickLevel(watts: number) {
+  form.steadyWatts = watts
+  void save()
+}
+
+function clearPace() {
+  form.paceSpeed = null
+  form.paceIncline = null
+  void save()
 }
 
 // --- per-game preferences ---------------------------------------------------
@@ -231,6 +289,36 @@ onMounted(async () => {
       <div class="actions"><button class="btn big primary" type="submit" :disabled="busy">Save</button></div>
     </form>
 
+    <form class="panel" @submit.prevent="save">
+      <h2>Fitness</h2>
+      <p style="margin: 0">Your steady pace is the effort you could keep up for an hour and still talk in sentences; games like Kingdom Trek go by your effort against it, so a level takes everyone about the same time.</p>
+      <div class="choices">
+        <button v-for="l in FITNESS_LEVELS" :key="l.id" type="button" class="choice level" :aria-pressed="form.steadyWatts === l.watts" @click="pickLevel(l.watts)">
+          <span class="level-name">{{ l.label }} · {{ l.watts }} W</span>
+          <span class="level-sub">≈ {{ levelHint(l, sys) }}</span>
+        </button>
+      </div>
+      <p class="hint">Treadmill equivalents are for a 75 kg person. A machine's own setting (Devices, below) wins on that machine.</p>
+      <p style="margin: 0">What the game will use: <strong>{{ uses }}</strong></p>
+      <div class="actions">
+        <button type="button" class="btn ghost" :aria-expanded="fitnessAdvanced" @click="fitnessAdvanced = !fitnessAdvanced">{{ fitnessAdvanced ? 'Hide advanced' : 'Advanced' }}</button>
+      </div>
+      <template v-if="fitnessAdvanced">
+        <div class="form">
+          <label class="field"><span>Steady watts (W)</span><input type="number" step="1" min="1" v-model.number="form.steadyWatts" :placeholder="wattsPlaceholder" /></label>
+          <label class="field"><span>Treadmill steady speed ({{ u.unitLabel('speed', sys) }})</span><input type="number" step="0.1" min="0" v-model.number="form.paceSpeed" placeholder="not set" /></label>
+          <label class="field"><span>Treadmill steady incline (%)</span><input type="number" step="0.5" min="0" v-model.number="form.paceIncline" placeholder="0" /></label>
+          <label class="field"><span>Resting HR (bpm)</span><input type="number" step="1" min="30" max="110" v-model.number="form.restingHr" :placeholder="String(DEFAULT_RESTING_HR)" /></label>
+          <label class="field"><span>Steady HR (bpm)</span><input type="number" step="1" v-model.number="form.steadyHr" :placeholder="steadyHrPlaceholder" /></label>
+        </div>
+        <p class="hint">On a treadmill a steady pace is used before steady watts: treadmill users know their pace, not their watts. A blank steady HR is worked out from your resting and max HR (or your age).</p>
+        <div class="actions">
+          <button class="btn big primary" type="submit" :disabled="busy">Save</button>
+          <button type="button" class="btn" @click="clearPace">Clear treadmill pace</button>
+        </div>
+      </template>
+    </form>
+
     <div class="panel">
       <h2>Game settings</h2>
       <div class="form">
@@ -275,3 +363,10 @@ onMounted(async () => {
     </div>
   </section>
 </template>
+
+<style scoped>
+/* Fitness: the four levels are chunky two-line choices (the name, then watts and the treadmill equivalent) */
+.level { flex: 1 1 180px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 10px 18px; border-radius: var(--radius-sm); text-align: left; }
+.level-name { font-size: 1.1em; }
+.level-sub { font-size: 0.85em; font-weight: 600; opacity: 0.85; }
+</style>

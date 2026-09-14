@@ -20,6 +20,12 @@ export interface BodyData {
   age?: number | null
 }
 
+/** A treadmill pace: belt speed and incline. */
+export interface SteadyPace {
+  speed: number // m/s
+  incline: number // percent
+}
+
 export interface GlobalPreferences {
   defaultDuration?: number | null // seconds
   ownedDeviceTypes?: DeviceType[]
@@ -27,6 +33,13 @@ export interface GlobalPreferences {
   maxHr?: number | null
   efficiency?: number | null
   allowSimulatorInRealSessions?: boolean
+  // The Fitness panel: the player's steady pace, which effort-paced games divide the workout by (fitness.ts).
+  /** W the player can hold comfortably for an hour while still able to talk in sentences */
+  steadyWatts?: number | null
+  /** a treadmill steady pace; on a treadmill it is used before steadyWatts */
+  steadyPace?: SteadyPace | null
+  restingHr?: number | null // bpm; the game assumes 60 when unset
+  steadyHr?: number | null // bpm; derived from hrZones or resting and max HR when unset
   [key: string]: unknown
 }
 
@@ -254,6 +267,10 @@ export interface DevicePreferences {
   powerOffset?: number | null
   /** Treadmills: may games set the belt speed? Off unless switched on here (PLAN.md §9.4). */
   speedControl?: boolean
+  /** Treadmills and bikes: this machine's steady watts, over the Fitness setting (e.g. a runner who rarely cycles). */
+  steadyWatts?: number | null
+  /** Treadmills: this machine's steady pace, used before steadyWatts. */
+  steadyPace?: SteadyPace | null
   [key: string]: unknown
 }
 

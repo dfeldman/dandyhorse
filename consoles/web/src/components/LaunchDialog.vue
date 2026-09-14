@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { api, ApiError } from '../api'
 import { store } from '../session'
-import { deviceTypeName } from '../status'
-import type { DeviceType, Game, LaunchResponse, Variant } from '../types'
+import { connection, deviceTypeName } from '../status'
+import { defaultDeviceType } from '../launch'
+import type { Device, DeviceType, Game, LaunchResponse, Variant } from '../types'
 
-// One column, every row reachable with Down and every choice with Left/Right: device type (if several), duration
-// (four chunky choices, no keyboard needed), the game's own options (PLAN.md §7.1), debug, Advanced, Play, Cancel.
+// One column, every row reachable with Down and every choice with Left/Right: device type (if several, as buttons
+// like duration), duration (four chunky choices, no keyboard needed), the game's own options (PLAN.md §7.1), debug,
+// Advanced, Play, Cancel.
 const props = defineProps<{ game: Game; variant: Variant }>()
 const emit = defineEmits<{ close: [] }>()
 
@@ -17,7 +19,27 @@ function randomSeed(): number {
 }
 
 const DURATIONS = [15, 30, 45, 60] // minutes; games may rely on one of these when they build a route
-const deviceType = ref<DeviceType>(props.variant.deviceTypes[0] ?? 'treadmill')
+// The machine the user actually has (connected now, else owned, else last seen: launch.ts) until they pick one. It
+// follows the 4 s poll of the bridges, so a machine connected while the dialog is open becomes the default.
+const savedDevices = ref<Device[]>([])
+const pickedType = ref<DeviceType | null>(null)
+const deviceType = computed<DeviceType>(() => {
+  if (pickedType.value) return pickedType.value
+  const live = connection(store.current?.bridges ?? []).device
+  return defaultDeviceType(props.variant.deviceTypes, {
+    connected: live ? [live.type] : [],
+    owned: store.me?.preferences.ownedDeviceTypes ?? [],
+    saved: savedDevices.value,
+  })
+})
+onMounted(async () => {
+  if (props.variant.deviceTypes.length < 2) return
+  try {
+    savedDevices.value = (await api<{ devices: Device[] }>('/api/devices')).devices
+  } catch {
+    // the default then goes without the saved devices
+  }
+})
 const defaultSeconds = props.variant.defaultDuration ?? store.me?.preferences.defaultDuration ?? 1800
 const nearest = DURATIONS.reduce((best, m) => (Math.abs(m * 60 - defaultSeconds) < Math.abs(best * 60 - defaultSeconds) ? m : best), DURATIONS[0]!)
 const minutes = ref<number>(nearest)
@@ -29,6 +51,10 @@ const debug = ref(true)
 const advanced = ref(false)
 const busy = ref(false)
 const error = ref<string | null>(null)
+
+function machineLabel(t: DeviceType): string {
+  return deviceTypeName(t).replace(/^\w/, (c) => c.toUpperCase())
+}
 
 function optionLabel(o: { enum: string[]; labels?: string[] }, value: string): string {
   const i = o.enum.indexOf(value)
@@ -66,12 +92,12 @@ async function launch() {
         <p class="muted" style="margin: 0">{{ game.name }}</p>
       </div>
       <form class="form one" @submit.prevent="launch">
-        <label v-if="variant.deviceTypes.length > 1" class="field">
+        <div v-if="variant.deviceTypes.length > 1" class="field" role="radiogroup" aria-label="Device">
           <span>Device</span>
-          <select v-model="deviceType">
-            <option v-for="d in variant.deviceTypes" :key="d" :value="d">{{ deviceTypeName(d) }}</option>
-          </select>
-        </label>
+          <div class="seg">
+            <button v-for="d in variant.deviceTypes" :key="d" type="button" role="radio" :aria-checked="deviceType === d" :class="{ on: deviceType === d }" @click="pickedType = d">{{ machineLabel(d) }}</button>
+          </div>
+        </div>
         <div v-else class="field"><span>Device</span><div class="static">{{ deviceTypeName(deviceType) }}</div></div>
 
         <div class="field" role="radiogroup" aria-label="Duration">

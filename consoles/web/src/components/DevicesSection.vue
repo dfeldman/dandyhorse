@@ -4,10 +4,11 @@ import { api, ApiError } from '../api'
 import { store, loadMe, unitSystem } from '../session'
 import type { Device, DevicePreferences, DeviceType } from '../types'
 import { deviceTypeName } from '../status'
+import { paceFromForm, paceOf, positiveOrNull } from '../fitness'
 import * as u from '../units'
 
-// The saved-device editor (rename, forget, limits, merge), a section of Preferences. Normal form; not laid
-// out for the gamepad.
+// The saved-device editor (rename, forget, limits, steady pace, merge), a section of Preferences. Normal form; not
+// laid out for the gamepad.
 const devices = ref<Device[]>([])
 const error = ref<string | null>(null)
 const notice = ref<string | null>(null)
@@ -39,6 +40,10 @@ interface Form {
   type: Device['type']
   prefs: Record<string, number | null>
   speedControl: boolean
+  /** This machine's steady pace for effort-paced games (fitness.ts): watts, and a treadmill pace in display units. */
+  steadyWatts: number | null
+  paceSpeed: number | null
+  paceIncline: number | null
   mergeInto: number | null
   busy: boolean
 }
@@ -62,11 +67,15 @@ function unitFor(f: PrefField): string {
 }
 
 function fill(d: Device) {
+  const pace = paceOf(d.preferences.steadyPace)
   forms[d.deviceId] = {
     name: d.name ?? '',
     type: d.type,
     prefs: Object.fromEntries(FIELDS.map((f) => [f.key, toDisplay(f, d.preferences[f.key])])),
     speedControl: d.preferences.speedControl === true,
+    steadyWatts: positiveOrNull(d.preferences.steadyWatts),
+    paceSpeed: pace ? u.speed(pace.speed, sys.value, 3).value : null,
+    paceIncline: pace ? pace.incline : null,
     mergeInto: null,
     busy: false,
   }
@@ -100,6 +109,13 @@ async function save(d: Device) {
     }
     if (f.type === 'treadmill' && f.speedControl) prefs.speedControl = true
     else delete prefs.speedControl
+    // Steady pace: blank uses the Fitness setting; kept only on the machines it applies to.
+    const steady = f.type === 'hrm' ? null : positiveOrNull(f.steadyWatts)
+    if (steady !== null) prefs.steadyWatts = steady
+    else delete prefs.steadyWatts
+    const pace = f.type === 'treadmill' ? paceFromForm(f.paceSpeed, f.paceIncline, sys.value) : null
+    if (pace) prefs.steadyPace = pace
+    else delete prefs.steadyPace
     const updated = await api<Device>(`/api/devices/${d.deviceId}`, 'PUT', { name: f.name || d.name, type: f.type, preferences: prefs })
     devices.value = devices.value.map((x) => (x.deviceId === d.deviceId ? updated : x))
     fill(updated)
@@ -199,6 +215,25 @@ async function toggleOwned(t: DeviceType) {
           </label>
         </div>
         <p class="hint">Blank fields use platform defaults. Speeds are entered in {{ u.unitLabel('speed', sys) }}.</p>
+        <template v-if="forms[d.deviceId]!.type !== 'hrm'">
+          <div class="form">
+            <label class="field">
+              <span>Steady watts on this machine (W)</span>
+              <input type="number" step="1" min="1" v-model.number="forms[d.deviceId]!.steadyWatts" placeholder="from Fitness" />
+            </label>
+            <template v-if="forms[d.deviceId]!.type === 'treadmill'">
+              <label class="field">
+                <span>Steady pace on this treadmill ({{ u.unitLabel('speed', sys) }})</span>
+                <input type="number" step="0.1" min="0" v-model.number="forms[d.deviceId]!.paceSpeed" placeholder="from Fitness" />
+              </label>
+              <label class="field">
+                <span>Steady pace incline (%)</span>
+                <input type="number" step="0.5" min="0" v-model.number="forms[d.deviceId]!.paceIncline" placeholder="0" />
+              </label>
+            </template>
+          </div>
+          <p class="hint">For games that go by your effort against your steady pace (Kingdom Trek). Blank uses your Fitness setting; on a treadmill a steady pace is used before steady watts.</p>
+        </template>
         <div class="actions">
           <button type="button" class="btn primary" :disabled="forms[d.deviceId]?.busy" @click="save(d)">Save</button>
           <button type="button" class="btn danger" @click="forget(d)">Forget</button>
