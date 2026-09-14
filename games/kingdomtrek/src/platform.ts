@@ -94,7 +94,8 @@ export class Platform {
   /** A developer tool changed the game (effort, time, the save): from then on the player's hero is not written. */
   tainted = false
   private readonly client: SessionClient
-  private readonly mirror = new MenuMirror()
+  // Seconds since 1970: a tap the phone aimed at the list before a reload can't match a rev after it.
+  private readonly mirror = new MenuMirror(Math.floor(Date.now() / 1000))
   private hooks: PlatformHooks | null = null
   private latest: GameState | null = null
   private receivedAt = 0
@@ -172,16 +173,17 @@ export class Platform {
     return this.client.paused || !!this.endedInfo
   }
 
-  /** Every engine tick: the save clock. */
-  every(dt: number): void {
+  /**
+   * From the game's own 10 Hz timer, never from animation frames (they stop in a hidden tab, and the bridge's tab is
+   * often hidden): the save clock, the phone following the list and the highlight, pauses following both ways, and
+   * the planned time.
+   */
+  update(dt: number): void {
     this.sinceSave += dt
-    if (this.sinceSave < SAVE_EVERY_S) return
-    this.sinceSave = 0
-    void this.save()
-  }
-
-  /** Every frame: the phone follows the list and the highlight, pauses follow both ways, and the clock runs. */
-  frame(): void {
+    if (this.sinceSave >= SAVE_EVERY_S) {
+      this.sinceSave = 0
+      void this.save()
+    }
     const h = this.hooks
     if (!h || this.endedInfo) return
     const key = `${this.mirror.sync(h.engine.choices())}|${h.highlighted() ?? ''}`

@@ -19,8 +19,13 @@ export function structureOf(list: ChoiceList): string {
 }
 
 export class MenuMirror {
-  rev = 0
+  rev: number
   private structure: string | null = null
+
+  /** `start`: where rev counts from. The platform starts from the clock, so a reload never repeats an old rev. */
+  constructor(start = 0) {
+    this.rev = start
+  }
 
   /** Follow the list: `rev` goes up whenever its structure changed. */
   sync(list: ChoiceList): number {

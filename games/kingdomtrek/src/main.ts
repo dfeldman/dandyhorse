@@ -298,8 +298,11 @@ async function boot(): Promise<void> {
     // On Dandyhorse game time stops while the session is paused or over; the menus keep working.
     if (!platform?.frozen()) engine.step(dt * timeScale, effort.value())
     for (const ev of engine.drain()) onEvent(ev)
-    if (platform) platform.every(dt)
-    else if ((sinceSave += dt) >= CONFIG.autosaveSeconds) {
+    if (platform) {
+      // The platform reads the highlight, so keep the panel on the current list even when no frames are drawn.
+      syncPanel()
+      platform.update(dt)
+    } else if ((sinceSave += dt) >= CONFIG.autosaveSeconds) {
       sinceSave = 0
       storeLocal()
     }
@@ -314,7 +317,6 @@ async function boot(): Promise<void> {
 
     const top = engine.top
     syncPanel()
-    platform?.frame()
     hud.update(engine, timeScale, effort, platform?.status() ?? null)
     if (top instanceof Room && !over) dialog.show(top.current, top.talking)
     else dialog.show(null, false)

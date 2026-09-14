@@ -267,7 +267,7 @@ export class BattleView {
     if (tug) {
       const mid = V.x + V.w * 0.5
       const reach = V.w * 0.2
-      const knot = mid + clamp(v.rope ?? 0, -1, 1) * reach
+      const knot = mid + (knotShare(v.rope) * 2 - 1) * reach
       const gap = V.w * 0.19
       c.save()
       c.strokeStyle = 'rgba(255,255,255,0.85)'
@@ -387,7 +387,7 @@ export class BattleView {
       c.restore()
       c.fillStyle = '#ffffff'
       c.fillRect(bx + bw / 2 - 1, by - 3, 2, bh + 6)
-      const kx = bx + (bw * (1 + clamp(v.rope ?? 0, -1, 1))) / 2
+      const kx = bx + bw * knotShare(v.rope)
       c.fillStyle = '#fff8e6'
       c.strokeStyle = '#1a1a2a'
       c.lineWidth = 2
@@ -442,6 +442,12 @@ export class BattleView {
     bar(c, mx, my + 50, mw, 9, foeF / scale, '#ffb35b', '#ff3b2f')
   }
 }
+
+/**
+ * Where the tug of war's knot sits: 0 at the hero's end (left, the gold pennant, "◀ You win here") to 1 at the
+ * enemy's (right, red). The engine's rope is +1 when the hero wins, and a winner drags the knot to their own side.
+ */
+export const knotShare = (rope: number | undefined): number => (1 - clamp(rope ?? 0, -1, 1)) / 2
 
 /** A little flag on a pole, standing on (x, y). */
 function pennant(c: CanvasRenderingContext2D, x: number, y: number, s: number, color: string): void {
