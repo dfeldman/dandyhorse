@@ -75,6 +75,8 @@ export interface SessionBrief {
   /** set while status is 'paused': the server saw no exercise-device data for 5 s */
   pause?: PauseInfo | null
   pausedSeconds?: number
+  /** false: the game plays without a machine (a heart rate monitor alone, or nothing, is fine); only the user pauses */
+  autoPause?: boolean
 }
 
 export interface PauseInfo {
@@ -88,20 +90,48 @@ export interface PauseInfo {
   deviceStatus: string | null
 }
 
+/** One entry of a menu prompt: a stable id and a label of at most 40 characters (it may start with an emoji). */
+export interface MenuItem {
+  id: string
+  label: string
+  /** one line shown under the item while it is highlighted */
+  hint?: string
+  /** shown greyed; the server rejects taps on it */
+  disabled?: boolean
+}
+
 export interface RequestedInput {
   promptId: string
   prompt: string
+  /** button labels; for 'dpad' and 'menu' the RemoteButton names to draw (a menu's may be empty) */
   choices: string[]
   timeout?: number
   persistent: boolean
-  /** 'dpad' renders up/down/left/right/ok/back as a cross; default is a list of buttons */
-  layout?: 'buttons' | 'dpad'
+  /** 'dpad' renders up/down/left/right/ok/back as a cross; 'menu' is the game's whole choice list (items); default is a list of buttons */
+  layout?: 'buttons' | 'dpad' | 'menu'
+  /** menu: 1-100 items; a tap answers with the item's id (never a d-pad button name) */
+  items?: MenuItem[]
+  /** menu: the item the game has highlighted (moves with up/down on the phone or at the big screen) */
+  highlight?: string | null
+  /** menu: the item the Back button picks */
+  back?: string | null
+  /** menu: bumped whenever the list changes; every answer carries the rev the phone was showing */
+  rev?: number
+  /** menu: seconds until the list goes on by itself (re-sent on every poll), or null */
+  countdown?: number | null
 }
 
 export type RemoteButton = 'up' | 'down' | 'left' | 'right' | 'select' | 'back'
 export const REMOTE_BUTTONS: RemoteButton[] = ['up', 'down', 'left', 'right', 'select', 'back']
 
-export interface InputAnswer { promptId: string; choice: string; t: number; source: string }
+export interface InputAnswer {
+  promptId: string
+  choice: string
+  t: number
+  source: string
+  /** the menu rev the answer was aimed at */
+  rev?: number
+}
 
 export interface MergedMetric { requested: number | null; commanded: number | null; actual: number | null }
 

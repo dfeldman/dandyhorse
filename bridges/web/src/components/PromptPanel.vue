@@ -1,10 +1,12 @@
 <script setup lang="ts">
-// The "remote": the game's current choice input. Big full-width targets; a d-pad when the game asks for one.
-// One-shot choices hide locally as soon as the answer is accepted (the server clears the prompt on its next poll).
+// The "remote": the game's current choice input. Big full-width targets; a d-pad when the game asks for one; the
+// game's whole list for a menu (MenuPrompt). One-shot choices hide locally as soon as the answer is accepted (the
+// server clears the prompt on its next poll).
 import { computed, ref, watch } from 'vue'
 import { answerPrompt, store } from '../bridge'
 import type { RemoteButton } from '../types'
 import DPad from './DPad.vue'
+import MenuPrompt from './MenuPrompt.vue'
 
 const props = defineProps<{ compact?: boolean }>()
 const emit = defineEmits<{ answered: [] }>()
@@ -17,6 +19,7 @@ const busy = ref(false)
 watch(() => prompt.value?.promptId, () => { answered.value = null })
 
 const visible = computed(() => !!prompt.value && (prompt.value.persistent || answered.value !== prompt.value.promptId))
+const isMenu = computed(() => prompt.value?.layout === 'menu')
 const isDpad = computed(() => prompt.value?.layout === 'dpad')
 const dpadChoices = computed(() => (prompt.value?.choices ?? []).filter((c): c is RemoteButton => ['up', 'down', 'left', 'right', 'select', 'back'].includes(c)))
 const extraChoices = computed(() => (isDpad.value ? (prompt.value?.choices ?? []).filter((c) => !dpadChoices.value.includes(c as RemoteButton)) : prompt.value?.choices ?? []))
@@ -38,7 +41,8 @@ async function choose(choice: string): Promise<void> {
 </script>
 
 <template>
-  <div v-if="prompt && visible" class="card prompt" :class="{ compact: props.compact }" data-test="prompt">
+  <MenuPrompt v-if="prompt && isMenu" :prompt="prompt" :active="active" :compact="props.compact" @answered="emit('answered')" />
+  <div v-else-if="prompt && visible" class="card prompt" :class="{ compact: props.compact }" data-test="prompt">
     <h3>{{ prompt.persistent ? 'Game controls' : 'The game asks' }}</h3>
     <div class="title">{{ prompt.prompt || 'Choose' }}</div>
     <DPad v-if="isDpad" :choices="dpadChoices" :disabled="!active" @press="choose" />

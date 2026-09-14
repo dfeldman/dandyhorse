@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'vitest'
-import { controlsWords, decideScreen, endReasonWords, estopRelevant, pickBanner, type BannerInput, type ScreenInput } from '../ui'
+import { controlsWords, decideScreen, endReasonWords, estopRelevant, menuPadButtons, pickBanner, scrollToShow, type BannerInput, type ScreenInput } from '../ui'
 
 const base: ScreenInput = {
   needLogin: false, hosting: false, expanded: false, hasSession: true, hasEnded: false,
-  localExercise: true, fitnessOwner: 'me', wizardOpen: false,
+  localExercise: true, fitnessOwner: 'me', wizardOpen: false, deviceOptional: false,
 }
 
 describe('decideScreen', () => {
@@ -29,6 +29,33 @@ describe('decideScreen', () => {
   })
   test('ready with a local device', () => {
     expect(decideScreen(base)).toBe('ready')
+  })
+  test('a game that needs no machine: ready without a device, the wizard only on request', () => {
+    const none = { ...base, localExercise: false, fitnessOwner: null, deviceOptional: true }
+    expect(decideScreen(none)).toBe('ready')
+    expect(decideScreen({ ...none, wizardOpen: true })).toBe('wizard')
+    expect(decideScreen({ ...none, fitnessOwner: 'phone' })).toBe('remote')
+    expect(decideScreen({ ...none, localExercise: true })).toBe('ready')
+    expect(decideScreen({ ...none, hasSession: false })).toBe('idle')
+    expect(decideScreen({ ...none, hosting: true })).toBe('game')
+  })
+})
+
+describe('menu prompts', () => {
+  test('the small d-pad never shows a second Back', () => {
+    const all = ['up', 'down', 'left', 'right', 'select', 'back']
+    expect(menuPadButtons(all, true)).toEqual(['up', 'down', 'left', 'right', 'select'])
+    expect(menuPadButtons(all, false)).toEqual(all)
+    expect(menuPadButtons(['select', 'back', 'place:shop'], false)).toEqual(['select', 'back'])
+    expect(menuPadButtons([], true)).toEqual([])
+  })
+  test('scrolling to the highlighted item moves the list only as far as needed', () => {
+    // a 300 px view over 72 px rows
+    expect(scrollToShow(0, 300, 72, 64)).toBe(0)            // already visible
+    expect(scrollToShow(0, 300, 400, 64)).toBe(172)         // below: its bottom 8 px above the view's bottom
+    expect(scrollToShow(500, 300, 360, 64)).toBe(352)       // above: its top 8 px below the view's top
+    expect(scrollToShow(100, 300, 4, 64)).toBe(0)           // never above the start
+    expect(scrollToShow(0, 300, 400, 500)).toBe(392)        // taller than the view: show its top
   })
 })
 

@@ -103,10 +103,16 @@ watch(
       </div>
     </template>
 
-    <!-- 7: ready / running -->
+    <!-- 7: ready / running (with no local machine only for a game that needs none, session.autoPause false) -->
     <template v-else-if="screen === 'ready' && s">
       <PromptPanel />
       <DeviceCard v-if="dev" :device="dev" />
+      <div v-else class="card" data-test="no-machine">
+        <h3>No machine needed</h3>
+        <p v-if="store.hrm">This game works without a machine: effort comes from your heart rate monitor. You can also connect your {{ deviceWord(s.deviceType) }}.</p>
+        <p v-else>This game works without a machine. Effort can come from a heart rate monitor, or connect your {{ deviceWord(s.deviceType) }}.</p>
+        <div class="actions" style="margin-top: 12px"><button class="block" data-test="connect-device" @click="openWizard">Connect a device</button></div>
+      </div>
       <DeviceCard v-if="store.hrm" :device="store.hrm" />
       <div class="actions">
         <!-- remote mode (the game runs elsewhere): Pause/Play leads; showing the game here is a secondary action -->

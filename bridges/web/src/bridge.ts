@@ -497,13 +497,14 @@ export async function sendPutState(body: PutState | Record<string, unknown>): Pr
 // ---------------------------------------------------------------------------
 // prompts
 
-export async function answerPrompt(promptId: string, choice: string): Promise<boolean> {
+/** Answer the open prompt. `rev`: the menu version the phone was showing, so the game can drop a tap aimed at an old list. */
+export async function answerPrompt(promptId: string, choice: string, rev?: number): Promise<boolean> {
   const t0 = performance.now()
   try {
     const r = await api<{ accepted: boolean; reason?: string }>('/bridgeapi/sendinput', {
-      method: 'POST', body: { bridgeId: store.bridgeId, promptId, choice },
+      method: 'POST', body: { bridgeId: store.bridgeId, promptId, choice, ...(rev != null ? { rev } : {}) },
     })
-    logRT('sendinput', t0, true, 200, `${choice} -> ${r.accepted ? 'accepted' : 'rejected ' + (r.reason ?? '')}`)
+    logRT('sendinput', t0, true, 200, `${choice}${rev != null ? ' @' + rev : ''} -> ${r.accepted ? 'accepted' : 'rejected ' + (r.reason ?? '')}`)
     return r.accepted
   } catch (e) {
     noteError(e, 'sendinput', t0)
@@ -511,13 +512,14 @@ export async function answerPrompt(promptId: string, choice: string): Promise<bo
   }
 }
 
-/** The D-pad. While a running session shows a d-pad prompt that offers this button, it is that prompt's answer;
- *  otherwise it drives Dandyhorse itself (console navigation) through /bridgeapi/remote. Fire and forget. */
+/** The D-pad. While a running session shows a d-pad or menu prompt that offers this button, it is that prompt's
+ *  answer (a menu's carries its rev); otherwise it drives Dandyhorse itself (console navigation) through
+ *  /bridgeapi/remote. Fire and forget. */
 export async function sendRemote(button: RemoteButton): Promise<void> {
   const p = store.state?.requestedInput
   const s = store.session
-  if (p && p.layout === 'dpad' && p.choices.includes(button) && s && (s.status === 'active' || s.status === 'paused')) {
-    await answerPrompt(p.promptId, button)
+  if (p && (p.layout === 'dpad' || p.layout === 'menu') && p.choices.includes(button) && s && (s.status === 'active' || s.status === 'paused')) {
+    await answerPrompt(p.promptId, button, p.layout === 'menu' ? p.rev : undefined)
     return
   }
   const t0 = performance.now()
@@ -880,6 +882,18 @@ export function startGame(): void {
 }
 export function expandBridge(): void { store.expanded = true }
 export function collapseBridge(): void { if (store.hosting) store.expanded = false }
+/**
+ * Hand the keyboard and gamepad at the big screen to the hosted game (games/kingdomtrek/INTEGRATION.md §4.3): called
+ * when it loads, when the bridge UI collapses back to it and when the strip's sheet closes. Never while the bridge UI
+ * is expanded: it would take the focus from the controls the user is looking at.
+ */
+export function focusGame(): void {
+  if (!store.hosting || store.expanded || typeof document === 'undefined') return
+  const frame = document.querySelector<HTMLIFrameElement>('iframe.game-frame')
+  if (!frame) return
+  try { frame.focus({ preventScroll: true }) } catch { /* ignored */ }
+  try { frame.contentWindow?.focus() } catch { /* ignored: not loaded yet */ }
+}
 export function stopHosting(): void {
   store.hosting = false
   store.expanded = false

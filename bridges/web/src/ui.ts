@@ -4,7 +4,7 @@
 import { ref, watch } from 'vue'
 import { store } from './bridge'
 import type { FitnessDevice } from './devices/FitnessDevice'
-import type { DeviceStatus, DeviceType, OtherBridge, PauseInfo, RoleStanding } from './types'
+import { REMOTE_BUTTONS, type DeviceStatus, type DeviceType, type OtherBridge, type PauseInfo, type RemoteButton, type RoleStanding } from './types'
 
 // ---------------------------------------------------------------------------
 // screen state
@@ -23,6 +23,8 @@ export interface ScreenInput {
   fitnessOwner: string | null
   /** the user asked for the wizard explicitly */
   wizardOpen: boolean
+  /** the session's game plays without a machine (session.autoPause false): never force the wizard */
+  deviceOptional: boolean
 }
 
 /** Exactly one screen, decided in this order (PLAN §15 Phase 3.5; brief "Screen state model"). */
@@ -32,7 +34,7 @@ export function decideScreen(i: ScreenInput): Screen {
   if (!i.hasSession && i.hasEnded) return 'ended'       // 3 summary
   if (!i.hasSession) return i.wizardOpen ? 'wizard' : 'idle' // 4 waiting for a game (wizard on request)
   if (i.wizardOpen) return 'wizard'                     // "Connect a device here instead"
-  if (!i.localExercise) return i.fitnessOwner ? 'remote' : 'wizard' // 6 / 5
+  if (!i.localExercise) return i.fitnessOwner ? 'remote' : i.deviceOptional ? 'ready' : 'wizard' // 6 / 7 with no machine / 5
   return 'ready'                                        // 7
 }
 
@@ -194,11 +196,37 @@ export function estopRelevant(i: { localType: string | null; localLive: boolean;
 }
 
 // ---------------------------------------------------------------------------
+// menu prompts (games/kingdomtrek/INTEGRATION.md §4.2)
+
+/** The buttons of the small d-pad beside a menu: the ones it names, without 'back' while a Back item button is shown
+ *  (never two Backs). */
+export function menuPadButtons(choices: string[], backItemShown: boolean): RemoteButton[] {
+  return REMOTE_BUTTONS.filter((b) => choices.includes(b) && !(b === 'back' && backItemShown))
+}
+
+/**
+ * The scrollTop that shows an item of a scrolling list in full, `margin` px clear of the edges; the current one when
+ * it already is. `top` and `height` are the item's box in the list's content coordinates. An item taller than the
+ * view shows its top. Only the list scrolls, never the page (a highlight moved at the big screen must not yank it).
+ */
+export function scrollToShow(scrollTop: number, viewHeight: number, top: number, height: number, margin = 8): number {
+  if (top - margin < scrollTop) return Math.max(0, top - margin)
+  if (top + height + margin > scrollTop + viewHeight) return Math.max(0, Math.min(top - margin, top + height + margin - viewHeight))
+  return scrollTop
+}
+
+// ---------------------------------------------------------------------------
 // store-backed wrappers
 
 export function localExerciseDevice(): FitnessDevice | null {
   const f = store.fitness
   return f && deviceLive(f) && f.type !== 'hrm' ? f : null
+}
+
+/** The session's game plays without a machine (session.autoPause false; absent means true): effort may come from a
+ *  heart rate monitor or nothing, so the device wizard is offered, never forced. */
+export function deviceOptional(): boolean {
+  return store.session?.autoPause === false
 }
 
 export function currentScreen(): Screen {
@@ -211,6 +239,7 @@ export function currentScreen(): Screen {
     localExercise: !!localExerciseDevice(),
     fitnessOwner: store.state?.owner?.fitness ?? null,
     wizardOpen: store.wizardOpen,
+    deviceOptional: deviceOptional(),
   })
 }
 

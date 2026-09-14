@@ -3,7 +3,7 @@
 // (Web Bluetooth needs a user gesture); the simulator path goes through the same steps.
 import { computed, ref } from 'vue'
 import { closeWizard, connectFtms, connectHrm, disconnectFitness, simulator, simulatorHrm, store, toggleSimulator, toggleSimulatorHrm } from '../bridge'
-import { deviceWord, localExerciseDevice } from '../ui'
+import { deviceOptional, deviceWord, localExerciseDevice } from '../ui'
 import DeviceCard from './DeviceCard.vue'
 
 const emit = defineEmits<{ done: [] }>()
@@ -18,6 +18,8 @@ const readonly = computed(() => dev.value?.status === 'readonly')
 const simAllowed = computed(() => (session.value ? session.value.debug : store.devTools))
 const simType = computed(() => wanted.value ?? 'treadmill')
 const cancellable = computed(() => store.wizardOpen)
+/** the game plays without a machine (session.autoPause false): the user may go on without one */
+const optional = computed(() => deviceOptional())
 const STEPS = ['connect', 'result', 'hrm'] as const
 const stepIndex = computed(() => (step.value === 'connecting' ? 0 : step.value === 'hrmConnecting' ? 2 : STEPS.indexOf(step.value as typeof STEPS[number])))
 
@@ -97,7 +99,9 @@ function cancel(): void {
       <p v-if="error" class="small" style="color: var(--bad)">{{ error }}</p>
       <div class="actions">
         <button v-if="simAllowed" class="block" data-test="wizard-sim" @click="useSimulator">Use a simulated {{ deviceWord(simType) }} instead</button>
-        <button v-if="cancellable" class="ghost block" @click="cancel">Not now</button>
+        <!-- a game that needs no machine: going on without one replaces "Not now" (they would do the same) -->
+        <button v-if="optional" class="block" data-test="wizard-no-machine" @click="finish">Continue without a machine</button>
+        <button v-else-if="cancellable" class="ghost block" @click="cancel">Not now</button>
       </div>
     </template>
 
