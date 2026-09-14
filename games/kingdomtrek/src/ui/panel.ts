@@ -20,6 +20,8 @@ export class ChoicePanel {
   private memory = new Map<string, string>()
   private countdownTotal = 0
   private cardKey = ''
+  /** The player closed the item card (on a short screen it leaves the list little room); ℹ️ brings it back. */
+  private cardsHidden = false
 
   constructor(root: HTMLElement) {
     root.innerHTML = `
@@ -43,6 +45,13 @@ export class ChoicePanel {
     this.listEl.addEventListener('mousemove', (ev) => {
       const li = (ev.target as HTMLElement).closest('li')
       if (li?.dataset.id && li.dataset.id !== this.highlighted) this.setHighlight(li.dataset.id)
+    })
+    this.cardEl.addEventListener('click', (ev) => {
+      const b = (ev.target as HTMLElement).closest<HTMLElement>('[data-card]')
+      if (!b) return
+      this.cardsHidden = b.dataset.card === 'hide'
+      this.cardKey = ''
+      this.paint()
     })
   }
 
@@ -101,8 +110,28 @@ export class ChoicePanel {
     const key = `${this.list?.key}|${opt?.id}`
     if (key !== this.cardKey) {
       this.cardKey = key
-      this.cardEl.replaceChildren(...(opt ? [this.cardFor(opt)].filter((x): x is HTMLElement => !!x) : []))
+      const card = opt ? this.cardFor(opt) : null
+      const toggle = (what: 'hide' | 'show'): HTMLElement => {
+        const b = document.createElement('button')
+        b.type = 'button'
+        b.className = `card-toggle ${what}`
+        b.dataset.card = what
+        b.textContent = what === 'hide' ? '✕' : 'ℹ️ Show details'
+        b.title = what === 'hide' ? 'Hide the details' : 'Show the details'
+        return b
+      }
+      if (!card) this.cardEl.replaceChildren()
+      else if (this.cardsHidden) this.cardEl.replaceChildren(toggle('show'))
+      else this.cardEl.replaceChildren(card, toggle('hide'))
     }
+  }
+
+  /** Highlight an option without choosing it (a place tapped in the town scene). False if it can't be chosen. */
+  focus(id: string): boolean {
+    const o = this.list?.options.find((x) => x.id === id)
+    if (!o || o.disabled) return false
+    this.setHighlight(id)
+    return true
   }
 
   private current(): ChoiceOption | undefined {

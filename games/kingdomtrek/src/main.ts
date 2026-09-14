@@ -21,6 +21,7 @@ import { JournalMode } from './engine/modes/journal.ts'
 import { sessionDeeds } from './engine/modes/menu.ts'
 import { Room } from './engine/modes/room.ts'
 import { listNames } from './engine/modes/throne.ts'
+import { TownMode } from './engine/modes/town.ts'
 import * as R from './engine/rules.ts'
 import { newSave, parseSave } from './engine/save.ts'
 import type { SaveState } from './engine/save.ts'
@@ -142,6 +143,26 @@ async function boot(): Promise<void> {
     syncPanel()
   }
   input.onPress(press)
+  /** Highlight this option, then choose it: a tap on the phone's menu, or a place in town the hero has reached. */
+  const pick = (id: string): void => {
+    if (over) return
+    syncPanel()
+    panel.pick(id)
+    syncPanel()
+  }
+  // Tap or click a place in town: the hero walks there and goes in, as the list does with Select.
+  let walkTo: string | null = null
+  const placeAt = (ev: MouseEvent): string | null =>
+    !over && engine.top instanceof TownMode ? scenes.placeAt(ev.offsetX, ev.offsetY) : null
+  stage.canvas.addEventListener('click', (ev) => {
+    const id = placeAt(ev)
+    if (!id) return
+    syncPanel()
+    if (panel.focus(id)) walkTo = id
+  })
+  stage.canvas.addEventListener('mousemove', (ev) => {
+    stage.canvas.style.cursor = placeAt(ev) ? 'pointer' : ''
+  })
 
   // Set while the save is being replaced, so the unload checkpoint doesn't write the old game back.
   let frozen = false
@@ -275,12 +296,7 @@ async function boot(): Promise<void> {
     engine,
     effort,
     press,
-    pick: (id) => {
-      if (over) return
-      syncPanel()
-      panel.pick(id)
-      syncPanel()
-    },
+    pick,
     highlighted: () => panel.highlighted,
     toast: (text) => toasts.push(text),
     ended: showEnded,
@@ -327,6 +343,13 @@ async function boot(): Promise<void> {
 
     stage.measure($('hud'), $('panel'))
     scenes.render(stage, engine, panel.highlighted, dt)
+    // A tapped place opens once the hero reaches its door, unless the player has moved on meanwhile.
+    if (walkTo && (!(engine.top instanceof TownMode) || panel.highlighted !== walkTo)) walkTo = null
+    else if (walkTo && scenes.arrivedAt(walkTo)) {
+      const id = walkTo
+      walkTo = null
+      pick(id)
+    }
 
     sinceDev += dt
     if (!dev.hidden && sinceDev > 0.5) {

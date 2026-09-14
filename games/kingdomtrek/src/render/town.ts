@@ -257,6 +257,26 @@ export function streetPath(L: TownLayout, at: (i: number) => Pt, door: (p: Place
   return path
 }
 
+/**
+ * The place under (x, y) in a town drawn in view `V` with unit `u`: a building with its door and name, a spot not
+ * yet searched (`taken` lists the searched spots' ids), the gate. Null anywhere else, and for a city's other homes.
+ */
+export function placeUnder(L: TownLayout, V: Rect, u: number, taken: string[], x: number, y: number): string | null {
+  let best: { id: string; d: number } | null = null
+  for (const p of L.places) {
+    if (p.kind === 'spot' && taken.includes(p.id.slice(5))) continue
+    const cx = V.x + p.rx * V.w
+    const cy = V.y + p.ry * V.h
+    const half = Math.max(u * p.w * 0.75, u * 0.6)
+    const top = p.kind === 'gate' ? cy - u * 1.1 : cy - u * p.h * 0.9
+    const bottom = p.kind === 'gate' ? cy + u * 0.5 : cy + u * p.h * 0.5 + u * 0.8
+    if (Math.abs(x - cx) > half || y < top || y > bottom) continue
+    const d = Math.hypot((x - cx) / half, (2 * y - top - bottom) / (bottom - top))
+    if (!best || d < best.d) best = { id: p.id, d }
+  }
+  return best?.id ?? null
+}
+
 export class TownView {
   private layer: HTMLCanvasElement | null = null
   private layerKey = ''
@@ -267,10 +287,27 @@ export class TownView {
   private target = ''
   private walking = false
   private particles: Particle[] = []
+  /** The last frame's view, unit and searched spots, so a tap can be matched to a place. */
+  private lastView: Rect | null = null
+  private lastU = 0
+  private taken: string[] = []
 
   /** Arriving puts the hero back at the gate. */
   arrive(): void {
     this.townId = ''
+  }
+
+  /**
+   * The place under (x, y), in the canvas's CSS pixels, as drawn in the last frame: a building with its door and
+   * name, a spot, the gate. Null anywhere else, and for the homes a city is full of.
+   */
+  placeAt(x: number, y: number): string | null {
+    return this.layout && this.lastView ? placeUnder(this.layout, this.lastView, this.lastU, this.taken, x, y) : null
+  }
+
+  /** The hero has finished the walk to `id` and stands at its door. */
+  arrivedAt(id: string): boolean {
+    return this.target === id && !this.path.length && !this.walking
   }
 
   draw(stage: Stage, e: Engine, town: Town, target: string | null, t: number, dt: number, gateRoute?: string | null): void {
@@ -294,6 +331,9 @@ export class TownView {
     }
 
     const taken = town.spots.filter((s) => e.isTaken(`spot:${town.id}:${s.id}`)).map((s) => s.id)
+    this.lastView = V
+    this.lastU = u
+    this.taken = taken
     const key = [town.id, stage.w, stage.h, V.w, V.y, stage.dpr, ...taken].join('|')
     if (key !== this.layerKey || !this.layer) {
       this.layer = this.paint(stage, town, pal, u, pos, at, door, taken)

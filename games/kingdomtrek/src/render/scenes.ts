@@ -26,6 +26,18 @@ export class SceneRenderer {
   private craft = new CraftView()
   private t = 0
   private stage: Stage | null = null
+  /** The mode whose scene the last frame drew. */
+  private drawn: string | null = null
+
+  /** The place in town under (x, y) on the canvas, when the town is what's on screen. */
+  placeAt(x: number, y: number): string | null {
+    return this.drawn === 'town' ? this.town.placeAt(x, y) : null
+  }
+
+  /** The hero stands at the door of `id` in town. */
+  arrivedAt(id: string): boolean {
+    return this.drawn === 'town' && this.town.arrivedAt(id)
+  }
 
   onEvent(ev: GameEvent, e: Engine): void {
     if (ev.type === 'battle') this.battle.onEvent(ev.event)
@@ -40,6 +52,7 @@ export class SceneRenderer {
     const c = stage.begin()
     const modes = e.modes
     let dim = 0
+    this.drawn = null
     for (let i = modes.length - 1; i >= 0; i--) {
       const m = modes[i]
       const onTop = i === modes.length - 1
@@ -66,6 +79,7 @@ export class SceneRenderer {
         }
         case 'town': this.town.draw(stage, e, (m as TownMode).town, onTop ? highlight : null, this.t, dt); break
       }
+      this.drawn = m.kind
       break
     }
     if (dim) {
