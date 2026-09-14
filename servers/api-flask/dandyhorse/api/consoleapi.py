@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 import gzip
+import re
 from typing import Any
 
-from flask import Blueprint, Response, g, jsonify, redirect, request
+from flask import Blueprint, Response, g, jsonify, redirect, request, session
 
 from .. import auth
 from ..auth import require_auth
@@ -25,13 +26,31 @@ def _me(u: dict[str, Any]) -> dict[str, Any]:
     return {"uid": u["uid"], "username": u["username"], "displayName": u.get("display_name"),
             "profile": u.get("profile", {}), "public": u["public"], "achievements": u.get("achievements", {}),
             "bodyData": u.get("body_data", {}), "unitSystem": u["unit_system"], "timeZone": u["time_zone"],
-            "preferences": u.get("preferences", {}), "isAdmin": dh().config.is_admin(u["uid"])}
+            "preferences": u.get("preferences", {}), "isAdmin": dh().config.is_admin(u["uid"]),
+            # made by a Google sign-in and still on its placeholder username: the console asks for one
+            "needsHandle": not u.get("handle_set", True)}
 
 
 # --- auth --------------------------------------------------------------------
 
+def _stub_only() -> None:
+    """The user-number login is for development: off with Google sign-in, and never through a tunnel."""
+    if dh().config.auth_mode != "stub":
+        raise ApiError(403, "stub_disabled", "this server signs in with Google, not with a user number")
+    if request.headers.get("Cf-Connecting-Ip"):  # Cloudflare adds it to every request through a tunnel
+        raise ApiError(403, "stub_local_only", "the user-number login does not work through a tunnel; "
+                                               "set up Google sign-in (README: Put it online)")
+
+
+@bp.get("/api/auth")
+def auth_info():
+    """How to log in here, for the login screens (no login needed): a user number, or Google at loginUrl."""
+    return jsonify({"mode": dh().config.auth_mode, "loginUrl": "/login"})
+
+
 @bp.post("/api/login")
 def login():
+    _stub_only()
     b = body()
     uid = b.get("uid")
     if not isinstance(uid, int) or isinstance(uid, bool) or uid <= 0:
@@ -43,22 +62,30 @@ def login():
 
 @bp.get("/login")
 def login_redirect():
-    """Convenience: /login?uid=7 sets the cookie and lands on the console."""
+    """Google sign-in: /login?next=/path signs in, then goes there.
+    Stub: /login?uid=7 sets the cookie and lands on the console (or ?next=); without a uid, the login screen."""
+    nxt = auth.safe_next(request.args.get("next"))
+    if dh().config.auth_mode == "oidc" and "uid" not in request.args:
+        from .. import oidc
+        return oidc.start(nxt)
+    _stub_only()
+    if "uid" not in request.args:
+        return redirect(nxt)
     try:
         uid = int(request.args.get("uid", ""))
     except ValueError:
         raise ApiError(400, "uid_required", "uid query parameter required")
+    if uid <= 0:
+        raise ApiError(400, "uid_required", "uid must be a positive integer")
     token = auth.login(uid, request.headers.get("User-Agent", "")[:120])
-    dest = request.args.get("next") or dh().catalog.default_app_url("consoles")
-    if not dest.startswith("/"):
-        dest = "/"
-    return auth.set_cookie(redirect(dest), token)
+    return auth.set_cookie(redirect(nxt), token)
 
 
 @bp.post("/api/logout")
 @require_auth
 def logout():
     auth.revoke(g.token)
+    session.clear()  # a Google sign-in in progress, if any
     resp = jsonify({"ok": True})
     resp.delete_cookie(auth.COOKIE)
     return resp
@@ -70,6 +97,9 @@ def get_me():
     return jsonify(_me(g.user))
 
 
+_HANDLE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{1,23}")
+
+
 @bp.put("/api/me")
 @require_auth
 def put_me():
@@ -77,9 +107,18 @@ def put_me():
     conn = get_db()
     sets: list[str] = []
     args: list[Any] = []
-    if isinstance(b.get("username"), str) and b["username"].strip():
+    name = b["username"].strip() if isinstance(b.get("username"), str) else ""
+    # checked only when it changes (older names may not fit the rule), or when a new user picks it
+    if name and (name != g.user["username"] or not g.user["handle_set"]):
+        if not _HANDLE.fullmatch(name):
+            raise ApiError(400, "bad_username", "a username is 2 to 24 letters, digits, dots, dashes or "
+                                                "underscores, starting with a letter or digit")
+        if conn.execute("SELECT 1 FROM users WHERE lower(username)=lower(?) AND uid<>?",
+                        (name, g.user["uid"])).fetchone():
+            raise ApiError(409, "username_taken", "that username is taken")
         sets.append("username=?")
-        args.append(b["username"].strip()[:40])
+        args.append(name)
+        sets.append("handle_set=1")
     if isinstance(b.get("displayName"), str):
         sets.append("display_name=?")
         args.append(b["displayName"][:80])

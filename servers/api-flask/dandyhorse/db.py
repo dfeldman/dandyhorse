@@ -20,17 +20,28 @@ CREATE TABLE IF NOT EXISTS users (
   unit_system   TEXT NOT NULL DEFAULT 'metric',
   time_zone     TEXT NOT NULL DEFAULT 'UTC',
   preferences   TEXT NOT NULL DEFAULT '{}',
+  handle_set    INTEGER NOT NULL DEFAULT 1,  -- 0: made by a Google sign-in, still to pick a username
   created_at    TEXT NOT NULL,
   updated_at    TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS tokens (
-  token         TEXT PRIMARY KEY,
+  token         TEXT PRIMARY KEY,  -- the login token's id (its jti); the token itself is an encrypted JWT
   uid           INTEGER NOT NULL REFERENCES users(uid),
   label         TEXT,
   created_at    TEXT NOT NULL,
   last_used_at  TEXT NOT NULL,
   revoked       INTEGER NOT NULL DEFAULT 0
 );
+CREATE TABLE IF NOT EXISTS oidc_identities (
+  issuer        TEXT NOT NULL,  -- https://accounts.google.com
+  subject       TEXT NOT NULL,  -- the account's "sub": Google's id for it, which never changes
+  uid           INTEGER NOT NULL REFERENCES users(uid),
+  email         TEXT,           -- as of the last sign-in; for people, never for matching
+  created_at    TEXT NOT NULL,
+  last_login_at TEXT NOT NULL,
+  PRIMARY KEY (issuer, subject)
+);
+CREATE INDEX IF NOT EXISTS oidc_identities_uid ON oidc_identities(uid);
 CREATE TABLE IF NOT EXISTS sessions (
   session_id    TEXT PRIMARY KEY,
   uid           INTEGER NOT NULL REFERENCES users(uid),
@@ -121,6 +132,9 @@ def init_schema(path: Path) -> None:
             conn.execute("ALTER TABLE sessions ADD COLUMN paused_seconds REAL")
         if "image_file" not in cols:  # added 2026-09-11: the game's session picture (PLAN.md §6.7)
             conn.execute("ALTER TABLE sessions ADD COLUMN image_file TEXT")
+        ucols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
+        if "handle_set" not in ucols:  # added 2026-09-14: Google sign-in asks new users for a username
+            conn.execute("ALTER TABLE users ADD COLUMN handle_set INTEGER NOT NULL DEFAULT 1")
         row = conn.execute("SELECT version FROM schema_version").fetchone()
         if row is None:
             conn.execute("INSERT INTO schema_version(version) VALUES (?)", (SCHEMA_VERSION,))

@@ -19,3 +19,7 @@ __pycache__/
 .env.*
 *.log
 .claude/settings.local.json
+
+# Secrets, in case one lands outside data/: Google's OAuth client, the server's master secret
+client_secret*.json
+secret.key

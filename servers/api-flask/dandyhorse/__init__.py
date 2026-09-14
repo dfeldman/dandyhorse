@@ -23,6 +23,7 @@ class Platform:
         self.config = cfg
         self.catalog = Catalog(cfg)
         self.store = Store()
+        self.token_key: Any = None  # the login tokens' key (auth.py), set by create_app
         self._stop = threading.Event()
         self._reaper: threading.Thread | None = None
 
@@ -83,6 +84,17 @@ def create_app(overrides: dict[str, Any] | None = None) -> Flask:
     app.dh = dh  # type: ignore[attr-defined]
     db.register(app)
 
+    # Login tokens are encrypted with one key; the sign-in cookie (Flask's session) is signed with another.
+    master = auth.master_secret(cfg)
+    dh.token_key = auth.token_key(master)
+    app.secret_key = auth.derive(master, "sign-in cookie")
+    app.config.update(SESSION_COOKIE_NAME="dh_oidc", SESSION_COOKIE_SAMESITE="Lax",
+                      SESSION_COOKIE_SECURE=cfg.secure_cookie)
+    if cfg.auth_mode == "stub" and cfg.public_url.startswith("https://"):
+        log.warning("login is the development stub (a user number) but DANDYHORSE_PUBLIC_URL is %s: anyone "
+                    "on this machine can log in as anyone. Set up Google sign-in before going online.",
+                    cfg.public_url)
+
     # Recover sessions abandoned by a previous process.
     from .sessions import lifecycle
     conn = db.connect(cfg.db_path)
@@ -98,6 +110,9 @@ def create_app(overrides: dict[str, Any] | None = None) -> Flask:
     app.register_blueprint(gameapi.bp)
     app.register_blueprint(bridgeapi.bp)
     static.register(app)
+    if cfg.auth_mode == "oidc":
+        from . import oidc
+        oidc.init_app(app, cfg)
 
     @app.errorhandler(ApiError)
     def _api_error(e: ApiError):

@@ -53,7 +53,8 @@ def root(tmp_path: Path) -> Path:
 
 
 def make_app(root: Path, **over):
-    return create_app({"ROOT": str(root), "REAPER": False, **over})
+    # AUTH pinned so Google credentials in the developer's environment cannot switch the tests' login
+    return create_app({"ROOT": str(root), "REAPER": False, "AUTH": "stub", **over})
 
 
 @pytest.fixture()

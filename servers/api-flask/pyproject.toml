@@ -3,7 +3,10 @@ name = "dandyhorse-api-flask"
 version = "0.1.0"
 description = "Dandyhorse reference API server (Flask)"
 requires-python = ">=3.12"
-dependencies = ["flask>=3.1"]
+dependencies = [
+    "flask>=3.1",
+    "flask-oidc>=2.4.0",
+]
 
 [dependency-groups]
 dev = ["pytest>=8"]

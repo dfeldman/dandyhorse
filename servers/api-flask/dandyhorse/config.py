@@ -59,9 +59,34 @@ class Config:
         self.max_wait = 2.0
         self.efficiency = 0.24
         self.default_weight = 75.0
-        self.secure_cookie = bool(o.get("SECURE_COOKIE", env.get("DANDYHORSE_SECURE_COOKIE") == "1"))
         self.host = env.get("DANDYHORSE_HOST", "0.0.0.0")
         self.port = int(env.get("DANDYHORSE_PORT", "8080"))
+        # Where people reach this server, e.g. https://dandyhorse.example.com through a Cloudflare tunnel.
+        # Google sends people back to <public_url>/oidc/authorize after they sign in.
+        self.public_url = str(o.get("PUBLIC_URL") or env.get("DANDYHORSE_PUBLIC_URL")
+                              or f"http://localhost:{self.port}").rstrip("/")
+        secure = o.get("SECURE_COOKIE", env.get("DANDYHORSE_SECURE_COOKIE"))
+        # cookies only over HTTPS: when asked (1), or when the public address is https
+        self.secure_cookie = self.public_url.startswith("https://") if secure is None else secure in (True, "1")
+
+        # Login (PLAN.md §10.4): "stub" asks for a user number, for development; "oidc" signs in with Google.
+        # Unset: oidc when Google's client id and secret are configured, else stub.
+        self.google_client_id = str(o.get("GOOGLE_CLIENT_ID") or env.get("DANDYHORSE_GOOGLE_CLIENT_ID") or "")
+        self.google_client_secret = str(o.get("GOOGLE_CLIENT_SECRET") or env.get("DANDYHORSE_GOOGLE_CLIENT_SECRET") or "")
+        self.client_secrets_file = Path(o.get("CLIENT_SECRETS") or env.get("DANDYHORSE_CLIENT_SECRETS")
+                                        or self.data_dir / "client_secrets.json")
+        mode = str(o.get("AUTH") or env.get("DANDYHORSE_AUTH") or "")
+        if not mode:
+            mode = "oidc" if self.google_client_id or self.client_secrets_file.is_file() else "stub"
+        if mode not in ("stub", "oidc"):
+            raise ValueError(f"DANDYHORSE_AUTH must be stub or oidc, not {mode!r}")
+        self.auth_mode = mode
+        # Google accounts that may sign in (comma-separated emails); empty lets any verified Google account in.
+        raw_emails = o.get("ALLOWED_EMAILS", env.get("DANDYHORSE_ALLOWED_EMAILS", ""))
+        emails = raw_emails if isinstance(raw_emails, (list, tuple)) else str(raw_emails).split(",")
+        self.allowed_emails = {e.strip().lower() for e in emails if e.strip()}
+        # The master secret behind login tokens and the sign-in cookie. Unset: made once into data/secret.key.
+        self.secret_key = str(o.get("SECRET_KEY") or env.get("DANDYHORSE_SECRET_KEY") or "")
         self.admin_uid = int(o.get("ADMIN_UID", env.get("DANDYHORSE_ADMIN_UID", "1")))
         # Short list of admin users (the console shows them the Admin tab). ADMIN_UIDS="1,7" or a list.
         raw = o.get("ADMIN_UIDS", env.get("DANDYHORSE_ADMIN_UIDS", ""))
