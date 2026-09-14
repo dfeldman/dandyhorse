@@ -36,7 +36,7 @@ onMounted(async () => {
           <div class="shot">
             <img v-if="v.screenshotUrl ?? g.screenshotUrl" :src="(v.screenshotUrl ?? g.screenshotUrl)!" :alt="v.name" loading="lazy" />
             <span v-else class="initial">{{ initialOf(g.name) }}</span>
-            <span v-for="d in v.deviceTypes" :key="d" class="pill device">{{ deviceTypeName(d) }}</span>
+            <span class="pills"><span v-for="d in v.deviceTypes" :key="d" class="pill device">{{ deviceTypeName(d) }}</span></span>
           </div>
           <div class="body">
             <div class="title">{{ v.name }}</div>

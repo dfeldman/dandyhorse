@@ -10,8 +10,15 @@ describe('defaultDeviceType', () => {
     expect(defaultDeviceType(both, none)).toBe('bike')
     expect(defaultDeviceType([], none)).toBe('treadmill')
   })
-  test('a machine connected right now wins over owned and saved', () => {
-    expect(defaultDeviceType(both, { connected: ['treadmill'], owned: ['bike'], saved: [{ type: 'bike', lastSeenAt: '2026-09-13T10:00:00Z' }] })).toBe('treadmill')
+  test('the one machine the user owns wins, even over one connected right now', () => {
+    expect(defaultDeviceType(both, { connected: ['treadmill'], owned: ['bike'], saved: [{ type: 'treadmill', lastSeenAt: '2026-09-13T10:00:00Z' }] })).toBe('bike')
+  })
+  test('with nothing ticked under "I own", one kind of saved machine counts as owned', () => {
+    expect(defaultDeviceType(both, { connected: ['bike'], owned: [], saved: [{ type: 'treadmill', lastSeenAt: null }, { type: 'hrm', lastSeenAt: null }] })).toBe('treadmill')
+  })
+  test('owning both kinds, or none: a machine connected right now wins', () => {
+    expect(defaultDeviceType(both, { connected: ['treadmill'], owned: ['bike', 'treadmill'], saved: [] })).toBe('treadmill')
+    expect(defaultDeviceType(both, { ...none, connected: ['treadmill'] })).toBe('treadmill')
   })
   test('a connected machine the variant cannot use is skipped', () => {
     expect(defaultDeviceType(['treadmill'], { ...none, connected: ['bike'] })).toBe('treadmill')

@@ -11,16 +11,22 @@ export interface MachineHints {
 }
 
 /**
- * The machine the user actually has: a type connected right now, else the first owned type the variant supports,
- * else the type of the most recently seen saved device the variant supports (heart rate monitors never match), else
- * the variant's first.
+ * The machine the user actually has:
+ * - the one they own, when they own exactly one kind the variant supports (owner, 2026-09-13): what they ticked
+ *   under "I own", or when they ticked nothing, the kinds of machine they have saved;
+ * - else a type connected right now;
+ * - else the first owned type the variant supports, in the user's order;
+ * - else the type of the most recently seen saved device the variant supports (heart rate monitors never match);
+ * - else the variant's first.
  */
 export function defaultDeviceType(variantTypes: DeviceType[], hints: MachineHints): DeviceType {
   const fits = (t: string): t is DeviceType => (variantTypes as string[]).includes(t)
+  const owned = [...new Set((hints.owned.length ? hints.owned : hints.saved.map((d) => d.type)).filter(fits))]
+  if (owned.length === 1) return owned[0]!
   const connected = hints.connected.find(fits)
   if (connected) return connected
-  const owned = hints.owned.find(fits)
-  if (owned) return owned
+  const first = hints.owned.find(fits)
+  if (first) return first
   let recent: { type: DeviceType; at: number } | null = null
   for (const d of hints.saved) {
     if (!fits(d.type)) continue

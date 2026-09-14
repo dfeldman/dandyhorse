@@ -19,8 +19,8 @@ function randomSeed(): number {
 }
 
 const DURATIONS = [15, 30, 45, 60] // minutes; games may rely on one of these when they build a route
-// The machine the user actually has (connected now, else owned, else last seen: launch.ts) until they pick one. It
-// follows the 4 s poll of the bridges, so a machine connected while the dialog is open becomes the default.
+// The machine the user actually has (the one kind they own, else connected now, else last seen: launch.ts) until they
+// pick one. It follows the 4 s poll of the bridges, so a machine connected while the dialog is open can become it.
 const savedDevices = ref<Device[]>([])
 const pickedType = ref<DeviceType | null>(null)
 const deviceType = computed<DeviceType>(() => {
