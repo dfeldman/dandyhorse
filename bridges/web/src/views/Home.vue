@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // Home: exactly one screen per situation (see decideScreen in ui.ts).
-import { computed, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { collapseBridge, disconnectFitness, disconnectHrm, fetchEnded, openWizard, pausePlay, pauseSession, playAgain, resumeSession, sendRemote, startGame, stopHosting, store } from '../bridge'
+import type { SessionSummary } from '../types'
 import DeviceCard from '../components/DeviceCard.vue'
 import DPad from '../components/DPad.vue'
 import EndButtons from '../components/EndButtons.vue'
@@ -42,6 +43,41 @@ watch(
   },
   { immediate: true },
 )
+
+// A bridge the console opened (the big screen, launching) goes back to the console once the game is done, so the
+// player lands on the finished session instead of a bridge page that no longer knows it came from the console. The
+// short wait lets the game upload its session picture and leaves time for Play again.
+const RETURN_AFTER_S = 10
+const returnIn = ref<number | null>(null)
+let returnTimer: ReturnType<typeof setInterval> | null = null
+function stopReturn(): void {
+  if (returnTimer) clearInterval(returnTimer)
+  returnTimer = null
+  returnIn.value = null
+}
+function backToConsole(): void {
+  stopReturn()
+  const id = ended.value?.sessionId
+  if (store.hosting) stopHosting()
+  window.location.href = id ? consoleUrl(id) : '/consoles/web/'
+}
+function again(summary: SessionSummary): void {
+  stopReturn()
+  void playAgain(summary)
+}
+watch(
+  () => props.launching && screen.value === 'ended' && !!ended.value,
+  (on) => {
+    stopReturn()
+    if (!on) return
+    returnIn.value = RETURN_AFTER_S
+    returnTimer = setInterval(() => {
+      if (returnIn.value !== null && --returnIn.value <= 0) backToConsole()
+    }, 1000)
+  },
+  { immediate: true },
+)
+onUnmounted(stopReturn)
 </script>
 
 <template>
@@ -55,11 +91,16 @@ watch(
         <span>Ended</span><span>{{ endReasonWords(ended.endReason, ended.status, store.bridgeId) }}</span>
       </div>
       <div class="actions">
-        <button class="primary big block" data-test="play-again" @click="playAgain(ended)">▶ Play again</button>
-        <a :href="consoleUrl(ended.sessionId)"><button class="block">Open console</button></a>
-        <button class="ghost block" data-test="ended-done" @click="dismissEnded">Done</button>
+        <button class="primary big block" data-test="play-again" @click="again(ended)">▶ Play again</button>
+        <!-- the big screen the console opened: back to the console (and there by itself after a few seconds) -->
+        <button v-if="launching" class="block" data-test="back-to-console" @click="backToConsole">Back to console{{ returnIn !== null ? ` (${returnIn})` : '' }}</button>
+        <!-- a phone joined as a remote: stay a remote -->
+        <template v-else>
+          <a :href="consoleUrl(ended.sessionId)"><button class="block">Open console</button></a>
+          <button class="ghost block" data-test="ended-done" @click="dismissEnded">Done</button>
+        </template>
       </div>
-      <p class="muted small" style="margin-top: 12px">Start another game from the console; this page will follow it.</p>
+      <p class="muted small" style="margin-top: 12px">{{ launching && returnIn !== null ? `Back to the console in ${returnIn} s.` : 'Start another game from the console; this page will follow it.' }}</p>
     </div>
 
     <!-- 4: no session -->
