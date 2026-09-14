@@ -122,6 +122,14 @@ describe('series and profile', () => {
     expect(p.yDomain).toEqual({ min: 0, max: 10 })
     expect(p.path).toBe('M10.0 90.0 L100.0 10.0')
   })
+  test('no profile when the distance never moved (a machine that reports no speed)', () => {
+    const rows = [
+      row(0, { distance: 0, position: { x: 0, y: 5, z: 0 } }),
+      row(1, { distance: 0, position: { x: 10, y: 40, z: 0 } }),
+    ]
+    expect(c.profile(rows, box)).toBeNull()
+    expect(c.profile([], box)).toBeNull()
+  })
 })
 
 describe('graphSpecs and graph', () => {

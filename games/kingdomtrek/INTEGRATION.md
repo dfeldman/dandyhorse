@@ -412,9 +412,9 @@ in a town. **So the platform's automatic pause is the wrong thing for this game.
 | Field | Value |
 |---|---|
 | machine targets | none (`controls: none`), unless hills are on (§3.3) |
-| `x`, `z` | the hero's position on the kingdom map, scaled to metres, so the console's session map draws the day's trek; `y` = 0 |
+| `x`, `z` | the hero's position on the kingdom map, scaled to metres, so the console's session map draws the day's trek; `y` = the height of the ground there, for the profile (§13) |
 | `route` | the adventure's title ("The Dragon of Emberpeak"), so History says which one |
-| `speed` | bike only: the bike's own reported speed, if any; the server works out a bike's distance from it |
+| `speed` | not sent: the server works out a bike's distance from the bike's own reported speed, if any (the bridge's simulated bike reports none; §13) |
 | `score` | kingdoms saved, for leaderboards (optional) |
 | `achievements` | e.g. `kingdom-saved`, `first-craft`, `level-5`, `flawless` (a level with no fights lost), optional |
 | `requestedInput` | the d-pad or menu prompt (§4) |
@@ -620,6 +620,14 @@ Made while building this. Each says what was decided, why, and what would change
     would be too steep to ride.
   - The profile's x axis is the platform's distance (from the machine), so the shape is the game's and the length
     the player's.
+  - **Revisit: no profile on the bridge's simulated bike.** A bike's distance comes from the bike's own speed (§8),
+    and the simulated bike reports none, so a simulated ride has no distance. The console now hides a profile whose
+    distance never moved (it used to draw a vertical line). Real trainers report speed, as does devicelib's own
+    simulated bike. Two ways to fix it:
+    - The bridge's simulated bike reports a trainer's speed from cadence, like devicelib's. Games that send their
+      own speed are unaffected, but the viewer's speed graph would show the trainer's speed, as with a real trainer.
+    - Or the game sends the hero's speed on the map as a bike's `speed`, as other bike games send a virtual speed.
+      Then the profile is exactly the land, and a bike's distance is the distance walked on the map.
 - **Other machines (rowers, ellipticals).** gamekit counts effort by measured power on any machine but a treadmill,
   and the HUD has a rower icon.
   - The platform still needs the device type itself: the server's `DEVICE_TYPES`, bridge drivers, and the console.

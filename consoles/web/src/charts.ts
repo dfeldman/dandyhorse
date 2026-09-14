@@ -141,9 +141,10 @@ export function series(xs: number[], ys: (number | null)[], box: Box, opts: { ze
   }
 }
 
-/** Profile: cumulative distance (m) vs position.y (m). Uses the timeline's running distance. */
+/** Profile: cumulative distance (m) vs position.y (m). Uses the timeline's running distance; none if it never moved. */
 export function profile(rows: TimelineRow[], box: Box): Series | null {
   const xs = rows.map((r) => r.distance ?? 0)
+  if (xs.every((x) => x === xs[0])) return null
   const ys = rows.map((r) => (r.position ? r.position.y : null))
   return series(xs, ys, box)
 }
