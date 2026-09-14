@@ -42,6 +42,15 @@ first, then `<path>`. With Vite set `base: '/games/<gameId>/'`.
 
 `id` must equal the folder name and match `^[a-z0-9_-]{2,32}$`.
 
+Two optional extras, both used by Kingdom Trek:
+- **`"capabilities": {"autoPause": false}`.** The server never pauses the session for missing device data: for a
+  game where standing still is part of play, or one that works from a heart-rate strap alone.
+  - Only the user pauses, and Play resumes at once.
+  - The session brief carries `autoPause`, so bridges let such a session start without a machine.
+- **An option can change what the game drives:**
+  `"options": {"hills": {"enum": ["off", "on"], "controls": {"on": {"treadmill": "incline", "bike": "grade"}}}}`.
+  The session's `controls`, which bridges read, are then the variant's, overridden by the chosen value's.
+
 ## Lifecycle
 
 1. The bridge loads your entry as an iframe with
@@ -124,6 +133,25 @@ buttons ("Upshift", "Downshift"); never text or continuous input.
   bridge draws a cross. Because taps can arrive faster than you poll, read
   `getstate.inputs` (the last 32 answers, each with a rising `n`) and
   handle every entry with `n` greater than the last one you processed.
+- **Menu:** `"layout": "menu"` sends your whole choice list, so a phone can show it as big buttons. Menus are
+  always persistent. The fields:
+  - `items`: 1–100 of `{id, label (≤ 40 chars), hint?, disabled?}`;
+  - `highlight`: the item your screen has highlighted;
+  - `back`: the item Back picks;
+  - `countdown`: seconds until the list picks by itself, or null;
+  - `rev`: bump it whenever the list changes, not when only the highlight moves;
+  - `choices`: the d-pad buttons to show beside the list (any of the six, or none).
+
+  Answers:
+  - A tap on an item answers with its id, and a d-pad button with the button name.
+  - Every answer carries the `rev` the phone was showing. Drop an item tap, Select or Back aimed at an older `rev`;
+    directions always pass.
+  - Item ids may not be d-pad button names: the server rejects such a menu.
+  - The server logs a menu in full only when its `rev` changes.
+
+  gamekit's `menuPrompt()` builds a menu (sending an id like `back` as `item:back`), and `readMenuAnswer()` and
+  `isStaleAnswer()` read the answers. When the highlight moves, push a tick (`client.requestTick()`, bursts up to
+  10 Hz) so the phone follows.
 
 ## Paused
 
@@ -148,6 +176,46 @@ If the page is reloaded while paused, call `startsession` with the same
 
 The session resumes by itself; just continue when `sessionStatus` is
 `active` again. `pausedSeconds` tells you how long it was paused in total.
+
+**Your own Pause.** `POST /gameapi/pause {"sessionId", "paused": true | false}` (gamekit
+`SessionClient.setPaused()`) is the same as a bridge's ⏸ and ▶, so a break in your menus isn't counted as exercise.
+- The session becomes `paused` with `pause.reason: "user"`, `bridgeId: null`, and the message "Paused in the game.
+  Resume there, or press Play."
+- Either side can lift the other's pause, so treat a Play from a bridge as the player choosing Resume.
+- On a game with automatic pauses, resuming still waits for device data.
+
+## Effort
+
+Some games pace their world by how hard the player works against their own fitness, rather than by raw watts or
+belt speed. Kingdom Trek does. gamekit's `effort.ts` gives every such game the same numbers:
+`effort = live ÷ steady`, which is 1.0 at the player's comfortable steady pace on any machine.
+
+**What it reads:**
+- measured power, on any machine but a treadmill;
+- on a treadmill, speed and incline as bike-equivalent watts (`treadmillWatts()`): the ACSM oxygen cost × 20.9 J/ml
+  × 0.24, with walking and running blended over 1.6–2.2 m/s;
+- heart-rate reserve;
+- cadence ÷ 80, as a last resort.
+
+**The preferences it uses.**
+- Global preferences (`start.preferences.global`):
+  - `steadyWatts` (W);
+  - `steadyPace` `{speed (m/s), incline (%)}` for treadmills;
+  - `ftp`: steady defaults to 0.65 × FTP;
+  - `restingHr`, `steadyHr`, `maxHr` and `hrZones`.
+- Device preferences (`start.preferences.device`, kept current in `getstate.devicePreferences`) may override
+  `steadyWatts` and `steadyPace` for one machine.
+- With nothing set, steady is 130 W.
+
+**The meter.** Create it with `new EffortMeter({deviceType, prefer, bodyData, preferences})`, call
+`meter.update(getstate, seconds)` on every poll, and read `meter.value(seconds)`. It:
+- holds a reading between polls and smooths it;
+- caps it at 3×;
+- drops to 0 after 3 s without data;
+- falls back to another source when the chosen one reads nothing, and says so in `readout().note`;
+- ignores heart rate while the machine says the player has stopped.
+
+`describeEffort()` and `describeSteady()` give a HUD its words, such as "140 W · 108%".
 
 ## Preferences and save state
 

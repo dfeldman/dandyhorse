@@ -64,6 +64,9 @@ engine checkpoint ─► putsave     current choice list ─► setstate prompt 
 }
 ```
 
+*As built:* `capabilities` also has `"autoPause": false` (§5), and a second option, `hills` (§3.3), carries a
+`controls` map.
+
 - **One variant for both machines.** Save state is kept per game + variant, so two variants would mean two
   heroes. The server already accepts a variant with several device types. The console's launch dialog then
   asks which machine; it defaults to the first in the list (see §10).
@@ -595,6 +598,46 @@ Made while building this. Each says what was decided, why, and what would change
   or a JPEG if the PNG is over 1 MB.
 - **A new hero's stats** are rolled from the session's seed. `seed: false` in the metadata: sessions aren't
   comparable by seed.
+
+**The owner's requests while building (2026-09-13)**
+- **Tap or click a place in town:** the hero walks there and goes in (`placeUnder()` in `src/render/town.ts`).
+  - The list still works as before: keyboard, gamepad, the phone's menu.
+  - The d-pad still moves through the list, not across the map.
+  - Still open: hide the list on touch screens? Move between places spatially with the d-pad? Swipe? None of these
+    is built.
+- **Touch screens and short screens:**
+  - list rows are bigger on touch screens;
+  - the list keeps room for about three rows, and the item card scrolls instead of squeezing it;
+  - ✕ hides the card and "Show details" brings it back, so a phone in landscape works in shops.
+- **The console-launched bridge returns to the console** 10 s after the game ends, onto the finished session; phones
+  joined as remotes still stay remotes.
+- **The launch dialog defaults to the one machine type the user owns**, even over one connected right now. With
+  nothing ticked under "I own", the kinds of machine they have saved count as owned.
+- **Device pills side by side** on the Games screen; they used to overlap.
+- **The session viewer's profile:** each tick's `y` is the height of the ground.
+  - Towns stand at a height set by their terrain (coast 5 m … snow 650 m), and roads roll 3–60 m between them.
+  - It is a picture of the land, not of Hills: Hills never descends, and a climb from the coast to the mountains
+    would be too steep to ride.
+  - The profile's x axis is the platform's distance (from the machine), so the shape is the game's and the length
+    the player's.
+- **Other machines (rowers, ellipticals).** gamekit counts effort by measured power on any machine but a treadmill,
+  and the HUD has a rower icon.
+  - The platform still needs the device type itself: the server's `DEVICE_TYPES`, bridge drivers, and the console.
+    Then the game adds it to `deviceTypes`.
+  - The cadence fallback assumes a bike's pedaling rate.
+
+**Loose ends**
+- **A tab hidden for more than five minutes** gets its timers slowed to about once a minute by Chrome. On Dandyhorse
+  the game catches up gaps of up to 65 s so its clock keeps pace with the workout. The bridge in the same tab is
+  throttled too; that is the platform's problem, not this game's.
+- **Players see "pedal"** on a treadmill (above).
+- **The phone's menu:**
+  - hold-to-repeat on the d-pad was tested with synthetic pointer events only, and a real long press on some phones
+    may cancel it;
+  - on a short phone (667 px or less) the d-pad sits just below the fold on the bridge's Home screen;
+  - the Back button shows the back item's own label ("‹ ⏸ Pause"), and that item also stays in the list.
+- **A game-less heart-rate step.** With no machine, a heart rate monitor is connected from the bridge's Devices tab;
+  the setup wizard reaches its heart-rate step only after a machine.
 
 **Fixed on the way**
 - **The tug of war drew its rope mirrored.** Winning dragged the knot toward "… wins here ▶", so a won fight looked

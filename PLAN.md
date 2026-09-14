@@ -58,6 +58,18 @@ hardware yet):
   and calories and reported as `pausedSeconds`.
 - Server restart recovery of live sessions from their logs.
 
+**Kingdom Trek and what it added (2026-09-13).** `games/kingdomtrek` is integrated: its
+`INTEGRATION.md` is the design, with the decisions made while building it in §13. What it added to the platform:
+- **Menu prompts** (`layout: "menu"`, §6.3): a game's whole choice list, mirrored on the phone.
+- **`capabilities.autoPause: false`** (§5.3): no automatic pauses, and sessions without a machine.
+- **The game's own pause**, `POST /gameapi/pause` (§5.3).
+- **Launch options that change `controls`** (§7.1).
+- **Effort preferences** (`steadyWatts`, `steadyPace`, `restingHr`, `steadyHr`, §8.5), with the console's Fitness
+  panel and gamekit's `effort.ts`.
+- **Bridge:** the menu panel, a hold-to-repeat d-pad, gamepad and focus in the game iframe, and a console-launched
+  bridge that returns to the console after a game.
+- **Console:** device buttons in the launch dialog, defaulting to the machine the user owns.
+
 **Not built yet / deviations from the design:**
 - OIDC login (stub `?uid=` login only).
 - Leaderboards are a live query; no precomputed table, no periods.
@@ -68,7 +80,7 @@ hardware yet):
 - The treadmill actual-speed smoothing filter (decided in §16, not built).
 - Showing remote devices and allowing "continue without a local device"
   in the bridge (decided in §16, not built).
-- A game-initiated pause, and a timeout for long pauses (§16).
+- A timeout for long pauses (§16). A game-initiated pause was built on 2026-09-13.
 
 **Known limitations:**
 - Bridge ownership and pause state live in server memory; a server
@@ -421,6 +433,19 @@ wins over device loss: nothing resumes the game until Play. If the device
 is gone when Play is pressed, the session stays paused with the device
 reason. Both actions are logged as `userPause` records.
 
+**The game's own pause (built 2026-09-13).** `POST /gameapi/pause
+{sessionId, paused}` is a user pause from the game: the same as the
+bridge's buttons, with `bridgeId: null` and the message "Paused in the
+game. Resume there, or press Play." Either side lifts the other's pause.
+Logged as `userPause` with `by: "game"`.
+
+**Opting out (built 2026-09-13).** A game whose metadata says
+`"capabilities": {"autoPause": false}` is never paused for missing data;
+only a user pause holds it, and Play resumes it at once. The session
+brief carries `autoPause`, so bridges let such a session start without a
+machine: a heart-rate strap alone, or nothing. Kingdom Trek uses it,
+because stopping to read is part of play.
+
 **What the game does while paused** (the mock game is the reference):
 keep polling `getstate` and calling `setstate` at 1 Hz; freeze its
 simulation, position and countdown; request treadmill `speed: 0` if the
@@ -617,6 +642,13 @@ Rules **(decisions)**:
 - `route` and `score` are optional; the server keeps the last non-null value
   in the session row. `score` is a game-defined number used by leaderboards.
 - `custom` is any JSON ≤ 8 KB, logged verbatim, never interpreted.
+- **Menu prompts** (`"layout": "menu"`, built 2026-09-13) carry a game's whole choice list, so a phone can mirror it.
+  - Fields: `items` (1–100 of `{id, label ≤ 40, hint?, disabled?}`), `highlight`, `back`, `countdown`, `rev`, and
+    the d-pad buttons in `choices`.
+  - A tap answers with an item id or a button name, plus the `rev` it was aimed at; the game drops stale ones.
+  - Item ids may not be button names.
+  - The log keeps the menu in full only when its `rev` changes.
+  - Details in GAME_AUTHORING.md.
 - Response: `{"seq": 1203, "sessionStatus": "active"}`.
 
 ### 6.4 `POST /gameapi/endsession`
@@ -738,6 +770,9 @@ Each game is a folder under `games/<gameId>/`. `gameId` is
 - The catalog validates every `metadata.json` at boot and on
   `POST /api/admin/rescan`; invalid games are listed with errors in the
   console's admin view and hidden from users.
+- `capabilities.autoPause: false` (2026-09-13): no automatic pauses (§5.3).
+- An option may carry `controls` (2026-09-13): `{"on": {"treadmill": "incline", "bike": "grade"}}`. Choosing that
+  value changes what the game drives on those machines, and the session brief's `controls` follow.
 
 
 **Game options** (owner, 2026-09-11): choices a player makes **at launch, in
@@ -982,8 +1017,8 @@ session row:
 
 | Level | Storage | Contents |
 |---|---|---|
-| Global | `users.preferences` | `unitSystem` (mirrored column), `timeZone`, `defaultDuration`, `ownedDeviceTypes: ["treadmill"]`, `ftp`, `maxHr`, `hrZones`, `efficiency`, `allowSimulatorInRealSessions`, `theme`. |
-| Device | `devices.preferences` | `maxSpeed` (m/s), `minSpeed`, `maxIncline` (%), `minIncline`, `maxSpeedChangePerSecond` (m/s²), `maxInclineChangePerSecond`, `speedScale`, `inclineScale`, `difficulty` (0–2, scales grade for bikes), `powerOffset` (W), `gradeCap` (%), `label`. |
+| Global | `users.preferences` | `unitSystem` (mirrored column), `timeZone`, `defaultDuration`, `ownedDeviceTypes: ["treadmill"]`, `ftp`, `maxHr`, `hrZones`, `efficiency`, `allowSimulatorInRealSessions`, `theme`; for effort-paced games (2026-09-13): `steadyWatts` (W), `steadyPace` `{speed (m/s), incline (%)}`, `restingHr`, `steadyHr`. |
+| Device | `devices.preferences` | `maxSpeed` (m/s), `minSpeed`, `maxIncline` (%), `minIncline`, `maxSpeedChangePerSecond` (m/s²), `maxInclineChangePerSecond`, `speedScale`, `inclineScale`, `difficulty` (0–2, scales grade for bikes), `powerOffset` (W), `gradeCap` (%), `label`; `steadyWatts` and, on a treadmill, `steadyPace` override the global ones on that machine. |
 | Per-game | `game_preferences` | Whatever the game defines; validated against `preferencesSchema` if present. |
 
 Platform defaults for device limits (used when a device row has none):
@@ -1786,6 +1821,23 @@ configured 1 %/s on its 0.5 % grid, after the pipeline fix of 2026-09-13
 
 ---
 
+### 13.2 Kingdom Trek (`games/kingdomtrek`, integrated 2026-09-13)
+
+A role-playing adventure: the workout earns Energy, Energy walks the hero between towns, and fights are won by
+pushing harder. Its `INTEGRATION.md` is the design, and its §13 lists the decisions to revisit. How it uses the
+platform:
+- **One variant for both machines**, so one hero (save state per game + variant).
+- **Effort, not raw watts.** gamekit's `EffortMeter` measures the workout against the player's own steady pace, so
+  a level takes everyone about the same time.
+- **Controls.** `controls: none` unless Hills is on, which drives incline or grade.
+- **No automatic pauses.** Its own ⏸ pauses the session, and a bridge's ⏸ opens its pause menu.
+- **Its whole choice list is a menu prompt**, so a phone plays it. On the big screen: keyboard, gamepad, mouse, and
+  taps on places in town.
+- **Each tick** sends the hero's place on the kingdom map (x/z) and the ground's height (y), so the session viewer
+  draws the trek and its profile.
+- **Standalone** (no `?session=`): a localStorage save and developer keys.
+- **Tests:** 104 vitest tests, including the phone mirror, Hills and the map, and taps in town.
+
 ## 14. Testing
 
 - **Server** (pytest): unit tests for lifecycle, merge policy, metrics
@@ -1964,7 +2016,8 @@ FTMS only for now. THe logical addition is more device types, not more protocols
    discarded automatically (the user wandered away)? Not built; today only
    the 5-minute game-silence reaper ends a session.
 9. **Game-initiated pause.** Games may want their own Pause button
-   (`POST /gameapi/pause`), mirroring the bridge's. Not built.
+   (`POST /gameapi/pause`), mirroring the bridge's. Built 2026-09-13 for
+   Kingdom Trek (§5.3).
 11. **D-pad Back button.** The owner asked for four directions and then
     a **Select**; the build also has a **Back** (six buttons; games pick the
     subset they want in `choices`). Does Back stay, or is Select alone

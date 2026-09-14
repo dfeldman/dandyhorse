@@ -85,10 +85,11 @@ It contains everything that is the same for every game:
 | Module | What |
 |---|---|
 | types | Every API type: `StartPayload`, `GameState`, `Prompt`, `InputAnswer`, `SessionSummary`, … |
-| api | One typed function per endpoint: `startSession`, `getState`, `setState`, `answerInput`, `endSession`, `putSessionImage`, `getPreferences`, `putPreferences`, `getSave`, `putSave`, `listSessions`, `sessionTimeline`, `me` |
-| `SessionClient` | The whole conversation with the server for one session (§4) |
+| api | One typed function per endpoint: `startSession`, `getState`, `setState`, `answerInput`, `endSession`, `pauseSession`, `putSessionImage`, `getPreferences`, `putPreferences`, `getSave`, `putSave`, `listSessions`, `sessionTimeline`, `me` |
+| `SessionClient` | The whole conversation with the server for one session (§4), including your own Pause (`setPaused`) |
 | `units` | SI → display: `speed`, `distance`, `pace`, `length`, `mass`, `energy`, `power`, `heartRate`, `clock`, and back |
-| inputs | `choicePrompt`, `persistentPrompt`, `dpadPrompt`, `newInputs` |
+| inputs | `choicePrompt`, `persistentPrompt`, `dpadPrompt`, `menuPrompt`, `readMenuAnswer`, `isStaleAnswer`, `newInputs` |
+| effort | `EffortMeter`, `treadmillWatts`, `steadyWatts`, `steadyHeartRate`, `describeEffort`: effort against the player's steady pace (GAME_AUTHORING.md "Effort") |
 | image | `uploadCanvasAsSessionImage` (§8) |
 
 ```ts
@@ -156,6 +157,13 @@ user presses Play). While paused: freeze your world, do not integrate the
 gap, keep calling ticks (the client does), and show `pause.message`. Drive
 countdowns from `activeSeconds`, not wall-clock `elapsed`.
 
+A game with its own Pause screen calls `client.setPaused(true)` when it
+opens and `client.setPaused(false)` when it closes, so a break isn't counted
+as exercise. A Play pressed on a bridge ends that pause too: treat it as the
+player choosing Resume. A game where standing still is part of play declares
+`"capabilities": {"autoPause": false}` and is never paused for missing
+device data (GAME_AUTHORING.md).
+
 ## 5. What to drive, and what to read
 
 **Read `actual`, never what you requested.** `getstate` gives every
@@ -206,6 +214,21 @@ client.closePrompt()
 Answers arrive in `onInput` with `promptId`, `choice`, `t`, `source`
 (`game` or `bridge:<id>`). Prompts are for discrete taps while
 exercising: no held keys, no text.
+
+A game driven by menus can hand the phone its whole list instead:
+
+```ts
+client.prompt = menuPrompt('menu', rev, { title: 'Oakvale', items, highlight, back: 'pause' })
+// in onInput:
+const a = readMenuAnswer(answer)
+if (isStaleAnswer(a, rev)) return            // aimed at a list that has since changed
+if (a.kind === 'button') press(a.button)     // the phone's small d-pad
+else choose(a.id)                            // a tap on an item
+```
+
+- Bump `rev` whenever the list changes, and push a tick when the highlight moves (`client.requestTick()`), so the
+  phone follows.
+- Kingdom Trek's `src/mirror.ts` is the worked example.
 
 ## 7. Preferences, save state, achievements, history
 

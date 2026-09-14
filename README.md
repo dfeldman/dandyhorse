@@ -22,6 +22,7 @@ Read [PLAN.md](PLAN.md) for the full design. Game developers: start with
 | `devicelib/` | Bluetooth device library (`@bikebike/devicelib`): model registry and quirks, FTMS and sensor drivers, simulators; the bridge's device layer |
 | `games/mockgame/` | Reference game exercising every API |
 | `games/rollinghills/` | Rolling Hills: a 3D bike ride over generated hills, for bike trainers and treadmills (ported from bikebike) |
+| `games/kingdomtrek/` | Kingdom Trek: a role-playing adventure paced by your effort against your own steady pace, on either machine, played from a phone menu or at the screen (see its `INTEGRATION.md`) |
 | `data/` | Runtime data (SQLite DB, session logs), gitignored |
 
 Every console, bridge and game is a peer folder with a `metadata.json`;
@@ -32,7 +33,7 @@ the server discovers them by name and serves them under
 
 ```bash
 make install     # npm install in each frontend, uv sync for the server
-make build       # build console, bridge, mockgame, rollinghills into their dist/ folders
+make build       # build console, bridge, mockgame, rollinghills, kingdomtrek into their dist/ folders
 make serve       # Flask on http://localhost:8080
 ```
 
@@ -43,6 +44,8 @@ token cookie for user 1 (any positive integer works; user 1 is admin).
 - Bridge: <http://localhost:8080/bridges/web/>
 - Mock game (ad-hoc start): <http://localhost:8080/games/mockgame/index.html>
 - Rolling Hills (ad-hoc start): <http://localhost:8080/games/rollinghills/>
+- Kingdom Trek (standalone, a local save): <http://localhost:8080/games/kingdomtrek/>; launch it from the
+  console to play on the platform
 
 Try a session without hardware: in the console pick Mock Game (Bike) with
 debug on, which opens the bridge; on the Devices tab enable the bike
@@ -56,6 +59,7 @@ make dev-console   # vite dev server on :5173 proxying APIs to :8080
 make dev-bridge    # :5174
 make dev-mockgame  # :5175
 make dev-rollinghills  # :5176
+make dev-kingdomtrek   # :5188 (http://localhost:5188/games/kingdomtrek/)
 ```
 
 Run the API server with `make serve` (no reloader: a reload would wipe
