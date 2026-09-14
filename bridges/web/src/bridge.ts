@@ -264,8 +264,9 @@ export async function fetchMe(): Promise<void> {
   }
 }
 
-export function loginUrl(): string {
+export function loginUrl(mode: 'stub' | 'oidc' = 'stub'): string {
   const next = encodeURIComponent(location.pathname + location.hash)
+  if (mode === 'oidc') return `/login?next=${next}`
   return `/login?uid=${encodeURIComponent(store.loginUid || '1')}&next=${next}`
 }
 

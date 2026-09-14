@@ -256,7 +256,7 @@ onMounted(async () => {
     <form class="panel" @submit.prevent="save">
       <h2>Profile</h2>
       <div class="form">
-        <label class="field"><span>Username</span><input type="text" v-model="form.username" maxlength="40" /></label>
+        <label class="field"><span>Username</span><input type="text" v-model="form.username" maxlength="24" autocapitalize="off" spellcheck="false" /></label>
         <label class="field"><span>Display name</span><input type="text" v-model="form.displayName" maxlength="80" /></label>
         <label class="field">
           <span>Units</span>

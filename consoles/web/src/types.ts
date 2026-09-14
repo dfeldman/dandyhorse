@@ -55,6 +55,8 @@ export interface Me {
   timeZone: string
   preferences: GlobalPreferences
   isAdmin: boolean
+  /** a first Google sign-in made this account: ask for a username before anything else */
+  needsHandle?: boolean
 }
 
 export interface Variant {

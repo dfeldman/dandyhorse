@@ -6,6 +6,7 @@ import { startRemote } from './remote'
 import { handlePress } from './navigation'
 import { focusFirst, focusables, watchLayers } from './focus'
 import LoginView from './components/LoginView.vue'
+import HandleView from './components/HandleView.vue'
 import ActiveSessionModal from './components/ActiveSessionModal.vue'
 import ConnectionIndicator from './components/ConnectionIndicator.vue'
 import StatusLayer from './components/StatusLayer.vue'
@@ -59,6 +60,7 @@ function tabActive(key: string, path: string): boolean {
 
 <template>
   <LoginView v-if="store.needsLogin" />
+  <HandleView v-else-if="store.me?.needsHandle" />
   <div v-else class="app">
     <header class="topbar">
       <div class="brand"><span class="mark"></span>Dandyhorse</div>
