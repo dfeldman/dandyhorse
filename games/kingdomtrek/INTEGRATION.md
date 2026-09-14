@@ -4,9 +4,9 @@ What it takes to run Kingdom Trek on the exercise platform (Dandyhorse, `~/dandy
 points where the two meet. The game's own rules are in [docs/DESIGN.md](docs/DESIGN.md), and the platform's
 contract for games is `dandyhorse/docs/GAME_AUTHORING.md`.
 
-Nothing here is built yet. The game already has hooks for it: `window.kingdomTrek`, plus
-`EffortSource.feed()` and `setTarget()` in `src/effort.ts`. We own both sides, so where a platform change makes
-this simpler, the doc suggests one. The list is in §10.
+**Built on 2026-09-13** (git branch `kingdomtrek-integration`). What follows is the design as agreed. Notes marked
+*As built* say where the build differs, §10 and §11 are ticked, §12's open questions are answered, and §13 lists the
+decisions made while building it that may need revisiting.
 
 ## 1. The shape of it
 
@@ -24,7 +24,8 @@ engine checkpoint ─► putsave     current choice list ─► setstate prompt 
   - `engine.choices()` and `engine.snapshot()`;
   - the `checkpoint` and `exit` events.
 
-  The engine doesn't change.
+  The engine doesn't change. *As built*, it gained three small things: `openMenu({ timeUp })`, `sessionDeeds()`
+  (shared by the farewell and the session picture), and the panel's `pick(id)` for phone taps.
 - Without `?session=` in the URL the game runs standalone as it does now: localStorage save, developer keys,
   and effort set with `[` `]`. The `window.kingdomTrek` hooks stay, as developer tools.
 - **The machine only changes how effort is worked out** (§3). Everything else plays exactly the same on a
@@ -242,6 +243,9 @@ That list is what a phone should show.
 
 ### 4.1 The d-pad (works today; build first)
 
+*As built:* the menu prompt (§4.2) was built at the same time, so the game uses it from the start and never sends
+the d-pad-only prompt.
+
 One persistent prompt stays open for the whole session. `dpadPrompt('kt', list.title)` in gamekit builds it:
 
 ```json
@@ -368,6 +372,10 @@ in a town. **So the platform's automatic pause is the wrong thing for this game.
   comes back from the last `putsave`. localStorage is for standalone play only.
 - **Debug sessions** read the real save but never write it back (they checkpoint to localStorage). 60× time
   and 20× effort shouldn't touch a real hero.
+  - *As built:* a debug session writes the hero back until a developer tool is used (`[` `]`, `F`, or
+    `window.kingdomTrek.setEffort`, `feed`, `setTarget`, `setTimeScale` or `step`). From then on it checkpoints to
+    localStorage only (`kingdomtrek.save.debug`), and a toast says so. The console launches in debug by default and
+    simulators need it, so "never" would have meant nobody testing today ever kept a hero (§13).
 
 ## 7. Starting and ending a session
 
@@ -421,63 +429,174 @@ platform there are two ways to model them, depending on the design:
 
 Not needed yet.
 
-## 10. Suggested platform changes
+## 10. Suggested platform changes (built 2026-09-13)
 
 Inputs:
-- [ ] **Menu prompt** (`layout: "menu"`): items with ids, disabled flags and hints, up to 100 of them, plus
+- [x] **Menu prompt** (`layout: "menu"`): items with ids, disabled flags and hints, up to 100 of them, plus
   `highlight`, `back`, `countdown`, the d-pad buttons, and `rev` echoed in every answer. The server logs the
-  prompt only when `rev` changes (§4.2).
-- [ ] **Game iframe:** add `allow="gamepad"` and give it focus on load and after overlays (§4.3).
-- [ ] **Phone d-pad:** hold to repeat (§4.3).
+  prompt in full only when `rev` changes; otherwise `{promptId, rev, highlight}` (§4.2).
+  - Server: `lifecycle._validate_menu()`. gamekit: `menuPrompt()`, `readMenuAnswer()`, `isStaleAnswer()`. Bridge:
+    the menu panel.
+  - *As built:* item ids may not be d-pad button names; gamekit sends them as `item:<id>` (§13).
+- [x] **Game iframe:** `allow="fullscreen; gamepad"`, and focus on load and after overlays (§4.3).
+- [x] **Phone d-pad:** hold to repeat, 0.4 s then every 0.13 s (§4.3).
 
 Effort:
-- [ ] **`steadyWatts`** global preference, with a device-level override. The console gets a Fitness picker
-  (100/130/160/200 W), defaults it from `ftp`, and lets treadmill users enter it as a pace (§3.1, §3.3).
-- [ ] **`restingHr` and `steadyHr`** preferences (`maxHr` exists) (§3.4).
-- [ ] **gamekit `effort.ts`:** the treadmill estimate, heart-rate reserve, smoothing and the cap, shared by
-  every game (§3.5).
+- [x] **`steadyWatts`** global preference, with a device-level override. The console's Fitness panel has the four
+  levels, shows what the game will use (0.65 × `ftp` when only FTP is set, else 130 W), and takes a treadmill pace
+  (§3.1, §3.3).
+  - *As built:* the pace is stored as its own preference, `steadyPace: {speed (m/s), incline (%)}`, globally or per
+    treadmill. It is used before `steadyWatts` on a treadmill, so the weight cancels out.
+- [x] **`restingHr` and `steadyHr`** preferences (`maxHr` exists) (§3.4), in the same panel.
+- [x] **gamekit `effort.ts`:** `treadmillWatts()`, `steadyWatts()`, `steadyHeartRate()`, `heartRateEffort()`, and
+  `EffortMeter` (holding readings, smoothing, the cap, 0 after 3 s, fallback between sources, the moving check).
+  `describeEffort()` and `describeSteady()` give the HUD's words (§3.5).
 
 Pausing:
-- [ ] **`capabilities.autoPause: false`** (§5). This also makes heart-rate-only sessions possible; the bridge
-  and console should then let a session start with only a strap.
-- [ ] **`POST /gameapi/pause {sessionId, paused}`**, the same as the bridge's ⏸ and ▶ (§5).
+- [x] **`capabilities.autoPause: false`** (§5). The server never pauses such a session by itself, and Play resumes
+  it at once. The session brief carries `autoPause`, and the bridge lets such a session start without a machine.
+- [x] **`POST /gameapi/pause {sessionId, paused}`**, the same as the bridge's ⏸ and ▶ (§5), and gamekit's
+  `SessionClient.setPaused()`. Every bridge shows "Paused in the game. Resume there, or press Play."
 
 Console:
-- [ ] **Launch dialog:** for a variant with both machines, default to the one the user owns or has
-  connected (today it is simply the first listed), and use buttons rather than a `<select>` so no keyboard is
-  needed.
+- [x] **Launch dialog:** device buttons, defaulting to a machine the user has connected now, else owns, else saw
+  last (`consoles/web/src/launch.ts`).
 
 Nothing new is needed for hills: `controls: incline/grade` already exists (§3.3).
+- *As built:* one small addition was made after all. A launch option can change `controls`: an option's
+  `controls` maps one of its values to per-device controls. So with Hills off the session's `controls` are `none`,
+  and the bridge says "This game only reads your treadmill"; with Hills on they are `incline` or `grade`.
 
-## 11. Changes in Kingdom Trek
+## 11. Changes in Kingdom Trek (built 2026-09-13)
 
-- [ ] `metadata.json`, `screenshot.png`, and the Vite `base`.
-- [ ] `src/platform.ts`:
+- [x] `metadata.json`, `screenshot.png`, and the Vite `base`.
+- [x] `src/platform.ts`:
   - `SessionClient` wiring;
   - loading the save and writing it with `putsave`;
   - effort from `getstate`;
-  - the prompts: a d-pad now, the menu prompt when it exists;
+  - the prompts: the menu prompt, built by `src/mirror.ts`;
   - pause and end handling;
-  - the session image.
-- [ ] `src/effort.ts`:
-  - the three sources and the conversion (from gamekit once it's there);
+  - the session image (`src/ui/sessioncard.ts`);
+  - the map position and the Hills grade (`src/road.ts`).
+- [x] `src/effort.ts`:
+  - the three sources and the conversion (from gamekit);
   - smoothing, the cap, and nulls;
   - the moving check for heart rate.
-- [ ] `src/main.ts`: boot from the start payload when `?session=` is present, with developer keys off unless
+- [x] `src/main.ts`: boot from the start payload when `?session=` is present, with developer keys off unless
   the session is a debug one.
-- [ ] HUD: readings in the player's units, effort as a percentage of steady, the platform's pause message, and
+- [x] HUD: readings in the player's units, effort as a percentage of steady, the platform's pause message, and
   the duration countdown.
-- [ ] Tests:
-  - the treadmill estimate: rising with speed and incline, 0 when stopped, no jump across the walk/run blend;
-  - effort from each source;
-  - the moving check;
-  - stale taps dropped by `rev`;
-  - a `ChoiceList` turned into a menu prompt and back.
+- [x] Tests:
+  - the treadmill estimate: rising with speed and incline, 0 when stopped, no jump across the walk/run blend
+    (gamekit `effort.test.ts`);
+  - effort from each source, and the moving check (gamekit `effort.test.ts`);
+  - stale taps dropped by `rev`, and a `ChoiceList` turned into a menu prompt and back (`tests/platform.test.ts`);
+  - Hills and the map position (`tests/platform.test.ts`).
 
-## 12. Open questions
+## 12. Open questions (answered 2026-09-13)
 
-1. Heart rate: only a fallback, or blended with the machine (say, the higher of the two)?
-2. Hills (§3.3): should the game set the treadmill's incline and a bike's grade from the road?
-3. A discarded session: keep the game progress, since the pedaling was real (proposal), or roll back to the
-   last completed session's save?
-4. A bike with no power reading and no strap: cadence as a last resort, or not supported?
+1. **Heart rate: only a fallback, or blended with the machine (say, the higher of the two)?**
+   - **Answer: a fallback, plus an explicit choice.** Effort comes from heart rate only when the player picks
+     *Effort from: Heart rate* at launch, or when the machine reads nothing for 3 s (the HUD then says so).
+   - Why not "the higher of the two": heart rate lags 30–60 s and stays up after you stop. Blending would let a
+     past sprint keep paying out, and it would make tug-of-war heaves feel unanswerable.
+2. **Hills (§3.3): should the game set the treadmill's incline and a bike's grade from the road?**
+   - **Answer: yes, as a launch option, Hills: Off / On, Off by default.**
+   - On: the grade follows the road's terrain; flat in town and in the menus (§13). That is also the only honest way
+     to count incline on a treadmill that doesn't report it (the Horizon 7.0AT).
+   - Off: the game sends no targets, and the machine's own buttons stay the player's.
+3. **A discarded session: keep the game progress, since the pedaling was real, or roll back to the last
+   completed session's save?**
+   - **Answer: keep it.** The save is written on every checkpoint whatever becomes of the session, and every end
+     (complete, discarded, superseded, reaped) writes the last checkpoint.
+   - Rolling back would need a save per session, and would throw away real exercise.
+4. **A bike with no power reading and no strap: cadence as a last resort, or not supported?**
+   - **Answer: cadence as a last resort:** cadence ÷ 80 rpm, capped at 1.5×.
+   - The HUD says "No power reading: using cadence, a rough guess".
+   - Cadence can't see resistance, hence the lower cap. Refusing would lock out budget bikes entirely.
+
+## 13. Decisions to revisit
+
+Made while building this. Each says what was decided, why, and what would change it.
+
+**Effort**
+- **Steady pace when nothing is set: 130 W ("Regular").**
+  - Until they pick a level, a beginner earns Energy a little slowly and a fit rider a little fast. The HUD shows
+    "Steady 130 W", and the console's Fitness panel says "the default: pick yours".
+  - Revisit if new players get it wrong: the game could ask on its first session instead.
+- **A treadmill steady can be a pace** (`steadyPace`), used before `steadyWatts` on a treadmill, so the weight
+  cancels out. The console stores the pace as entered and never converts it to watts.
+- **Heart rate is a fallback only (§12.1)**, plus the explicit option. Not blended.
+- **Cadence as a last resort (§12.4)**: ÷ 80 rpm, capped at 1.5× where the machine cap is 3×.
+- **Smoothing:**
+  - time constants: 3 s for power, 1 s for a treadmill, 2 s for cadence, none for heart rate;
+  - a reading holds for 3 s, then effort is 0;
+  - the cap is 3×;
+  - all in gamekit: `SMOOTHING`, `HOLD_SECONDS`, `EFFORT_CAP`.
+- **`hrZones`** is read as an array of zones, zone 1 first, each its top bpm or `{max}`. Nothing writes it yet.
+- **The console restates gamekit's rules.** `consoles/web/src/fitness.ts` mirrors `libs/gamekit/src/effort.ts`
+  because the console doesn't depend on gamekit. Keep them in step, or give the console the dependency.
+- **The game's words still say "pedal" on a treadmill** ("Well ridden! You pedaled for…", "Pedal!" in a fight).
+  Only the session-over card was made neutral ("You played for…").
+
+**Hills (§12.2)**
+- **Off by default.** On:
+  - the grade follows the road's terrain (plains 1%, hills 3.5%, mountain 6%, …);
+  - it rolls ±60% around that, with a rise about every 3 minutes;
+  - it eases to flat at both town gates, stays within 0–8%, and is never a decline;
+  - it is flat in town, in the menus and while paused (`src/road.ts`).
+- Revisit if the grade should follow real heights on the map. The game files would need them.
+
+**Menus and the phone**
+- **Item ids may not be d-pad button names** (the server rejects such a menu). Kingdom Trek uses `back` as an
+  option id on five screens. gamekit's `menuPrompt()` sends those ids as `item:<id>`, and `readMenuAnswer()` undoes
+  it.
+- **`rev` follows the list's structure, not its labels.**
+  - It changes with where the list is, its title, its Back option, and which option ids there are and which are
+    disabled. It doesn't change with labels: the gate's minutes change with your pace every second.
+  - A tap is judged against the list on screen when it arrives, not the last one sent.
+  - `rev` starts from the clock, so it never repeats across a reload.
+- **Taps without a `rev`** (an older bridge) are accepted.
+- **The server doesn't drop stale taps**: it records `rev`, and the game drops them. It does reject unknown and
+  disabled items.
+- **Keys and gamepad presses at the big screen are not echoed** to `answerinput`, although GAME_AUTHORING asks a
+  game to answer its own prompt from its own buttons. At 10 Hz key repeat that would flood the log, and the phone
+  follows the highlight within a tick anyway.
+
+**Pausing**
+- **The game's pause menu and its farewell pause the session**, and leaving them resumes it.
+- **Play on a bridge closes the game's menu**, and closes the farewell as if "Keep playing" was picked.
+- **A bridge's ⏸ opens the game's menu**, with the bridge's message as a notice. The game's own pause shows no
+  extra notice.
+- Device pauses can't happen (`autoPause: false`). The game would still freeze its clock if one came.
+- **The adapter runs on the game's own timer, not on animation frames.** A hidden bridge tab gets no frames, which
+  at first stopped the pause from reaching the platform.
+
+**Saving**
+- **Debug sessions write the hero** until a developer tool is used (§6, as built). After that they write to
+  localStorage only.
+- **A discarded session keeps its progress (§12.3)**, and so does a superseded one.
+- **A save whose adventure has left the game index** keeps the hero and starts the next adventure.
+- **An unreadable save** is kept in this browser (`kingdomtrek.save.unreadable`), and a new hero starts. Neither case
+  happens today.
+- **putsave** runs on every checkpoint, every 30 s, at the end, and on page hide (a beacon, since putsave accepts
+  POST).
+
+**The session**
+- **Time's up:**
+  - a toast at the planned time;
+  - at the next arrival in a town, the pause menu opens as "⏱ Time's up", with End session first;
+  - never forced, and never in a fight.
+- **Map position:** 1 map unit = 10 m, so the region is 10 × 6.4 km. `y` = 0. On the road the position moves in a
+  straight line between the two towns.
+- **Achievements:** `kingdom-saved`, `level-2`, `level-5`, `level-10`, `first-craft`. `flawless` would need a new
+  save field, so it was left out.
+- **The session picture** is the kingdom's map with the hero and the day's deeds (`src/ui/sessioncard.ts`): a PNG,
+  or a JPEG if the PNG is over 1 MB.
+- **A new hero's stats** are rolled from the session's seed. `seed: false` in the metadata: sessions aren't
+  comparable by seed.
+
+**Fixed on the way**
+- **The tug of war drew its rope mirrored.** Winning dragged the knot toward "… wins here ▶", so a won fight looked
+  lost until VICTORY. Fixed with `knotShare()` in `src/render/battle.ts`, and tested against a real won and lost
+  fight.

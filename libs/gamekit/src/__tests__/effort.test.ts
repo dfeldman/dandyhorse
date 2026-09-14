@@ -107,6 +107,13 @@ describe('EffortMeter', () => {
     expect(m.value(40)).toBe(3)
   })
 
+  test('any machine but a treadmill counts by measured power (a rower, one day)', () => {
+    const m = new EffortMeter({ deviceType: 'rower' as never, preferences: { global: { steadyWatts: 130 } } })
+    m.read({ power: 130, cadence: 24 }, 0)
+    expect(m.readout(0)).toMatchObject({ source: 'power', note: null })
+    expect(m.value(0)).toBeCloseTo(1)
+  })
+
   test('falls back to heart rate, then cadence, and says so', () => {
     const m = bike()
     m.read({ heartRate: 132, cadence: 80 }, 0)

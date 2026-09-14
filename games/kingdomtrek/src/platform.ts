@@ -35,6 +35,8 @@ const OWN_RESUME_MS = 5000
 const UNREADABLE_KEY = 'kingdomtrek.save.unreadable'
 /** Where a session that used developer tools checkpoints instead of the player's hero. */
 const DEV_SAVE_KEY = 'kingdomtrek.save.debug'
+/** The HUD's icon for the machine. Any machine that gives Energy will do (a rower, one day). */
+const MACHINE_ICON: Record<string, string> = { bike: '🚴', treadmill: '🏃', rower: '🚣', elliptical: '🏃' }
 
 /** What the platform needs from the page. */
 export interface PlatformHooks {
@@ -230,7 +232,7 @@ export class Platform {
     const so = this.activeSeconds()
     const text = !dur ? `⏱ ${clock(so)}` : so < dur ? `⏱ ${clock(dur - so)} left` : "⏱ Time's up"
     const r = this.hooks?.effort.readout() ?? null
-    const icon = r?.source === 'heartRate' ? '❤️' : this.start.deviceType === 'treadmill' ? '🏃' : '🚴'
+    const icon = r?.source === 'heartRate' ? '❤️' : (MACHINE_ICON[this.start.deviceType] ?? '⚡')
     const pause = this.client.paused ? this.latest?.pause : null
     // Our own pause shows the game's pause menu; any other pause says why. Otherwise a missing reading, if any.
     const notice = this.endedInfo ? null : pause && (pause.reason !== 'user' || pause.bridgeId) ? pause.message : r?.note ?? null
@@ -320,7 +322,7 @@ export class Platform {
       },
     }
     const pos = mapPosition(e)
-    if (pos) Object.assign(body, { x: pos.x, y: 0, z: pos.z })
+    if (pos) Object.assign(body, pos)
     if (this.hills) {
       // The road's grade; flat in town, in the menus and while paused.
       const g = this.client.paused ? 0 : roadGrade(e)

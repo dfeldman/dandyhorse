@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { InputAnswer } from '@dandyhorse/gamekit'
 import { MenuMirror, PROMPT_ID, phoneAction } from '../src/mirror.ts'
-import { MAX_GRADE, METRES_PER_UNIT, gradeAlong, mapPosition, roadGrade } from '../src/road.ts'
+import { MAX_GRADE, METRES_PER_UNIT, TERRAIN_HEIGHT, gradeAlong, heightAlong, mapPosition, roadGrade } from '../src/road.ts'
 import { Bot } from './bot.ts'
 import { newEngine } from './helpers.ts'
 
@@ -86,21 +86,39 @@ describe('the road', () => {
     expect(gradeAlong('r7', 'hills', 200, 0.4)).toBe(gradeAlong('r7', 'hills', 200, 0.4))
   })
 
-  it('flat in town, the road grade on the road; the hero on the map in metres', () => {
+  it('flat in town, the road grade on the road; the hero on the map in metres, at the height of the ground', () => {
     const { e, bot } = inOakvale()
     const w = e.save.where
     expect(w.kind).toBe('town')
     const town = e.world.town((w as { town: string }).town)
+    const here = { x: town.x * METRES_PER_UNIT, y: TERRAIN_HEIGHT[town.biome], z: town.y * METRES_PER_UNIT }
     expect(roadGrade(e)).toBe(0)
-    expect(mapPosition(e)).toEqual({ x: town.x * METRES_PER_UNIT, z: town.y * METRES_PER_UNIT })
+    expect(mapPosition(e)).toEqual(here)
     bot.pick('gate')
     bot.pick(bot.ids().find((id) => id.startsWith('travel:'))!)
     expect(e.save.where.kind).toBe('travel')
-    expect(mapPosition(e)).toEqual({ x: town.x * METRES_PER_UNIT, z: town.y * METRES_PER_UNIT })
+    expect(mapPosition(e)).toEqual(here)
     e.step(30, 1)
     if (e.save.where.kind === 'travel') {
       const p = mapPosition(e)!
-      expect(p.x !== town.x * METRES_PER_UNIT || p.z !== town.y * METRES_PER_UNIT).toBe(true)
+      expect(p.x !== here.x || p.z !== here.z).toBe(true)
+    }
+  })
+
+  it('the profile: the towns at their heights, the road rolling between them', () => {
+    const { e } = inOakvale()
+    for (const r of e.world.game.routes) {
+      const a = e.world.town(r.a)
+      const b = e.world.town(r.b)
+      expect(heightAlong(r, a, b, 0)).toBe(TERRAIN_HEIGHT[a.biome])
+      expect(heightAlong(r, a, b, 1)).toBe(TERRAIN_HEIGHT[b.biome])
+      const lo = Math.min(TERRAIN_HEIGHT[a.biome], TERRAIN_HEIGHT[b.biome]) - 60
+      const hi = Math.max(TERRAIN_HEIGHT[a.biome], TERRAIN_HEIGHT[b.biome]) + 60
+      for (let pos = 0; pos <= 1; pos += 0.05) {
+        const h = heightAlong(r, a, b, pos)
+        expect(h).toBeGreaterThanOrEqual(lo)
+        expect(h).toBeLessThanOrEqual(hi)
+      }
     }
   })
 })

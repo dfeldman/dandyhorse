@@ -293,7 +293,9 @@ async function boot(): Promise<void> {
   let sinceSave = 0
   setInterval(() => {
     const now = performance.now()
-    const dt = Math.min(2, (now - lastTick) / 1000)
+    // Standalone, a stall (a laptop waking up) is skipped. On Dandyhorse the game keeps up with the workout even when
+    // the browser slows a hidden tab's timers to one a minute, so a gap of up to 65 s is caught up.
+    const dt = Math.min(platform ? 65 : 2, (now - lastTick) / 1000)
     lastTick = now
     // On Dandyhorse game time stops while the session is paused or over; the menus keep working.
     if (!platform?.frozen()) engine.step(dt * timeScale, effort.value())

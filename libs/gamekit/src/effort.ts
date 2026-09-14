@@ -5,10 +5,12 @@
  *
  *   effort = live ÷ steady
  *
- * - bike: measured power ÷ steady watts;
  * - treadmill: speed and incline as bike-equivalent watts (treadmillWatts) ÷ steady watts;
+ * - any other machine (a bike today; a rower or an elliptical when the platform has them): measured power ÷ steady
+ *   watts;
  * - heart rate: heart-rate reserve, (hr − resting) ÷ (steady hr − resting);
- * - cadence ÷ 80 rpm, capped, as a last resort for a bike that reports neither power nor heart rate.
+ * - cadence ÷ 80 rpm, capped, as a last resort for a machine that reports neither power nor heart rate (a bike's
+ *   pedaling rate; a rower's stroke rate would need its own).
  *
  * Steady comes from the player's preferences (steadyWatts, steadyPace, ftp, restingHr, steadyHr, maxHr, hrZones:
  * docs/GAME_AUTHORING.md "Effort"). Pure functions, plus EffortMeter, which follows getstate and applies what every
@@ -266,25 +268,25 @@ export class EffortMeter {
 
   /** Feed raw readings (SI units): tests, or a game with its own transport. */
   read(r: Partial<Readings>, now: number): void {
-    const bike = this.deviceType === 'bike'
+    const tread = this.deviceType === 'treadmill'
     const readings = { ...EMPTY, ...r }
     for (const k of Object.keys(EMPTY) as (keyof Readings)[]) {
       const v = num(readings[k])
       if (v !== null) this.seen.set(k, { v, at: now })
     }
     const raw: [EffortSourceKind, number | null][] = [
-      ['power', bike && readings.power != null ? Math.max(0, readings.power) / this.steady.watts : null],
-      ['treadmill', bike ? null : ratio(treadmillWatts(readings.speed, readings.incline, this.weightKg), this.steady.watts)],
-      ['cadence', bike && readings.cadence != null ? Math.min(CADENCE_CAP, Math.max(0, readings.cadence) / STEADY_CADENCE) : null],
+      ['power', !tread && readings.power != null ? Math.max(0, readings.power) / this.steady.watts : null],
+      ['treadmill', tread ? ratio(treadmillWatts(readings.speed, readings.incline, this.weightKg), this.steady.watts) : null],
+      ['cadence', !tread && readings.cadence != null ? Math.min(CADENCE_CAP, Math.max(0, readings.cadence) / STEADY_CADENCE) : null],
       ['heartRate', heartRateEffort(readings.heartRate, this.heart)],
     ]
     for (const [k, v] of raw) if (v !== null && Number.isFinite(v)) this.held.set(k, { raw: v, at: now })
 
     // The machine says whether you're moving: 0 W and 0 rpm, or a stopped belt.
-    const machine = bike ? readings.power != null || readings.cadence != null : readings.speed != null
+    const machine = tread ? readings.speed != null : readings.power != null || readings.cadence != null
     if (machine) {
       this.machineAt = now
-      this.machineMoving = bike ? (readings.power ?? 0) > 0 || (readings.cadence ?? 0) > 0 : (readings.speed ?? 0) > STOPPED_SPEED
+      this.machineMoving = tread ? (readings.speed ?? 0) > STOPPED_SPEED : (readings.power ?? 0) > 0 || (readings.cadence ?? 0) > 0
     }
 
     const src = this.pick(now)
@@ -343,14 +345,15 @@ export class EffortMeter {
 
   /** The preferred source while it reads (or read within the hold), else the next that does. */
   private pick(now: number): EffortSourceKind {
-    const machine: EffortSourceKind = this.deviceType === 'bike' ? 'power' : 'treadmill'
+    const tread = this.deviceType === 'treadmill'
+    const machine: EffortSourceKind = tread ? 'treadmill' : 'power'
     const order: EffortSourceKind[] = this.prefer === 'heartRate' ? ['heartRate', machine] : [machine, 'heartRate']
-    if (this.deviceType === 'bike') order.push('cadence')
+    if (!tread) order.push('cadence')
     return order.find((k) => this.fresh(k, now)) ?? 'none'
   }
 
   private note(src: EffortSourceKind): string | null {
-    const want: EffortSourceKind = this.prefer === 'heartRate' ? 'heartRate' : this.deviceType === 'bike' ? 'power' : 'treadmill'
+    const want: EffortSourceKind = this.prefer === 'heartRate' ? 'heartRate' : this.deviceType === 'treadmill' ? 'treadmill' : 'power'
     if (src === want) return null
     const missing = want === 'treadmill' ? 'No treadmill reading' : `No ${SOURCE_WORD[want]} reading`
     if (src === 'none') return missing
