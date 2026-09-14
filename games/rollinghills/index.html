@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rolling Hills</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; overflow: hidden; height: 100%; background: #7ec2f7; }
+  #game-canvas { width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+  .hud { position: absolute; font-family: 'Baloo 2', 'Comic Sans MS', sans-serif; user-select: none; pointer-events: none; }
+
+  /* top-left: speed */
+  #hud-top-left { top: 14px; left: 18px; }
+  #speed-wrap { display: flex; align-items: baseline; gap: 8px; }
+  #speed { font-size: 58px; font-weight: 800; color: #fff; text-shadow: 0 3px 0 #e8890c, 0 5px 8px rgba(0,0,0,.3); line-height: 1; }
+  #speed-unit { font-size: 20px; font-weight: 800; color: #ffe9a8; text-shadow: 0 2px 3px rgba(0,0,0,.4); }
+  #hud-sub { font-size: 18px; font-weight: 600; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.4); margin-top: 4px; }
+  #laps { color: #ffe9a8; margin-right: 12px; }
+  #power { color: #cfe4ff; }
+
+  /* top-center: timer */
+  #timer {
+    top: 14px; left: 50%; transform: translateX(-50%);
+    font-size: 34px; font-weight: 800; color: #fff;
+    text-shadow: 0 3px 0 #3a6fb5, 0 5px 8px rgba(0,0,0,.3);
+    background: rgba(20, 40, 80, .4); border-radius: 14px; padding: 2px 18px;
+  }
+  #timer.low { color: #ff7a6b; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { transform: translateX(-50%) scale(1.08); } }
+
+  /* top-right: grade */
+  #grade-wrap { top: 14px; right: 18px; text-align: right; }
+  #grade-label { font-size: 13px; font-weight: 800; color: #cfe4ff; letter-spacing: 1px; text-shadow: 0 2px 3px rgba(0,0,0,.4); }
+  #grade-row { display: flex; align-items: baseline; gap: 6px; justify-content: flex-end; }
+  #grade { font-size: 44px; font-weight: 800; color: #fff; text-shadow: 0 3px 0 #3a6fb5, 0 5px 8px rgba(0,0,0,.3); line-height: 1; }
+  #grade.up { color: #ff9e6b; text-shadow: 0 3px 0 #b8412a, 0 5px 8px rgba(0,0,0,.3); }
+  #grade.down { color: #8fe0ff; text-shadow: 0 3px 0 #1a6a8a, 0 5px 8px rgba(0,0,0,.3); }
+  #grade-arrow { font-size: 34px; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.4); }
+
+  /* bottom-left: what the game asks the machine for */
+  #machine-wrap {
+    bottom: 16px; left: 18px;
+    background: rgba(20, 40, 80, .55); border-radius: 14px; padding: 8px 14px;
+    backdrop-filter: blur(4px); width: 190px;
+  }
+  #machine-top { display: flex; justify-content: space-between; align-items: baseline; }
+  #machine-label { color: #cfe4ff; font-size: 13px; font-weight: 800; letter-spacing: 1px; }
+  #machine-num { color: #fff; font-size: 24px; font-weight: 800; }
+  #machine-sub { color: #cfe4ff; font-size: 11px; font-weight: 600; opacity: .8; min-height: 14px; }
+  #machine-bar { height: 10px; border-radius: 5px; margin-top: 4px; overflow: hidden; background: rgba(255,255,255,.25); }
+  #machine-fill { height: 100%; width: 0; border-radius: 5px; background: linear-gradient(90deg, #7dd87d, #ffd42a); transition: width .3s; }
+  #machine-fill.hard { background: linear-gradient(90deg, #ffd42a, #ff6b4d); }
+  #machine-fill.easy { background: #7dd87d; }
+
+  /* heart rate, under the grade */
+  #hr { top: 78px; right: 18px; font-size: 26px; font-weight: 800; color: #ff7a8a; text-shadow: 0 2px 0 #8a1a2a, 0 4px 8px rgba(0,0,0,.3); display: none; }
+
+  /* pause and end overlays */
+  #pause, #ended {
+    inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    background: rgba(10, 20, 40, .55); backdrop-filter: blur(3px); opacity: 0; visibility: hidden; transition: opacity .3s;
+    text-align: center; padding: 0 24px;
+  }
+  #pause.show, #ended.show { opacity: 1; visibility: visible; }
+  #pause-title, #ended-title { font-size: 64px; font-weight: 800; color: #fff; text-shadow: 0 4px 0 #3a6fb5, 0 8px 16px rgba(0,0,0,.35); line-height: 1; }
+  #ended-title { text-shadow: 0 4px 0 #e8890c, 0 8px 16px rgba(0,0,0,.35); }
+  #pause-msg, #ended-sub { font-size: 22px; font-weight: 600; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.4); max-width: 640px; }
+
+  /* boot overlay: the platform adapter talks here until the world is up */
+  #boot { inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #7ec2f7; pointer-events: auto; }
+  #boot[hidden] { display: none; }
+  #boot h1 { font-size: 56px; font-weight: 800; color: #fff; text-shadow: 0 4px 0 #e8890c, 0 8px 16px rgba(0,0,0,.3); margin: 0; }
+  #boot p { font-size: 20px; font-weight: 600; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.35); margin: 0; max-width: 560px; text-align: center; }
+  #boot .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  #boot button, #boot a.btn {
+    font: inherit; font-size: 22px; font-weight: 800; color: #1a2a4a; background: #ffd42a; border: 0; border-radius: 16px; padding: 14px 28px;
+    cursor: pointer; box-shadow: 0 4px 0 #b88a00; text-decoration: none;
+  }
+  #boot pre { font: 600 14px/1.4 ui-monospace, monospace; color: #fff; background: rgba(20,40,80,.55); border-radius: 12px; padding: 12px 16px; max-width: 80vw; overflow: auto; }
+
+  #seed { bottom: 4px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,.6); font-size: 12px; font-weight: 600; }
+
+  /* bottom-center: elevation profile + route picker */
+  #profile-wrap { bottom: 22px; left: 50%; transform: translateX(-50%); width: 340px; }
+  #profile { width: 340px; height: 64px; display: block; }
+  /* chips under the timer */
+  #area-chip, #weather-chip, #time-chip {
+    top: 62px; font-size: 16px; font-weight: 800; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.4);
+    background: rgba(20, 40, 80, .4); border-radius: 10px; padding: 1px 12px;
+  }
+  #area-chip { left: 50%; transform: translateX(-50%); }
+  #weather-chip { top: 14px; right: 200px; }
+  #time-chip { top: 48px; right: 200px; display: none; }
+
+  /* segment timer */
+  #seg-chip {
+    top: 100px; left: 50%; transform: translateX(-50%); display: none; text-align: center;
+    font-weight: 800; color: #fff; border-radius: 12px; padding: 4px 16px; text-shadow: 0 2px 3px rgba(0,0,0,.35);
+    background: rgba(220, 60, 70, .8);
+  }
+  #seg-chip.sprint { background: rgba(230, 160, 20, .85); }
+  #seg-name { font-size: 14px; letter-spacing: 2px; }
+  #seg-time { font-size: 30px; line-height: 1; }
+  #seg-best { font-size: 12px; color: #ffe9a8; }
+
+  /* Banner */
+  #banner {
+    top: 26%; left: 50%; transform: translate(-50%,-50%) scale(0);
+    font-size: 64px; font-weight: 800; color: #fff; white-space: nowrap;
+    text-shadow: 0 4px 0 #e8890c, 0 8px 16px rgba(0,0,0,.35);
+    transition: transform .35s cubic-bezier(.2,2.2,.4,1);
+  }
+  #banner.show { transform: translate(-50%,-50%) scale(1); }
+</style>
+</head>
+<body>
+<canvas id="game-canvas"></canvas>
+
+<div id="hud-top-left" class="hud">
+  <div id="speed-wrap"><span id="speed">0</span><span id="speed-unit">km/h</span></div>
+  <div id="hud-sub"><span id="laps">LAP 1</span><span id="dist">0.00 km</span> &nbsp;<span id="power">0 W</span></div>
+</div>
+<div id="timer" class="hud">30:00</div>
+<div id="grade-wrap" class="hud">
+  <div id="grade-label">GRADE</div>
+  <div id="grade-row"><span id="grade-arrow">➡</span><span id="grade">+0%</span></div>
+</div>
+<div id="machine-wrap" class="hud">
+  <div id="machine-top"><span id="machine-label">GRADE</span><span id="machine-num">+0.0%</span></div>
+  <div id="machine-bar"><div id="machine-fill"></div></div>
+  <div id="machine-sub"></div>
+</div>
+<div id="hr" class="hud"></div>
+<div id="area-chip" class="hud"></div>
+<div id="weather-chip" class="hud"></div>
+<div id="time-chip" class="hud"></div>
+<div id="seg-chip" class="hud"><div id="seg-name"></div><div id="seg-time"></div><div id="seg-best"></div></div>
+<div id="profile-wrap" class="hud">
+  <canvas id="profile" width="340" height="64"></canvas>
+</div>
+<div id="seed" class="hud"></div>
+<div id="banner" class="hud"></div>
+<div id="pause" class="hud"><div id="pause-title">PAUSED</div><div id="pause-msg"></div></div>
+<div id="ended" class="hud"><div id="ended-title"></div><div id="ended-sub"></div></div>
+<div id="boot" class="hud"><h1>Rolling Hills</h1><p id="boot-msg">Starting…</p><div id="boot-actions" class="row"></div></div>
+
+<!-- Babylon is pinned; the game scripts under js/ are loaded by src/main.ts once the session has started
+     (they generate the world from the session's seed and route at load time). -->
+<script src="https://cdn.babylonjs.com/v9.26.0/babylon.js"></script>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

@@ -1,0 +1,1787 @@
+{
+  "schemaVersion": 1,
+  "id": "game-0009",
+  "title": "The Endless Winter",
+  "theme": "medieval",
+  "region": {
+    "name": "the Greenholt",
+    "blurb": "Golden fields in the west, windy sheep-hills and high mountain passes in the middle, and in the east the frozen heights of Frosthold.",
+    "width": 1000,
+    "height": 640
+  },
+  "startTown": "lionford",
+  "towns": [
+    {
+      "id": "lionford",
+      "name": "Lionford",
+      "biome": "plains",
+      "appearance": "capital",
+      "x": 132,
+      "y": 307,
+      "blurb": "The royal city of the Greenholt: white walls, red roofs, and a castle flying the Queen's banners.",
+      "mayor": {
+        "id": "olwen",
+        "name": "Lady Olwen",
+        "title": "Lady",
+        "emoji": "👩🏿",
+        "avatar": "stout lady with silver hair in a bun, a long blue coat with silver buttons, and a tawny owl on one shoulder",
+        "greeting": [
+          "Lionford welcomes you, Hero. We have heard all about you.",
+          "Anything you need, ask. The Queen's champion is welcome everywhere in Lionford."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_lionford",
+          "type": "deliver",
+          "title": "A Bolt of Blue Cloth for Oakwick",
+          "offer": [
+            "Would you carry this bolt of blue cloth to Duchess Ivy in Oakwick? It is for their festival banner. They can't finish it without the blue.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Duchess Ivy in Oakwick is waiting for the bolt of blue cloth.",
+          "done": [
+            "The blue cloth! Now the banner will be done in time.",
+            "Take this, with my thanks."
+          ],
+          "item": "bolt_of_cloth",
+          "to": {
+            "town": "oakwick"
+          },
+          "reward": {
+            "gold": 30,
+            "items": [
+              "tome_of_might"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Rowena's General Store",
+        "keeper": {
+          "id": "rowena",
+          "name": "Rowena",
+          "emoji": "🧝🏾‍♀️",
+          "avatar": "wood-elf shopkeeper with leaf-green braids and a quiver on her back"
+        },
+        "lines": [
+          "Fresh bread, fresh draughts, fresh advice. What'll it be?"
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "spark_rapier"
+          },
+          {
+            "item": "leather_vest"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Ivor's Workshop",
+        "keeper": {
+          "id": "ivor",
+          "name": "Ivor",
+          "emoji": "👨🏼‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "maud",
+          "name": "Maud",
+          "role": "child",
+          "emoji": "👧🏾",
+          "avatar": "small child with scabby knees and a pet frog in one pocket",
+          "lines": [
+            "When I grow up, I'm going to be a hero too!",
+            "The Heart of Summer can't be bought or found: it has to be made, at the workshop in any town, from two jars of summer honey and an ember crystal. It takes a few minutes of hard pedaling."
+          ],
+          "gives": {
+            "item": "healing_draught",
+            "line": "Are you a real hero? Mum says heroes always carry healing draughts. Here, take one of mine!"
+          },
+          "hint": "h_5"
+        },
+        {
+          "id": "odette",
+          "name": "Smith Odette",
+          "role": "smith",
+          "emoji": "👩🏻‍🏭",
+          "avatar": "muscular smith with soot-streaked arms and a leather apron",
+          "lines": [
+            "Hammer and anvil, all day long. Look at these arms!",
+            "I can build up yours too, for a fee.",
+            "Egbert in Mosshollow has an ember crystal, and would give it to a hero."
+          ],
+          "trains": {
+            "stat": "strength",
+            "price": 40
+          },
+          "hint": "h_7"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_well",
+          "name": "the Old Well",
+          "emoji": "🪣",
+          "item": "rusty_key",
+          "text": "You haul up the old bucket. Tangled in the rope is a Rusty Key!"
+        }
+      ]
+    },
+    {
+      "id": "frosthold",
+      "name": "Frosthold",
+      "biome": "snow",
+      "appearance": "ruins",
+      "x": 873,
+      "y": 300,
+      "blurb": "Only the chimneys poke out of the snow, and the townsfolk dig tunnels to visit each other.",
+      "crisis": true,
+      "mayor": {
+        "id": "cedric",
+        "name": "Duke Cedric",
+        "title": "Duke",
+        "emoji": "👨🏼‍🦳",
+        "avatar": "small, brisk duke with a bushy black beard, a long blue coat with silver buttons, and a wheat-sheaf brooch",
+        "greeting": [
+          "Brrr! Come in by the fire. The Queen heard us!",
+          "Hrimgar sits on a throne of ice above the town. If summer doesn't come back soon, nothing will grow this year."
+        ],
+        "hint": "h_12"
+      },
+      "shop": {
+        "name": "The Brave Kettle",
+        "keeper": {
+          "id": "fenella",
+          "name": "Fenella",
+          "emoji": "👱🏻‍♀️",
+          "avatar": "stubborn young shopkeeper with a smudged face and a lantern"
+        },
+        "lines": [
+          "I'm staying till the end. Buy what you need; you'll need it."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "fire_flask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Last Forge",
+        "keeper": {
+          "id": "pip",
+          "name": "Pip",
+          "emoji": "👨🏽‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "Everyone else has fled. The anvil's all yours."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "petra",
+          "name": "Granny Petra",
+          "role": "grandmother",
+          "emoji": "👵🏽",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "Everyone keeps telling me to run. Run where? My knees are eighty-three.",
+            "The Sunforge Hammer, the Emberweave Cloak and the Heart of Summer. The old songs say you need all three."
+          ],
+          "hint": "h_12"
+        },
+        {
+          "id": "sage",
+          "name": "Watchman Sage",
+          "role": "watchman",
+          "emoji": "💂🏻",
+          "avatar": "exhausted young watchman in a battered helmet, holding a bucket",
+          "lines": [
+            "I've got four pairs of socks on. My toes are still cold.",
+            "Yesterday my eyebrows froze. Today, my ears."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "ruined_hall",
+          "name": "the Ruined Hall",
+          "emoji": "🏚️",
+          "item": "greater_healing",
+          "text": "In the rubble of the old hall you find a Greater Healing Draught, somehow unbroken."
+        }
+      ]
+    },
+    {
+      "id": "ironhold",
+      "name": "Ironhold",
+      "biome": "mountain",
+      "appearance": "fortress",
+      "x": 669,
+      "y": 539,
+      "blurb": "A mining town behind thick stone walls. Hammers ring from every tunnel.",
+      "mayor": {
+        "id": "jory",
+        "name": "Duke Jory",
+        "title": "Duke",
+        "emoji": "👴🏾",
+        "avatar": "tall, thin duke with a bushy black beard, a fur-trimmed mantle, and a gold chain of office",
+        "greeting": [
+          "A hero, in Ironhold! Come in, come in, mind the step.",
+          "Watch your step. Our streets mostly go up."
+        ],
+        "hint": "h_7",
+        "quest": {
+          "id": "q_ironhold",
+          "type": "slay",
+          "title": "The Thunder Eagle",
+          "offer": [
+            "The Thunder Eagle has been prowling the road to Larkcombe, frightening every traveller. Even the bravest carters turn back.",
+            "Beat the Thunder Eagle, and I'll make it worth your while."
+          ],
+          "reminder": "The Thunder Eagle is still out on the road to Larkcombe.",
+          "done": [
+            "The Thunder Eagle beaten? Then Ironhold owes you a great deal.",
+            "Here is your reward, and well earned."
+          ],
+          "foe": "foe_thunder_eagle",
+          "reward": {
+            "gold": 75,
+            "items": [
+              "tome_of_vigor"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Deep Delve",
+        "keeper": {
+          "id": "lark",
+          "name": "Lark",
+          "emoji": "👩🏼‍🍳",
+          "avatar": "broad-shouldered shopkeeper with rolled sleeves and a flour-dusted apron"
+        },
+        "lines": [
+          "Forged in the mountain, cooled in snowmelt. Take a look."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "longbow"
+          },
+          {
+            "item": "tempest_spear"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "iron_helm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Stonecutter's Yard",
+        "keeper": {
+          "id": "wendel",
+          "name": "Wendel",
+          "emoji": "🧔🏼",
+          "avatar": "bearded woodworker with curls of shavings stuck to his jumper"
+        },
+        "lines": [
+          "The best anvil this side of the mountains. Strike while it's hot!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "wystan",
+          "name": "Baker Wystan",
+          "role": "baker",
+          "emoji": "👨🏻‍🍳",
+          "avatar": "round, rosy baker in a floury apron, with a tray of buns",
+          "lines": [
+            "My pies are famous as far as Larkcombe. Well, as far as the end of the street.",
+            "The Brass Spyglass from Mosshollow is hidden in the Eagle's Nest in Ironhold."
+          ],
+          "hint": "h_10"
+        },
+        {
+          "id": "dora",
+          "name": "Guide Dora",
+          "role": "mountain guide",
+          "emoji": "🧗🏼‍♀️",
+          "avatar": "wiry mountain guide with a coil of rope and wind-burned cheeks",
+          "lines": [
+            "From here the road to Larkcombe climbs, and keeps on climbing.",
+            "The quickest road to Frosthold is the one from Larkcombe."
+          ],
+          "hint": "h_14"
+        }
+      ],
+      "spots": [
+        {
+          "id": "eagle_s_nest",
+          "name": "the Eagle's Nest",
+          "emoji": "🦅",
+          "item": "spyglass",
+          "text": "High on the cliff, in an empty eagle's nest, lies the Brass Spyglass."
+        }
+      ]
+    },
+    {
+      "id": "oakwick",
+      "name": "Oakwick",
+      "biome": "plains",
+      "appearance": "river",
+      "x": 343,
+      "y": 416,
+      "blurb": "Willows trail their branches in the river, and every house has a little boat tied up outside.",
+      "mayor": {
+        "id": "ivy",
+        "name": "Duchess Ivy",
+        "title": "Duchess",
+        "emoji": "👵🏾",
+        "avatar": "small, brisk duchess with braided red hair, a plum-coloured cloak, and a wheat-sheaf brooch",
+        "greeting": [
+          "A hero, in Oakwick! Come in, come in, mind the step.",
+          "Try the bread. Everyone in Oakwick bakes."
+        ],
+        "hint": "h_3",
+        "quest": {
+          "id": "q_oakwick",
+          "type": "deliver",
+          "title": "A Bundle of Healing Herbs for Larkcombe",
+          "offer": [
+            "Would you carry this bundle of healing herbs to Miner Sabine in Larkcombe? A fever has broken out there, and these herbs will cool it.",
+            "Miner Sabine has the Sunforge Hammer, and has promised it to whoever brings this."
+          ],
+          "reminder": "Miner Sabine in Larkcombe is waiting for the bundle of healing herbs.",
+          "done": [
+            "Herbs from Oakwick! Bless you. The sick will sleep easy tonight.",
+            "I have kept the Sunforge Hammer safe for years. It is yours now: go and put it to good use."
+          ],
+          "item": "healing_herbs",
+          "to": {
+            "town": "larkcombe",
+            "npc": "sabine"
+          },
+          "reward": {
+            "gold": 40,
+            "items": [
+              "sunforge_hammer"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Morwenna's General Store",
+        "keeper": {
+          "id": "morwenna",
+          "name": "Morwenna",
+          "emoji": "👩🏾‍🦰",
+          "avatar": "freckled shopkeeper in a patchwork apron, with a cat asleep on the counter"
+        },
+        "lines": [
+          "Best prices in Oakwick! Well, the only prices in Oakwick."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "spark_rapier"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Hester's Workshop",
+        "keeper": {
+          "id": "hester",
+          "name": "Hester",
+          "emoji": "👩🏽‍🔧",
+          "avatar": "strong-armed smith in a leather apron, with soot on her nose and a hammer on her belt"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "quentin",
+          "name": "Ranger Quentin",
+          "role": "ranger",
+          "emoji": "🧝🏿",
+          "avatar": "hooded ranger with a longbow and a scar across one cheek",
+          "lines": [
+            "The wild wears you down, if you let it.",
+            "I can toughen you up, if you've the coin.",
+            "The Great Crab prowls the road between Coralbay and Oakwick."
+          ],
+          "trains": {
+            "stat": "vigor",
+            "price": 40
+          },
+          "hint": "h_4"
+        },
+        {
+          "id": "constance",
+          "name": "Constance",
+          "role": "ferry-keeper",
+          "emoji": "🛶",
+          "avatar": "lean ferry-keeper in a wide hat, leaning on a long pole",
+          "lines": [
+            "Mind the water. It's deeper than it looks, and colder.",
+            "The Heart of Summer can't be bought or found: it has to be made, at the workshop in any town, from two jars of summer honey and an ember crystal. It takes a few minutes of hard pedaling."
+          ],
+          "hint": "h_5"
+        },
+        {
+          "id": "rolf",
+          "name": "Rolf",
+          "role": "minstrel",
+          "emoji": "🎻",
+          "avatar": "cheerful minstrel in a feathered cap, with a fiddle under one arm",
+          "lines": [
+            "Every hero needs a ballad. Yours is coming along nicely.",
+            "The Old Chest in Oakwick is locked. Its key was lost in the Old Well in Lionford years ago."
+          ],
+          "hint": "h_11"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chest",
+          "name": "the Old Chest",
+          "emoji": "📦",
+          "item": "tome_of_arcana",
+          "requiresKey": "rusty_key",
+          "text": "The Rusty Key turns with a screech. Inside the old chest: a Tome of Arcana!",
+          "lockedText": "A heavy chest sits in the corner, locked tight. The keyhole is caked with rust."
+        }
+      ]
+    },
+    {
+      "id": "highridge",
+      "name": "Highridge",
+      "biome": "hills",
+      "appearance": "hillside",
+      "x": 585,
+      "y": 98,
+      "blurb": "A hill town of orchards and stone walls, with a view over half of the Greenholt.",
+      "mayor": {
+        "id": "tam",
+        "name": "Lord Tam",
+        "title": "Lord",
+        "emoji": "👴🏿",
+        "avatar": "tall, thin lord with a magnificent moustache, a fur-trimmed mantle, and a tawny owl on one shoulder",
+        "greeting": [
+          "A hero, in Highridge! Come in, come in, mind the step.",
+          "Have some cheese. Everyone here has cheese."
+        ],
+        "hint": "h_6",
+        "quest": {
+          "id": "q_highridge",
+          "type": "fetch",
+          "title": "The Silver Bell",
+          "offer": [
+            "Our Silver Bell was stolen! We ring it when the river floods.",
+            "A goblin ran off toward Larkcombe with it. Bring it back and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "Any sign of the Silver Bell? A goblin ran off toward Larkcombe with it.",
+          "done": [
+            "My bell! Now we'll hear the floods coming.",
+            "Here is your reward, and well earned."
+          ],
+          "item": "silver_bell",
+          "reward": {
+            "gold": 65,
+            "items": [
+              "gauntlets_of_might"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Crooked Crook",
+        "keeper": {
+          "id": "morgan",
+          "name": "Morgan",
+          "emoji": "🧑🏽",
+          "avatar": "calm shopkeeper in a green apron, with a pencil behind one ear"
+        },
+        "lines": [
+          "Come in out of the wind!"
+        ],
+        "stock": [
+          {
+            "item": "jar_of_honey"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "hunting_bow"
+          },
+          {
+            "item": "war_axe"
+          },
+          {
+            "item": "oak_shield"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Florian's Smithy",
+        "keeper": {
+          "id": "florian",
+          "name": "Florian",
+          "emoji": "👨🏿‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "Everything I own, I made right here. So can you."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "nell",
+          "name": "Scholar Nell",
+          "role": "scholar",
+          "emoji": "👩🏻‍🏫",
+          "avatar": "young scholar with ink-stained fingers and round spectacles",
+          "lines": [
+            "Potions obey those who understand them.",
+            "I can teach you, for a modest fee.",
+            "The Silver Bell from Highridge is hidden in the Sheep Pen in Larkcombe."
+          ],
+          "trains": {
+            "stat": "magic",
+            "price": 40
+          },
+          "hint": "h_9"
+        },
+        {
+          "id": "agatha",
+          "name": "Farmer Agatha",
+          "role": "farmer",
+          "emoji": "👩🏿‍🌾",
+          "avatar": "wiry old farmer in a straw hat, with a pitchfork over one shoulder",
+          "lines": [
+            "If you're walking to Mosshollow, keep an eye out for a goblin scout on the road.",
+            "The crows are bold this year. Bolder than the scarecrow, anyway."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "eagle_feather",
+          "text": "Behind the altar, in a dusty niche: an Eagle Feather."
+        }
+      ]
+    },
+    {
+      "id": "larkcombe",
+      "name": "Larkcombe",
+      "biome": "hills",
+      "appearance": "village",
+      "x": 590,
+      "y": 353,
+      "blurb": "A village of cheese-makers, tucked into a fold of the green hills.",
+      "mayor": {
+        "id": "bram",
+        "name": "Lord Bram",
+        "title": "Lord",
+        "emoji": "🧔🏼",
+        "avatar": "tall, thin lord with a neat white beard, a green velvet coat, and a walking stick topped with a silver fox",
+        "greeting": [
+          "A hero, in Larkcombe! Come in, come in, mind the step.",
+          "On a clear day you can see all the way to Ironhold from here."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_larkcombe",
+          "type": "deliver",
+          "title": "A Book of Songs for Mosshollow",
+          "offer": [
+            "Would you carry this book of songs to Duke Silas in Mosshollow? It is for their choir. They have been singing the same three songs for years.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Duke Silas in Mosshollow is waiting for the book of songs.",
+          "done": [
+            "New songs, at last! The choir will be thrilled. The neighbours, less so.",
+            "Here, for your trouble."
+          ],
+          "item": "book_of_songs",
+          "to": {
+            "town": "mosshollow"
+          },
+          "reward": {
+            "gold": 65,
+            "items": [
+              "boots_of_striding"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Woolly Ram",
+        "keeper": {
+          "id": "nessa",
+          "name": "Nessa",
+          "emoji": "👱🏼‍♀️",
+          "avatar": "stubborn young shopkeeper with a smudged face and a lantern"
+        },
+        "lines": [
+          "Wool, cheese and cudgels: the three things every hill-walker needs."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "spark_rapier"
+          },
+          {
+            "item": "glacier_pick"
+          },
+          {
+            "item": "iron_helm"
+          },
+          {
+            "item": "wheel_of_cheese"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Shepherd's Bench",
+        "keeper": {
+          "id": "bess",
+          "name": "Bess",
+          "emoji": "👩🏼‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "The forge is hot and the anvil is free. Get to it!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "basil",
+          "name": "Peddler Basil",
+          "role": "peddler",
+          "emoji": "🧳",
+          "avatar": "round peddler under a huge pack hung with pots and trinkets",
+          "lines": [
+            "Word on the road is that Frosthold is in a bad way.",
+            "Duchess Ivy of Oakwick is looking for a courier to Larkcombe."
+          ],
+          "hint": "h_2"
+        },
+        {
+          "id": "sabine",
+          "name": "Miner Sabine",
+          "role": "miner",
+          "emoji": "👷🏽‍♀️",
+          "avatar": "stocky miner with a lamp on the helmet and coal on the nose",
+          "lines": [
+            "Silver, copper, and the odd bit of gold, if you dig deep enough.",
+            "Mayor Una of Coralbay keeps the Emberweave Cloak, and has promised it to whoever defeats the Great Crab."
+          ],
+          "hint": "h_3"
+        },
+        {
+          "id": "sparrow",
+          "name": "Farmer Sparrow",
+          "role": "farmer",
+          "emoji": "🧑🏾‍🌾",
+          "avatar": "wiry old farmer in a straw hat, with a pitchfork over one shoulder",
+          "lines": [
+            "Rain's coming. My knees always know.",
+            "The Thunder Eagle prowls the road between Ironhold and Larkcombe."
+          ],
+          "hint": "h_8"
+        },
+        {
+          "id": "barnaby",
+          "name": "Barnaby",
+          "role": "beekeeper",
+          "emoji": "🐝",
+          "avatar": "beekeeper in a white veiled hat, bees drifting lazily around",
+          "lines": [
+            "My bees make the sweetest honey in the Greenholt.",
+            "The Silver Bell from Highridge is hidden in the Sheep Pen in Larkcombe."
+          ],
+          "hint": "h_9"
+        }
+      ],
+      "spots": [
+        {
+          "id": "sheep_pen",
+          "name": "the Sheep Pen",
+          "emoji": "🐑",
+          "item": "silver_bell",
+          "text": "A ram is sitting on something, looking very pleased with itself. It is the Silver Bell."
+        }
+      ]
+    },
+    {
+      "id": "mosshollow",
+      "name": "Mosshollow",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 388,
+      "y": 141,
+      "blurb": "Tree-houses joined by rope bridges, high above the forest floor.",
+      "mayor": {
+        "id": "silas",
+        "name": "Duke Silas",
+        "title": "Duke",
+        "emoji": "🧔🏽",
+        "avatar": "plump, cheerful duke with a bald head that shines, a green velvet coat, and a lapdog under one arm",
+        "greeting": [
+          "A hero, in Mosshollow! Come in, come in, mind the step.",
+          "The trees here are older than the kingdom. Be kind to them."
+        ],
+        "quest": {
+          "id": "q_mosshollow",
+          "type": "fetch",
+          "title": "The Brass Spyglass",
+          "offer": [
+            "The harbour master's spyglass is missing, and nobody can see the ships coming in.",
+            "A gull took it. It was last seen flying toward Ironhold. Bring it back and I'll make it worth your while."
+          ],
+          "reminder": "Any sign of the Brass Spyglass? A gull took it. It was last seen flying toward Ironhold.",
+          "done": [
+            "The spyglass! Now we can watch for ships again.",
+            "Here is your reward, and well earned."
+          ],
+          "item": "spyglass",
+          "reward": {
+            "gold": 50,
+            "items": [
+              "tome_of_fortune"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Acorn & Arrow",
+        "keeper": {
+          "id": "ida",
+          "name": "Ida",
+          "emoji": "👩🏻‍🍳",
+          "avatar": "broad-shouldered shopkeeper with rolled sleeves and a flour-dusted apron"
+        },
+        "lines": [
+          "Bows, cloaks, and forest remedies. All handmade."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "oak_cudgel"
+          },
+          {
+            "item": "hunting_bow"
+          },
+          {
+            "item": "leather_vest"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Sawdust Hut",
+        "keeper": {
+          "id": "crispin",
+          "name": "Crispin",
+          "emoji": "👨🏼‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "Bark, sap and elbow grease. Help yourself to the bench."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "ottilie",
+          "name": "Granny Ottilie",
+          "role": "good witch",
+          "emoji": "🧙🏻‍♀️",
+          "avatar": "tiny, kindly witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": [
+            "Nettle soup for strength, willow tea for aches. Nothing for goblins, sadly.",
+            "The Crooked Crook in Highridge sells honey."
+          ],
+          "hint": "h_6"
+        },
+        {
+          "id": "dunstan",
+          "name": "Baker Dunstan",
+          "role": "baker",
+          "emoji": "👨🏿‍🍳",
+          "avatar": "round, rosy baker in a floury apron, with a tray of buns",
+          "lines": [
+            "Heroes need feeding. You look like you skipped breakfast.",
+            "The Brass Spyglass from Mosshollow is hidden in the Eagle's Nest in Ironhold."
+          ],
+          "hint": "h_10"
+        },
+        {
+          "id": "egbert",
+          "name": "Egbert",
+          "role": "child",
+          "emoji": "👦🏻",
+          "avatar": "freckled child with a wooden sword and a helmet three sizes too big",
+          "lines": [
+            "Have you ever fought a wild boar? What was it like?",
+            "Can I hold your sword? Just for a second? Please?"
+          ],
+          "gives": {
+            "item": "ember_crystal",
+            "line": "So you're the Queen's hero! Take this ember crystal, then. They say the Heart of Summer is made with one."
+          }
+        }
+      ],
+      "spots": [
+        {
+          "id": "fairy_ring",
+          "name": "the Fairy Ring",
+          "emoji": "🍄",
+          "item": "spider_silk",
+          "text": "In the middle of the ring of mushrooms lies a Spider Silk. You hear tiny giggles."
+        }
+      ]
+    },
+    {
+      "id": "coralbay",
+      "name": "Coralbay",
+      "biome": "coast",
+      "appearance": "port",
+      "x": 491,
+      "y": 552,
+      "blurb": "A harbour of bright boats and tarred nets. The fish market opens before sunrise.",
+      "mayor": {
+        "id": "una",
+        "name": "Mayor Una",
+        "title": "Mayor",
+        "emoji": "👩🏻‍🦰",
+        "avatar": "tall, thin mayor with a long golden plait, a plum-coloured cloak, and a tawny owl on one shoulder",
+        "greeting": [
+          "Welcome to Coralbay, Hero! The Queen's messenger said you would come.",
+          "The sea gives and the sea takes. Mostly it gives fish."
+        ],
+        "quest": {
+          "id": "q_coralbay",
+          "type": "slay",
+          "title": "The Great Crab",
+          "offer": [
+            "The Great Crab has been prowling the road to Oakwick, frightening every traveller. The traders have stopped coming, and the market is empty.",
+            "Beat the Great Crab, and the Emberweave Cloak, which has sat in my armoury since my grandmother's day, is yours."
+          ],
+          "reminder": "The Great Crab is still out on the road to Oakwick.",
+          "done": [
+            "The Great Crab beaten? Then Coralbay owes you a great deal.",
+            "As promised: the Emberweave Cloak. May it serve you well against Hrimgar."
+          ],
+          "foe": "foe_great_crab",
+          "reward": {
+            "gold": 40,
+            "items": [
+              "emberweave_cloak"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Rusty Anchor",
+        "keeper": {
+          "id": "hugo",
+          "name": "Hugo",
+          "emoji": "🧔🏻‍♂️",
+          "avatar": "huge shopkeeper with a braided blond beard and a fur vest"
+        },
+        "lines": [
+          "Everything the sea washes up, I sell. Mostly."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "cutlass"
+          },
+          {
+            "item": "storm_hammer"
+          },
+          {
+            "item": "leather_cap"
+          },
+          {
+            "item": "storm_charm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Driftwood Bench",
+        "keeper": {
+          "id": "zinnia",
+          "name": "Zinnia",
+          "emoji": "👩🏼‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "Pedal hard and the bellows roar like the sea."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "perry",
+          "name": "Perry the Slightly Singed",
+          "role": "travelling wizard",
+          "emoji": "🧙🏼",
+          "avatar": "small, round wizard in a patchwork robe covered in singe marks, with spectacles on a chain",
+          "lines": [
+            "Ooh, I could do wonders with you. New hair? New cloak?",
+            "Magic is cheap. Well, sixty gold. That is cheap, for magic.",
+            "Only fire can melt a frost titan's heart."
+          ],
+          "restyle": {
+            "price": 60
+          },
+          "hint": "h_13"
+        },
+        {
+          "id": "emery",
+          "name": "Old Emery",
+          "role": "village elder",
+          "emoji": "🧓🏾",
+          "avatar": "bright-eyed village elder with a knobbly stick and a patchwork cloak",
+          "lines": [
+            "I've seen eighty winters in Coralbay. This one feels different.",
+            "Sit a while, Hero. The young are always in such a hurry."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "gold": 30,
+          "text": "Up among the bells, in a pigeon's nest: a purse of 30 gold!"
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "id": "r_oakwick_coralbay",
+      "a": "oakwick",
+      "b": "coralbay",
+      "distance": 201,
+      "terrain": "coast",
+      "danger": 0.8,
+      "enemies": [
+        "crab",
+        "pirate",
+        "thieving_gulls"
+      ],
+      "fixed": [
+        {
+          "id": "foe_great_crab",
+          "enemy": "great_crab",
+          "at": 0.65,
+          "quest": "q_coralbay"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_oakwick_coralbay",
+          "item": "potion_of_might",
+          "at": 0.5
+        }
+      ]
+    },
+    {
+      "id": "r_ironhold_larkcombe",
+      "a": "ironhold",
+      "b": "larkcombe",
+      "distance": 202,
+      "terrain": "mountain",
+      "danger": 1,
+      "enemies": [
+        "stone_troll",
+        "cave_bats",
+        "rock_golem"
+      ],
+      "fixed": [
+        {
+          "id": "foe_thunder_eagle",
+          "enemy": "thunder_eagle",
+          "at": 0.56,
+          "quest": "q_ironhold"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_ironhold_larkcombe",
+          "item": "crystal_shard",
+          "at": 0.37
+        }
+      ]
+    },
+    {
+      "id": "r_highridge_mosshollow",
+      "a": "highridge",
+      "b": "mosshollow",
+      "distance": 202,
+      "terrain": "forest",
+      "danger": 0.9,
+      "enemies": [
+        "goblin",
+        "brown_bear",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_highridge_mosshollow",
+          "item": "healing_draught",
+          "at": 0.61
+        }
+      ]
+    },
+    {
+      "id": "r_larkcombe_coralbay",
+      "a": "larkcombe",
+      "b": "coralbay",
+      "distance": 222,
+      "terrain": "coast",
+      "danger": 0.9,
+      "enemies": [
+        "crab",
+        "pirate",
+        "thieving_gulls"
+      ],
+      "finds": [
+        {
+          "id": "f_larkcombe_coralbay",
+          "item": "pearl",
+          "at": 0.48
+        }
+      ]
+    },
+    {
+      "id": "r_lionford_oakwick",
+      "a": "lionford",
+      "b": "oakwick",
+      "distance": 237,
+      "terrain": "plains",
+      "danger": 0.7,
+      "enemies": [
+        "wolf",
+        "bandit",
+        "boar"
+      ],
+      "finds": [
+        {
+          "id": "f_lionford_oakwick",
+          "item": "carved_tusk",
+          "at": 0.5
+        }
+      ]
+    },
+    {
+      "id": "r_oakwick_larkcombe",
+      "a": "oakwick",
+      "b": "larkcombe",
+      "distance": 255,
+      "terrain": "hills",
+      "danger": 0.8,
+      "enemies": [
+        "wild_ram",
+        "goblin",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_oakwick_larkcombe",
+          "item": "healing_draught",
+          "at": 0.43
+        }
+      ]
+    },
+    {
+      "id": "r_highridge_larkcombe",
+      "a": "highridge",
+      "b": "larkcombe",
+      "distance": 255,
+      "terrain": "hills",
+      "danger": 0.9,
+      "enemies": [
+        "bandit",
+        "wolf",
+        "goblin"
+      ],
+      "finds": [
+        {
+          "id": "f_highridge_larkcombe",
+          "item": "carved_tusk",
+          "at": 0.58
+        }
+      ]
+    },
+    {
+      "id": "r_oakwick_mosshollow",
+      "a": "oakwick",
+      "b": "mosshollow",
+      "distance": 279,
+      "terrain": "forest",
+      "danger": 0.8,
+      "enemies": [
+        "boar",
+        "wolf",
+        "brown_bear"
+      ],
+      "finds": [
+        {
+          "id": "f_oakwick_mosshollow",
+          "item": "shield_tonic",
+          "at": 0.38
+        }
+      ]
+    },
+    {
+      "id": "r_frosthold_larkcombe",
+      "a": "frosthold",
+      "b": "larkcombe",
+      "distance": 288,
+      "terrain": "snow",
+      "danger": 1.1,
+      "enemies": [
+        "frost_wolf",
+        "snow_troll"
+      ],
+      "finds": [
+        {
+          "id": "f_frosthold_larkcombe",
+          "item": "frost_lily",
+          "at": 0.36
+        }
+      ]
+    },
+    {
+      "id": "r_lionford_mosshollow",
+      "a": "lionford",
+      "b": "mosshollow",
+      "distance": 305,
+      "terrain": "forest",
+      "danger": 0.7,
+      "enemies": [
+        "brown_bear",
+        "boar",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_lionford_mosshollow",
+          "item": "spider_silk",
+          "at": 0.64
+        }
+      ]
+    },
+    {
+      "id": "r_frosthold_ironhold",
+      "a": "frosthold",
+      "b": "ironhold",
+      "distance": 314,
+      "terrain": "snow",
+      "danger": 1.2,
+      "enemies": [
+        "frost_wolf",
+        "snow_troll",
+        "frost_sprite"
+      ],
+      "finds": [
+        {
+          "id": "f_frosthold_ironhold",
+          "item": "greater_healing",
+          "at": 0.57
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "crab",
+      "name": "Giant Crab",
+      "emoji": "🦀",
+      "family": "sea",
+      "tier": 1,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        7,
+        12
+      ],
+      "drops": [
+        {
+          "item": "pearl",
+          "chance": 0.1
+        }
+      ],
+      "taunt": "A crab the size of a cart clacks its claws."
+    },
+    {
+      "id": "pirate",
+      "name": "Pirate Deckhand",
+      "emoji": "🏴‍☠️",
+      "family": "pirate",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        14,
+        22
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "\"Arr! Hand over yer valuables!\""
+    },
+    {
+      "id": "thieving_gulls",
+      "name": "Thieving Gulls",
+      "emoji": "🐦",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        6,
+        10
+      ],
+      "drops": [
+        {
+          "item": "sea_glass",
+          "chance": 0.15
+        }
+      ],
+      "taunt": "A flock of gulls swoops down, screaming. One of them has your lunch."
+    },
+    {
+      "id": "stone_troll",
+      "name": "Stone Troll",
+      "emoji": "🧌",
+      "family": "giant",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        24,
+        34
+      ],
+      "drops": [
+        {
+          "item": "troll_tooth",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "A troll steps out from behind a boulder. No, wait: the boulder IS the troll."
+    },
+    {
+      "id": "cave_bats",
+      "name": "Cave Bats",
+      "emoji": "🦇",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "holy",
+      "gold": [
+        6,
+        10
+      ],
+      "taunt": "A swarm of bats pours out of the rocks!"
+    },
+    {
+      "id": "rock_golem",
+      "name": "Rock Golem",
+      "emoji": "🗿",
+      "family": "giant",
+      "tier": 2,
+      "weakness": "storm",
+      "gold": [
+        14,
+        20
+      ],
+      "drops": [
+        {
+          "item": "silver_ore",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "A boulder unfolds into a grinding, rumbling golem."
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin Scout",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        9,
+        14
+      ],
+      "drops": [
+        {
+          "item": "goblin_trinket",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A goblin cackles and waves a rusty knife."
+    },
+    {
+      "id": "brown_bear",
+      "name": "Brown Bear",
+      "emoji": "🐻",
+      "family": "beast",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "jar_of_honey",
+          "chance": 0.3
+        }
+      ],
+      "taunt": "A bear rears up on its hind legs. It smells of honey and bad temper."
+    },
+    {
+      "id": "wolf",
+      "name": "Grey Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "fire",
+      "gold": [
+        8,
+        13
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.35
+        }
+      ],
+      "taunt": "A wolf slinks out of the grass, teeth bared."
+    },
+    {
+      "id": "bandit",
+      "name": "Road Bandit",
+      "emoji": "🥷",
+      "family": "bandit",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        15,
+        24
+      ],
+      "drops": [
+        {
+          "item": "healing_draught",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "\"Your gold or your life, traveler!\""
+    },
+    {
+      "id": "boar",
+      "name": "Wild Boar",
+      "emoji": "🐗",
+      "family": "beast",
+      "tier": 1,
+      "gold": [
+        8,
+        12
+      ],
+      "taunt": "A boar paws the ground and snorts."
+    },
+    {
+      "id": "wild_ram",
+      "name": "Wild Ram",
+      "emoji": "🐏",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A ram lowers its curly horns and paws the turf."
+    },
+    {
+      "id": "frost_wolf",
+      "name": "Frost Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A wolf as white as the snowfield pads closer, its breath freezing in the air."
+    },
+    {
+      "id": "snow_troll",
+      "name": "Snow Troll",
+      "emoji": "🧌",
+      "family": "giant",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "fire",
+      "gold": [
+        25,
+        35
+      ],
+      "drops": [
+        {
+          "item": "troll_tooth",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "A troll heaves itself out of a snowdrift."
+    },
+    {
+      "id": "frost_sprite",
+      "name": "Frost Sprite",
+      "emoji": "🥶",
+      "family": "spirit",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        8,
+        13
+      ],
+      "taunt": "A shivering sprite hurls a snowball. It is mostly ice."
+    },
+    {
+      "id": "great_crab",
+      "name": "the Great Crab",
+      "emoji": "🦀",
+      "family": "sea",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        35,
+        45
+      ],
+      "drops": [
+        {
+          "item": "pearl",
+          "chance": 1
+        }
+      ],
+      "taunt": "A crab as big as a cottage rises from the surf, clacking claws like drawbridges.",
+      "avatar": "colossal red crab with barnacles on its shell and one claw much bigger than the other"
+    },
+    {
+      "id": "thunder_eagle",
+      "name": "the Thunder Eagle",
+      "emoji": "🦅",
+      "family": "beast",
+      "tier": 3,
+      "battle": "race",
+      "attack": "storm",
+      "gold": [
+        35,
+        50
+      ],
+      "drops": [
+        {
+          "item": "eagle_feather",
+          "chance": 1
+        }
+      ],
+      "taunt": "Lightning cracks as the Thunder Eagle dives, its feathers crackling with sparks.",
+      "avatar": "golden eagle with wings like sails and sparks crackling along its feathers"
+    },
+    {
+      "id": "hrimgar_the_frost_titan",
+      "name": "Hrimgar the Frost Titan",
+      "emoji": "☃️",
+      "family": "giant",
+      "tier": 5,
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        0,
+        0
+      ],
+      "taunt": "\"Shiver, little one. Shiver and freeze.\"",
+      "boss": true,
+      "avatar": "titan of blue ice as tall as a hill, with a beard of icicles and a crown of snow"
+    }
+  ],
+  "hints": [
+    {
+      "id": "h_1",
+      "text": "Miner Sabine in Larkcombe has the Sunforge Hammer, and has promised it to whoever brings the bundle of healing herbs from Oakwick."
+    },
+    {
+      "id": "h_2",
+      "text": "Duchess Ivy of Oakwick is looking for a courier to Larkcombe."
+    },
+    {
+      "id": "h_3",
+      "text": "Mayor Una of Coralbay keeps the Emberweave Cloak, and has promised it to whoever defeats the Great Crab."
+    },
+    {
+      "id": "h_4",
+      "text": "The Great Crab prowls the road between Coralbay and Oakwick."
+    },
+    {
+      "id": "h_5",
+      "text": "The Heart of Summer can't be bought or found: it has to be made, at the workshop in any town, from two jars of summer honey and an ember crystal. It takes a few minutes of hard pedaling."
+    },
+    {
+      "id": "h_6",
+      "text": "The Crooked Crook in Highridge sells honey."
+    },
+    {
+      "id": "h_7",
+      "text": "Egbert in Mosshollow has an ember crystal, and would give it to a hero."
+    },
+    {
+      "id": "h_8",
+      "text": "The Thunder Eagle prowls the road between Ironhold and Larkcombe."
+    },
+    {
+      "id": "h_9",
+      "text": "The Silver Bell from Highridge is hidden in the Sheep Pen in Larkcombe."
+    },
+    {
+      "id": "h_10",
+      "text": "The Brass Spyglass from Mosshollow is hidden in the Eagle's Nest in Ironhold."
+    },
+    {
+      "id": "h_11",
+      "text": "The Old Chest in Oakwick is locked. Its key was lost in the Old Well in Lionford years ago."
+    },
+    {
+      "id": "h_12",
+      "text": "To defeat Hrimgar you need the Sunforge Hammer, the Emberweave Cloak and the Heart of Summer."
+    },
+    {
+      "id": "h_13",
+      "text": "Only fire can melt a frost titan's heart."
+    },
+    {
+      "id": "h_14",
+      "text": "The quickest road to Frosthold is the one from Larkcombe."
+    }
+  ],
+  "recipes": [
+    {
+      "item": "heart_of_summer",
+      "needs": [
+        {
+          "item": "jar_of_honey",
+          "qty": 2
+        },
+        {
+          "item": "ember_crystal",
+          "qty": 1
+        }
+      ],
+      "seconds": 240
+    },
+    {
+      "item": "healing_draught",
+      "seconds": 60
+    },
+    {
+      "item": "shield_tonic",
+      "seconds": 120
+    },
+    {
+      "item": "greater_healing",
+      "needs": [
+        {
+          "item": "healing_draught",
+          "qty": 2
+        }
+      ],
+      "seconds": 45
+    },
+    {
+      "item": "holy_water",
+      "needs": [
+        {
+          "item": "pearl",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    },
+    {
+      "item": "thunder_vial",
+      "needs": [
+        {
+          "item": "sea_glass",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    }
+  ],
+  "challenge": {
+    "threat": "frost_titan",
+    "title": "The Endless Winter",
+    "summons": [
+      "Ah, Hero, you came! Sit, please. I am afraid the news is bad.",
+      "Hrimgar the Frost Titan has woken in the glacier above Frosthold. Winter has come in midsummer, and the snow grows deeper every day.",
+      "Our scholars say three things can bring Hrimgar down: the Sunforge Hammer, an Emberweave Cloak against the cold, and the Heart of Summer, which holds a whole summer inside.",
+      "Find all three, then face Hrimgar at the Glacier Hall. Ask everyone you meet; the people of the Greenholt know more than they think.",
+      "Take this purse and these draughts. My carriage will carry you to Lionford. Everwyn is counting on you."
+    ],
+    "crisisTown": "frosthold",
+    "lair": {
+      "name": "the Glacier Hall",
+      "emoji": "🏔️",
+      "text": "A great hall carved in the glacier, glittering blue, where the wind never stops howling."
+    },
+    "requires": [
+      "sunforge_hammer",
+      "emberweave_cloak",
+      "heart_of_summer"
+    ],
+    "boss": "hrimgar_the_frost_titan",
+    "victory": [
+      "You hold up the Heart of Summer, and summer pours out of it. Snow melts in rivers down the mountain.",
+      "The Sunforge Hammer glows like a noon sun. Hrimgar shatters into a thousand icicles, which melt in minutes.",
+      "Flowers pop up all over Frosthold. Children run outside without their coats for the first time in months."
+    ],
+    "sources": [
+      {
+        "item": "sunforge_hammer",
+        "how": "quest",
+        "town": "oakwick",
+        "ref": "q_oakwick"
+      },
+      {
+        "item": "emberweave_cloak",
+        "how": "quest",
+        "town": "coralbay",
+        "ref": "q_coralbay"
+      },
+      {
+        "item": "heart_of_summer",
+        "how": "craft",
+        "town": "mosshollow",
+        "ref": "heart_of_summer"
+      }
+    ]
+  }
+}

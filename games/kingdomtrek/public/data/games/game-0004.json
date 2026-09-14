@@ -1,0 +1,1688 @@
+{
+  "schemaVersion": 1,
+  "id": "game-0004",
+  "title": "Black Sails over Saltmouth",
+  "theme": "medieval",
+  "region": {
+    "name": "the Ravenmarch",
+    "blurb": "Golden fields in the west, misty bogs and old oak woods in the middle, and in the east the pirate-held port of Saltmouth.",
+    "width": 1000,
+    "height": 640
+  },
+  "startTown": "lionbridge",
+  "towns": [
+    {
+      "id": "lionbridge",
+      "name": "Lionbridge",
+      "biome": "plains",
+      "appearance": "capital",
+      "x": 170,
+      "y": 395,
+      "blurb": "The royal city of the Ravenmarch: white walls, red roofs, and a castle flying the Queen's banners.",
+      "mayor": {
+        "id": "fenella",
+        "name": "Mayor Fenella",
+        "title": "Mayor",
+        "emoji": "👩🏻‍🦱",
+        "avatar": "tall, thin mayor with dark curls, a mustard-yellow waistcoat, and a walking stick topped with a silver fox",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Lionbridge.",
+          "Anything you need, ask. The Queen's champion is welcome everywhere in Lionbridge."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_lionbridge",
+          "type": "deliver",
+          "title": "A Book of Songs for Miremere",
+          "offer": [
+            "Would you carry this book of songs to Duchess Olwen in Miremere? It is for their choir. They have been singing the same three songs for years.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Duchess Olwen in Miremere is waiting for the book of songs.",
+          "done": [
+            "New songs, at last! The choir will be thrilled. The neighbours, less so.",
+            "Here, for your trouble."
+          ],
+          "item": "book_of_songs",
+          "to": {
+            "town": "miremere"
+          },
+          "reward": {
+            "gold": 30,
+            "items": [
+              "tome_of_might"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Busy Bee",
+        "keeper": {
+          "id": "edmund",
+          "name": "Edmund",
+          "emoji": "👨🏽‍🦳",
+          "avatar": "kindly old shopkeeper in half-moon spectacles and a knitted waistcoat"
+        },
+        "lines": [
+          "Fresh bread, fresh draughts, fresh advice. What'll it be?"
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "hunting_bow"
+          },
+          {
+            "item": "oak_cudgel"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Mill Wheel Workshop",
+        "keeper": {
+          "id": "bertram",
+          "name": "Bertram",
+          "emoji": "👨🏼‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "beatrix",
+          "name": "Beatrix",
+          "role": "child",
+          "emoji": "👧🏿",
+          "avatar": "freckled child with a wooden sword and a helmet three sizes too big",
+          "lines": [
+            "Have you ever fought a grey wolf? What was it like?",
+            "When I grow up, I'm going to be a hero too!"
+          ],
+          "gives": {
+            "item": "healing_draught",
+            "line": "Are you a real hero? Mum says heroes always carry healing draughts. Here, take one of mine!"
+          }
+        },
+        {
+          "id": "morgan",
+          "name": "Sergeant Morgan",
+          "role": "guard",
+          "emoji": "💂🏿",
+          "avatar": "grizzled town guard in a dented steel cap, leaning on a halberd",
+          "lines": [
+            "Arms up, chin down, hit hard.",
+            "I can train you, for a few coins."
+          ],
+          "trains": {
+            "stat": "strength",
+            "price": 40
+          }
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "rusty_key",
+          "text": "Behind the altar, in a dusty niche: a Rusty Key."
+        }
+      ]
+    },
+    {
+      "id": "saltmouth",
+      "name": "Saltmouth",
+      "biome": "coast",
+      "appearance": "ruins",
+      "x": 878,
+      "y": 256,
+      "blurb": "Merchant ships sit burnt at the quay, and a skull-and-crossbones flies over the harbour tower.",
+      "crisis": true,
+      "mayor": {
+        "id": "tam",
+        "name": "Duke Tam",
+        "title": "Duke",
+        "emoji": "👱🏽‍♂️",
+        "avatar": "plump, cheerful duke with a bald head that shines, a fur-trimmed mantle, and a silver circlet",
+        "greeting": [
+          "Psst! In here, quick, before they see you. The Queen sent you?",
+          "Captain Storm rules the town from a black ship out in the bay. We pay them every week, or they burn a warehouse."
+        ],
+        "hint": "h_10"
+      },
+      "shop": {
+        "name": "The Stubborn Stall",
+        "keeper": {
+          "id": "hazel",
+          "name": "Hazel",
+          "emoji": "👩🏽‍🦱",
+          "avatar": "brisk shopkeeper with a pencil behind one ear and a ledger under one arm"
+        },
+        "lines": [
+          "I'm staying till the end. Buy what you need; you'll need it."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "thunder_vial"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Last Forge",
+        "keeper": {
+          "id": "theobald",
+          "name": "Theobald",
+          "emoji": "👨🏻‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "Everyone else has fled. The anvil's all yours."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "mabel",
+          "name": "Old Mabel",
+          "role": "grandmother",
+          "emoji": "👵🏼",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "Everyone keeps telling me to run. Run where? My knees are eighty-three.",
+            "Stormcaller, the Admiral's Coat and the Map of Skull Cove. The old songs say you need all three."
+          ],
+          "hint": "h_10"
+        },
+        {
+          "id": "wystan",
+          "name": "Watchman Wystan",
+          "role": "watchman",
+          "emoji": "💂🏼",
+          "avatar": "exhausted young watchman in a battered helmet, holding a bucket",
+          "lines": [
+            "They took my lantern. And my hat. And my other hat.",
+            "Every night they sing sea shanties. Badly. Very loudly."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "ruined_hall",
+          "name": "the Ruined Hall",
+          "emoji": "🏚️",
+          "item": "greater_healing",
+          "text": "In the rubble of the old hall you find a Greater Healing Draught, somehow unbroken."
+        }
+      ]
+    },
+    {
+      "id": "miremere",
+      "name": "Miremere",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 404,
+      "y": 343,
+      "blurb": "Lantern-lit walkways wind between the houses over dark, still water. Frogs sing all night.",
+      "mayor": {
+        "id": "olwen",
+        "name": "Duchess Olwen",
+        "title": "Duchess",
+        "emoji": "👩🏼‍🦱",
+        "avatar": "elegant duchess with a long golden plait, a sea-green robe, and a very large hat",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Miremere.",
+          "Mind the boardwalks. Some of the planks are, well, optional."
+        ],
+        "hint": "h_6",
+        "quest": {
+          "id": "q_miremere",
+          "type": "deliver",
+          "title": "An Ore Sample for Heatherdale",
+          "offer": [
+            "Would you carry this ore sample to Lord Merrick in Heatherdale? We have struck a new seam, and they want to see a sample.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Lord Merrick in Heatherdale is waiting for the ore sample.",
+          "done": [
+            "Beautiful! Look at that silver. Miremere will be rich.",
+            "Take this, with my thanks."
+          ],
+          "item": "ore_sample",
+          "to": {
+            "town": "heatherdale"
+          },
+          "reward": {
+            "gold": 50,
+            "items": [
+              "tome_of_arcana"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Dunstan's Curios",
+        "keeper": {
+          "id": "dunstan",
+          "name": "Dunstan",
+          "emoji": "👨🏼‍🦳",
+          "avatar": "kindly old shopkeeper in half-moon spectacles and a knitted waistcoat"
+        },
+        "lines": [
+          "Mind the jars. Some of them bite."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "cutlass"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "iron_helm"
+          },
+          {
+            "item": "plague_mask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Crispin's Brewhouse",
+        "keeper": {
+          "id": "crispin",
+          "name": "Crispin",
+          "emoji": "👨🏿‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "The cauldron never stops bubbling. Put something good in it."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "tilly",
+          "name": "Herbalist Tilly",
+          "role": "herbalist",
+          "emoji": "🌿",
+          "avatar": "herbalist in a green apron, with bundles of drying herbs hanging from the belt",
+          "lines": [
+            "Every potion is a little poem, if you know how to read it.",
+            "Lessons are cheap. Not knowing is expensive.",
+            "The Mill Gear from Rowanglen is hidden in the Reed Maze in Miremere."
+          ],
+          "trains": {
+            "stat": "magic",
+            "price": 40
+          },
+          "hint": "h_7"
+        },
+        {
+          "id": "yvaine",
+          "name": "Yvaine",
+          "role": "ferry-keeper",
+          "emoji": "🛶",
+          "avatar": "lean ferry-keeper in a wide hat, leaning on a long pole",
+          "lines": [
+            "I take anyone across. Except goblins. Goblins don't tip.",
+            "Pirates fear nothing like a storm at sea."
+          ],
+          "hint": "h_11"
+        }
+      ],
+      "spots": [
+        {
+          "id": "reed_maze",
+          "name": "the Reed Maze",
+          "emoji": "🌾",
+          "item": "mill_gear",
+          "text": "At the heart of the reeds, on a muddy tussock: the Mill Gear."
+        }
+      ]
+    },
+    {
+      "id": "hazelgrove",
+      "name": "Hazelgrove",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 365,
+      "y": 547,
+      "blurb": "Cottages with mossy roofs hide among the trees. Fireflies light the lanes at night.",
+      "mayor": {
+        "id": "rowan",
+        "name": "Warden Rowan",
+        "title": "Warden",
+        "emoji": "🧑🏼",
+        "avatar": "small, brisk warden with wild curly hair, a green velvet coat, and a tawny owl on one shoulder",
+        "greeting": [
+          "Hazelgrove welcomes you, Hero. We have heard all about you.",
+          "The trees here are older than the kingdom. Be kind to them."
+        ],
+        "hint": "h_3",
+        "quest": {
+          "id": "q_hazelgrove",
+          "type": "fetch",
+          "title": "The Silver Bell",
+          "offer": [
+            "Our Silver Bell was stolen! We ring it when the river floods.",
+            "A goblin ran off toward Silverfell with it. Bring it back and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "Any sign of the Silver Bell? A goblin ran off toward Silverfell with it.",
+          "done": [
+            "My bell! Now we'll hear the floods coming.",
+            "Take this, with Hazelgrove's thanks."
+          ],
+          "item": "silver_bell",
+          "reward": {
+            "gold": 45,
+            "items": [
+              "fur_cloak"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Mossy Kettle",
+        "keeper": {
+          "id": "egbert",
+          "name": "Egbert",
+          "emoji": "👨🏾‍🦲",
+          "avatar": "cheerful bald merchant in a honey-coloured vest"
+        },
+        "lines": [
+          "Everything a traveller needs, and a few things they don't."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "morningstar"
+          },
+          {
+            "item": "oak_cudgel"
+          },
+          {
+            "item": "leather_vest"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Sawdust Hut",
+        "keeper": {
+          "id": "emery",
+          "name": "Emery",
+          "emoji": "🧑🏽‍🔧",
+          "avatar": "cheerful tinker with a tool belt full of odd little tools"
+        },
+        "lines": [
+          "The grindstone sings when you pedal fast. Make it sing!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "agatha",
+          "name": "Granny Agatha",
+          "role": "good witch",
+          "emoji": "🧙🏿‍♀️",
+          "avatar": "tiny, kindly witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": [
+            "Not all witches are wicked, dearie.",
+            "The Silver Bell from Hazelgrove is hidden in the Abandoned Mine in Silverfell."
+          ],
+          "hint": "h_8"
+        },
+        {
+          "id": "odette",
+          "name": "Old Odette",
+          "role": "grandmother",
+          "emoji": "👵🏾",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "I remember the last time Everwyn needed a hero. You look taller than that one.",
+            "Eat something! You're all bones."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "fairy_ring",
+          "name": "the Fairy Ring",
+          "emoji": "🍄",
+          "item": "greater_healing",
+          "text": "In the middle of the ring of mushrooms lies a Greater Healing Draught. You hear tiny giggles."
+        }
+      ]
+    },
+    {
+      "id": "heatherdale",
+      "name": "Heatherdale",
+      "biome": "hills",
+      "appearance": "hillside",
+      "x": 656,
+      "y": 374,
+      "blurb": "A hill town of orchards and stone walls, with a view over half of the Ravenmarch.",
+      "mayor": {
+        "id": "merrick",
+        "name": "Lord Merrick",
+        "title": "Lord",
+        "emoji": "👨🏻‍🦱",
+        "avatar": "white-haired, twinkling-eyed lord with a red beard braided with beads, a patched but proud coat, and a silver circlet",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Heatherdale.",
+          "Have some cheese. Everyone here has cheese."
+        ],
+        "hint": "h_4",
+        "quest": {
+          "id": "q_heatherdale",
+          "type": "deliver",
+          "title": "A Bolt of Blue Cloth for Willowwater",
+          "offer": [
+            "Would you carry this bolt of blue cloth to Baker Gus in Willowwater? It is for their festival banner. They can't finish it without the blue.",
+            "You'll be well paid for your trouble."
+          ],
+          "reminder": "Baker Gus in Willowwater is waiting for the bolt of blue cloth.",
+          "done": [
+            "The blue cloth! Now the banner will be done in time.",
+            "Here, for your trouble."
+          ],
+          "item": "bolt_of_cloth",
+          "to": {
+            "town": "willowwater",
+            "npc": "gus"
+          },
+          "reward": {
+            "gold": 70,
+            "items": [
+              "oak_shield"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Crooked Crook",
+        "keeper": {
+          "id": "ivor",
+          "name": "Ivor",
+          "emoji": "👨🏻‍🦳",
+          "avatar": "kindly old shopkeeper in half-moon spectacles and a knitted waistcoat"
+        },
+        "lines": [
+          "Wool, cheese and cudgels: the three things every hill-walker needs."
+        ],
+        "stock": [
+          {
+            "item": "jar_of_honey"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "war_axe"
+          },
+          {
+            "item": "elven_bow"
+          },
+          {
+            "item": "chainmail"
+          },
+          {
+            "item": "wheel_of_cheese"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Hilltop Forge",
+        "keeper": {
+          "id": "robin",
+          "name": "Robin",
+          "emoji": "🧑🏾‍🏭",
+          "avatar": "patient glassblower with singed sleeves and careful hands"
+        },
+        "lines": [
+          "Everything I own, I made right here. So can you."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "hugo",
+          "name": "Ranger Hugo",
+          "role": "ranger",
+          "emoji": "🧝🏻",
+          "avatar": "hooded ranger with a longbow and a scar across one cheek",
+          "lines": [
+            "The wild wears you down, if you let it.",
+            "I can toughen you up, if you've the coin.",
+            "Only an Admiral's Coat can turn Captain Storm's fire. Hollis's Curios in Willowwater has one."
+          ],
+          "trains": {
+            "stat": "vigor",
+            "price": 40
+          },
+          "hint": "h_5"
+        },
+        {
+          "id": "jory",
+          "name": "Jory",
+          "role": "child",
+          "emoji": "👦🏽",
+          "avatar": "small child with scabby knees and a pet frog in one pocket",
+          "lines": [
+            "Have you ever fought a road bandit? What was it like?",
+            "When I grow up, I'm going to be a hero too!"
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "shepherd_s_hut",
+          "name": "the Shepherd's Hut",
+          "emoji": "🛖",
+          "item": "pearl",
+          "text": "Under a pile of old fleeces in the hut: a pearl!"
+        }
+      ]
+    },
+    {
+      "id": "rowanglen",
+      "name": "Rowanglen",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 699,
+      "y": 189,
+      "blurb": "A woodcutters' village in a clearing, where the sawmill hums and the air smells of pine.",
+      "mayor": {
+        "id": "sabine",
+        "name": "Countess Sabine",
+        "title": "Countess",
+        "emoji": "👩🏽‍🦲",
+        "avatar": "white-haired, twinkling-eyed countess with braided red hair, a sea-green robe, and a very large hat",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Rowanglen.",
+          "Walk softly; the forest listens."
+        ],
+        "hint": "h_4",
+        "quest": {
+          "id": "q_rowanglen",
+          "type": "fetch",
+          "title": "The Mill Gear",
+          "offer": [
+            "The mill has stopped. A gear is missing, and without it we can't grind a thing.",
+            "The miller's boy says a troll took it to Miremere to wear as a hat. Bring it back and the Map of Skull Cove, which has been in my family for generations, is yours."
+          ],
+          "reminder": "Any sign of the Mill Gear? The miller's boy says a troll took it to Miremere to wear as a hat.",
+          "done": [
+            "The gear! The mill will be turning again by supper.",
+            "As promised: the Map of Skull Cove. May it serve you well against Captain Storm."
+          ],
+          "item": "mill_gear",
+          "reward": {
+            "gold": 40,
+            "items": [
+              "skull_cove_map"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Acorn & Arrow",
+        "keeper": {
+          "id": "marigold",
+          "name": "Marigold",
+          "emoji": "👱🏾‍♀️",
+          "avatar": "stubborn young shopkeeper with a smudged face and a lantern"
+        },
+        "lines": [
+          "Everything a traveller needs, and a few things they don't."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "sunlit_mace"
+          },
+          {
+            "item": "inferno_greatsword"
+          },
+          {
+            "item": "leather_cap"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Whittled Owl",
+        "keeper": {
+          "id": "coralie",
+          "name": "Coralie",
+          "emoji": "👩🏿‍🔧",
+          "avatar": "strong-armed smith in a leather apron, with soot on her nose and a hammer on her belt"
+        },
+        "lines": [
+          "Bark, sap and elbow grease. Help yourself to the bench."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "delphine",
+          "name": "Granny Delphine",
+          "role": "good witch",
+          "emoji": "🧙🏾‍♀️",
+          "avatar": "tiny, kindly witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": [
+            "My cat says you have a kind face. My cat is never wrong.",
+            "The Mill Gear from Rowanglen is hidden in the Reed Maze in Miremere."
+          ],
+          "hint": "h_7"
+        },
+        {
+          "id": "digby",
+          "name": "Digby",
+          "role": "beekeeper",
+          "emoji": "🐝",
+          "avatar": "beekeeper in a white veiled hat, bees drifting lazily around",
+          "lines": [
+            "Never swat a bee. It only makes the others cross.",
+            "The quickest road to Saltmouth is the one from Rowanglen."
+          ],
+          "hint": "h_12"
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "item": "spider_silk",
+          "text": "Up among the bells, in a pigeon's nest: a Spider Silk!"
+        }
+      ]
+    },
+    {
+      "id": "silverfell",
+      "name": "Silverfell",
+      "biome": "mountain",
+      "appearance": "fortress",
+      "x": 313,
+      "y": 177,
+      "blurb": "A walled town on a crag, guarding the only pass through the mountains.",
+      "mayor": {
+        "id": "lark",
+        "name": "Mayor Lark",
+        "title": "Mayor",
+        "emoji": "👩🏾‍🦰",
+        "avatar": "plump, cheerful mayor with a long golden plait, a fur-trimmed mantle, and a silver circlet",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Silverfell.",
+          "Watch your step. Our streets mostly go up."
+        ],
+        "hint": "h_2",
+        "quest": {
+          "id": "q_silverfell",
+          "type": "fetch",
+          "title": "Honey for a Cough",
+          "offer": [
+            "My granddaughter has a cough, and honey is the only cure she'll take.",
+            "The Crooked Crook in Heatherdale sells honey, I am told. Bring me one, please."
+          ],
+          "reminder": "Have you found a jar of honey? The Crooked Crook in Heatherdale sells honey.",
+          "done": [
+            "Honey! She'll be well in no time.",
+            "Take this, with Silverfell's thanks."
+          ],
+          "item": "jar_of_honey",
+          "reward": {
+            "gold": 40,
+            "items": [
+              "greater_healing"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Leofric's Armoury",
+        "keeper": {
+          "id": "leofric",
+          "name": "Leofric",
+          "emoji": "👨🏾‍🦳",
+          "avatar": "kindly old shopkeeper in half-moon spectacles and a knitted waistcoat"
+        },
+        "lines": [
+          "Forged in the mountain, cooled in snowmelt. Take a look."
+        ],
+        "stock": [
+          {
+            "item": "cutlass"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "thunder_vial"
+          },
+          {
+            "item": "morningstar"
+          },
+          {
+            "item": "leather_cap"
+          },
+          {
+            "item": "iron_helm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Stonecutter's Yard",
+        "keeper": {
+          "id": "zinnia",
+          "name": "Zinnia",
+          "emoji": "👩🏿‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "The best anvil this side of the mountains. Strike while it's hot!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "edith",
+          "name": "Baker Edith",
+          "role": "baker",
+          "emoji": "👩🏿‍🍳",
+          "avatar": "round, rosy baker in a floury apron, with a tray of buns",
+          "lines": [
+            "Heroes need feeding. You look like you skipped breakfast.",
+            "The Silver Bell from Hazelgrove is hidden in the Abandoned Mine in Silverfell."
+          ],
+          "hint": "h_8"
+        },
+        {
+          "id": "nell",
+          "name": "Nell",
+          "role": "shepherd",
+          "emoji": "🐑",
+          "avatar": "shepherd in a thick wool cloak, with a crook and a sheepdog at heel",
+          "lines": [
+            "Four hundred sheep, and I know every one by name.",
+            "The Old Chest in Silverfell is locked. Its key was lost in the Old Chapel in Lionbridge years ago."
+          ],
+          "hint": "h_9"
+        }
+      ],
+      "spots": [
+        {
+          "id": "abandoned_mine",
+          "name": "the Abandoned Mine",
+          "emoji": "🕳️",
+          "item": "silver_bell",
+          "text": "In the dark of the old shaft your hand closes on the Silver Bell."
+        },
+        {
+          "id": "old_chest",
+          "name": "the Old Chest",
+          "emoji": "📦",
+          "item": "tome_of_vigor",
+          "requiresKey": "rusty_key",
+          "text": "The Rusty Key turns with a screech. Inside the old chest: a Tome of Vigor!",
+          "lockedText": "A heavy chest sits in the corner, locked tight. The keyhole is caked with rust."
+        }
+      ]
+    },
+    {
+      "id": "willowwater",
+      "name": "Willowwater",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 618,
+      "y": 558,
+      "blurb": "A village of reed huts and boardwalks over the marsh. Everyone owns a punt.",
+      "mayor": {
+        "id": "ida",
+        "name": "Baroness Ida",
+        "title": "Baroness",
+        "emoji": "👱🏿‍♀️",
+        "avatar": "plump, cheerful baroness with a long golden plait, a mustard-yellow waistcoat, and a tawny owl on one shoulder",
+        "greeting": [
+          "A hero, in Willowwater! Come in, come in, mind the step.",
+          "Mind the boardwalks. Some of the planks are, well, optional."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_willowwater",
+          "type": "deliver",
+          "title": "A Sack of Nails for Hazelgrove",
+          "offer": [
+            "Would you carry this sack of nails to Granny Agatha in Hazelgrove? They are rebuilding after the storm, and they have run out of nails.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Granny Agatha in Hazelgrove is waiting for the sack of nails.",
+          "done": [
+            "Nails! Now the barn roof can go back on. Thank you, Hero.",
+            "Take this, with my thanks."
+          ],
+          "item": "sack_of_nails",
+          "to": {
+            "town": "hazelgrove",
+            "npc": "agatha"
+          },
+          "reward": {
+            "gold": 70,
+            "items": [
+              "gauntlets_of_might"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Hollis's Curios",
+        "keeper": {
+          "id": "hollis",
+          "name": "Hollis",
+          "emoji": "🧑🏼",
+          "avatar": "calm shopkeeper in a green apron, with a pencil behind one ear"
+        },
+        "lines": [
+          "Mind the jars. Some of them bite."
+        ],
+        "stock": [
+          {
+            "item": "admirals_coat",
+            "qty": 1
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "morningstar"
+          },
+          {
+            "item": "sunlit_mace"
+          },
+          {
+            "item": "leather_vest"
+          },
+          {
+            "item": "plague_mask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Bog-Iron Forge",
+        "keeper": {
+          "id": "bram",
+          "name": "Bram",
+          "emoji": "👨🏽‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "The cauldron never stops bubbling. Put something good in it."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "posy",
+          "name": "Posy the Wise",
+          "role": "travelling wizard",
+          "emoji": "🧙🏿‍♀️",
+          "avatar": "small, round wizard in a patchwork robe covered in singe marks, with spectacles on a chain",
+          "lines": [
+            "Tired of that face? I can change it. A little magic, a little gold.",
+            "Build, clothes, hair. Nothing I have not done a thousand times.",
+            "Leofric's Armoury in Silverfell sells cutlasses."
+          ],
+          "restyle": {
+            "price": 60
+          },
+          "hint": "h_2"
+        },
+        {
+          "id": "gus",
+          "name": "Baker Gus",
+          "role": "baker",
+          "emoji": "👨🏼‍🍳",
+          "avatar": "round, rosy baker in a floury apron, with a tray of buns",
+          "lines": [
+            "Heroes need feeding. You look like you skipped breakfast.",
+            "There is a pearl hidden in the Shepherd's Hut in Heatherdale."
+          ],
+          "hint": "h_3"
+        },
+        {
+          "id": "petra",
+          "name": "Granny Petra",
+          "role": "good witch",
+          "emoji": "🧙🏿‍♀️",
+          "avatar": "tiny, kindly witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": [
+            "My cat says you have a kind face. My cat is never wrong.",
+            "Countess Sabine of Rowanglen would give the Map of Skull Cove to whoever brings back the lost Mill Gear."
+          ],
+          "hint": "h_6"
+        }
+      ],
+      "spots": [
+        {
+          "id": "frog_pond",
+          "name": "the Frog Pond",
+          "emoji": "🐸",
+          "item": "greater_healing",
+          "text": "A very large frog is sitting on a Greater Healing Draught. It lets you have it, eventually."
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "id": "r_heatherdale_willowwater",
+      "a": "heatherdale",
+      "b": "willowwater",
+      "distance": 188,
+      "terrain": "swamp",
+      "danger": 1,
+      "enemies": [
+        "marsh_wisp",
+        "goblin",
+        "bog_lurker"
+      ],
+      "finds": [
+        {
+          "id": "f_heatherdale_willowwater",
+          "item": "travelers_tonic",
+          "at": 0.54
+        }
+      ]
+    },
+    {
+      "id": "r_miremere_silverfell",
+      "a": "miremere",
+      "b": "silverfell",
+      "distance": 189,
+      "terrain": "mountain",
+      "danger": 0.8,
+      "enemies": [
+        "goblin",
+        "cave_bats",
+        "mountain_eagle"
+      ],
+      "finds": [
+        {
+          "id": "f_miremere_silverfell",
+          "item": "potion_of_might",
+          "at": 0.37
+        }
+      ]
+    },
+    {
+      "id": "r_heatherdale_rowanglen",
+      "a": "heatherdale",
+      "b": "rowanglen",
+      "distance": 190,
+      "terrain": "hills",
+      "danger": 1,
+      "enemies": [
+        "wolf",
+        "hill_ogre",
+        "goblin"
+      ],
+      "finds": [
+        {
+          "id": "f_heatherdale_rowanglen",
+          "item": "potion_of_might",
+          "at": 0.59
+        }
+      ]
+    },
+    {
+      "id": "r_saltmouth_rowanglen",
+      "a": "saltmouth",
+      "b": "rowanglen",
+      "distance": 191,
+      "terrain": "coast",
+      "danger": 1.3,
+      "enemies": [
+        "pirate_gunner",
+        "pirate_parrot",
+        "giant_octopus"
+      ],
+      "finds": [
+        {
+          "id": "f_saltmouth_rowanglen",
+          "item": "greater_healing",
+          "at": 0.45
+        }
+      ]
+    },
+    {
+      "id": "r_miremere_hazelgrove",
+      "a": "miremere",
+      "b": "hazelgrove",
+      "distance": 208,
+      "terrain": "swamp",
+      "danger": 0.8,
+      "enemies": [
+        "marsh_wisp",
+        "bog_lurker",
+        "goblin"
+      ],
+      "finds": [
+        {
+          "id": "f_miremere_hazelgrove",
+          "item": "travelers_tonic",
+          "at": 0.5
+        }
+      ]
+    },
+    {
+      "id": "r_lionbridge_miremere",
+      "a": "lionbridge",
+      "b": "miremere",
+      "distance": 240,
+      "terrain": "swamp",
+      "danger": 0.7,
+      "enemies": [
+        "giant_toad",
+        "bog_lurker",
+        "goblin"
+      ],
+      "finds": [
+        {
+          "id": "f_lionbridge_miremere",
+          "item": "potion_of_might",
+          "at": 0.57
+        }
+      ]
+    },
+    {
+      "id": "r_lionbridge_hazelgrove",
+      "a": "lionbridge",
+      "b": "hazelgrove",
+      "distance": 247,
+      "terrain": "forest",
+      "danger": 0.7,
+      "enemies": [
+        "wolf",
+        "boar",
+        "goblin"
+      ],
+      "finds": [
+        {
+          "id": "f_lionbridge_hazelgrove",
+          "item": "goblin_trinket",
+          "at": 0.35
+        }
+      ]
+    },
+    {
+      "id": "r_saltmouth_heatherdale",
+      "a": "saltmouth",
+      "b": "heatherdale",
+      "distance": 251,
+      "terrain": "coast",
+      "danger": 1.2,
+      "enemies": [
+        "pirate_gunner",
+        "pirate_parrot",
+        "pirate"
+      ],
+      "finds": [
+        {
+          "id": "f_saltmouth_heatherdale",
+          "item": "pearl",
+          "at": 0.51
+        }
+      ]
+    },
+    {
+      "id": "r_hazelgrove_willowwater",
+      "a": "hazelgrove",
+      "b": "willowwater",
+      "distance": 253,
+      "terrain": "swamp",
+      "danger": 0.9,
+      "enemies": [
+        "bog_lurker",
+        "goblin",
+        "giant_toad"
+      ],
+      "finds": [
+        {
+          "id": "f_hazelgrove_willowwater",
+          "item": "shield_tonic",
+          "at": 0.56
+        }
+      ]
+    },
+    {
+      "id": "r_miremere_heatherdale",
+      "a": "miremere",
+      "b": "heatherdale",
+      "distance": 254,
+      "terrain": "hills",
+      "danger": 0.9,
+      "enemies": [
+        "wolf",
+        "hill_ogre",
+        "bandit"
+      ],
+      "finds": [
+        {
+          "id": "f_miremere_heatherdale",
+          "item": "potion_of_might",
+          "at": 0.47
+        }
+      ]
+    },
+    {
+      "id": "r_lionbridge_silverfell",
+      "a": "lionbridge",
+      "b": "silverfell",
+      "distance": 261,
+      "terrain": "mountain",
+      "danger": 0.7,
+      "enemies": [
+        "goblin",
+        "mountain_eagle",
+        "cave_bats"
+      ],
+      "finds": [
+        {
+          "id": "f_lionbridge_silverfell",
+          "item": "crystal_shard",
+          "at": 0.57
+        }
+      ]
+    },
+    {
+      "id": "r_miremere_willowwater",
+      "a": "miremere",
+      "b": "willowwater",
+      "distance": 303,
+      "terrain": "swamp",
+      "danger": 0.9,
+      "enemies": [
+        "giant_toad",
+        "bog_lurker",
+        "marsh_wisp"
+      ],
+      "finds": [
+        {
+          "id": "f_miremere_willowwater",
+          "item": "pearl",
+          "at": 0.61
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "marsh_wisp",
+      "name": "Marsh Wisp",
+      "emoji": "👻",
+      "family": "spirit",
+      "tier": 2,
+      "weakness": "holy",
+      "gold": [
+        10,
+        16
+      ],
+      "taunt": "A pale light drifts closer, whispering your name."
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin Scout",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        9,
+        14
+      ],
+      "drops": [
+        {
+          "item": "goblin_trinket",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A goblin cackles and waves a rusty knife."
+    },
+    {
+      "id": "bog_lurker",
+      "name": "Bog Lurker",
+      "emoji": "🐊",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "taunt": "Something scaly rises from the muck."
+    },
+    {
+      "id": "cave_bats",
+      "name": "Cave Bats",
+      "emoji": "🦇",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "holy",
+      "gold": [
+        6,
+        10
+      ],
+      "taunt": "A swarm of bats pours out of the rocks!"
+    },
+    {
+      "id": "mountain_eagle",
+      "name": "Mountain Eagle",
+      "emoji": "🦅",
+      "family": "beast",
+      "tier": 2,
+      "battle": "race",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "eagle_feather",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "An eagle with wings as wide as a cart dives out of the sun."
+    },
+    {
+      "id": "wolf",
+      "name": "Grey Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "fire",
+      "gold": [
+        8,
+        13
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.35
+        }
+      ],
+      "taunt": "A wolf slinks out of the grass, teeth bared."
+    },
+    {
+      "id": "hill_ogre",
+      "name": "Hill Ogre",
+      "emoji": "👹",
+      "family": "giant",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        24,
+        34
+      ],
+      "drops": [
+        {
+          "item": "carved_tusk",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "An ogre sits in the road eating a whole cabbage. It wipes its mouth and stands up."
+    },
+    {
+      "id": "pirate_gunner",
+      "name": "Pirate Gunner",
+      "emoji": "💣",
+      "family": "pirate",
+      "tier": 2,
+      "weakness": "storm",
+      "attack": "fire",
+      "gold": [
+        14,
+        22
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "\"Fire in the hole!\" A pirate lights a fuse and grins."
+    },
+    {
+      "id": "pirate_parrot",
+      "name": "Pirate Parrot",
+      "emoji": "🦜",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        6,
+        12
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "\"Pieces of eight! Pieces of eight!\" A parrot dives at your hat."
+    },
+    {
+      "id": "giant_octopus",
+      "name": "Giant Octopus",
+      "emoji": "🐙",
+      "family": "sea",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "sea_glass",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "Eight long arms reach up out of a rock pool. One of them grabs your boot."
+    },
+    {
+      "id": "giant_toad",
+      "name": "Giant Toad",
+      "emoji": "🐸",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A toad the size of a barrel blinks at you, then flicks out a very long tongue."
+    },
+    {
+      "id": "boar",
+      "name": "Wild Boar",
+      "emoji": "🐗",
+      "family": "beast",
+      "tier": 1,
+      "gold": [
+        8,
+        12
+      ],
+      "taunt": "A boar paws the ground and snorts."
+    },
+    {
+      "id": "pirate",
+      "name": "Pirate Deckhand",
+      "emoji": "🏴‍☠️",
+      "family": "pirate",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        14,
+        22
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "\"Arr! Hand over yer valuables!\""
+    },
+    {
+      "id": "bandit",
+      "name": "Road Bandit",
+      "emoji": "🥷",
+      "family": "bandit",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        15,
+        24
+      ],
+      "drops": [
+        {
+          "item": "healing_draught",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "\"Your gold or your life, traveler!\""
+    },
+    {
+      "id": "captain_scarlett_storm",
+      "name": "Captain Scarlett Storm",
+      "emoji": "🏴‍☠️",
+      "family": "pirate",
+      "tier": 5,
+      "weakness": "storm",
+      "attack": "fire",
+      "gold": [
+        0,
+        0
+      ],
+      "taunt": "\"Ahoy, landlubber! Ye've come a long way to walk the plank!\"",
+      "boss": true,
+      "avatar": "towering pirate king in a coat of red velvet, with a black beard braided with gold coins"
+    }
+  ],
+  "hints": [
+    {
+      "id": "h_1",
+      "text": "Stormcaller can't be bought or found: it has to be made, at the workshop in any town, from a cutlass with a storm-pearl set in its hilt. It takes a few minutes of hard pedaling."
+    },
+    {
+      "id": "h_2",
+      "text": "Leofric's Armoury in Silverfell sells cutlasses."
+    },
+    {
+      "id": "h_3",
+      "text": "There is a pearl hidden in the Shepherd's Hut in Heatherdale."
+    },
+    {
+      "id": "h_4",
+      "text": "Hollis's Curios in Willowwater sells an Admiral's Coat. It costs a fortune: 240 gold."
+    },
+    {
+      "id": "h_5",
+      "text": "Only an Admiral's Coat can turn Captain Storm's fire. Hollis's Curios in Willowwater has one."
+    },
+    {
+      "id": "h_6",
+      "text": "Countess Sabine of Rowanglen would give the Map of Skull Cove to whoever brings back the lost Mill Gear."
+    },
+    {
+      "id": "h_7",
+      "text": "The Mill Gear from Rowanglen is hidden in the Reed Maze in Miremere."
+    },
+    {
+      "id": "h_8",
+      "text": "The Silver Bell from Hazelgrove is hidden in the Abandoned Mine in Silverfell."
+    },
+    {
+      "id": "h_9",
+      "text": "The Old Chest in Silverfell is locked. Its key was lost in the Old Chapel in Lionbridge years ago."
+    },
+    {
+      "id": "h_10",
+      "text": "To defeat Captain Storm you need Stormcaller, the Admiral's Coat and the Map of Skull Cove."
+    },
+    {
+      "id": "h_11",
+      "text": "Pirates fear nothing like a storm at sea."
+    },
+    {
+      "id": "h_12",
+      "text": "The quickest road to Saltmouth is the one from Rowanglen."
+    }
+  ],
+  "recipes": [
+    {
+      "item": "stormcaller",
+      "needs": [
+        {
+          "item": "cutlass",
+          "qty": 1
+        },
+        {
+          "item": "pearl",
+          "qty": 1
+        }
+      ],
+      "seconds": 240
+    },
+    {
+      "item": "healing_draught",
+      "seconds": 60
+    },
+    {
+      "item": "shield_tonic",
+      "seconds": 120
+    },
+    {
+      "item": "greater_healing",
+      "needs": [
+        {
+          "item": "healing_draught",
+          "qty": 2
+        }
+      ],
+      "seconds": 45
+    },
+    {
+      "item": "venom_vial",
+      "needs": [
+        {
+          "item": "spider_silk",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    },
+    {
+      "item": "thunder_vial",
+      "needs": [
+        {
+          "item": "sea_glass",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    }
+  ],
+  "challenge": {
+    "threat": "pirates",
+    "title": "Black Sails over Saltmouth",
+    "summons": [
+      "Welcome, Hero. I wish I had called you here for a feast, not a fight.",
+      "Captain Scarlett Storm and a fleet of black sails have seized Saltmouth. They rob every ship on the coast and hold the town to ransom.",
+      "Our scholars say three things can bring Captain Storm down: the cutlass Stormcaller, an Admiral's Coat against cannon-fire, and the Map of Skull Cove, which shows the way to their hideout.",
+      "Gather all three, then go to Saltmouth and face Captain Storm. Talk to everyone: somebody always knows something.",
+      "Here is gold for the road, and a few draughts. My carriage waits to take you to Lionbridge. Go with my blessing."
+    ],
+    "crisisTown": "saltmouth",
+    "lair": {
+      "name": "Skull Cove",
+      "emoji": "🏴‍☠️",
+      "text": "A hidden cove behind the reefs, where a black-sailed ship lies at anchor."
+    },
+    "requires": [
+      "stormcaller",
+      "admirals_coat",
+      "skull_cove_map"
+    ],
+    "boss": "captain_scarlett_storm",
+    "victory": [
+      "Following the Map of Skull Cove, you slip through the reefs and climb aboard the black ship.",
+      "Stormcaller brings down a squall on the deck. Captain Storm surrenders, soaked to the skin, and the crew throws down their cutlasses.",
+      "The ships of Saltmouth sail free again, and the harbour bells ring all night."
+    ],
+    "sources": [
+      {
+        "item": "stormcaller",
+        "how": "craft",
+        "town": "heatherdale",
+        "ref": "stormcaller"
+      },
+      {
+        "item": "admirals_coat",
+        "how": "shop",
+        "town": "willowwater",
+        "ref": "hollis"
+      },
+      {
+        "item": "skull_cove_map",
+        "how": "quest",
+        "town": "rowanglen",
+        "ref": "q_rowanglen"
+      }
+    ]
+  }
+}

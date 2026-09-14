@@ -1,0 +1,1758 @@
+{
+  "schemaVersion": 1,
+  "id": "game-0003",
+  "title": "The Witch of Frogwater",
+  "theme": "medieval",
+  "region": {
+    "name": "the Honeyvale",
+    "blurb": "Wheat fields and windmills in the west, dark pine forest and golden fields in the middle, and in the east the sickly bogs of Frogwater.",
+    "width": 1000,
+    "height": 640
+  },
+  "startTown": "kingshaven",
+  "towns": [
+    {
+      "id": "kingshaven",
+      "name": "Kingshaven",
+      "biome": "plains",
+      "appearance": "capital",
+      "x": 132,
+      "y": 311,
+      "blurb": "The royal city of the Honeyvale: white walls, red roofs, and a castle flying the Queen's banners.",
+      "mayor": {
+        "id": "maud",
+        "name": "Countess Maud",
+        "title": "Countess",
+        "emoji": "👱🏽‍♀️",
+        "avatar": "plump, cheerful countess with a long golden plait, a plum-coloured cloak, and a gold chain of office",
+        "greeting": [
+          "A hero, in Kingshaven! Come in, come in, mind the step.",
+          "Anything you need, ask. The Queen's champion is welcome everywhere in Kingshaven."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_kingshaven",
+          "type": "slay",
+          "title": "The Boar King",
+          "offer": [
+            "The Boar King has been prowling the road to Cloverfield, frightening every traveller. Nobody dares to use that road any more.",
+            "Beat the Boar King, and I'll make it worth your while."
+          ],
+          "reminder": "The Boar King is still out on the road to Cloverfield.",
+          "done": [
+            "The Boar King beaten? Then Kingshaven owes you a great deal.",
+            "Here is your reward, and well earned."
+          ],
+          "foe": "foe_boar_king",
+          "reward": {
+            "gold": 30,
+            "items": [
+              "oak_shield"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Tamsin's General Store",
+        "keeper": {
+          "id": "tamsin",
+          "name": "Tamsin",
+          "emoji": "👱🏼‍♀️",
+          "avatar": "stubborn young shopkeeper with a smudged face and a lantern"
+        },
+        "lines": [
+          "Best prices in Kingshaven! Well, the only prices in Kingshaven."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "iron_sword"
+          },
+          {
+            "item": "leather_cap"
+          },
+          {
+            "item": "apple_pie"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Busy Anvil",
+        "keeper": {
+          "id": "yvaine",
+          "name": "Yvaine",
+          "emoji": "👩🏾‍🔧",
+          "avatar": "strong-armed smith in a leather apron, with soot on her nose and a hammer on her belt"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "rue",
+          "name": "Rue",
+          "role": "child",
+          "emoji": "🧒🏾",
+          "avatar": "small child with scabby knees and a pet frog in one pocket",
+          "lines": [
+            "When I grow up, I'm going to be a hero too!",
+            "The Lost Lute from Mistmarsh is hidden in the Bell Tower in Ravenpeak."
+          ],
+          "gives": {
+            "item": "healing_draught",
+            "line": "Are you a real hero? Mum says heroes always carry healing draughts. Here, take one of mine!"
+          },
+          "hint": "h_10"
+        },
+        {
+          "id": "hale",
+          "name": "Smith Hale",
+          "role": "smith",
+          "emoji": "👨🏿‍🏭",
+          "avatar": "muscular smith with soot-streaked arms and a leather apron",
+          "lines": [
+            "Hammer and anvil, all day long. Look at these arms!",
+            "I can build up yours too, for a fee."
+          ],
+          "trains": {
+            "stat": "strength",
+            "price": 40
+          }
+        }
+      ],
+      "spots": [
+        {
+          "id": "duck_pond",
+          "name": "the Duck Pond",
+          "emoji": "🦆",
+          "item": "greater_healing",
+          "text": "Something glints in the mud of the duck pond. You fish out a Greater Healing Draught, and the ducks complain loudly."
+        }
+      ]
+    },
+    {
+      "id": "frogwater",
+      "name": "Frogwater",
+      "biome": "swamp",
+      "appearance": "ruins",
+      "x": 881,
+      "y": 323,
+      "blurb": "A village on stilts over a sickly green bog. The frogs have stopped singing.",
+      "crisis": true,
+      "mayor": {
+        "id": "ivor",
+        "name": "Margrave Ivor",
+        "title": "Margrave",
+        "emoji": "🧔🏼",
+        "avatar": "stout margrave with a magnificent moustache, a patched but proud coat, and a gold chain of office",
+        "greeting": [
+          "*cough* Welcome, Hero. Forgive me, *cough*, the whole town has it.",
+          "Mother Blight brews the plague in a hollow past the bog. Please hurry."
+        ],
+        "hint": "h_15"
+      },
+      "shop": {
+        "name": "The Brave Kettle",
+        "keeper": {
+          "id": "morwenna",
+          "name": "Morwenna",
+          "emoji": "👩🏼‍🍳",
+          "avatar": "broad-shouldered shopkeeper with rolled sleeves and a flour-dusted apron"
+        },
+        "lines": [
+          "Everyone else has gone, but somebody has to sell the potions."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "fire_flask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Last Forge",
+        "keeper": {
+          "id": "toby",
+          "name": "Toby",
+          "emoji": "👨🏿‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "Fire's the one thing we have plenty of. Use the forge, and hurry."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "violet",
+          "name": "Old Violet",
+          "role": "grandmother",
+          "emoji": "👵🏻",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "Mother Blight? Terrible business. I've seen worse. Not much worse, mind.",
+            "Hearthblade, the Physician's Mantle and the Heartroot. The old songs say you need all three."
+          ],
+          "hint": "h_15"
+        },
+        {
+          "id": "crispin",
+          "name": "Watchman Crispin",
+          "role": "watchman",
+          "emoji": "💂🏽",
+          "avatar": "exhausted young watchman in a battered helmet, holding a bucket",
+          "lines": [
+            "Don't drink the water. Don't even look at the water.",
+            "I'd do anything for a glass of clean water."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "ruined_hall",
+          "name": "the Ruined Hall",
+          "emoji": "🏚️",
+          "item": "greater_healing",
+          "text": "In the rubble of the old hall you find a Greater Healing Draught, somehow unbroken."
+        }
+      ]
+    },
+    {
+      "id": "oakgrove",
+      "name": "Oakgrove",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 475,
+      "y": 311,
+      "blurb": "Cottages with mossy roofs hide among the trees. Fireflies light the lanes at night.",
+      "mayor": {
+        "id": "fenella",
+        "name": "Countess Fenella",
+        "title": "Countess",
+        "emoji": "👩🏻‍🦱",
+        "avatar": "elegant countess with a long golden plait, a sea-green robe, and a wheat-sheaf brooch",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Oakgrove.",
+          "The trees here are older than the kingdom. Be kind to them."
+        ],
+        "hint": "h_5",
+        "quest": {
+          "id": "q_oakgrove",
+          "type": "slay",
+          "title": "The Great Grey Wolf",
+          "offer": [
+            "The Great Grey Wolf has been prowling the road to Ravenpeak, frightening every traveller. The traders have stopped coming, and the market is empty.",
+            "Beat the Great Grey Wolf, and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "The Great Grey Wolf is still out on the road to Ravenpeak.",
+          "done": [
+            "The Great Grey Wolf beaten? Then Oakgrove owes you a great deal.",
+            "Take this, with Oakgrove's thanks."
+          ],
+          "foe": "foe_great_grey_wolf",
+          "reward": {
+            "gold": 55,
+            "items": [
+              "travelers_cloak"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Morgan's Outfitters",
+        "keeper": {
+          "id": "morgan",
+          "name": "Morgan",
+          "emoji": "🧑🏻‍🍳",
+          "avatar": "cheerful cook-turned-shopkeeper in a flour-dusted apron"
+        },
+        "lines": [
+          "Bows, cloaks, and forest remedies. All handmade."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "fire_flask"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "oak_cudgel"
+          },
+          {
+            "item": "flame_blade"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Kara's Woodshop",
+        "keeper": {
+          "id": "kara",
+          "name": "Kara",
+          "emoji": "👩🏽‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "Bark, sap and elbow grease. Help yourself to the bench."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "lark",
+          "name": "Hunter Lark",
+          "role": "hunter",
+          "emoji": "👩🏻‍🦰",
+          "avatar": "weathered hunter in green leather, with a hawk on one wrist",
+          "lines": [
+            "Out here, the tough get through and the rest go home.",
+            "A few coins, and I'll make you as tough as old roots.",
+            "The quickest road to Frogwater is the one from Hollywood."
+          ],
+          "trains": {
+            "stat": "vigor",
+            "price": 40
+          },
+          "hint": "h_17"
+        },
+        {
+          "id": "edmund",
+          "name": "Edmund",
+          "role": "beekeeper",
+          "emoji": "🐝",
+          "avatar": "beekeeper in a white veiled hat, bees drifting lazily around",
+          "lines": [
+            "Bees know when trouble is coming. Lately they won't leave the hive.",
+            "Never swat a bee. It only makes the others cross."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "rusty_key",
+          "text": "Behind the altar, in a dusty niche: a Rusty Key."
+        }
+      ]
+    },
+    {
+      "id": "mistmarsh",
+      "name": "Mistmarsh",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 726,
+      "y": 106,
+      "blurb": "A village of reed huts and boardwalks over the marsh. Everyone owns a punt.",
+      "mayor": {
+        "id": "posy",
+        "name": "Countess Posy",
+        "title": "Countess",
+        "emoji": "👩🏼‍🦰",
+        "avatar": "broad countess with dark curls, a plum-coloured cloak, and a lapdog under one arm",
+        "greeting": [
+          "Mistmarsh welcomes you, Hero. We have heard all about you.",
+          "Forgive the smell; it is the bog."
+        ],
+        "hint": "h_6",
+        "quest": {
+          "id": "q_mistmarsh",
+          "type": "fetch",
+          "title": "The Lost Lute",
+          "offer": [
+            "Our minstrel lost her lute, and now she just sighs all day.",
+            "She last played it in Ravenpeak, at a very long party. Bring it back and I'll make it worth your while."
+          ],
+          "reminder": "Any sign of the Lost Lute? She last played it in Ravenpeak, at a very long party.",
+          "done": [
+            "The lute! Listen, she's playing already.",
+            "Here is your reward, and well earned."
+          ],
+          "item": "lost_lute",
+          "reward": {
+            "gold": 80,
+            "items": [
+              "tome_of_vigor"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Ida's Curios",
+        "keeper": {
+          "id": "ida",
+          "name": "Ida",
+          "emoji": "👩🏾‍🦰",
+          "avatar": "freckled shopkeeper in a patchwork apron, with a cat asleep on the counter"
+        },
+        "lines": [
+          "Mind the jars. Some of them bite."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "sunlit_mace"
+          },
+          {
+            "item": "inferno_greatsword"
+          },
+          {
+            "item": "leather_vest"
+          },
+          {
+            "item": "plague_mask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Bubbling Cauldron",
+        "keeper": {
+          "id": "olwen",
+          "name": "Olwen",
+          "emoji": "👩🏻‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "Stir clockwise. Always clockwise. Trust me."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "coralie",
+          "name": "Coralie",
+          "role": "child",
+          "emoji": "👧🏿",
+          "avatar": "freckled child with a wooden sword and a helmet three sizes too big",
+          "lines": [
+            "When I grow up, I'm going to be a hero too!",
+            "The Silver Bell from Ravenpeak is hidden in the Old Chapel in Mistmarsh."
+          ],
+          "hint": "h_7"
+        },
+        {
+          "id": "bertram",
+          "name": "Bertram",
+          "role": "frog-catcher",
+          "emoji": "🐸",
+          "avatar": "barefoot child with a net, muddy to the knees and grinning",
+          "lines": [
+            "I caught forty frogs today. I let them all go again.",
+            "The Lost Lute from Mistmarsh is hidden in the Bell Tower in Ravenpeak."
+          ],
+          "hint": "h_10"
+        }
+      ],
+      "spots": [
+        {
+          "id": "reed_maze",
+          "name": "the Reed Maze",
+          "emoji": "🌾",
+          "item": "ember_crystal",
+          "text": "At the heart of the reeds, on a muddy tussock: an ember crystal."
+        },
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "silver_bell",
+          "text": "Behind the altar, in a dusty niche: the Silver Bell."
+        }
+      ]
+    },
+    {
+      "id": "larkstead",
+      "name": "Larkstead",
+      "biome": "plains",
+      "appearance": "river",
+      "x": 548,
+      "y": 480,
+      "blurb": "Two banks joined by an old stone bridge, with a mill on each side and ducks everywhere.",
+      "mayor": {
+        "id": "bryony",
+        "name": "Baroness Bryony",
+        "title": "Baroness",
+        "emoji": "👩🏾‍🦰",
+        "avatar": "elegant baroness with silver hair in a bun, a sea-green robe, and a walking stick topped with a silver fox",
+        "greeting": [
+          "Larkstead welcomes you, Hero. We have heard all about you.",
+          "We are simple farmers, but we will help however we can."
+        ],
+        "hint": "h_6",
+        "quest": {
+          "id": "q_larkstead",
+          "type": "slay",
+          "title": "One-Eyed Jack",
+          "offer": [
+            "One-Eyed Jack has been prowling the road to Hollywood, frightening every traveller. The traders have stopped coming, and the market is empty.",
+            "Beat One-Eyed Jack, and I'll make it worth your while."
+          ],
+          "reminder": "One-Eyed Jack is still out on the road to Hollywood.",
+          "done": [
+            "One-Eyed Jack beaten? Then Larkstead owes you a great deal.",
+            "Take this, with Larkstead's thanks."
+          ],
+          "foe": "foe_one_eyed_jack",
+          "reward": {
+            "gold": 65,
+            "items": [
+              "greater_healing"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Busy Bee",
+        "keeper": {
+          "id": "agatha",
+          "name": "Agatha",
+          "emoji": "🧝🏽‍♀️",
+          "avatar": "wood-elf shopkeeper with leaf-green braids and a quiver on her back"
+        },
+        "lines": [
+          "Fresh bread, fresh draughts, fresh advice. What'll it be?"
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "longbow"
+          },
+          {
+            "item": "chainmail"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Busy Anvil",
+        "keeper": {
+          "id": "dunstan",
+          "name": "Dunstan",
+          "emoji": "👨🏽‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "Mind the sparks, and put the tools back where you found them."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "oswin",
+          "name": "Oswin the Slightly Singed",
+          "role": "travelling wizard",
+          "emoji": "🧙🏻‍♂️",
+          "avatar": "small, round wizard in a patchwork robe covered in singe marks, with spectacles on a chain",
+          "lines": [
+            "Ooh, I could do wonders with you. New hair? New cloak?",
+            "Magic is cheap. Well, sixty gold. That is cheap, for magic.",
+            "There is an ember crystal hidden in the Reed Maze in Mistmarsh."
+          ],
+          "restyle": {
+            "price": 60
+          },
+          "hint": "h_3"
+        },
+        {
+          "id": "clover",
+          "name": "Miller Clover",
+          "role": "miller",
+          "emoji": "👩🏼‍🦳",
+          "avatar": "dusty old miller with flour in the eyebrows",
+          "lines": [
+            "Hear that creak? That's the wheel. It's been creaking for forty years.",
+            "Teagan's Outfitters in Hollywood sells a Physician's Mantle. It costs a fortune: 240 gold."
+          ],
+          "hint": "h_4"
+        },
+        {
+          "id": "hester",
+          "name": "Hester",
+          "role": "shepherd",
+          "emoji": "🐑",
+          "avatar": "shepherd in a thick wool cloak, with a crook and a sheepdog at heel",
+          "lines": [
+            "Four hundred sheep, and I know every one by name.",
+            "The Town Charter from Hollywood is hidden in the Bell Tower in Larkstead."
+          ],
+          "hint": "h_13"
+        },
+        {
+          "id": "jory",
+          "name": "Peddler Jory",
+          "role": "peddler",
+          "emoji": "🧳",
+          "avatar": "round peddler under a huge pack hung with pots and trinkets",
+          "lines": [
+            "Word on the road is that Frogwater is in a bad way.",
+            "Witchery can't stand the warmth of a good fire."
+          ],
+          "hint": "h_16"
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "item": "town_charter",
+          "text": "Up among the bells, in a pigeon's nest: the Town Charter!"
+        }
+      ]
+    },
+    {
+      "id": "cloverfield",
+      "name": "Cloverfield",
+      "biome": "plains",
+      "appearance": "village",
+      "x": 306,
+      "y": 529,
+      "blurb": "Thatched cottages around a village green, with a maypole in the middle.",
+      "mayor": {
+        "id": "merrick",
+        "name": "Count Merrick",
+        "title": "Count",
+        "emoji": "👨🏼‍🦱",
+        "avatar": "stout count with a neat white beard, a fur-trimmed mantle, and a wheat-sheaf brooch",
+        "greeting": [
+          "Welcome to Cloverfield, Hero! The Queen's messenger said you would come.",
+          "We are simple farmers, but we will help however we can."
+        ],
+        "hint": "h_2",
+        "quest": {
+          "id": "q_cloverfield",
+          "type": "fetch",
+          "title": "The Mill Gear",
+          "offer": [
+            "The mill has stopped. A gear is missing, and without it we can't grind a thing.",
+            "The miller's boy says a troll took it to Hollywood to wear as a hat. Bring it back and I'll make it worth your while."
+          ],
+          "reminder": "Any sign of the Mill Gear? The miller's boy says a troll took it to Hollywood to wear as a hat.",
+          "done": [
+            "The gear! The mill will be turning again by supper.",
+            "Take this, with Cloverfield's thanks."
+          ],
+          "item": "mill_gear",
+          "reward": {
+            "gold": 45,
+            "items": [
+              "lucky_clover"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Golden Sheaf",
+        "keeper": {
+          "id": "roderic",
+          "name": "Roderic",
+          "emoji": "👨🏼‍🦲",
+          "avatar": "cheerful bald merchant in a honey-coloured vest"
+        },
+        "lines": [
+          "Fresh bread, fresh draughts, fresh advice. What'll it be?"
+        ],
+        "stock": [
+          {
+            "item": "iron_sword"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "spark_rapier"
+          },
+          {
+            "item": "thornlash"
+          },
+          {
+            "item": "leather_vest"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Sage's Workshop",
+        "keeper": {
+          "id": "sage",
+          "name": "Sage",
+          "emoji": "🧑🏽‍🏭",
+          "avatar": "patient glassblower with singed sleeves and careful hands"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "pip",
+          "name": "Fisher Pip",
+          "role": "fisher",
+          "emoji": "🎣",
+          "avatar": "weathered fisher in oilskins, with a net over one shoulder",
+          "lines": [
+            "A quiet net and a calm sea. That's all I ask.",
+            "The Boar King prowls the road between Kingshaven and Cloverfield."
+          ],
+          "hint": "h_8"
+        },
+        {
+          "id": "mo",
+          "name": "Mo",
+          "role": "ferry-keeper",
+          "emoji": "🛶",
+          "avatar": "lean ferry-keeper in a wide hat, leaning on a long pole",
+          "lines": [
+            "Across and back, across and back. Forty years of it.",
+            "The Mill Gear from Cloverfield is hidden in the Hollow Oak in Hollywood."
+          ],
+          "hint": "h_12"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_well",
+          "name": "the Old Well",
+          "emoji": "🪣",
+          "gold": 25,
+          "text": "You haul up the old bucket. Tangled in the rope is a purse of 25 gold!"
+        }
+      ]
+    },
+    {
+      "id": "ravenpeak",
+      "name": "Ravenpeak",
+      "biome": "mountain",
+      "appearance": "fortress",
+      "x": 271,
+      "y": 104,
+      "blurb": "A mining town behind thick stone walls. Hammers ring from every tunnel.",
+      "mayor": {
+        "id": "linnea",
+        "name": "Countess Linnea",
+        "title": "Countess",
+        "emoji": "👩🏾‍🦰",
+        "avatar": "small, brisk countess with braided red hair, a patched but proud coat, and a silver circlet",
+        "greeting": [
+          "A hero, in Ravenpeak! Come in, come in, mind the step.",
+          "Watch your step. Our streets mostly go up."
+        ],
+        "hint": "h_4",
+        "quest": {
+          "id": "q_ravenpeak",
+          "type": "fetch",
+          "title": "The Silver Bell",
+          "offer": [
+            "Our Silver Bell was stolen! We ring it when the river floods.",
+            "A goblin ran off toward Mistmarsh with it. Bring it back and the Heartroot, which has been in my family for generations, is yours."
+          ],
+          "reminder": "Any sign of the Silver Bell? A goblin ran off toward Mistmarsh with it.",
+          "done": [
+            "My bell! Now we'll hear the floods coming.",
+            "As promised: the Heartroot. May it serve you well against Mother Blight."
+          ],
+          "item": "silver_bell",
+          "reward": {
+            "gold": 40,
+            "items": [
+              "heartroot"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Iron Anvil",
+        "keeper": {
+          "id": "hugo",
+          "name": "Hugo",
+          "emoji": "👨🏿‍🦰",
+          "avatar": "red-haired ex-sailor with a tattooed forearm and a gold earring"
+        },
+        "lines": [
+          "Forged in the mountain, cooled in snowmelt. Take a look."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "thunder_vial"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "hunting_bow"
+          },
+          {
+            "item": "oak_shield"
+          },
+          {
+            "item": "iron_helm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Stonecutter's Yard",
+        "keeper": {
+          "id": "edith",
+          "name": "Edith",
+          "emoji": "👩🏼‍🔧",
+          "avatar": "strong-armed smith in a leather apron, with soot on her nose and a hammer on her belt"
+        },
+        "lines": [
+          "The best anvil this side of the mountains. Strike while it's hot!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "ottilie",
+          "name": "Herbalist Ottilie",
+          "role": "herbalist",
+          "emoji": "🌿",
+          "avatar": "herbalist in a green apron, with bundles of drying herbs hanging from the belt",
+          "lines": [
+            "Every potion is a little poem, if you know how to read it.",
+            "Lessons are cheap. Not knowing is expensive.",
+            "Hearthblade can't be bought or found: it has to be made, at the workshop in any town, from an iron sword, forged again in the heat of an ember crystal. It takes a few minutes of hard pedaling."
+          ],
+          "trains": {
+            "stat": "magic",
+            "price": 40
+          },
+          "hint": "h_1"
+        },
+        {
+          "id": "digby",
+          "name": "Grandpa Digby",
+          "role": "grandfather",
+          "emoji": "👴🏿",
+          "avatar": "white-bearded grandfather on a bench, with a walking stick across his knees",
+          "lines": [
+            "Back in my day the roads were safe. Mostly. Sometimes.",
+            "There is an ember crystal hidden in the Reed Maze in Mistmarsh."
+          ],
+          "hint": "h_3"
+        },
+        {
+          "id": "sabine",
+          "name": "Sabine",
+          "role": "shepherd",
+          "emoji": "🐑",
+          "avatar": "shepherd in a thick wool cloak, with a crook and a sheepdog at heel",
+          "lines": [
+            "The wolves have been bold this year. Keep to the road.",
+            "The Silver Bell from Ravenpeak is hidden in the Old Chapel in Mistmarsh."
+          ],
+          "hint": "h_7"
+        },
+        {
+          "id": "zinnia",
+          "name": "Zinnia",
+          "role": "minstrel",
+          "emoji": "🎻",
+          "avatar": "cheerful minstrel in a feathered cap, with a fiddle under one arm",
+          "lines": [
+            "They sing about Mother Blight in every tavern now. Not happy songs.",
+            "The Great Grey Wolf prowls the road between Oakgrove and Ravenpeak."
+          ],
+          "hint": "h_9"
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "item": "lost_lute",
+          "text": "Up among the bells, in a pigeon's nest: the Lost Lute!"
+        }
+      ]
+    },
+    {
+      "id": "hollywood",
+      "name": "Hollywood",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 685,
+      "y": 345,
+      "blurb": "Cottages with mossy roofs hide among the trees. Fireflies light the lanes at night.",
+      "mayor": {
+        "id": "wilhelmina",
+        "name": "Countess Wilhelmina",
+        "title": "Countess",
+        "emoji": "👩🏾‍🦲",
+        "avatar": "elegant countess with braided red hair, a long blue coat with silver buttons, and a walking stick topped with a silver fox",
+        "greeting": [
+          "Welcome to Hollywood, Hero! The Queen's messenger said you would come.",
+          "Walk softly; the forest listens."
+        ],
+        "hint": "h_14",
+        "quest": {
+          "id": "q_hollywood",
+          "type": "fetch",
+          "title": "The Town Charter",
+          "offer": [
+            "The town charter is gone! Without it, Hollywood has no rights at all.",
+            "A magpie flew off toward Larkstead with it. Magpies love parchment. Bring it back and I'll make it worth your while."
+          ],
+          "reminder": "Any sign of the Town Charter? A magpie flew off toward Larkstead with it. Magpies love parchment.",
+          "done": [
+            "The charter! Hollywood is a proper town again.",
+            "Take this, with Hollywood's thanks."
+          ],
+          "item": "town_charter",
+          "reward": {
+            "gold": 75,
+            "items": [
+              "tome_of_arcana"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Teagan's Outfitters",
+        "keeper": {
+          "id": "teagan",
+          "name": "Teagan",
+          "emoji": "🧑🏽‍🦰",
+          "avatar": "red-headed shopkeeper who hums while counting coins"
+        },
+        "lines": [
+          "Bows, cloaks, and forest remedies. All handmade."
+        ],
+        "stock": [
+          {
+            "item": "physicians_mantle",
+            "qty": 1
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "war_axe"
+          },
+          {
+            "item": "inferno_greatsword"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Whittled Owl",
+        "keeper": {
+          "id": "nessa",
+          "name": "Nessa",
+          "emoji": "👩🏿‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "The grindstone sings when you pedal fast. Make it sing!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "rook",
+          "name": "Rook",
+          "role": "child",
+          "emoji": "🧒🏾",
+          "avatar": "freckled child with a wooden sword and a helmet three sizes too big",
+          "lines": [
+            "When I grow up, I'm going to be a hero too!",
+            "The Golden Sheaf in Cloverfield sells iron swords."
+          ],
+          "hint": "h_2"
+        },
+        {
+          "id": "quentin",
+          "name": "Quentin",
+          "role": "beekeeper",
+          "emoji": "🐝",
+          "avatar": "beekeeper in a white veiled hat, bees drifting lazily around",
+          "lines": [
+            "My bees make the sweetest honey in the Honeyvale.",
+            "One-Eyed Jack prowls the road between Larkstead and Hollywood."
+          ],
+          "hint": "h_11"
+        },
+        {
+          "id": "beatrix",
+          "name": "Granny Beatrix",
+          "role": "good witch",
+          "emoji": "🧙🏻‍♀️",
+          "avatar": "tiny, kindly witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": [
+            "Not all witches are wicked, dearie.",
+            "The Mill Gear from Cloverfield is hidden in the Hollow Oak in Hollywood."
+          ],
+          "hint": "h_12"
+        },
+        {
+          "id": "tam",
+          "name": "Tam",
+          "role": "minstrel",
+          "emoji": "🎻",
+          "avatar": "cheerful minstrel in a feathered cap, with a fiddle under one arm",
+          "lines": [
+            "I'm writing a song about you! So far it's mostly about your boots.",
+            "The Town Charter from Hollywood is hidden in the Bell Tower in Larkstead."
+          ],
+          "hint": "h_13"
+        }
+      ],
+      "spots": [
+        {
+          "id": "hollow_oak",
+          "name": "the Hollow Oak",
+          "emoji": "🌳",
+          "item": "mill_gear",
+          "text": "Deep inside the hollow oak, among old acorns and junk, something glints: the Mill Gear!"
+        },
+        {
+          "id": "old_chest",
+          "name": "the Old Chest",
+          "emoji": "📦",
+          "item": "tome_of_might",
+          "requiresKey": "rusty_key",
+          "text": "The Rusty Key turns with a screech. Inside the old chest: a Tome of Might!",
+          "lockedText": "A heavy chest sits in the corner, locked tight. The keyhole is caked with rust."
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "id": "r_larkstead_hollywood",
+      "a": "larkstead",
+      "b": "hollywood",
+      "distance": 192,
+      "terrain": "plains",
+      "danger": 1,
+      "enemies": [
+        "wolf",
+        "angry_swan",
+        "bandit"
+      ],
+      "fixed": [
+        {
+          "id": "foe_one_eyed_jack",
+          "enemy": "one_eyed_jack",
+          "at": 0.53,
+          "quest": "q_larkstead"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_larkstead_hollywood",
+          "item": "wolf_pelt",
+          "at": 0.6
+        }
+      ]
+    },
+    {
+      "id": "r_frogwater_hollywood",
+      "a": "frogwater",
+      "b": "hollywood",
+      "distance": 197,
+      "terrain": "swamp",
+      "danger": 1.2,
+      "enemies": [
+        "plague_rats",
+        "witchs_owl",
+        "bog_lurker"
+      ],
+      "finds": [
+        {
+          "id": "f_frogwater_hollywood",
+          "item": "goblin_trinket",
+          "at": 0.49
+        }
+      ]
+    },
+    {
+      "id": "r_oakgrove_hollywood",
+      "a": "oakgrove",
+      "b": "hollywood",
+      "distance": 213,
+      "terrain": "forest",
+      "danger": 0.9,
+      "enemies": [
+        "brown_bear",
+        "boar",
+        "giant_spider"
+      ],
+      "finds": [
+        {
+          "id": "f_oakgrove_hollywood",
+          "item": "potion_of_might",
+          "at": 0.54
+        }
+      ]
+    },
+    {
+      "id": "r_mistmarsh_hollywood",
+      "a": "mistmarsh",
+      "b": "hollywood",
+      "distance": 242,
+      "terrain": "swamp",
+      "danger": 1,
+      "enemies": [
+        "bog_lurker",
+        "goblin",
+        "giant_toad"
+      ],
+      "finds": [
+        {
+          "id": "f_mistmarsh_hollywood",
+          "item": "travelers_tonic",
+          "at": 0.58
+        }
+      ]
+    },
+    {
+      "id": "r_larkstead_cloverfield",
+      "a": "larkstead",
+      "b": "cloverfield",
+      "distance": 247,
+      "terrain": "plains",
+      "danger": 0.8,
+      "enemies": [
+        "bandit",
+        "angry_swan",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_larkstead_cloverfield",
+          "item": "potion_of_might",
+          "at": 0.64
+        }
+      ]
+    },
+    {
+      "id": "r_kingshaven_ravenpeak",
+      "a": "kingshaven",
+      "b": "ravenpeak",
+      "distance": 249,
+      "terrain": "hills",
+      "danger": 0.6,
+      "enemies": [
+        "goblin",
+        "wolf",
+        "bandit"
+      ],
+      "finds": [
+        {
+          "id": "f_kingshaven_ravenpeak",
+          "item": "potion_of_might",
+          "at": 0.6
+        }
+      ]
+    },
+    {
+      "id": "r_frogwater_mistmarsh",
+      "a": "frogwater",
+      "b": "mistmarsh",
+      "distance": 267,
+      "terrain": "swamp",
+      "danger": 1.2,
+      "enemies": [
+        "plague_rats",
+        "witchs_owl",
+        "marsh_wisp"
+      ],
+      "finds": [
+        {
+          "id": "f_frogwater_mistmarsh",
+          "item": "goblin_trinket",
+          "at": 0.61
+        }
+      ]
+    },
+    {
+      "id": "r_oakgrove_cloverfield",
+      "a": "oakgrove",
+      "b": "cloverfield",
+      "distance": 276,
+      "terrain": "forest",
+      "danger": 0.8,
+      "enemies": [
+        "boar",
+        "brown_bear",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_oakgrove_cloverfield",
+          "item": "potion_of_might",
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "id": "r_kingshaven_cloverfield",
+      "a": "kingshaven",
+      "b": "cloverfield",
+      "distance": 279,
+      "terrain": "plains",
+      "danger": 0.7,
+      "enemies": [
+        "bandit",
+        "wolf",
+        "boar"
+      ],
+      "fixed": [
+        {
+          "id": "foe_boar_king",
+          "enemy": "boar_king",
+          "at": 0.62,
+          "quest": "q_kingshaven"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_kingshaven_cloverfield",
+          "item": "travelers_tonic",
+          "at": 0.39
+        }
+      ]
+    },
+    {
+      "id": "r_oakgrove_ravenpeak",
+      "a": "oakgrove",
+      "b": "ravenpeak",
+      "distance": 291,
+      "terrain": "forest",
+      "danger": 0.8,
+      "enemies": [
+        "wolf",
+        "boar",
+        "goblin"
+      ],
+      "fixed": [
+        {
+          "id": "foe_great_grey_wolf",
+          "enemy": "great_grey_wolf",
+          "at": 0.57,
+          "quest": "q_oakgrove"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_oakgrove_ravenpeak",
+          "item": "healing_draught",
+          "at": 0.63
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "wolf",
+      "name": "Grey Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "fire",
+      "gold": [
+        8,
+        13
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.35
+        }
+      ],
+      "taunt": "A wolf slinks out of the grass, teeth bared."
+    },
+    {
+      "id": "angry_swan",
+      "name": "Angry Swan",
+      "emoji": "🦢",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        6,
+        11
+      ],
+      "taunt": "A swan spreads its wings and hisses like a kettle. It wants the whole road to itself."
+    },
+    {
+      "id": "bandit",
+      "name": "Road Bandit",
+      "emoji": "🥷",
+      "family": "bandit",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        15,
+        24
+      ],
+      "drops": [
+        {
+          "item": "healing_draught",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "\"Your gold or your life, traveler!\""
+    },
+    {
+      "id": "plague_rats",
+      "name": "Plague Rats",
+      "emoji": "🐀",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A tide of rats pours across the road, squeaking."
+    },
+    {
+      "id": "witchs_owl",
+      "name": "Witch's Owl",
+      "emoji": "🦉",
+      "family": "spirit",
+      "tier": 2,
+      "battle": "race",
+      "weakness": "holy",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "taunt": "An owl with glowing green eyes swoops at you. It does not hoot. It cackles."
+    },
+    {
+      "id": "bog_lurker",
+      "name": "Bog Lurker",
+      "emoji": "🐊",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "taunt": "Something scaly rises from the muck."
+    },
+    {
+      "id": "brown_bear",
+      "name": "Brown Bear",
+      "emoji": "🐻",
+      "family": "beast",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "jar_of_honey",
+          "chance": 0.3
+        }
+      ],
+      "taunt": "A bear rears up on its hind legs. It smells of honey and bad temper."
+    },
+    {
+      "id": "boar",
+      "name": "Wild Boar",
+      "emoji": "🐗",
+      "family": "beast",
+      "tier": 1,
+      "gold": [
+        8,
+        12
+      ],
+      "taunt": "A boar paws the ground and snorts."
+    },
+    {
+      "id": "giant_spider",
+      "name": "Giant Spider",
+      "emoji": "🕷️",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "spider_silk",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A spider as big as a pony drops from the branches on a silver thread."
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin Scout",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        9,
+        14
+      ],
+      "drops": [
+        {
+          "item": "goblin_trinket",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A goblin cackles and waves a rusty knife."
+    },
+    {
+      "id": "giant_toad",
+      "name": "Giant Toad",
+      "emoji": "🐸",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A toad the size of a barrel blinks at you, then flicks out a very long tongue."
+    },
+    {
+      "id": "marsh_wisp",
+      "name": "Marsh Wisp",
+      "emoji": "👻",
+      "family": "spirit",
+      "tier": 2,
+      "weakness": "holy",
+      "gold": [
+        10,
+        16
+      ],
+      "taunt": "A pale light drifts closer, whispering your name."
+    },
+    {
+      "id": "boar_king",
+      "name": "the Boar King",
+      "emoji": "🐗",
+      "family": "beast",
+      "tier": 3,
+      "weakness": "fire",
+      "gold": [
+        35,
+        45
+      ],
+      "drops": [
+        {
+          "item": "carved_tusk",
+          "chance": 1
+        }
+      ],
+      "taunt": "A boar as big as an ox, with tusks like scythes, snorts in the middle of the road.",
+      "avatar": "enormous black boar with a bristling mane and cracked yellow tusks"
+    },
+    {
+      "id": "great_grey_wolf",
+      "name": "the Great Grey Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 3,
+      "weakness": "fire",
+      "gold": [
+        35,
+        45
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 1
+        }
+      ],
+      "taunt": "A wolf as big as a pony blocks the road. Its eyes are yellow lamps.",
+      "avatar": "enormous grey wolf with a torn ear and yellow eyes"
+    },
+    {
+      "id": "one_eyed_jack",
+      "name": "One-Eyed Jack",
+      "emoji": "🥷",
+      "family": "bandit",
+      "tier": 3,
+      "battle": "tug",
+      "gold": [
+        40,
+        55
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 1
+        }
+      ],
+      "taunt": "\"One-Eyed Jack, at your service. Now hand over everything shiny.\"",
+      "avatar": "lanky bandit chief with an eyepatch, a feathered hat and far too many daggers"
+    },
+    {
+      "id": "old_mother_blight",
+      "name": "Old Mother Blight",
+      "emoji": "🧙‍♀️",
+      "family": "witch",
+      "tier": 5,
+      "weakness": "fire",
+      "resist": "poison",
+      "attack": "poison",
+      "gold": [
+        0,
+        0
+      ],
+      "taunt": "\"Everything rots in the end, dearie. I just help it along.\"",
+      "boss": true,
+      "avatar": "tall green-faced witch with a crooked nose and a cloak that drips bog water"
+    }
+  ],
+  "hints": [
+    {
+      "id": "h_1",
+      "text": "Hearthblade can't be bought or found: it has to be made, at the workshop in any town, from an iron sword, forged again in the heat of an ember crystal. It takes a few minutes of hard pedaling."
+    },
+    {
+      "id": "h_2",
+      "text": "The Golden Sheaf in Cloverfield sells iron swords."
+    },
+    {
+      "id": "h_3",
+      "text": "There is an ember crystal hidden in the Reed Maze in Mistmarsh."
+    },
+    {
+      "id": "h_4",
+      "text": "Teagan's Outfitters in Hollywood sells a Physician's Mantle. It costs a fortune: 240 gold."
+    },
+    {
+      "id": "h_5",
+      "text": "Only a Physician's Mantle can turn Mother Blight's poison. Teagan's Outfitters in Hollywood has one."
+    },
+    {
+      "id": "h_6",
+      "text": "Countess Linnea of Ravenpeak would give the Heartroot to whoever brings back the lost Silver Bell."
+    },
+    {
+      "id": "h_7",
+      "text": "The Silver Bell from Ravenpeak is hidden in the Old Chapel in Mistmarsh."
+    },
+    {
+      "id": "h_8",
+      "text": "The Boar King prowls the road between Kingshaven and Cloverfield."
+    },
+    {
+      "id": "h_9",
+      "text": "The Great Grey Wolf prowls the road between Oakgrove and Ravenpeak."
+    },
+    {
+      "id": "h_10",
+      "text": "The Lost Lute from Mistmarsh is hidden in the Bell Tower in Ravenpeak."
+    },
+    {
+      "id": "h_11",
+      "text": "One-Eyed Jack prowls the road between Larkstead and Hollywood."
+    },
+    {
+      "id": "h_12",
+      "text": "The Mill Gear from Cloverfield is hidden in the Hollow Oak in Hollywood."
+    },
+    {
+      "id": "h_13",
+      "text": "The Town Charter from Hollywood is hidden in the Bell Tower in Larkstead."
+    },
+    {
+      "id": "h_14",
+      "text": "The Old Chest in Hollywood is locked. Its key was lost in the Old Chapel in Oakgrove years ago."
+    },
+    {
+      "id": "h_15",
+      "text": "To defeat Mother Blight you need Hearthblade, the Physician's Mantle and the Heartroot."
+    },
+    {
+      "id": "h_16",
+      "text": "Witchery can't stand the warmth of a good fire."
+    },
+    {
+      "id": "h_17",
+      "text": "The quickest road to Frogwater is the one from Hollywood."
+    }
+  ],
+  "recipes": [
+    {
+      "item": "hearthblade",
+      "needs": [
+        {
+          "item": "iron_sword",
+          "qty": 1
+        },
+        {
+          "item": "ember_crystal",
+          "qty": 1
+        }
+      ],
+      "seconds": 240
+    },
+    {
+      "item": "healing_draught",
+      "seconds": 60
+    },
+    {
+      "item": "potion_of_might",
+      "seconds": 120
+    },
+    {
+      "item": "greater_healing",
+      "needs": [
+        {
+          "item": "healing_draught",
+          "qty": 2
+        }
+      ],
+      "seconds": 45
+    },
+    {
+      "item": "venom_vial",
+      "needs": [
+        {
+          "item": "spider_silk",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    },
+    {
+      "item": "fur_cloak",
+      "needs": [
+        {
+          "item": "wolf_pelt",
+          "qty": 3
+        }
+      ],
+      "seconds": 90
+    }
+  ],
+  "challenge": {
+    "threat": "witch_plague",
+    "title": "The Witch of Frogwater",
+    "summons": [
+      "Hero, thank you for coming so swiftly. Grave news has reached the throne.",
+      "Old Mother Blight has brewed a plague in the bogs near Frogwater. Crops are rotting, the wells are turning green, and folk are falling ill.",
+      "Our scholars say three things can bring Mother Blight down: the Hearthblade, forged in kitchen fires, a Physician's Mantle against the plague, and the Heartroot, which cures any blight.",
+      "Find all three, then face Mother Blight at the Blighted Hollow. Ask everyone you meet; the people of the Honeyvale know more than they think.",
+      "Take this purse and these draughts. My carriage will carry you to Kingshaven. Everwyn is counting on you."
+    ],
+    "crisisTown": "frogwater",
+    "lair": {
+      "name": "the Blighted Hollow",
+      "emoji": "🍄",
+      "text": "A crooked cottage in a hollow of dead trees. Green smoke leaks from its chimney."
+    },
+    "requires": [
+      "hearthblade",
+      "physicians_mantle",
+      "heartroot"
+    ],
+    "boss": "old_mother_blight",
+    "victory": [
+      "You drop the Heartroot into the town well, and the green water runs clear.",
+      "Hearthblade blazes like a hearth fire. With a shriek, Mother Blight melts into a puddle of bog water.",
+      "The fever breaks all over Frogwater. By morning, the gardens are green again."
+    ],
+    "sources": [
+      {
+        "item": "hearthblade",
+        "how": "craft",
+        "town": "mistmarsh",
+        "ref": "hearthblade"
+      },
+      {
+        "item": "physicians_mantle",
+        "how": "shop",
+        "town": "hollywood",
+        "ref": "teagan"
+      },
+      {
+        "item": "heartroot",
+        "how": "quest",
+        "town": "ravenpeak",
+        "ref": "q_ravenpeak"
+      }
+    ]
+  }
+}

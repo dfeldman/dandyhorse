@@ -1,0 +1,93 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f1318;
+  --panel: #171d25;
+  --border: #2a333f;
+  --text: #e6e9ee;
+  --muted: #8a96a6;
+  --accent: #6fa8dc;
+  --danger: #ff5c5c;
+  --ok: #7bd88f;
+  --warn: #f0b429;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.app { padding: 12px 16px; }
+header h1 { margin: 0 0 4px; font-size: 20px; }
+.meta { color: var(--muted); font-size: 13px; }
+a { color: var(--accent); }
+
+details { margin: 10px 0; }
+details pre { max-height: 320px; overflow: auto; }
+pre {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 8px;
+  font-size: 12px;
+  overflow: auto;
+}
+
+main { display: grid; grid-template-columns: minmax(380px, 1fr) minmax(480px, 1.2fr); gap: 16px; }
+@media (max-width: 960px) { main { grid-template-columns: 1fr; } }
+
+section { margin-bottom: 14px; }
+h3 { margin: 8px 0 4px; font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.status { background: var(--panel); border: 1px solid var(--border); padding: 10px; }
+.countdown { font-size: 44px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1; }
+.countdown.over { color: var(--danger); }
+.countdown.paused { color: var(--warn); }
+.summary { margin-top: 6px; }
+.answered { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+.prompt { background: var(--panel); border: 1px solid var(--accent); padding: 10px; min-height: 56px; }
+.prompt-title { margin-bottom: 8px; font-weight: 600; }
+.choices { display: flex; flex-wrap: wrap; gap: 10px; }
+button { font: inherit; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: #222b36; color: var(--text); cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: 0.4; cursor: default; }
+button.choice { font-size: 22px; padding: 16px 28px; background: #23405c; border-color: var(--accent); }
+button.complete { border-color: var(--ok); }
+button.discard { border-color: var(--danger); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.controls label { color: var(--muted); }
+
+.maps canvas { display: block; border: 1px solid var(--border); margin-bottom: 6px; max-width: 100%; }
+
+table.state { border-collapse: collapse; width: 100%; font-size: 12px; }
+table.state th, table.state td { border: 1px solid var(--border); padding: 3px 6px; text-align: left; vertical-align: top; }
+table.state th { color: var(--muted); font-weight: 500; white-space: nowrap; }
+table.state td.value { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-word; }
+table.state tr.metric td { width: 30%; }
+
+.log { list-style: none; padding: 0; margin: 0; font-family: ui-monospace, Menlo, monospace; font-size: 12px; max-height: 260px; overflow: auto; background: var(--panel); border: 1px solid var(--border); }
+.log li { padding: 2px 6px; border-bottom: 1px solid var(--border); }
+
+.card { max-width: 640px; margin: 60px auto; background: var(--panel); border: 1px solid var(--border); padding: 20px; }
+.card.error { border-color: var(--danger); }
+.muted { color: var(--muted); }
+
+.overlay[hidden] { display: none; }
+.overlay { position: fixed; inset: 0; background: rgba(5, 8, 12, 0.92); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.overlay-card { background: var(--panel); border: 1px solid var(--border); padding: 24px; max-width: 720px; max-height: 90vh; overflow: auto; }
+.overlay-card h2 { margin-top: 0; }
+
+/* Pause: a dimmed backdrop that lets clicks through (pointer-events: none), so the prompt buttons,
+   Complete and Discard keep working underneath, with a full-width band pinned to the bottom of the
+   viewport, clear of the controls at the top of the page. Sits below the end overlay (z-index 10). */
+.pause-layer[hidden] { display: none; }
+.pause-layer { position: fixed; inset: 0; z-index: 9; pointer-events: none; background: rgba(5, 8, 12, 0.5); display: flex; align-items: flex-end; }
+.pause-band { pointer-events: auto; width: 100%; background: #2e2410; border-top: 3px solid var(--warn); padding: 18px 24px 22px; text-align: center; }
+.pause-band h2 { margin: 0 0 6px; font-size: 34px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--warn); }
+.pause-message { margin: 4px 0; font-size: 18px; }
+.pause-for { margin: 4px 0; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pause-hint { margin: 8px 0 0; font-weight: 600; }

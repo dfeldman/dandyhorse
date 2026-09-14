@@ -1,0 +1,26 @@
+{
+  "name": "dandyhorse-bridge-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@bikebike/devicelib": "file:../../devicelib",
+    "vue": "^3.5",
+    "vue-router": "^4.5"
+  },
+  "devDependencies": {
+    "@types/web-bluetooth": "^0.0.21",
+    "@vitejs/plugin-vue": "^6",
+    "typescript": "^5.8",
+    "vite": "^7",
+    "vitest": "^3",
+    "vue-tsc": "^3"
+  }
+}

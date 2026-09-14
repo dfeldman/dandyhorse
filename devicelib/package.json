@@ -1,0 +1,23 @@
+{
+  "name": "@bikebike/devicelib",
+  "version": "0.1.0",
+  "description": "Fitness-device abstraction layer (treadmills, bikes, trainers) over a thin BLE transport",
+  "type": "module",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "gen:registry": "python3 scripts/gen_registry.py",
+    "demo": "npm run build && python3 -m http.server 8321 --bind 127.0.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=22.6"
+  }
+}

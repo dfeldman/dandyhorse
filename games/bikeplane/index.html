@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sky Rings — Bike Plane</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; overflow: hidden; height: 100%; background: #7ec2f7; }
+  #game-canvas { width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+  .hud { position: absolute; font-family: 'Baloo 2', 'Comic Sans MS', sans-serif; user-select: none; pointer-events: none; }
+
+  #hud-top-left { top: 14px; left: 18px; }
+  #hud-score {
+    font-size: 46px; font-weight: 800; color: #fff;
+    text-shadow: 0 3px 0 #e8890c, 0 5px 8px rgba(0,0,0,.3);
+    line-height: 1;
+  }
+  #hud-score::before { content: '★ '; color: #ffd42a; }
+  #hud-sub { font-size: 18px; font-weight: 600; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.4); margin-top: 4px; }
+  #hud-lap { color: #ffe9a8; margin-right: 12px; }
+  #hud-passes { font-size: 22px; color: #ffd42a; text-shadow: 0 2px 3px rgba(0,0,0,.4); letter-spacing: 3px; margin-top: 2px; }
+
+  /* Workout timer */
+  #hud-timer {
+    top: 14px; left: 50%; transform: translateX(-50%);
+    font-size: 34px; font-weight: 800; color: #fff;
+    text-shadow: 0 3px 0 #3a6fb5, 0 5px 8px rgba(0,0,0,.3);
+    background: rgba(20, 40, 80, .4); border-radius: 14px; padding: 2px 18px;
+  }
+  #hud-timer.low { color: #ff7a6b; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { transform: translateX(-50%) scale(1.08); } }
+
+  /* Balloon float chip */
+  #float-chip {
+    top: 70px; left: 50%; transform: translateX(-50%);
+    font-size: 22px; font-weight: 800; color: #fff; display: none;
+    background: rgba(220, 60, 70, .75); border-radius: 12px; padding: 3px 14px;
+    text-shadow: 0 2px 3px rgba(0,0,0,.35);
+  }
+
+  /* Turbo chip + meter */
+  #turbo-chip {
+    top: 112px; left: 50%; transform: translateX(-50%);
+    font-size: 22px; font-weight: 800; color: #fff; display: none;
+    background: rgba(240, 120, 20, .85); border-radius: 12px; padding: 3px 14px;
+    text-shadow: 0 2px 3px rgba(0,0,0,.35);
+  }
+  #turbo-wrap { margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+  #turbo-label { font-size: 14px; font-weight: 800; color: #ffd42a; text-shadow: 0 2px 2px rgba(0,0,0,.4); }
+  #turbo-meter { display: flex; gap: 3px; }
+  #turbo-meter .seg {
+    width: 16px; height: 12px; border-radius: 4px;
+    background: rgba(20,40,80,.5); border: 2px solid rgba(255,255,255,.7);
+  }
+  #turbo-meter .seg.lit { background: linear-gradient(#ffe14d, #ff9e1f); }
+  #turbo-wrap.ready #turbo-meter .seg { animation: turboflash .4s infinite alternate; }
+  @keyframes turboflash { from { filter: brightness(1); } to { filter: brightness(1.6); } }
+
+  /* Race position chip */
+  #race-chip {
+    top: 64px; left: 50%; transform: translateX(-50%);
+    font-size: 24px; font-weight: 800; color: #fff; display: none;
+    background: rgba(30, 30, 40, .7); border-radius: 12px; padding: 4px 16px;
+    text-shadow: 0 2px 3px rgba(0,0,0,.4);
+  }
+  #race-chip.leading { background: rgba(30, 130, 60, .8); }
+
+  /* Trainer resistance display */
+  #resist-wrap {
+    bottom: 16px; left: 18px;
+    background: rgba(20, 40, 80, .55); border-radius: 14px; padding: 8px 14px;
+    backdrop-filter: blur(4px); width: 170px;
+  }
+  #resist-top { display: flex; justify-content: space-between; align-items: baseline; }
+  #resist-label { color: #cfe4ff; font-size: 13px; font-weight: 800; letter-spacing: 1px; }
+  #resist-num { color: #fff; font-size: 24px; font-weight: 800; }
+  #resist-bar {
+    height: 10px; border-radius: 5px; margin-top: 4px; overflow: hidden;
+    background: rgba(255,255,255,.25);
+  }
+  #resist-fill {
+    height: 100%; width: 30%; border-radius: 5px;
+    background: linear-gradient(90deg, #7dd87d, #ffd42a);
+    transition: width .2s;
+  }
+  #resist-fill.hard { background: linear-gradient(90deg, #ffd42a, #ff6b4d); }
+  #resist-fill.easy { background: #7dd87d; }
+
+  /* Altitude bar */
+  #alt-wrap { top: 50%; right: 22px; transform: translateY(-50%); height: 46vh; width: 46px; }
+  #alt-bar {
+    position: absolute; right: 0; top: 0; bottom: 0; width: 14px; border-radius: 8px;
+    background: linear-gradient(to bottom, #2a6fd8, #9fd7ff 70%, #7fc97a 100%);
+    border: 3px solid rgba(255,255,255,.85); box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
+  #alt-plane, #alt-ring { position: absolute; right: -6px; transform: translateY(-50%); }
+  #alt-plane { font-size: 26px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); right: 18px; }
+  #alt-ring {
+    width: 26px; height: 26px; right: -9px; border-radius: 50%;
+    border: 5px solid #ffd42a; box-shadow: 0 0 8px #ffb400, inset 0 0 4px #ffb400;
+    display: none;
+  }
+  #alt-ring.red { border-color: #ff5a6b; box-shadow: 0 0 8px #e02040, inset 0 0 4px #e02040; }
+  #hud-cue { top: calc(50% + 25vh); right: 90px; font-size: 26px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,.35); }
+  #hud-cue.climb { color: #7dff8a; }
+  #hud-cue.descend { color: #ffd166; }
+  #hud-cue.hold { color: #ffffff; }
+
+  /* Banner */
+  #hud-banner {
+    top: 26%; left: 50%; transform: translate(-50%,-50%) scale(0);
+    font-size: 64px; font-weight: 800; color: #fff; white-space: nowrap;
+    text-shadow: 0 4px 0 #e8890c, 0 8px 16px rgba(0,0,0,.35);
+    transition: transform .35s cubic-bezier(.2,2.2,.4,1);
+  }
+  #hud-banner.show { transform: translate(-50%,-50%) scale(1); }
+
+  /* Floating popups */
+  #popups { top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; }
+  .popup {
+    position: absolute; top: 40%;
+    font-size: 40px; font-weight: 800; color: #ffe14d;
+    text-shadow: 0 3px 0 #c96a00, 0 5px 10px rgba(0,0,0,.4);
+    animation: floatup 1.4s ease-out forwards;
+  }
+  .popup.miss { color: #ccd7e8; font-size: 30px; text-shadow: 0 3px 0 #556, 0 5px 10px rgba(0,0,0,.4); }
+  .popup.red { color: #ff5a6b; text-shadow: 0 3px 0 #8a1020, 0 5px 10px rgba(0,0,0,.4); }
+  .popup.pass { color: #ffe98a; text-shadow: 0 3px 0 #b07a00, 0 5px 10px rgba(0,0,0,.4); }
+  .popup.balloon { color: #ff9aa5; text-shadow: 0 3px 0 #a03040, 0 5px 10px rgba(0,0,0,.4); }
+  .popup.wind { color: #8fe0ff; text-shadow: 0 3px 0 #1a6a8a, 0 5px 10px rgba(0,0,0,.4); }
+
+  /* Tailwind chip */
+  #wind-chip {
+    top: 154px; left: 50%; transform: translateX(-50%);
+    font-size: 22px; font-weight: 800; color: #fff; display: none;
+    background: rgba(30, 140, 180, .8); border-radius: 12px; padding: 3px 14px;
+    text-shadow: 0 2px 3px rgba(0,0,0,.35);
+  }
+
+  /* Flight instruments */
+  #instruments {
+    bottom: 16px; right: 18px;
+    background: rgba(20, 40, 80, .55); border-radius: 14px; padding: 8px 16px;
+    backdrop-filter: blur(4px); display: flex; gap: 18px;
+  }
+  #instruments .inst { text-align: center; }
+  #instruments .inst .val { color: #fff; font-size: 22px; font-weight: 800; line-height: 1.1; }
+  #instruments .inst .lbl { color: #cfe4ff; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
+
+  /* End-of-workout overlay */
+  #end-overlay {
+    top: 0; left: 0; right: 0; bottom: 0; display: none;
+    background: rgba(15, 30, 60, .55); backdrop-filter: blur(3px);
+    align-items: center; justify-content: center;
+  }
+  #end-overlay.show { display: flex; }
+  #end-panel {
+    background: linear-gradient(#fffef5, #ffeaa8); border-radius: 24px;
+    border: 6px solid #ffb400; box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    padding: 28px 60px; text-align: center; color: #6b4a00;
+  }
+  #end-panel h1 { margin: 0 0 8px; font-size: 40px; color: #d97800; text-shadow: 0 2px 0 #fff; }
+  .end-score { font-size: 64px; font-weight: 800; color: #e8890c; line-height: 1; margin-bottom: 12px; }
+  .end-score::before { content: '★ '; color: #ffb400; }
+  .end-row { font-size: 22px; margin: 4px 0; }
+  .end-row.small { font-size: 16px; margin-top: 14px; opacity: .8; }
+  @keyframes floatup {
+    0% { transform: translateY(0) scale(.5); opacity: 0; }
+    15% { transform: translateY(-10px) scale(1.15); opacity: 1; }
+    100% { transform: translateY(-120px) scale(1); opacity: 0; }
+  }
+
+  /* Pedal test controls (stand-in for the bike trainer) */
+  #pedal-wrap {
+    bottom: 16px; left: 50%; transform: translateX(-50%);
+    background: rgba(20, 40, 80, .55); border-radius: 16px; padding: 10px 20px;
+    display: flex; align-items: center; gap: 14px; pointer-events: auto;
+    backdrop-filter: blur(4px);
+  }
+  #pedal-wrap label { color: #fff; font-weight: 600; font-size: 15px; }
+  #pedal-slider { width: 240px; accent-color: #ffd42a; }
+  #pedal-readout { color: #ffd42a; font-size: 26px; font-weight: 800; width: 44px; text-align: center; }
+  #pedal-hint { color: #cfe4ff; font-size: 12px; font-weight: 600; }
+</style>
+</head>
+<body>
+<canvas id="game-canvas"></canvas>
+
+<div class="hud" id="hud-top-left">
+  <div id="hud-score">0</div>
+  <div id="hud-sub"><span id="hud-lap">LAP 1</span> RINGS <span id="hud-rings">0 / 0</span></div>
+  <div id="hud-passes">☆☆☆</div>
+  <div id="turbo-wrap">
+    <span id="turbo-label">TURBO</span>
+    <div id="turbo-meter">
+      <div class="seg"></div><div class="seg"></div><div class="seg"></div>
+      <div class="seg"></div><div class="seg"></div><div class="seg"></div>
+    </div>
+  </div>
+</div>
+
+<div class="hud" id="hud-timer">30:00</div>
+<div class="hud" id="race-chip"></div>
+<div class="hud" id="float-chip"></div>
+<div class="hud" id="turbo-chip"></div>
+<div class="hud" id="wind-chip"></div>
+
+<div class="hud" id="instruments">
+  <div class="inst"><div class="val" id="inst-spd">0</div><div class="lbl">KNOTS</div></div>
+  <div class="inst"><div class="val" id="inst-alt">0</div><div class="lbl">FEET</div></div>
+  <div class="inst"><div class="val" id="inst-dist">0.00</div><div class="lbl">MILES</div></div>
+</div>
+
+<div class="hud" id="resist-wrap">
+  <div id="resist-top">
+    <span id="resist-label">RESISTANCE</span>
+    <span id="resist-num">25</span>
+  </div>
+  <div id="resist-bar"><div id="resist-fill"></div></div>
+</div>
+
+<div class="hud" id="end-overlay">
+  <div id="end-panel">
+    <h1>WORKOUT COMPLETE!</h1>
+    <div id="end-stats"></div>
+  </div>
+</div>
+
+<div class="hud" id="alt-wrap">
+  <div id="alt-bar"></div>
+  <div id="alt-plane">✈️</div>
+  <div id="alt-ring"></div>
+</div>
+<div class="hud" id="hud-cue"></div>
+
+<div class="hud" id="hud-banner"></div>
+<div class="hud" id="popups"></div>
+
+<div class="hud" id="pedal-wrap">
+  <label for="pedal-slider">PEDAL</label>
+  <input type="range" id="pedal-slider" min="0" max="100" value="0" step="1">
+  <div id="pedal-readout">0</div>
+  <div id="pedal-hint">↑/↓ keys or drag &middot; 50 = level &middot; M mutes</div>
+</div>
+
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+<script src="js/config.js?v=61"></script>
+<script src="js/levels.js?v=61"></script>
+<script src="js/input.js?v=61"></script>
+<script src="js/track.js?v=61"></script>
+<script src="js/sfx.js?v=61"></script>
+<script src="js/plane.js?v=61"></script>
+<script src="js/world.js?v=61"></script>
+<script src="js/rings.js?v=61"></script>
+<script src="js/rivals.js?v=61"></script>
+<script src="js/hud.js?v=61"></script>
+<script src="js/main.js?v=61"></script>
+</body>
+</html>

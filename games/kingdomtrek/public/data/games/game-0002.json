@@ -1,0 +1,1914 @@
+{
+  "schemaVersion": 1,
+  "id": "game-0002",
+  "title": "The Curse of Ramridge",
+  "theme": "medieval",
+  "region": {
+    "name": "the Honeyvale",
+    "blurb": "Wheat fields and windmills in the west, red dunes and misty bogs in the middle, and in the east the sleeping town of Ramridge.",
+    "width": 1000,
+    "height": 640
+  },
+  "startTown": "queensbury",
+  "towns": [
+    {
+      "id": "queensbury",
+      "name": "Queensbury",
+      "biome": "plains",
+      "appearance": "capital",
+      "x": 163,
+      "y": 275,
+      "blurb": "The greatest town in the Honeyvale, with a castle on the hill and a market that never sleeps.",
+      "mayor": {
+        "id": "cole",
+        "name": "Lord Cole",
+        "title": "Lord",
+        "emoji": "👴🏼",
+        "avatar": "broad lord with a red beard braided with beads, a sea-green robe, and a lapdog under one arm",
+        "greeting": [
+          "Queensbury welcomes you, Hero. We have heard all about you.",
+          "Anything you need, ask. The Queen's champion is welcome everywhere in Queensbury."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_queensbury",
+          "type": "fetch",
+          "title": "The Cheese-Rolling Race",
+          "offer": [
+            "The cheese-rolling race is tomorrow, and the mice ate our cheese.",
+            "Hugo's Curios in Heronmarsh sells cheese, I am told. Bring me one, please."
+          ],
+          "reminder": "Have you found a wheel of cheese? Hugo's Curios in Heronmarsh sells cheese.",
+          "done": [
+            "A cheese! The race is saved.",
+            "Here is your reward, and well earned."
+          ],
+          "item": "wheel_of_cheese",
+          "reward": {
+            "gold": 30,
+            "items": [
+              "travelers_cloak"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Busy Bee",
+        "keeper": {
+          "id": "fenella",
+          "name": "Fenella",
+          "emoji": "👩🏽‍🦱",
+          "avatar": "brisk shopkeeper with a pencil behind one ear and a ledger under one arm"
+        },
+        "lines": [
+          "Fresh bread, fresh draughts, fresh advice. What'll it be?"
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "morningstar"
+          },
+          {
+            "item": "hunting_bow"
+          },
+          {
+            "item": "leather_cap"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Mill Wheel Workshop",
+        "keeper": {
+          "id": "toby",
+          "name": "Toby",
+          "emoji": "👨🏽‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "Mind the sparks, and put the tools back where you found them."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "nell",
+          "name": "Nell",
+          "role": "child",
+          "emoji": "👧🏿",
+          "avatar": "freckled child with a wooden sword and a helmet three sizes too big",
+          "lines": [
+            "Can I hold your sword? Just for a second? Please?",
+            "Lady Yvaine of Miragereach is looking for a courier to Queensbury."
+          ],
+          "gives": {
+            "item": "healing_draught",
+            "line": "Are you a real hero? Mum says heroes always carry healing draughts. Here, take one of mine!"
+          },
+          "hint": "h_2"
+        },
+        {
+          "id": "saffron",
+          "name": "Smith Saffron",
+          "role": "smith",
+          "emoji": "👩🏻‍🏭",
+          "avatar": "muscular smith with soot-streaked arms and a leather apron",
+          "lines": [
+            "Hammer and anvil, all day long. Look at these arms!",
+            "I can build up yours too, for a fee."
+          ],
+          "trains": {
+            "stat": "strength",
+            "price": 40
+          }
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_well",
+          "name": "the Old Well",
+          "emoji": "🪣",
+          "gold": 35,
+          "text": "You haul up the old bucket. Tangled in the rope is a purse of 35 gold!"
+        }
+      ]
+    },
+    {
+      "id": "ramridge",
+      "name": "Ramridge",
+      "biome": "hills",
+      "appearance": "ruins",
+      "x": 866,
+      "y": 337,
+      "blurb": "Snoring drifts from every window. Only a handful of townsfolk are still awake, and they look very tired.",
+      "crisis": true,
+      "mayor": {
+        "id": "roderic",
+        "name": "Count Roderic",
+        "title": "Count",
+        "emoji": "🧔🏿‍♂️",
+        "avatar": "small, brisk count with a bald head that shines, a long blue coat with silver buttons, and a very large hat",
+        "greeting": [
+          "Oh! Someone else who is awake! The Queen sent you?",
+          "Vexmoor cursed us from the tower above the town. I only stayed awake by drinking a great deal of very strong tea."
+        ],
+        "hint": "h_11"
+      },
+      "shop": {
+        "name": "The Stubborn Stall",
+        "keeper": {
+          "id": "theobald",
+          "name": "Theobald",
+          "emoji": "👨🏻‍🏭",
+          "avatar": "soot-faced armourer with a thick moustache and a hammer on his belt"
+        },
+        "lines": [
+          "I'm staying till the end. Buy what you need; you'll need it."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "holy_water"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Cracked Anvil",
+        "keeper": {
+          "id": "kit",
+          "name": "Kit",
+          "emoji": "🧑🏼‍🔧",
+          "avatar": "cheerful tinker with a tool belt full of odd little tools"
+        },
+        "lines": [
+          "Fire's the one thing we have plenty of. Use the forge, and hurry."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "olwen",
+          "name": "Granny Olwen",
+          "role": "grandmother",
+          "emoji": "👵🏾",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "I've lived in Ramridge for eighty years, and I'm not leaving now.",
+            "The Spellbreaker Staff, the Warding Amulet and the Mirror of Truth. The old songs say you need all three."
+          ],
+          "hint": "h_11"
+        },
+        {
+          "id": "linnea",
+          "name": "Watchman Linnea",
+          "role": "watchman",
+          "emoji": "💂🏻‍♀️",
+          "avatar": "exhausted young watchman in a battered helmet, holding a bucket",
+          "lines": [
+            "If I sit down, I'll fall asleep. So I don't sit down.",
+            "My whole family is snoring. Even the dog."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "ruined_hall",
+          "name": "the Ruined Hall",
+          "emoji": "🏚️",
+          "item": "greater_healing",
+          "text": "In the rubble of the old hall you find a Greater Healing Draught, somehow unbroken."
+        }
+      ]
+    },
+    {
+      "id": "miragereach",
+      "name": "Miragereach",
+      "biome": "desert",
+      "appearance": "village",
+      "x": 695,
+      "y": 460,
+      "blurb": "Mud-brick houses around a deep blue well, with camels dozing in the shade.",
+      "mayor": {
+        "id": "yvaine",
+        "name": "Lady Yvaine",
+        "title": "Lady",
+        "emoji": "👱🏽‍♀️",
+        "avatar": "stout lady with a long golden plait, a sea-green robe, and a walking stick topped with a silver fox",
+        "greeting": [
+          "Miragereach welcomes you, Hero. We have heard all about you.",
+          "Drink some water first. Everyone who arrives here needs it."
+        ],
+        "hint": "h_3",
+        "quest": {
+          "id": "q_miragereach",
+          "type": "deliver",
+          "title": "A Wedding Cake for Queensbury",
+          "offer": [
+            "Would you carry this wedding cake to Lord Cole in Queensbury? My niece is getting married there, and nobody else can be trusted not to eat it.",
+            "Lord Cole has the Spellbreaker Staff, and has promised it to whoever brings this."
+          ],
+          "reminder": "Lord Cole in Queensbury is waiting for the wedding cake.",
+          "done": [
+            "The cake! And not a single fingerprint in the icing. Wonderful!",
+            "I have kept the Spellbreaker Staff safe for years. It is yours now: go and put it to good use."
+          ],
+          "item": "wedding_cake",
+          "to": {
+            "town": "queensbury"
+          },
+          "reward": {
+            "gold": 40,
+            "items": [
+              "spellbreaker_staff"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Shady Palm",
+        "keeper": {
+          "id": "quill",
+          "name": "Quill",
+          "emoji": "🧑🏾‍🦱",
+          "avatar": "quick-talking trader with curly hair and a ledger under one arm"
+        },
+        "lines": [
+          "Everything a desert traveller could want. Especially water."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "sunlit_mace"
+          },
+          {
+            "item": "winters_edge"
+          },
+          {
+            "item": "iron_helm"
+          },
+          {
+            "item": "salamander_scale"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Sandglass Kiln",
+        "keeper": {
+          "id": "horace",
+          "name": "Horace",
+          "emoji": "🧔🏿",
+          "avatar": "bearded woodworker with curls of shavings stuck to his jumper"
+        },
+        "lines": [
+          "Sand and fire make glass. Sand and fire and you make anything."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "pip",
+          "name": "Ranger Pip",
+          "role": "ranger",
+          "emoji": "🧝🏿",
+          "avatar": "hooded ranger with a longbow and a scar across one cheek",
+          "lines": [
+            "The wild wears you down, if you let it.",
+            "I can toughen you up, if you've the coin.",
+            "The Winter Wolf prowls the road between Whitemark and Miragereach."
+          ],
+          "trains": {
+            "stat": "vigor",
+            "price": 40
+          },
+          "hint": "h_4"
+        },
+        {
+          "id": "ned",
+          "name": "Ned",
+          "role": "caravan driver",
+          "emoji": "🐪",
+          "avatar": "caravan driver wrapped in blue cloth against the sand",
+          "lines": [
+            "Sandstorms come fast. Cover your face and wait.",
+            "A camel can walk ten days without water. I cannot."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "buried_statue",
+          "name": "the Buried Statue",
+          "emoji": "🗿",
+          "gold": 40,
+          "text": "Between the statue's stone paws lies a purse of 40 gold."
+        }
+      ]
+    },
+    {
+      "id": "heronmarsh",
+      "name": "Heronmarsh",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 337,
+      "y": 382,
+      "blurb": "A village of reed huts and boardwalks over the marsh. Everyone owns a punt.",
+      "mayor": {
+        "id": "ulric",
+        "name": "Count Ulric",
+        "title": "Count",
+        "emoji": "🧔🏼‍♂️",
+        "avatar": "plump, cheerful count with a bushy black beard, a plum-coloured cloak, and a gold chain of office",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Heronmarsh.",
+          "Mind the boardwalks. Some of the planks are, well, optional."
+        ],
+        "quest": {
+          "id": "q_heronmarsh",
+          "type": "slay",
+          "title": "Old Croaker",
+          "offer": [
+            "Old Croaker has been prowling the road to Coralport, frightening every traveller. Nobody dares to use that road any more.",
+            "Beat Old Croaker, and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "Old Croaker is still out on the road to Coralport.",
+          "done": [
+            "Old Croaker beaten? Then Heronmarsh owes you a great deal.",
+            "Take this, with Heronmarsh's thanks."
+          ],
+          "foe": "foe_old_croaker",
+          "reward": {
+            "gold": 45,
+            "items": [
+              "quickening_elixir"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Hugo's Curios",
+        "keeper": {
+          "id": "hugo",
+          "name": "Hugo",
+          "emoji": "👨🏿‍🦰",
+          "avatar": "red-haired ex-sailor with a tattooed forearm and a gold earring"
+        },
+        "lines": [
+          "Mind the jars. Some of them bite."
+        ],
+        "stock": [
+          {
+            "item": "wheel_of_cheese"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "hunting_bow"
+          },
+          {
+            "item": "morningstar"
+          },
+          {
+            "item": "leather_vest"
+          },
+          {
+            "item": "plague_mask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Bog-Iron Forge",
+        "keeper": {
+          "id": "posy",
+          "name": "Posy",
+          "emoji": "👩🏼‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "Stir clockwise. Always clockwise. Trust me."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "rowena",
+          "name": "Granny Rowena",
+          "role": "good witch",
+          "emoji": "🧙🏻‍♀️",
+          "avatar": "tiny, kindly witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": [
+            "Nettle soup for strength, willow tea for aches. Nothing for goblins, sadly.",
+            "Old Agatha in Greyspire has a crystal shard, and would give it to a hero."
+          ],
+          "hint": "h_7"
+        },
+        {
+          "id": "quentin",
+          "name": "Quentin",
+          "role": "ferry-keeper",
+          "emoji": "🛶",
+          "avatar": "lean ferry-keeper in a wide hat, leaning on a long pole",
+          "lines": [
+            "Mind the water. It's deeper than it looks, and colder.",
+            "Across and back, across and back. Forty years of it."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_boathouse",
+          "name": "the Old Boathouse",
+          "emoji": "🛶",
+          "item": "pearl",
+          "text": "Floating in the flooded boathouse: a Pearl!"
+        }
+      ]
+    },
+    {
+      "id": "greyspire",
+      "name": "Greyspire",
+      "biome": "mountain",
+      "appearance": "hillside",
+      "x": 519,
+      "y": 279,
+      "blurb": "A town of goatherds and stonecutters, stacked up a steep and windy slope.",
+      "mayor": {
+        "id": "silas",
+        "name": "Lord Silas",
+        "title": "Lord",
+        "emoji": "👨🏻‍🦲",
+        "avatar": "elegant lord with a bushy black beard, a long blue coat with silver buttons, and a wheat-sheaf brooch",
+        "greeting": [
+          "A hero, in Greyspire! Come in, come in, mind the step.",
+          "Greyspire stands firm, and so do its people."
+        ],
+        "hint": "h_3",
+        "quest": {
+          "id": "q_greyspire",
+          "type": "fetch",
+          "title": "The Mill Gear",
+          "offer": [
+            "The mill has stopped. A gear is missing, and without it we can't grind a thing.",
+            "The miller's boy says a troll took it to Coralport to wear as a hat. Bring it back and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "Any sign of the Mill Gear? The miller's boy says a troll took it to Coralport to wear as a hat.",
+          "done": [
+            "The gear! The mill will be turning again by supper.",
+            "Take this, with Greyspire's thanks."
+          ],
+          "item": "mill_gear",
+          "reward": {
+            "gold": 60,
+            "items": [
+              "fur_cloak"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Mo's Armoury",
+        "keeper": {
+          "id": "mo",
+          "name": "Mo",
+          "emoji": "👨🏾‍🏭",
+          "avatar": "soot-faced armourer with a thick moustache and a hammer on his belt"
+        },
+        "lines": [
+          "Steel for heroes. Only the best, and the best isn't cheap."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "war_axe"
+          },
+          {
+            "item": "oak_shield"
+          },
+          {
+            "item": "iron_helm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Stonecutter's Yard",
+        "keeper": {
+          "id": "tilly",
+          "name": "Tilly",
+          "emoji": "👩🏾‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "The best anvil this side of the mountains. Strike while it's hot!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "teagan",
+          "name": "Teagan the Magnificent",
+          "role": "travelling wizard",
+          "emoji": "🧙🏿",
+          "avatar": "small, round wizard in a patchwork robe covered in singe marks, with spectacles on a chain",
+          "lines": [
+            "Tired of that face? I can change it. A little magic, a little gold.",
+            "Build, clothes, hair. Nothing I have not done a thousand times.",
+            "The Mill Gear from Greyspire is hidden in the Tide Pools in Coralport."
+          ],
+          "restyle": {
+            "price": 60
+          },
+          "hint": "h_9"
+        },
+        {
+          "id": "odette",
+          "name": "Guide Odette",
+          "role": "mountain guide",
+          "emoji": "🧗🏿‍♀️",
+          "avatar": "wiry mountain guide with a coil of rope and wind-burned cheeks",
+          "lines": [
+            "Watch your step. The mountain doesn't forgive.",
+            "The Thunder Eagle prowls the road between Coralport and Greyspire."
+          ],
+          "hint": "h_10"
+        },
+        {
+          "id": "agatha",
+          "name": "Old Agatha",
+          "role": "grandmother",
+          "emoji": "👵🏾",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "In my day, heroes wiped their boots before coming in.",
+            "Eat something! You're all bones.",
+            "Holy light breaks a sorcerer's spells."
+          ],
+          "gives": {
+            "item": "crystal_shard",
+            "line": "So you're the Queen's hero! Take this crystal shard, then. They say the Mirror of Truth is made with one."
+          },
+          "hint": "h_12"
+        }
+      ],
+      "spots": [
+        {
+          "id": "eagle_s_nest",
+          "name": "the Eagle's Nest",
+          "emoji": "🦅",
+          "item": "travelers_tonic",
+          "text": "High on the cliff, in an empty eagle's nest, lies a Traveler's Tonic."
+        }
+      ]
+    },
+    {
+      "id": "whitemark",
+      "name": "Whitemark",
+      "biome": "snow",
+      "appearance": "hillside",
+      "x": 720,
+      "y": 197,
+      "blurb": "Terraces of snowy roofs climb the mountainside, joined by steep, icy stairs.",
+      "mayor": {
+        "id": "robin",
+        "name": "Reeve Robin",
+        "title": "Reeve",
+        "emoji": "🧑🏼",
+        "avatar": "small, brisk reeve with freckles and a crooked grin, a green velvet coat, and a silver circlet",
+        "greeting": [
+          "A hero, in Whitemark! Come in, come in, mind the step.",
+          "Brr! Come in by the fire. It is cold here, but our hearts are warm."
+        ],
+        "hint": "h_6",
+        "quest": {
+          "id": "q_whitemark",
+          "type": "slay",
+          "title": "The Winter Wolf",
+          "offer": [
+            "The Winter Wolf has been prowling the road to Miragereach, frightening every traveller. Nobody dares to use that road any more.",
+            "Beat the Winter Wolf, and the Warding Amulet, which has sat in my armoury since my grandmother's day, is yours."
+          ],
+          "reminder": "The Winter Wolf is still out on the road to Miragereach.",
+          "done": [
+            "The Winter Wolf beaten? Then Whitemark owes you a great deal.",
+            "As promised: the Warding Amulet. May it serve you well against Vexmoor."
+          ],
+          "foe": "foe_winter_wolf",
+          "reward": {
+            "gold": 40,
+            "items": [
+              "warding_amulet"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Nessa's Trading Post",
+        "keeper": {
+          "id": "nessa",
+          "name": "Nessa",
+          "emoji": "👩🏻‍🍳",
+          "avatar": "broad-shouldered shopkeeper with rolled sleeves and a flour-dusted apron"
+        },
+        "lines": [
+          "Furs, flasks, and frost-proof boots. Stay warm, friend."
+        ],
+        "stock": [
+          {
+            "item": "silver_ore"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "war_axe"
+          },
+          {
+            "item": "tempest_spear"
+          },
+          {
+            "item": "gauntlets_of_might"
+          },
+          {
+            "item": "fur_cloak"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Warm Hearth",
+        "keeper": {
+          "id": "dunstan",
+          "name": "Dunstan",
+          "emoji": "👨🏼‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "The warmest room in town! Pedal and you'll soon forget the cold."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "gwendolyn",
+          "name": "Peddler Gwendolyn",
+          "role": "peddler",
+          "emoji": "🧳",
+          "avatar": "round peddler under a huge pack hung with pots and trinkets",
+          "lines": [
+            "Word on the road is that Ramridge is in a bad way.",
+            "The quickest road to Ramridge is the one from Whitemark."
+          ],
+          "hint": "h_13"
+        },
+        {
+          "id": "una",
+          "name": "Guide Una",
+          "role": "mountain guide",
+          "emoji": "🧗🏾‍♀️",
+          "avatar": "wiry mountain guide with a coil of rope and wind-burned cheeks",
+          "lines": [
+            "The pass is open, for now. Snow could close it any day.",
+            "Watch your step. The mountain doesn't forgive."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "gold": 30,
+          "text": "Up among the bells, in a pigeon's nest: a purse of 30 gold!"
+        }
+      ]
+    },
+    {
+      "id": "briarglen",
+      "name": "Briarglen",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 260,
+      "y": 102,
+      "blurb": "A woodcutters' village in a clearing, where the sawmill hums and the air smells of pine.",
+      "mayor": {
+        "id": "florian",
+        "name": "Mayor Florian",
+        "title": "Mayor",
+        "emoji": "👨🏻‍🦳",
+        "avatar": "broad mayor with a magnificent moustache, a green velvet coat, and a wheat-sheaf brooch",
+        "greeting": [
+          "Welcome to Briarglen, Hero! The Queen's messenger said you would come.",
+          "Walk softly; the forest listens."
+        ],
+        "hint": "h_5",
+        "quest": {
+          "id": "q_briarglen",
+          "type": "deliver",
+          "title": "A Love Letter for Miragereach",
+          "offer": [
+            "Would you carry this love letter to Ned in Miragereach? It is, er, a private matter. Please don't read it.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Ned in Miragereach is waiting for the love letter.",
+          "done": [
+            "A letter? For me? From Briarglen? Oh my. Oh my, oh my.",
+            "Here, for your trouble."
+          ],
+          "item": "love_letter",
+          "to": {
+            "town": "miragereach",
+            "npc": "ned"
+          },
+          "reward": {
+            "gold": 40,
+            "items": [
+              "oak_shield"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Acorn & Arrow",
+        "keeper": {
+          "id": "dora",
+          "name": "Dora",
+          "emoji": "👱🏿‍♀️",
+          "avatar": "stubborn young shopkeeper with a smudged face and a lantern"
+        },
+        "lines": [
+          "Bows, cloaks, and forest remedies. All handmade."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "morningstar"
+          },
+          {
+            "item": "icicle_dagger"
+          },
+          {
+            "item": "iron_helm"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Whittled Owl",
+        "keeper": {
+          "id": "elspeth",
+          "name": "Elspeth",
+          "emoji": "👩🏾‍🔧",
+          "avatar": "strong-armed smith in a leather apron, with soot on her nose and a hammer on her belt"
+        },
+        "lines": [
+          "Bark, sap and elbow grease. Help yourself to the bench."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "coralie",
+          "name": "Peddler Coralie",
+          "role": "peddler",
+          "emoji": "🧳",
+          "avatar": "round peddler under a huge pack hung with pots and trinkets",
+          "lines": [
+            "Word on the road is that Ramridge is in a bad way.",
+            "Nessa's Trading Post in Whitemark sells silver ore."
+          ],
+          "hint": "h_6"
+        },
+        {
+          "id": "leofric",
+          "name": "Grandpa Leofric",
+          "role": "grandfather",
+          "emoji": "👴🏾",
+          "avatar": "white-bearded grandfather on a bench, with a walking stick across his knees",
+          "lines": [
+            "Back in my day the roads were safe. Mostly. Sometimes.",
+            "Old Agatha in Greyspire has a crystal shard, and would give it to a hero."
+          ],
+          "hint": "h_7"
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "gold": 40,
+          "text": "Up among the bells, in a pigeon's nest: a purse of 40 gold!"
+        }
+      ]
+    },
+    {
+      "id": "coralport",
+      "name": "Coralport",
+      "biome": "coast",
+      "appearance": "port",
+      "x": 495,
+      "y": 528,
+      "blurb": "A lighthouse on the point, taverns on the quay, and a smell of salt and tar over everything.",
+      "mayor": {
+        "id": "maud",
+        "name": "Lady Maud",
+        "title": "Lady",
+        "emoji": "👩🏿‍🦰",
+        "avatar": "small, brisk lady with freckles and a gap-toothed smile, a long blue coat with silver buttons, and a lapdog under one arm",
+        "greeting": [
+          "Coralport welcomes you, Hero. We have heard all about you.",
+          "The sea gives and the sea takes. Mostly it gives fish."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_coralport",
+          "type": "slay",
+          "title": "The Thunder Eagle",
+          "offer": [
+            "The Thunder Eagle has been prowling the road to Greyspire, frightening every traveller. Nobody dares to use that road any more.",
+            "Beat the Thunder Eagle, and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "The Thunder Eagle is still out on the road to Greyspire.",
+          "done": [
+            "The Thunder Eagle beaten? Then Coralport owes you a great deal.",
+            "Here is your reward, and well earned."
+          ],
+          "foe": "foe_thunder_eagle",
+          "reward": {
+            "gold": 60,
+            "items": [
+              "tome_of_fortune"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Gull & Oyster",
+        "keeper": {
+          "id": "clover",
+          "name": "Clover",
+          "emoji": "🧝🏼‍♀️",
+          "avatar": "wood-elf shopkeeper with leaf-green braids and a quiver on her back"
+        },
+        "lines": [
+          "Rope, tar, lanterns and luck. Everything a sailor needs."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "thunder_vial"
+          },
+          {
+            "item": "hunting_bow"
+          },
+          {
+            "item": "war_axe"
+          },
+          {
+            "item": "leather_vest"
+          },
+          {
+            "item": "storm_charm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Kara's Boatshed",
+        "keeper": {
+          "id": "kara",
+          "name": "Kara",
+          "emoji": "👩🏾‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "Ropes, tar and a cauldron that has boiled a thousand crabs. Use it all."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "marigold",
+          "name": "Herbalist Marigold",
+          "role": "herbalist",
+          "emoji": "🌿",
+          "avatar": "herbalist in a green apron, with bundles of drying herbs hanging from the belt",
+          "lines": [
+            "Every potion is a little poem, if you know how to read it.",
+            "Lessons are cheap. Not knowing is expensive.",
+            "The Mirror of Truth can't be bought or found: it has to be made, at the workshop in any town, from two lumps of silver ore, polished round a crystal shard. It takes a few minutes of hard pedaling."
+          ],
+          "trains": {
+            "stat": "magic",
+            "price": 40
+          },
+          "hint": "h_5"
+        },
+        {
+          "id": "morgan",
+          "name": "Old Morgan",
+          "role": "village elder",
+          "emoji": "🧓🏽",
+          "avatar": "bright-eyed village elder with a knobbly stick and a patchwork cloak",
+          "lines": [
+            "Mind the road to Miragereach. It has a mind of its own.",
+            "Old Croaker prowls the road between Heronmarsh and Coralport."
+          ],
+          "hint": "h_8"
+        },
+        {
+          "id": "zinnia",
+          "name": "Granny Zinnia",
+          "role": "grandmother",
+          "emoji": "👵🏻",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "Eat something! You're all bones.",
+            "The Mill Gear from Greyspire is hidden in the Tide Pools in Coralport."
+          ],
+          "hint": "h_9"
+        }
+      ],
+      "spots": [
+        {
+          "id": "tide_pools",
+          "name": "the Tide Pools",
+          "emoji": "🌊",
+          "item": "mill_gear",
+          "text": "Among the rocks and anemones you find the Mill Gear!"
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "id": "r_queensbury_briarglen",
+      "a": "queensbury",
+      "b": "briarglen",
+      "distance": 198,
+      "terrain": "forest",
+      "danger": 0.6,
+      "enemies": [
+        "wolf",
+        "goblin",
+        "boar"
+      ],
+      "finds": [
+        {
+          "id": "f_queensbury_briarglen",
+          "item": "spider_silk",
+          "at": 0.4
+        }
+      ]
+    },
+    {
+      "id": "r_ramridge_whitemark",
+      "a": "ramridge",
+      "b": "whitemark",
+      "distance": 202,
+      "terrain": "hills",
+      "danger": 1.1,
+      "enemies": [
+        "shadow_imp",
+        "hexed_scarecrow",
+        "wild_ram"
+      ],
+      "finds": [
+        {
+          "id": "f_ramridge_whitemark",
+          "item": "shield_tonic",
+          "at": 0.42
+        }
+      ]
+    },
+    {
+      "id": "r_queensbury_heronmarsh",
+      "a": "queensbury",
+      "b": "heronmarsh",
+      "distance": 204,
+      "terrain": "swamp",
+      "danger": 0.7,
+      "enemies": [
+        "bog_lurker",
+        "goblin",
+        "marsh_wisp"
+      ],
+      "finds": [
+        {
+          "id": "f_queensbury_heronmarsh",
+          "item": "pearl",
+          "at": 0.36
+        }
+      ]
+    },
+    {
+      "id": "r_heronmarsh_greyspire",
+      "a": "heronmarsh",
+      "b": "greyspire",
+      "distance": 209,
+      "terrain": "mountain",
+      "danger": 0.8,
+      "enemies": [
+        "goblin",
+        "mountain_eagle",
+        "cave_bats"
+      ],
+      "finds": [
+        {
+          "id": "f_heronmarsh_greyspire",
+          "item": "silver_ore",
+          "at": 0.65
+        }
+      ]
+    },
+    {
+      "id": "r_ramridge_miragereach",
+      "a": "ramridge",
+      "b": "miragereach",
+      "distance": 211,
+      "terrain": "hills",
+      "danger": 1.1,
+      "enemies": [
+        "shadow_imp",
+        "hexed_scarecrow",
+        "wild_ram"
+      ],
+      "finds": [
+        {
+          "id": "f_ramridge_miragereach",
+          "item": "carved_tusk",
+          "at": 0.6
+        }
+      ]
+    },
+    {
+      "id": "r_miragereach_coralport",
+      "a": "miragereach",
+      "b": "coralport",
+      "distance": 211,
+      "terrain": "coast",
+      "danger": 0.9,
+      "enemies": [
+        "giant_octopus",
+        "crab",
+        "pirate"
+      ],
+      "finds": [
+        {
+          "id": "f_miragereach_coralport",
+          "item": "healing_draught",
+          "at": 0.39
+        }
+      ]
+    },
+    {
+      "id": "r_heronmarsh_coralport",
+      "a": "heronmarsh",
+      "b": "coralport",
+      "distance": 215,
+      "terrain": "swamp",
+      "danger": 0.8,
+      "enemies": [
+        "bog_lurker",
+        "marsh_wisp",
+        "goblin"
+      ],
+      "fixed": [
+        {
+          "id": "foe_old_croaker",
+          "enemy": "old_croaker",
+          "at": 0.39,
+          "quest": "q_heronmarsh"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_heronmarsh_coralport",
+          "item": "goblin_trinket",
+          "at": 0.47
+        }
+      ]
+    },
+    {
+      "id": "r_greyspire_whitemark",
+      "a": "greyspire",
+      "b": "whitemark",
+      "distance": 217,
+      "terrain": "snow",
+      "danger": 1,
+      "enemies": [
+        "frost_sprite",
+        "white_bear",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_greyspire_whitemark",
+          "item": "shield_tonic",
+          "at": 0.35
+        }
+      ]
+    },
+    {
+      "id": "r_greyspire_coralport",
+      "a": "greyspire",
+      "b": "coralport",
+      "distance": 250,
+      "terrain": "mountain",
+      "danger": 0.9,
+      "enemies": [
+        "rock_golem",
+        "cave_bats",
+        "goblin"
+      ],
+      "fixed": [
+        {
+          "id": "foe_thunder_eagle",
+          "enemy": "thunder_eagle",
+          "at": 0.48,
+          "quest": "q_coralport"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_greyspire_coralport",
+          "item": "crystal_shard",
+          "at": 0.51
+        }
+      ]
+    },
+    {
+      "id": "r_miragereach_greyspire",
+      "a": "miragereach",
+      "b": "greyspire",
+      "distance": 252,
+      "terrain": "desert",
+      "danger": 1,
+      "enemies": [
+        "sand_snake",
+        "dust_devil",
+        "scorpion"
+      ],
+      "finds": [
+        {
+          "id": "f_miragereach_greyspire",
+          "item": "crystal_shard",
+          "at": 0.5
+        }
+      ]
+    },
+    {
+      "id": "r_miragereach_whitemark",
+      "a": "miragereach",
+      "b": "whitemark",
+      "distance": 264,
+      "terrain": "snow",
+      "danger": 1,
+      "enemies": [
+        "white_bear",
+        "frost_sprite",
+        "snow_troll"
+      ],
+      "fixed": [
+        {
+          "id": "foe_winter_wolf",
+          "enemy": "winter_wolf",
+          "at": 0.38,
+          "quest": "q_whitemark"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_miragereach_whitemark",
+          "item": "frost_lily",
+          "at": 0.46
+        }
+      ]
+    },
+    {
+      "id": "r_heronmarsh_briarglen",
+      "a": "heronmarsh",
+      "b": "briarglen",
+      "distance": 290,
+      "terrain": "swamp",
+      "danger": 0.7,
+      "enemies": [
+        "bog_lurker",
+        "goblin",
+        "giant_toad"
+      ],
+      "finds": [
+        {
+          "id": "f_heronmarsh_briarglen",
+          "item": "pearl",
+          "at": 0.38
+        }
+      ]
+    },
+    {
+      "id": "r_greyspire_briarglen",
+      "a": "greyspire",
+      "b": "briarglen",
+      "distance": 314,
+      "terrain": "mountain",
+      "danger": 0.8,
+      "enemies": [
+        "rock_golem",
+        "cave_bats",
+        "mountain_eagle"
+      ],
+      "finds": [
+        {
+          "id": "f_greyspire_briarglen",
+          "item": "crystal_shard",
+          "at": 0.41
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "wolf",
+      "name": "Grey Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "fire",
+      "gold": [
+        8,
+        13
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.35
+        }
+      ],
+      "taunt": "A wolf slinks out of the grass, teeth bared."
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin Scout",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        9,
+        14
+      ],
+      "drops": [
+        {
+          "item": "goblin_trinket",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A goblin cackles and waves a rusty knife."
+    },
+    {
+      "id": "boar",
+      "name": "Wild Boar",
+      "emoji": "🐗",
+      "family": "beast",
+      "tier": 1,
+      "gold": [
+        8,
+        12
+      ],
+      "taunt": "A boar paws the ground and snorts."
+    },
+    {
+      "id": "shadow_imp",
+      "name": "Shadow Imp",
+      "emoji": "😈",
+      "family": "spirit",
+      "tier": 2,
+      "battle": "race",
+      "weakness": "holy",
+      "attack": "storm",
+      "gold": [
+        12,
+        18
+      ],
+      "taunt": "A little purple imp blinks into being, snickering."
+    },
+    {
+      "id": "hexed_scarecrow",
+      "name": "Hexed Scarecrow",
+      "emoji": "🎃",
+      "family": "spirit",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "gold": [
+        12,
+        20
+      ],
+      "taunt": "A scarecrow climbs down off its pole. Its pumpkin head grins at you."
+    },
+    {
+      "id": "wild_ram",
+      "name": "Wild Ram",
+      "emoji": "🐏",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A ram lowers its curly horns and paws the turf."
+    },
+    {
+      "id": "bog_lurker",
+      "name": "Bog Lurker",
+      "emoji": "🐊",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "taunt": "Something scaly rises from the muck."
+    },
+    {
+      "id": "marsh_wisp",
+      "name": "Marsh Wisp",
+      "emoji": "👻",
+      "family": "spirit",
+      "tier": 2,
+      "weakness": "holy",
+      "gold": [
+        10,
+        16
+      ],
+      "taunt": "A pale light drifts closer, whispering your name."
+    },
+    {
+      "id": "mountain_eagle",
+      "name": "Mountain Eagle",
+      "emoji": "🦅",
+      "family": "beast",
+      "tier": 2,
+      "battle": "race",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "eagle_feather",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "An eagle with wings as wide as a cart dives out of the sun."
+    },
+    {
+      "id": "cave_bats",
+      "name": "Cave Bats",
+      "emoji": "🦇",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "holy",
+      "gold": [
+        6,
+        10
+      ],
+      "taunt": "A swarm of bats pours out of the rocks!"
+    },
+    {
+      "id": "giant_octopus",
+      "name": "Giant Octopus",
+      "emoji": "🐙",
+      "family": "sea",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "sea_glass",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "Eight long arms reach up out of a rock pool. One of them grabs your boot."
+    },
+    {
+      "id": "crab",
+      "name": "Giant Crab",
+      "emoji": "🦀",
+      "family": "sea",
+      "tier": 1,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        7,
+        12
+      ],
+      "drops": [
+        {
+          "item": "pearl",
+          "chance": 0.1
+        }
+      ],
+      "taunt": "A crab the size of a cart clacks its claws."
+    },
+    {
+      "id": "pirate",
+      "name": "Pirate Deckhand",
+      "emoji": "🏴‍☠️",
+      "family": "pirate",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        14,
+        22
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "\"Arr! Hand over yer valuables!\""
+    },
+    {
+      "id": "frost_sprite",
+      "name": "Frost Sprite",
+      "emoji": "🥶",
+      "family": "spirit",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        8,
+        13
+      ],
+      "taunt": "A shivering sprite hurls a snowball. It is mostly ice."
+    },
+    {
+      "id": "white_bear",
+      "name": "White Bear",
+      "emoji": "🐻‍❄️",
+      "family": "beast",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "attack": "ice",
+      "gold": [
+        13,
+        20
+      ],
+      "drops": [
+        {
+          "item": "frost_lily",
+          "chance": 0.25
+        }
+      ],
+      "taunt": "A white bear lumbers out of the snow. It looks hungry, and a bit annoyed."
+    },
+    {
+      "id": "rock_golem",
+      "name": "Rock Golem",
+      "emoji": "🗿",
+      "family": "giant",
+      "tier": 2,
+      "weakness": "storm",
+      "gold": [
+        14,
+        20
+      ],
+      "drops": [
+        {
+          "item": "silver_ore",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "A boulder unfolds into a grinding, rumbling golem."
+    },
+    {
+      "id": "sand_snake",
+      "name": "Sand Snake",
+      "emoji": "🐍",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "ice",
+      "attack": "poison",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "The sand ripples. A snake shoots out of it like an arrow."
+    },
+    {
+      "id": "dust_devil",
+      "name": "Dust Devil",
+      "emoji": "🌪️",
+      "family": "spirit",
+      "tier": 2,
+      "battle": "race",
+      "weakness": "holy",
+      "attack": "storm",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "crystal_shard",
+          "chance": 0.15
+        }
+      ],
+      "taunt": "A whirlwind of sand spins toward you, giggling."
+    },
+    {
+      "id": "scorpion",
+      "name": "Giant Scorpion",
+      "emoji": "🦂",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "ice",
+      "attack": "poison",
+      "gold": [
+        8,
+        13
+      ],
+      "taunt": "A scorpion raises its tail and clicks its claws."
+    },
+    {
+      "id": "snow_troll",
+      "name": "Snow Troll",
+      "emoji": "🧌",
+      "family": "giant",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "fire",
+      "gold": [
+        25,
+        35
+      ],
+      "drops": [
+        {
+          "item": "troll_tooth",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "A troll heaves itself out of a snowdrift."
+    },
+    {
+      "id": "giant_toad",
+      "name": "Giant Toad",
+      "emoji": "🐸",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A toad the size of a barrel blinks at you, then flicks out a very long tongue."
+    },
+    {
+      "id": "winter_wolf",
+      "name": "the Winter Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 3,
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        35,
+        45
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 1
+        }
+      ],
+      "taunt": "The Winter Wolf howls, and the air around you freezes.",
+      "avatar": "pale blue wolf with icicle fangs and breath that freezes the air"
+    },
+    {
+      "id": "old_croaker",
+      "name": "Old Croaker",
+      "emoji": "🐸",
+      "family": "beast",
+      "tier": 3,
+      "battle": "race",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        35,
+        45
+      ],
+      "drops": [
+        {
+          "item": "crystal_shard",
+          "chance": 1
+        }
+      ],
+      "taunt": "Old Croaker, the biggest toad in the bog, blinks slowly and puffs up like a drum.",
+      "avatar": "toad as big as a haycart, warty and green, with a crown-shaped golden spot on its head"
+    },
+    {
+      "id": "thunder_eagle",
+      "name": "the Thunder Eagle",
+      "emoji": "🦅",
+      "family": "beast",
+      "tier": 3,
+      "battle": "race",
+      "attack": "storm",
+      "gold": [
+        35,
+        50
+      ],
+      "drops": [
+        {
+          "item": "eagle_feather",
+          "chance": 1
+        }
+      ],
+      "taunt": "Lightning cracks as the Thunder Eagle dives, its feathers crackling with sparks.",
+      "avatar": "golden eagle with wings like sails and sparks crackling along its feathers"
+    },
+    {
+      "id": "vexmoor_the_hexer",
+      "name": "Vexmoor the Hexer",
+      "emoji": "🧙‍♂️",
+      "family": "wizard",
+      "tier": 5,
+      "weakness": "holy",
+      "resist": "storm",
+      "attack": "storm",
+      "gold": [
+        0,
+        0
+      ],
+      "taunt": "\"Nobody breaks my spells. Nobody!\"",
+      "boss": true,
+      "avatar": "hunched sorcerer in black and silver, surrounded by floating, whispering books"
+    }
+  ],
+  "hints": [
+    {
+      "id": "h_1",
+      "text": "Lord Cole in Queensbury has the Spellbreaker Staff, and has promised it to whoever brings the wedding cake from Miragereach."
+    },
+    {
+      "id": "h_2",
+      "text": "Lady Yvaine of Miragereach is looking for a courier to Queensbury."
+    },
+    {
+      "id": "h_3",
+      "text": "Reeve Robin of Whitemark keeps the Warding Amulet, and has promised it to whoever defeats the Winter Wolf."
+    },
+    {
+      "id": "h_4",
+      "text": "The Winter Wolf prowls the road between Whitemark and Miragereach."
+    },
+    {
+      "id": "h_5",
+      "text": "The Mirror of Truth can't be bought or found: it has to be made, at the workshop in any town, from two lumps of silver ore, polished round a crystal shard. It takes a few minutes of hard pedaling."
+    },
+    {
+      "id": "h_6",
+      "text": "Nessa's Trading Post in Whitemark sells silver ore."
+    },
+    {
+      "id": "h_7",
+      "text": "Old Agatha in Greyspire has a crystal shard, and would give it to a hero."
+    },
+    {
+      "id": "h_8",
+      "text": "Old Croaker prowls the road between Heronmarsh and Coralport."
+    },
+    {
+      "id": "h_9",
+      "text": "The Mill Gear from Greyspire is hidden in the Tide Pools in Coralport."
+    },
+    {
+      "id": "h_10",
+      "text": "The Thunder Eagle prowls the road between Coralport and Greyspire."
+    },
+    {
+      "id": "h_11",
+      "text": "To defeat Vexmoor you need the Spellbreaker Staff, the Warding Amulet and the Mirror of Truth."
+    },
+    {
+      "id": "h_12",
+      "text": "Holy light breaks a sorcerer's spells."
+    },
+    {
+      "id": "h_13",
+      "text": "The quickest road to Ramridge is the one from Whitemark."
+    }
+  ],
+  "recipes": [
+    {
+      "item": "mirror_of_truth",
+      "needs": [
+        {
+          "item": "silver_ore",
+          "qty": 2
+        },
+        {
+          "item": "crystal_shard",
+          "qty": 1
+        }
+      ],
+      "seconds": 240
+    },
+    {
+      "item": "healing_draught",
+      "seconds": 60
+    },
+    {
+      "item": "shield_tonic",
+      "seconds": 120
+    },
+    {
+      "item": "greater_healing",
+      "needs": [
+        {
+          "item": "healing_draught",
+          "qty": 2
+        }
+      ],
+      "seconds": 45
+    },
+    {
+      "item": "holy_water",
+      "needs": [
+        {
+          "item": "pearl",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    },
+    {
+      "item": "fur_cloak",
+      "needs": [
+        {
+          "item": "wolf_pelt",
+          "qty": 3
+        }
+      ],
+      "seconds": 90
+    }
+  ],
+  "challenge": {
+    "threat": "wizard_curse",
+    "title": "The Curse of Ramridge",
+    "summons": [
+      "Hero, thank you for coming so swiftly. Grave news has reached the throne.",
+      "A sorcerer called Vexmoor the Hexer has laid a curse on Ramridge. Nearly everyone there has fallen into an enchanted sleep, and the curse is spreading.",
+      "The old songs name three things that can defeat Vexmoor: the Spellbreaker Staff, a Warding Amulet to turn aside lightning, and the Mirror of Truth, which breaks every illusion.",
+      "Find all three, then face Vexmoor at the Hex Tower. Ask everyone you meet; the people of the Honeyvale know more than they think.",
+      "Take this purse and these draughts. My carriage will carry you to Queensbury. Everwyn is counting on you."
+    ],
+    "crisisTown": "ramridge",
+    "lair": {
+      "name": "the Hex Tower",
+      "emoji": "🔮",
+      "text": "A crooked tower leans over the town. Lightning flickers around its top, though the sky is clear."
+    },
+    "requires": [
+      "spellbreaker_staff",
+      "warding_amulet",
+      "mirror_of_truth"
+    ],
+    "boss": "vexmoor_the_hexer",
+    "victory": [
+      "You hold up the Mirror of Truth. Vexmoor sees a true reflection at last, and screams.",
+      "The Spellbreaker Staff cuts through the last spell like a knife through cobwebs. Vexmoor vanishes in a puff of grey smoke.",
+      "All over Ramridge, people yawn, stretch, and wake up, wondering why everyone is cheering."
+    ],
+    "sources": [
+      {
+        "item": "spellbreaker_staff",
+        "how": "quest",
+        "town": "miragereach",
+        "ref": "q_miragereach"
+      },
+      {
+        "item": "warding_amulet",
+        "how": "quest",
+        "town": "whitemark",
+        "ref": "q_whitemark"
+      },
+      {
+        "item": "mirror_of_truth",
+        "how": "craft",
+        "town": "greyspire",
+        "ref": "mirror_of_truth"
+      }
+    ]
+  }
+}

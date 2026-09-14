@@ -1,0 +1,1740 @@
+{
+  "schemaVersion": 1,
+  "id": "game-0001",
+  "title": "The Deep below Pearlcliff",
+  "theme": "medieval",
+  "region": {
+    "name": "the Ravenmarch",
+    "blurb": "Golden fields in the west, deep forest and frozen moors in the middle, and in the east the dark harbour of Pearlcliff.",
+    "width": 1000,
+    "height": 640
+  },
+  "startTown": "lionbridge",
+  "towns": [
+    {
+      "id": "lionbridge",
+      "name": "Lionbridge",
+      "biome": "plains",
+      "appearance": "capital",
+      "x": 162,
+      "y": 359,
+      "blurb": "The royal city of the Ravenmarch: white walls, red roofs, and a castle flying the Queen's banners.",
+      "mayor": {
+        "id": "rolf",
+        "name": "Duke Rolf",
+        "title": "Duke",
+        "emoji": "👨🏿‍🦰",
+        "avatar": "white-haired, twinkling-eyed duke with a red beard braided with beads, a fur-trimmed mantle, and a gold chain of office",
+        "greeting": [
+          "Lionbridge welcomes you, Hero. We have heard all about you.",
+          "Lionbridge is the pride of the Ravenmarch, and we are glad to have you."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_lionbridge",
+          "type": "deliver",
+          "title": "A Love Letter for Fernwood",
+          "offer": [
+            "Would you carry this love letter to Duke Jasper in Fernwood? It is, er, a private matter. Please don't read it.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Duke Jasper in Fernwood is waiting for the love letter.",
+          "done": [
+            "A letter? For me? From Lionbridge? Oh my. Oh my, oh my.",
+            "Take this, with my thanks."
+          ],
+          "item": "love_letter",
+          "to": {
+            "town": "fernwood"
+          },
+          "reward": {
+            "gold": 30,
+            "items": [
+              "tome_of_might"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Golden Sheaf",
+        "keeper": {
+          "id": "dora",
+          "name": "Dora",
+          "emoji": "👩🏻‍🦰",
+          "avatar": "freckled shopkeeper in a patchwork apron, with a cat asleep on the counter"
+        },
+        "lines": [
+          "Best prices in Lionbridge! Well, the only prices in Lionbridge."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "oak_cudgel"
+          },
+          {
+            "item": "hunting_bow"
+          },
+          {
+            "item": "leather_vest"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Busy Anvil",
+        "keeper": {
+          "id": "pip",
+          "name": "Pip",
+          "emoji": "👨🏽‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "robin",
+          "name": "Robin",
+          "role": "child",
+          "emoji": "🧒🏻",
+          "avatar": "freckled child with a wooden sword and a helmet three sizes too big",
+          "lines": [
+            "When I grow up, I'm going to be a hero too!",
+            "The Siren's Conch can't be bought or found: it has to be made, at the workshop in any town, from a pearl set in two pieces of sea glass. It takes a few minutes of hard pedaling."
+          ],
+          "gives": {
+            "item": "healing_draught",
+            "line": "Are you a real hero? Mum says heroes always carry healing draughts. Here, take one of mine!"
+          },
+          "hint": "h_5"
+        },
+        {
+          "id": "linnea",
+          "name": "Smith Linnea",
+          "role": "smith",
+          "emoji": "👩🏼‍🏭",
+          "avatar": "muscular smith with soot-streaked arms and a leather apron",
+          "lines": [
+            "Hammer and anvil, all day long. Look at these arms!",
+            "I can build up yours too, for a fee.",
+            "Digby's Trading Post in Thistlecombe sells sea glass."
+          ],
+          "trains": {
+            "stat": "strength",
+            "price": 40
+          },
+          "hint": "h_6"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_well",
+          "name": "the Old Well",
+          "emoji": "🪣",
+          "item": "travelers_tonic",
+          "text": "You haul up the old bucket. Tangled in the rope is a Traveler's Tonic!"
+        }
+      ]
+    },
+    {
+      "id": "pearlcliff",
+      "name": "Pearlcliff",
+      "biome": "coast",
+      "appearance": "ruins",
+      "x": 879,
+      "y": 341,
+      "blurb": "Empty quays, torn nets, and a harbour where nothing floats for long.",
+      "crisis": true,
+      "mayor": {
+        "id": "bryony",
+        "name": "Lady Bryony",
+        "title": "Lady",
+        "emoji": "👱🏻‍♀️",
+        "avatar": "broad lady with freckles and a gap-toothed smile, a plum-coloured cloak, and a tawny owl on one shoulder",
+        "greeting": [
+          "Thank goodness! The Queen sent you!",
+          "The Kraken lurks in the deep below the harbour. Not a single boat has come home this month."
+        ],
+        "hint": "h_9"
+      },
+      "shop": {
+        "name": "The Last Candle",
+        "keeper": {
+          "id": "wystan",
+          "name": "Wystan",
+          "emoji": "🧔🏼‍♂️",
+          "avatar": "huge shopkeeper with a braided blond beard and a fur vest"
+        },
+        "lines": [
+          "Everyone else has gone, but somebody has to sell the potions."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "thunder_vial"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Last Forge",
+        "keeper": {
+          "id": "hugo",
+          "name": "Hugo",
+          "emoji": "👨🏽‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "Fire's the one thing we have plenty of. Use the forge, and hurry."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "fenwick",
+          "name": "Grandpa Fenwick",
+          "role": "grandfather",
+          "emoji": "👴🏾",
+          "avatar": "white-bearded grandfather on a bench, with a walking stick across his knees",
+          "lines": [
+            "I've lived in Pearlcliff for eighty years, and I'm not leaving now.",
+            "The Trident of Tides, the Selkie Cloak and the Siren's Conch. The old songs say you need all three."
+          ],
+          "hint": "h_9"
+        },
+        {
+          "id": "ulric",
+          "name": "Watchman Ulric",
+          "role": "watchman",
+          "emoji": "💂🏾",
+          "avatar": "exhausted young watchman in a battered helmet, holding a bucket",
+          "lines": [
+            "I count the boats every morning. There are fewer every day.",
+            "My granny says the sea has a long memory. I hope it forgets us."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "ruined_hall",
+          "name": "the Ruined Hall",
+          "emoji": "🏚️",
+          "item": "greater_healing",
+          "text": "In the rubble of the old hall you find a Greater Healing Draught, somehow unbroken."
+        }
+      ]
+    },
+    {
+      "id": "fernwood",
+      "name": "Fernwood",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 657,
+      "y": 265,
+      "blurb": "A woodcutters' village in a clearing, where the sawmill hums and the air smells of pine.",
+      "mayor": {
+        "id": "jasper",
+        "name": "Duke Jasper",
+        "title": "Duke",
+        "emoji": "👨🏿‍🦳",
+        "avatar": "plump, cheerful duke with a bald head that shines, a long blue coat with silver buttons, and a wheat-sheaf brooch",
+        "greeting": [
+          "Fernwood welcomes you, Hero. We have heard all about you.",
+          "Walk softly; the forest listens."
+        ],
+        "hint": "h_7",
+        "quest": {
+          "id": "q_fernwood",
+          "type": "deliver",
+          "title": "A Prize Pumpkin for Northreach",
+          "offer": [
+            "Would you carry this prize pumpkin to Mayor Toby in Northreach? It is entered in their harvest fair. It will win, of course.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Mayor Toby in Northreach is waiting for the prize pumpkin.",
+          "done": [
+            "What a pumpkin! First prize, easily. Don't tell the judges I said so.",
+            "Here, for your trouble."
+          ],
+          "item": "prize_pumpkin",
+          "to": {
+            "town": "northreach"
+          },
+          "reward": {
+            "gold": 70,
+            "items": [
+              "travelers_cloak"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Mossy Kettle",
+        "keeper": {
+          "id": "osric",
+          "name": "Osric",
+          "emoji": "👨🏻‍🦳",
+          "avatar": "kindly old shopkeeper in half-moon spectacles and a knitted waistcoat"
+        },
+        "lines": [
+          "Everything a traveller needs, and a few things they don't."
+        ],
+        "stock": [
+          {
+            "item": "selkie_cloak",
+            "qty": 1
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "longbow"
+          },
+          {
+            "item": "tempest_spear"
+          },
+          {
+            "item": "gauntlets_of_might"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Whittled Owl",
+        "keeper": {
+          "id": "kit",
+          "name": "Kit",
+          "emoji": "🧑🏻‍🔧",
+          "avatar": "cheerful tinker with a tool belt full of odd little tools"
+        },
+        "lines": [
+          "The grindstone sings when you pedal fast. Make it sing!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "fenella",
+          "name": "Granny Fenella",
+          "role": "good witch",
+          "emoji": "🧙🏼‍♀️",
+          "avatar": "tiny, kindly witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": [
+            "Nettle soup for strength, willow tea for aches. Nothing for goblins, sadly.",
+            "Old Mother Spider prowls the road between Greygate and Fernwood."
+          ],
+          "hint": "h_2"
+        },
+        {
+          "id": "marigold",
+          "name": "Marigold",
+          "role": "woodcutter",
+          "emoji": "👩🏿‍🦰",
+          "avatar": "broad woodcutter in a checked shirt, with a long axe and sawdust everywhere",
+          "lines": [
+            "Hear that? A woodpecker. Or a goblin with a hammer. Hard to say.",
+            "The Golden Egg from Thistlecombe is hidden in the Old Chapel in Fernwood."
+          ],
+          "hint": "h_8"
+        },
+        {
+          "id": "mabel",
+          "name": "Mabel",
+          "role": "beekeeper",
+          "emoji": "🐝",
+          "avatar": "beekeeper in a white veiled hat, bees drifting lazily around",
+          "lines": [
+            "Never swat a bee. It only makes the others cross.",
+            "The quickest road to Pearlcliff is the one from Fernwood."
+          ],
+          "hint": "h_11"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "golden_egg",
+          "text": "Behind the altar, in a dusty niche: the Golden Egg."
+        }
+      ]
+    },
+    {
+      "id": "northreach",
+      "name": "Northreach",
+      "biome": "snow",
+      "appearance": "hillside",
+      "x": 542,
+      "y": 100,
+      "blurb": "Terraces of snowy roofs climb the mountainside, joined by steep, icy stairs.",
+      "mayor": {
+        "id": "toby",
+        "name": "Mayor Toby",
+        "title": "Mayor",
+        "emoji": "🧔🏼‍♂️",
+        "avatar": "tall, thin mayor with a bushy black beard, a green velvet coat, and spectacles on a ribbon",
+        "greeting": [
+          "Northreach welcomes you, Hero. We have heard all about you.",
+          "Brr! Come in by the fire. It is cold here, but our hearts are warm."
+        ],
+        "hint": "h_4",
+        "quest": {
+          "id": "q_northreach",
+          "type": "deliver",
+          "title": "A Book of Songs for Fernwood",
+          "offer": [
+            "Would you carry this book of songs to Duke Jasper in Fernwood? It is for their choir. They have been singing the same three songs for years.",
+            "You'll be well paid for your trouble."
+          ],
+          "reminder": "Duke Jasper in Fernwood is waiting for the book of songs.",
+          "done": [
+            "New songs, at last! The choir will be thrilled. The neighbours, less so.",
+            "Take this, with my thanks."
+          ],
+          "item": "book_of_songs",
+          "to": {
+            "town": "fernwood"
+          },
+          "reward": {
+            "gold": 60,
+            "items": [
+              "wizards_hat"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Aldous's Trading Post",
+        "keeper": {
+          "id": "aldous",
+          "name": "Aldous",
+          "emoji": "👨🏿‍🦲",
+          "avatar": "cheerful bald merchant in a honey-coloured vest"
+        },
+        "lines": [
+          "Shut the door! You're letting the winter in."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "flame_blade"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "fur_cloak"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Warm Hearth",
+        "keeper": {
+          "id": "hale",
+          "name": "Hale",
+          "emoji": "👨🏾‍🏭",
+          "avatar": "wiry tinker with goggles, a tool belt and a grin"
+        },
+        "lines": [
+          "Keep that fire roaring and you can make anything."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "odette",
+          "name": "Odette the Slightly Singed",
+          "role": "travelling wizard",
+          "emoji": "🧙🏼‍♀️",
+          "avatar": "tall wizard in a starry indigo robe and a floppy pointed hat, with a crooked staff",
+          "lines": [
+            "Ooh, I could do wonders with you. New hair? New cloak?",
+            "Magic is cheap. Well, sixty gold. That is cheap, for magic."
+          ],
+          "restyle": {
+            "price": 60
+          }
+        },
+        {
+          "id": "juniper",
+          "name": "Juniper",
+          "role": "child",
+          "emoji": "👧🏾",
+          "avatar": "freckled child with a wooden sword and a helmet three sizes too big",
+          "lines": [
+            "Can I hold your sword? Just for a second? Please?",
+            "Have you ever fought a giant spider? What was it like?"
+          ]
+        },
+        {
+          "id": "merrick",
+          "name": "Old Merrick",
+          "role": "grandfather",
+          "emoji": "👴🏻",
+          "avatar": "white-bearded grandfather on a bench, with a walking stick across his knees",
+          "lines": [
+            "Back in my day the roads were safe. Mostly. Sometimes.",
+            "Go on, Hero. Show them what Northreach is made of."
+          ],
+          "gives": {
+            "item": "pearl",
+            "line": "So you're the Queen's hero! Take this pearl, then. They say the Siren's Conch is made with one."
+          }
+        }
+      ],
+      "spots": [
+        {
+          "id": "snowman",
+          "name": "the Snowman",
+          "emoji": "☃️",
+          "item": "quickening_elixir",
+          "text": "Inside the snowman, right where its heart would be: a Quickening Elixir!"
+        }
+      ]
+    },
+    {
+      "id": "heronmarsh",
+      "name": "Heronmarsh",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 717,
+      "y": 524,
+      "blurb": "A village of reed huts and boardwalks over the marsh. Everyone owns a punt.",
+      "mayor": {
+        "id": "morwenna",
+        "name": "Mayor Morwenna",
+        "title": "Mayor",
+        "emoji": "👵🏻",
+        "avatar": "plump, cheerful mayor with silver hair in a bun, a plum-coloured cloak, and a tawny owl on one shoulder",
+        "greeting": [
+          "Heronmarsh welcomes you, Hero. We have heard all about you.",
+          "Forgive the smell; it is the bog."
+        ],
+        "quest": {
+          "id": "q_heronmarsh",
+          "type": "fetch",
+          "title": "Holy Water for the Wedding",
+          "offer": [
+            "The chapel font has run dry, and there is a wedding on Sunday.",
+            "The Iron Anvil in Greygate sells Holy Water, I am told. Bring me one, please."
+          ],
+          "reminder": "Have you found some Holy Water? The Iron Anvil in Greygate sells Holy Water.",
+          "done": [
+            "Holy Water! The wedding can go ahead.",
+            "Take this, with Heronmarsh's thanks."
+          ],
+          "item": "holy_water",
+          "reward": {
+            "gold": 75,
+            "items": [
+              "lucky_clover"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Nell's Curios",
+        "keeper": {
+          "id": "nell",
+          "name": "Nell",
+          "emoji": "👩🏿‍🦱",
+          "avatar": "brisk shopkeeper with a pencil behind one ear and a ledger under one arm"
+        },
+        "lines": [
+          "Potions, poisons, er, remedies. Curios of every kind."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "glacier_pick"
+          },
+          {
+            "item": "elven_bow"
+          },
+          {
+            "item": "chainmail"
+          },
+          {
+            "item": "plague_mask"
+          },
+          {
+            "item": "smoked_fish"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Bog-Iron Forge",
+        "keeper": {
+          "id": "leofric",
+          "name": "Leofric",
+          "emoji": "👨🏼‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "The cauldron never stops bubbling. Put something good in it."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "oswin",
+          "name": "Oswin",
+          "role": "ferry-keeper",
+          "emoji": "🛶",
+          "avatar": "lean ferry-keeper in a wide hat, leaning on a long pole",
+          "lines": [
+            "Mind the water. It's deeper than it looks, and colder.",
+            "Sea monsters fear the lightning. A storm weapon would sting."
+          ],
+          "hint": "h_10"
+        },
+        {
+          "id": "florian",
+          "name": "Fisher Florian",
+          "role": "fisher",
+          "emoji": "🎣",
+          "avatar": "weathered fisher in oilskins, with a net over one shoulder",
+          "lines": [
+            "The fish are biting early this year. Something's got them nervous.",
+            "The tide brings in all sorts. Pearls, if you look in the right places."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "reed_maze",
+          "name": "the Reed Maze",
+          "emoji": "🌾",
+          "item": "potion_of_might",
+          "text": "At the heart of the reeds, on a muddy tussock: a Potion of Might."
+        }
+      ]
+    },
+    {
+      "id": "thistlecombe",
+      "name": "Thistlecombe",
+      "biome": "hills",
+      "appearance": "village",
+      "x": 300,
+      "y": 212,
+      "blurb": "A shepherds' village of stone walls and windy hilltops.",
+      "mayor": {
+        "id": "rowena",
+        "name": "Duchess Rowena",
+        "title": "Duchess",
+        "emoji": "👩🏽‍🦰",
+        "avatar": "plump, cheerful duchess with dark curls, a plum-coloured cloak, and a wheat-sheaf brooch",
+        "greeting": [
+          "Thistlecombe welcomes you, Hero. We have heard all about you.",
+          "On a clear day you can see all the way to Lionbridge from here."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_thistlecombe",
+          "type": "fetch",
+          "title": "The Golden Egg",
+          "offer": [
+            "Our famous goose laid a golden egg, and somebody has pinched it!",
+            "A fox was seen carrying it toward Fernwood. Bring it back and I'll make it worth your while."
+          ],
+          "reminder": "Any sign of the Golden Egg? A fox was seen carrying it toward Fernwood.",
+          "done": [
+            "The golden egg! And not even cracked!",
+            "Here is your reward, and well earned."
+          ],
+          "item": "golden_egg",
+          "reward": {
+            "gold": 40,
+            "items": [
+              "gauntlets_of_might"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Digby's Trading Post",
+        "keeper": {
+          "id": "digby",
+          "name": "Digby",
+          "emoji": "👨🏽‍🏭",
+          "avatar": "soot-faced armourer with a thick moustache and a hammer on his belt"
+        },
+        "lines": [
+          "Come in out of the wind!"
+        ],
+        "stock": [
+          {
+            "item": "sea_glass"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "thornlash"
+          },
+          {
+            "item": "leather_vest"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Hilltop Forge",
+        "keeper": {
+          "id": "hester",
+          "name": "Hester",
+          "emoji": "👩🏾‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "Everything I own, I made right here. So can you."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "alfie",
+          "name": "Scholar Alfie",
+          "role": "scholar",
+          "emoji": "👨🏽‍🏫",
+          "avatar": "young scholar with ink-stained fingers and round spectacles",
+          "lines": [
+            "Potions obey those who understand them.",
+            "I can teach you, for a modest fee.",
+            "The Mossy Kettle in Fernwood sells a Selkie Cloak. It costs a fortune: 240 gold."
+          ],
+          "trains": {
+            "stat": "magic",
+            "price": 40
+          },
+          "hint": "h_3"
+        },
+        {
+          "id": "edmund",
+          "name": "Edmund",
+          "role": "shepherd",
+          "emoji": "🐑",
+          "avatar": "shepherd in a thick wool cloak, with a crook and a sheepdog at heel",
+          "lines": [
+            "The wolves have been bold this year. Keep to the road.",
+            "Digby's Trading Post in Thistlecombe sells sea glass."
+          ],
+          "hint": "h_6"
+        },
+        {
+          "id": "edith",
+          "name": "Edith",
+          "role": "beekeeper",
+          "emoji": "🐝",
+          "avatar": "beekeeper in a white veiled hat, bees drifting lazily around",
+          "lines": [
+            "Bees know when trouble is coming. Lately they won't leave the hive.",
+            "The Golden Egg from Thistlecombe is hidden in the Old Chapel in Fernwood."
+          ],
+          "hint": "h_8"
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "item": "eagle_feather",
+          "text": "Up among the bells, in a pigeon's nest: an Eagle Feather!"
+        }
+      ]
+    },
+    {
+      "id": "haybury",
+      "name": "Haybury",
+      "biome": "plains",
+      "appearance": "village",
+      "x": 286,
+      "y": 556,
+      "blurb": "Thatched cottages around a village green, with a maypole in the middle.",
+      "mayor": {
+        "id": "elspeth",
+        "name": "Countess Elspeth",
+        "title": "Countess",
+        "emoji": "👩🏾",
+        "avatar": "broad countess with silver hair in a bun, a sea-green robe, and spectacles on a ribbon",
+        "greeting": [
+          "Haybury welcomes you, Hero. We have heard all about you.",
+          "Try the bread. Everyone in Haybury bakes."
+        ],
+        "hint": "h_5",
+        "quest": {
+          "id": "q_haybury",
+          "type": "deliver",
+          "title": "A Wedding Cake for Greygate",
+          "offer": [
+            "Would you carry this wedding cake to Lord Egbert in Greygate? My niece is getting married there, and nobody else can be trusted not to eat it.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Lord Egbert in Greygate is waiting for the wedding cake.",
+          "done": [
+            "The cake! And not a single fingerprint in the icing. Wonderful!",
+            "Here, for your trouble."
+          ],
+          "item": "wedding_cake",
+          "to": {
+            "town": "greygate"
+          },
+          "reward": {
+            "gold": 40,
+            "items": [
+              "oak_shield"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Golden Sheaf",
+        "keeper": {
+          "id": "violet",
+          "name": "Violet",
+          "emoji": "👩🏽‍🦰",
+          "avatar": "freckled shopkeeper in a patchwork apron, with a cat asleep on the counter"
+        },
+        "lines": [
+          "Best prices in Haybury! Well, the only prices in Haybury."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "thornlash"
+          },
+          {
+            "item": "spark_rapier"
+          },
+          {
+            "item": "leather_vest"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Mill Wheel Workshop",
+        "keeper": {
+          "id": "lem",
+          "name": "Lem",
+          "emoji": "👨🏽‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "Mind the sparks, and put the tools back where you found them."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "bram",
+          "name": "Hunter Bram",
+          "role": "hunter",
+          "emoji": "🧔🏼",
+          "avatar": "weathered hunter in green leather, with a hawk on one wrist",
+          "lines": [
+            "Out here, the tough get through and the rest go home.",
+            "A few coins, and I'll make you as tough as old roots.",
+            "Old Merrick in Northreach has a pearl, and would give it to a hero."
+          ],
+          "trains": {
+            "stat": "vigor",
+            "price": 40
+          },
+          "hint": "h_7"
+        },
+        {
+          "id": "sven",
+          "name": "Baker Sven",
+          "role": "baker",
+          "emoji": "👨🏾‍🍳",
+          "avatar": "round, rosy baker in a floury apron, with a tray of buns",
+          "lines": [
+            "Heroes need feeding. You look like you skipped breakfast.",
+            "Fresh buns every morning, before the rooster is up."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "carved_tusk",
+          "text": "Behind the altar, in a dusty niche: a Carved Tusk."
+        }
+      ]
+    },
+    {
+      "id": "greygate",
+      "name": "Greygate",
+      "biome": "mountain",
+      "appearance": "fortress",
+      "x": 400,
+      "y": 366,
+      "blurb": "A walled town on a crag, guarding the only pass through the mountains.",
+      "mayor": {
+        "id": "egbert",
+        "name": "Lord Egbert",
+        "title": "Lord",
+        "emoji": "🧔🏻",
+        "avatar": "stout lord with a red beard braided with beads, a fur-trimmed mantle, and a tawny owl on one shoulder",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Greygate.",
+          "Watch your step. Our streets mostly go up."
+        ],
+        "hint": "h_3",
+        "quest": {
+          "id": "q_greygate",
+          "type": "slay",
+          "title": "Old Mother Spider",
+          "offer": [
+            "Old Mother Spider has been prowling the road to Fernwood, frightening every traveller. Nobody dares to use that road any more.",
+            "Beat Old Mother Spider, and the Trident of Tides, which has hung in my hall for a hundred years, is yours."
+          ],
+          "reminder": "Old Mother Spider is still out on the road to Fernwood.",
+          "done": [
+            "Old Mother Spider beaten? Then Greygate owes you a great deal.",
+            "As promised: the Trident of Tides. May it serve you well against the Kraken."
+          ],
+          "foe": "foe_mother_spider",
+          "reward": {
+            "gold": 40,
+            "items": [
+              "trident_of_tides"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Iron Anvil",
+        "keeper": {
+          "id": "silas",
+          "name": "Silas",
+          "emoji": "👨🏼‍🦰",
+          "avatar": "red-haired ex-sailor with a tattooed forearm and a gold earring"
+        },
+        "lines": [
+          "Steel for heroes. Only the best, and the best isn't cheap."
+        ],
+        "stock": [
+          {
+            "item": "holy_water"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "iron_sword"
+          },
+          {
+            "item": "spark_rapier"
+          },
+          {
+            "item": "iron_helm"
+          },
+          {
+            "item": "wheel_of_cheese"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Stonecutter's Yard",
+        "keeper": {
+          "id": "beatrix",
+          "name": "Beatrix",
+          "emoji": "👩🏻‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "The best anvil this side of the mountains. Strike while it's hot!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "una",
+          "name": "Peddler Una",
+          "role": "peddler",
+          "emoji": "🧳",
+          "avatar": "round peddler under a huge pack hung with pots and trinkets",
+          "lines": [
+            "Word on the road is that Pearlcliff is in a bad way.",
+            "I walk every road in the Ravenmarch. Most of them twice."
+          ]
+        },
+        {
+          "id": "arden",
+          "name": "Old Arden",
+          "role": "village elder",
+          "emoji": "🧓🏻",
+          "avatar": "bright-eyed village elder with a knobbly stick and a patchwork cloak",
+          "lines": [
+            "Sit a while, Hero. The young are always in such a hurry.",
+            "Mind the road to Haybury. It has a mind of its own."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "eagle_s_nest",
+          "name": "the Eagle's Nest",
+          "emoji": "🦅",
+          "gold": 15,
+          "text": "High on the cliff, in an empty eagle's nest, lies a purse of 15 gold."
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "id": "r_fernwood_northreach",
+      "a": "fernwood",
+      "b": "northreach",
+      "distance": 201,
+      "terrain": "forest",
+      "danger": 0.9,
+      "enemies": [
+        "giant_spider",
+        "goblin",
+        "brown_bear"
+      ],
+      "finds": [
+        {
+          "id": "f_fernwood_northreach",
+          "item": "spider_silk",
+          "at": 0.5
+        }
+      ]
+    },
+    {
+      "id": "r_lionbridge_thistlecombe",
+      "a": "lionbridge",
+      "b": "thistlecombe",
+      "distance": 202,
+      "terrain": "hills",
+      "danger": 0.7,
+      "enemies": [
+        "goblin",
+        "bandit",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_lionbridge_thistlecombe",
+          "item": "eagle_feather",
+          "at": 0.42
+        }
+      ]
+    },
+    {
+      "id": "r_haybury_greygate",
+      "a": "haybury",
+      "b": "greygate",
+      "distance": 222,
+      "terrain": "mountain",
+      "danger": 0.7,
+      "enemies": [
+        "cave_bats",
+        "goblin",
+        "rock_golem"
+      ],
+      "finds": [
+        {
+          "id": "f_haybury_greygate",
+          "item": "silver_ore",
+          "at": 0.52
+        }
+      ]
+    },
+    {
+      "id": "r_lionbridge_haybury",
+      "a": "lionbridge",
+      "b": "haybury",
+      "distance": 233,
+      "terrain": "plains",
+      "danger": 0.7,
+      "enemies": [
+        "bandit",
+        "boar",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_lionbridge_haybury",
+          "item": "carved_tusk",
+          "at": 0.43
+        }
+      ]
+    },
+    {
+      "id": "r_pearlcliff_fernwood",
+      "a": "pearlcliff",
+      "b": "fernwood",
+      "distance": 235,
+      "terrain": "coast",
+      "danger": 1.2,
+      "enemies": [
+        "kraken_spawn",
+        "drowned_sailor",
+        "crab"
+      ],
+      "finds": [
+        {
+          "id": "f_pearlcliff_fernwood",
+          "item": "pirate_doubloon",
+          "at": 0.39
+        }
+      ]
+    },
+    {
+      "id": "r_lionbridge_greygate",
+      "a": "lionbridge",
+      "b": "greygate",
+      "distance": 238,
+      "terrain": "hills",
+      "danger": 0.7,
+      "enemies": [
+        "goblin",
+        "wild_ram",
+        "bandit"
+      ],
+      "finds": [
+        {
+          "id": "f_lionbridge_greygate",
+          "item": "carved_tusk",
+          "at": 0.65
+        }
+      ]
+    },
+    {
+      "id": "r_pearlcliff_heronmarsh",
+      "a": "pearlcliff",
+      "b": "heronmarsh",
+      "distance": 244,
+      "terrain": "coast",
+      "danger": 1.3,
+      "enemies": [
+        "kraken_spawn",
+        "drowned_sailor",
+        "thieving_gulls"
+      ],
+      "finds": [
+        {
+          "id": "f_pearlcliff_heronmarsh",
+          "item": "pirate_doubloon",
+          "at": 0.62
+        }
+      ]
+    },
+    {
+      "id": "r_fernwood_heronmarsh",
+      "a": "fernwood",
+      "b": "heronmarsh",
+      "distance": 266,
+      "terrain": "forest",
+      "danger": 1,
+      "enemies": [
+        "goblin",
+        "boar",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_fernwood_heronmarsh",
+          "item": "spider_silk",
+          "at": 0.55
+        }
+      ]
+    },
+    {
+      "id": "r_northreach_thistlecombe",
+      "a": "northreach",
+      "b": "thistlecombe",
+      "distance": 267,
+      "terrain": "hills",
+      "danger": 0.8,
+      "enemies": [
+        "goblin",
+        "wolf",
+        "wild_ram"
+      ],
+      "finds": [
+        {
+          "id": "f_northreach_thistlecombe",
+          "item": "eagle_feather",
+          "at": 0.49
+        }
+      ]
+    },
+    {
+      "id": "r_fernwood_greygate",
+      "a": "fernwood",
+      "b": "greygate",
+      "distance": 276,
+      "terrain": "forest",
+      "danger": 0.9,
+      "enemies": [
+        "giant_spider",
+        "boar",
+        "wolf"
+      ],
+      "fixed": [
+        {
+          "id": "foe_mother_spider",
+          "enemy": "mother_spider",
+          "at": 0.64,
+          "quest": "q_greygate"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_fernwood_greygate",
+          "item": "goblin_trinket",
+          "at": 0.58
+        }
+      ]
+    },
+    {
+      "id": "r_northreach_greygate",
+      "a": "northreach",
+      "b": "greygate",
+      "distance": 302,
+      "terrain": "snow",
+      "danger": 0.8,
+      "enemies": [
+        "frost_sprite",
+        "white_bear",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_northreach_greygate",
+          "item": "shield_tonic",
+          "at": 0.42
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "giant_spider",
+      "name": "Giant Spider",
+      "emoji": "🕷️",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "spider_silk",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A spider as big as a pony drops from the branches on a silver thread."
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin Scout",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        9,
+        14
+      ],
+      "drops": [
+        {
+          "item": "goblin_trinket",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A goblin cackles and waves a rusty knife."
+    },
+    {
+      "id": "brown_bear",
+      "name": "Brown Bear",
+      "emoji": "🐻",
+      "family": "beast",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "jar_of_honey",
+          "chance": 0.3
+        }
+      ],
+      "taunt": "A bear rears up on its hind legs. It smells of honey and bad temper."
+    },
+    {
+      "id": "bandit",
+      "name": "Road Bandit",
+      "emoji": "🥷",
+      "family": "bandit",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        15,
+        24
+      ],
+      "drops": [
+        {
+          "item": "healing_draught",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "\"Your gold or your life, traveler!\""
+    },
+    {
+      "id": "wolf",
+      "name": "Grey Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "fire",
+      "gold": [
+        8,
+        13
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.35
+        }
+      ],
+      "taunt": "A wolf slinks out of the grass, teeth bared."
+    },
+    {
+      "id": "cave_bats",
+      "name": "Cave Bats",
+      "emoji": "🦇",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "holy",
+      "gold": [
+        6,
+        10
+      ],
+      "taunt": "A swarm of bats pours out of the rocks!"
+    },
+    {
+      "id": "rock_golem",
+      "name": "Rock Golem",
+      "emoji": "🗿",
+      "family": "giant",
+      "tier": 2,
+      "weakness": "storm",
+      "gold": [
+        14,
+        20
+      ],
+      "drops": [
+        {
+          "item": "silver_ore",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "A boulder unfolds into a grinding, rumbling golem."
+    },
+    {
+      "id": "boar",
+      "name": "Wild Boar",
+      "emoji": "🐗",
+      "family": "beast",
+      "tier": 1,
+      "gold": [
+        8,
+        12
+      ],
+      "taunt": "A boar paws the ground and snorts."
+    },
+    {
+      "id": "kraken_spawn",
+      "name": "Kraken Spawn",
+      "emoji": "🦑",
+      "family": "sea",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "storm",
+      "attack": "ice",
+      "gold": [
+        13,
+        20
+      ],
+      "drops": [
+        {
+          "item": "sea_glass",
+          "chance": 0.3
+        }
+      ],
+      "taunt": "A squid the size of a rowing boat hauls itself onto the road."
+    },
+    {
+      "id": "drowned_sailor",
+      "name": "Drowned Sailor",
+      "emoji": "🧟‍♀️",
+      "family": "undead",
+      "tier": 2,
+      "weakness": "holy",
+      "attack": "ice",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 0.3
+        }
+      ],
+      "taunt": "A sailor in dripping rags squelches toward you, seaweed hanging from her hat."
+    },
+    {
+      "id": "crab",
+      "name": "Giant Crab",
+      "emoji": "🦀",
+      "family": "sea",
+      "tier": 1,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        7,
+        12
+      ],
+      "drops": [
+        {
+          "item": "pearl",
+          "chance": 0.1
+        }
+      ],
+      "taunt": "A crab the size of a cart clacks its claws."
+    },
+    {
+      "id": "wild_ram",
+      "name": "Wild Ram",
+      "emoji": "🐏",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A ram lowers its curly horns and paws the turf."
+    },
+    {
+      "id": "thieving_gulls",
+      "name": "Thieving Gulls",
+      "emoji": "🐦",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        6,
+        10
+      ],
+      "drops": [
+        {
+          "item": "sea_glass",
+          "chance": 0.15
+        }
+      ],
+      "taunt": "A flock of gulls swoops down, screaming. One of them has your lunch."
+    },
+    {
+      "id": "frost_sprite",
+      "name": "Frost Sprite",
+      "emoji": "🥶",
+      "family": "spirit",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        8,
+        13
+      ],
+      "taunt": "A shivering sprite hurls a snowball. It is mostly ice."
+    },
+    {
+      "id": "white_bear",
+      "name": "White Bear",
+      "emoji": "🐻‍❄️",
+      "family": "beast",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "attack": "ice",
+      "gold": [
+        13,
+        20
+      ],
+      "drops": [
+        {
+          "item": "frost_lily",
+          "chance": 0.25
+        }
+      ],
+      "taunt": "A white bear lumbers out of the snow. It looks hungry, and a bit annoyed."
+    },
+    {
+      "id": "mother_spider",
+      "name": "Old Mother Spider",
+      "emoji": "🕷️",
+      "family": "beast",
+      "tier": 3,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        35,
+        50
+      ],
+      "drops": [
+        {
+          "item": "spider_silk",
+          "chance": 1
+        }
+      ],
+      "taunt": "Old Mother Spider lowers herself from the treetops on a rope of silk. Her eight eyes glitter.",
+      "avatar": "spider as big as a cart, with grey-striped legs and a crown of cobwebs"
+    },
+    {
+      "id": "kraken_of_the_deep",
+      "name": "the Kraken of the Deep",
+      "emoji": "🦑",
+      "family": "sea",
+      "tier": 5,
+      "weakness": "storm",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        0,
+        0
+      ],
+      "taunt": "The sea boils. Tentacles as thick as oak trees rise from the water, and something enormous blinks at you.",
+      "boss": true,
+      "avatar": "vast barnacled sea serpent with a mane of kelp and teeth like a portcullis"
+    }
+  ],
+  "hints": [
+    {
+      "id": "h_1",
+      "text": "Lord Egbert of Greygate keeps the Trident of Tides, and has promised it to whoever defeats Old Mother Spider."
+    },
+    {
+      "id": "h_2",
+      "text": "Old Mother Spider prowls the road between Greygate and Fernwood."
+    },
+    {
+      "id": "h_3",
+      "text": "The Mossy Kettle in Fernwood sells a Selkie Cloak. It costs a fortune: 240 gold."
+    },
+    {
+      "id": "h_4",
+      "text": "Only a Selkie Cloak can turn the Kraken's freezing cold. The Mossy Kettle in Fernwood has one."
+    },
+    {
+      "id": "h_5",
+      "text": "The Siren's Conch can't be bought or found: it has to be made, at the workshop in any town, from a pearl set in two pieces of sea glass. It takes a few minutes of hard pedaling."
+    },
+    {
+      "id": "h_6",
+      "text": "Digby's Trading Post in Thistlecombe sells sea glass."
+    },
+    {
+      "id": "h_7",
+      "text": "Old Merrick in Northreach has a pearl, and would give it to a hero."
+    },
+    {
+      "id": "h_8",
+      "text": "The Golden Egg from Thistlecombe is hidden in the Old Chapel in Fernwood."
+    },
+    {
+      "id": "h_9",
+      "text": "To defeat the Kraken you need the Trident of Tides, the Selkie Cloak and the Siren's Conch."
+    },
+    {
+      "id": "h_10",
+      "text": "Sea monsters fear the lightning. A storm weapon would sting."
+    },
+    {
+      "id": "h_11",
+      "text": "The quickest road to Pearlcliff is the one from Fernwood."
+    }
+  ],
+  "recipes": [
+    {
+      "item": "sirens_conch",
+      "needs": [
+        {
+          "item": "sea_glass",
+          "qty": 2
+        },
+        {
+          "item": "pearl",
+          "qty": 1
+        }
+      ],
+      "seconds": 240
+    },
+    {
+      "item": "healing_draught",
+      "seconds": 60
+    },
+    {
+      "item": "potion_of_might",
+      "seconds": 120
+    },
+    {
+      "item": "greater_healing",
+      "needs": [
+        {
+          "item": "healing_draught",
+          "qty": 2
+        }
+      ],
+      "seconds": 45
+    },
+    {
+      "item": "venom_vial",
+      "needs": [
+        {
+          "item": "spider_silk",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    },
+    {
+      "item": "chainmail",
+      "needs": [
+        {
+          "item": "silver_ore",
+          "qty": 2
+        }
+      ],
+      "seconds": 150
+    }
+  ],
+  "challenge": {
+    "threat": "sea_monster",
+    "title": "The Deep below Pearlcliff",
+    "summons": [
+      "Ah, Hero, you came! Sit, please. I am afraid the news is bad.",
+      "The Kraken of the Deep has risen from the sea off Pearlcliff. It drags down every boat that leaves the harbour, and the town is going hungry.",
+      "Our scholars say three things can bring the Kraken down: the Trident of Tides, which the sea obeys, a Selkie Cloak against the cold of the deep, and the Siren's Conch, which stills the waves.",
+      "Gather all three, then go to Pearlcliff and face the Kraken. Talk to everyone: somebody always knows something.",
+      "Here is gold for the road, and a few draughts. My carriage waits to take you to Lionbridge. Go with my blessing."
+    ],
+    "crisisTown": "pearlcliff",
+    "lair": {
+      "name": "the Drowned Grotto",
+      "emoji": "🌊",
+      "text": "The harbour mouth is a whirlpool of dark water. Broken masts poke out of it like bones."
+    },
+    "requires": [
+      "trident_of_tides",
+      "selkie_cloak",
+      "sirens_conch"
+    ],
+    "boss": "kraken_of_the_deep",
+    "victory": [
+      "You blow the Siren's Conch, and the sea falls still as glass. The Kraken rises, blinking, into the sunlight.",
+      "The Trident of Tides crackles with lightning. With a last great splash, the Kraken sinks into the deep and does not come back.",
+      "By evening the boats of Pearlcliff are out on a calm sea, and the whole harbour is singing."
+    ],
+    "sources": [
+      {
+        "item": "trident_of_tides",
+        "how": "quest",
+        "town": "greygate",
+        "ref": "q_greygate"
+      },
+      {
+        "item": "selkie_cloak",
+        "how": "shop",
+        "town": "fernwood",
+        "ref": "osric"
+      },
+      {
+        "item": "sirens_conch",
+        "how": "craft",
+        "town": "northreach",
+        "ref": "sirens_conch"
+      }
+    ]
+  }
+}

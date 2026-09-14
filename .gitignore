@@ -1,0 +1,21 @@
+# Dependencies and build output (every package)
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Runtime data: the SQLite DB and session logs. Anchored to the repo root on purpose:
+# games/*/public/data/ is game content and must be committed.
+/data/
+
+# Python
+__pycache__/
+.venv/
+*.pyc
+.pytest_cache/
+
+# Local machine
+.DS_Store
+.env
+.env.*
+*.log
+.claude/settings.local.json

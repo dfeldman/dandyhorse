@@ -1,0 +1,14 @@
+{
+  "games": [
+    { "id": "game-0000", "title": "The Dragon of Emberpeak", "threat": "dragon", "minutes": 90 },
+    { "id": "game-0001", "title": "The Deep below Pearlcliff", "threat": "sea_monster", "minutes": 80 },
+    { "id": "game-0002", "title": "The Curse of Ramridge", "threat": "wizard_curse", "minutes": 110 },
+    { "id": "game-0003", "title": "The Witch of Frogwater", "threat": "witch_plague", "minutes": 120 },
+    { "id": "game-0004", "title": "Black Sails over Saltmouth", "threat": "pirates", "minutes": 100 },
+    { "id": "game-0005", "title": "The Iron Legion", "threat": "enemy_nation", "minutes": 90 },
+    { "id": "game-0006", "title": "Thunder over Highcombe", "threat": "giant", "minutes": 90 },
+    { "id": "game-0007", "title": "The Barrows of Murkmarsh", "threat": "undead", "minutes": 115 },
+    { "id": "game-0008", "title": "The Goblin War", "threat": "goblin_horde", "minutes": 75 },
+    { "id": "game-0009", "title": "The Endless Winter", "threat": "frost_titan", "minutes": 95 }
+  ]
+}

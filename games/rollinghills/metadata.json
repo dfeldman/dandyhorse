@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "rollinghills",
+  "name": "Rolling Hills",
+  "version": "0.1.0",
+  "author": "Dandyhorse",
+  "description": "A cartoon bike rolls around a generated loop of hills, forests, villages and lakes. The game sets the hill; you set the pace.",
+  "entry": "index.html",
+  "screenshot": "screenshot.jpg",
+  "minPlatformVersion": "1.0",
+  "capabilities": {
+    "seed": true,
+    "ghosts": false,
+    "input": false,
+    "saveState": true,
+    "routes": ["flat", "rolling", "hilly"]
+  },
+  "variants": [
+    {
+      "id": "bike",
+      "name": "Rolling Hills (Bike)",
+      "description": "Your measured power moves the bike; the trainer feels every hill.",
+      "deviceTypes": ["bike"],
+      "defaultDuration": 1800,
+      "controls": { "bike": "grade" }
+    },
+    {
+      "id": "treadmill",
+      "name": "Rolling Hills (Treadmill)",
+      "description": "The belt speed you choose moves the bike; the game sets the incline.",
+      "deviceTypes": ["treadmill"],
+      "defaultDuration": 1800,
+      "controls": { "treadmill": "incline" }
+    }
+  ],
+  "options": {
+    "route": {
+      "label": "Route",
+      "enum": ["flat", "rolling", "hilly"],
+      "labels": ["Flat", "Rolling", "Hilly"],
+      "default": "rolling",
+      "description": "How much relief the loop has (grade cap 5% / 9% / 13%)."
+    },
+    "timeOfDay": {
+      "label": "Time of day",
+      "enum": ["day", "dusk", "night", "dawn"],
+      "labels": ["Day", "Dusk", "Night", "Dawn"],
+      "default": "day",
+      "description": "Where in the day/night cycle the ride starts."
+    }
+  },
+  "preferencesSchema": {
+    "type": "object",
+    "properties": {
+      "shadows": {
+        "type": "boolean",
+        "default": true,
+        "description": "Sun shadows near the bike. Turn off on a weak GPU."
+      }
+    }
+  }
+}

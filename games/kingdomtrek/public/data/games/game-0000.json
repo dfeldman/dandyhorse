@@ -1,0 +1,544 @@
+{
+  "schemaVersion": 1,
+  "id": "game-0000",
+  "title": "The Dragon of Emberpeak",
+  "region": {
+    "name": "the Amberlands",
+    "blurb": "Golden fields in the west, deep forest in the middle, and in the east the smoking peak of Emberpeak.",
+    "width": 1000,
+    "height": 640
+  },
+  "startTown": "oakvale",
+  "towns": [
+    {
+      "id": "oakvale",
+      "name": "Oakvale",
+      "biome": "plains",
+      "appearance": "capital",
+      "x": 120,
+      "y": 330,
+      "blurb": "Everwyn's royal seat: the Queen's castle stands over golden wheat fields.",
+      "mayor": {
+        "id": "marigold",
+        "title": "Duchess",
+        "name": "Duchess Marigold",
+        "emoji": "👩🏿‍🦰",
+        "avatar": "plump, cheerful duchess with braided red hair, a green velvet dress, and a wheat-sheaf brooch",
+        "greeting": ["Welcome to Oakvale, Hero! The Queen's messenger said you would come.", "We are simple farmers, but we will help however we can."],
+        "hint": "h_frostbrand_1",
+        "quest": {
+          "id": "q_oakvale",
+          "type": "deliver",
+          "title": "A Letter for Saltmere",
+          "offer": ["Would you carry this letter to Countess Coralie in Saltmere? It is about the harvest fair.", "She pays her couriers well, I promise."],
+          "item": "sealed_letter",
+          "to": { "town": "saltmere" },
+          "reminder": "Countess Coralie in Saltmere is waiting for my letter.",
+          "done": ["A letter from Marigold! How lovely. Here, for your trouble."],
+          "reward": { "gold": 60, "items": ["healing_draught"] }
+        }
+      },
+      "shop": {
+        "name": "Hilda's General Store",
+        "keeper": { "id": "hilda", "name": "Hilda", "emoji": "👩🏿‍🍳", "avatar": "broad-shouldered shopkeeper with rolled sleeves and a flour-dusted apron" },
+        "lines": ["Fresh bread, fresh draughts, fresh advice. What'll it be?"],
+        "stock": [{ "item": "healing_draught" }, { "item": "potion_of_might" }, { "item": "travelers_tonic" }, { "item": "leather_cap" }, { "item": "leather_vest" }, { "item": "oak_cudgel" }, { "item": "hunting_bow" }]
+      },
+      "workshop": {
+        "name": "The Royal Workshop",
+        "keeper": { "id": "bram", "name": "Master Bram", "emoji": "👨🏼‍🔧", "avatar": "grey-bearded master smith in a leather apron stitched with the royal crest" },
+        "lines": ["The Queen lets any hero use her workshop. Cauldron, anvil, grindstone: all yours. Pedal hard!"]
+      },
+      "npcs": [
+        {
+          "id": "tomas", "name": "Old Tomas", "role": "farmer", "emoji": "👨🏽‍🌾",
+          "avatar": "wiry old farmer with a straw hat and a pitchfork",
+          "lines": ["Dragons, eh? My grandfather saw one once.", "He said it hated the cold more than anything in the world."],
+          "hint": "h_cold"
+        },
+        {
+          "id": "pip", "name": "Pip", "role": "child", "emoji": "🧒🏼",
+          "avatar": "freckled boy with a wooden sword and a helmet three sizes too big",
+          "lines": ["When I grow up, I'm going to fight dragons too!", "Did you see the old well? Grandpa says somebody dropped a key down there."],
+          "gives": { "item": "healing_draught", "line": "Are you a real hero? Mum says heroes always carry healing draughts. Here, take one of mine!" }
+        },
+        {
+          "id": "hale", "name": "Sergeant Hale", "role": "guard", "emoji": "💂🏻",
+          "avatar": "grizzled town guard in a dented steel cap, leaning on a halberd",
+          "lines": ["Dragonfire melts ordinary steel. I've seen it.", "Arms up, chin down, hit hard. I can train you, for a few coins."],
+          "hint": "h_shield_2",
+          "trains": { "stat": "strength", "price": 40 }
+        }
+      ],
+      "spots": [
+        { "id": "old_well", "name": "the Old Well", "emoji": "🪣", "item": "rusty_key", "text": "You haul up the Old Well's bucket. Tangled in the rope is a Rusty Key!" }
+      ]
+    },
+    {
+      "id": "millbrook",
+      "name": "Millbrook",
+      "biome": "plains",
+      "appearance": "river",
+      "x": 280,
+      "y": 210,
+      "blurb": "A river town of water-wheels and beehives. The mill never stops turning.",
+      "mayor": {
+        "id": "tobias",
+        "title": "Baron",
+        "name": "Baron Tobias",
+        "emoji": "🧔🏽",
+        "avatar": "stout baron with a bushy black beard and a flour-white waistcoat",
+        "greeting": ["Ah, the Queen's champion! Welcome to Millbrook.", "Mind the bees."],
+        "hint": "h_cellar",
+        "quest": {
+          "id": "q_millbrook",
+          "type": "fetch",
+          "title": "The Silver Bell",
+          "offer": ["Our mill's Silver Bell was stolen! We ring it when the river floods.", "A goblin ran off toward Thornwood with it. Bring it back and I'll give you my old boots. Enchanted, you know."],
+          "item": "silver_bell",
+          "reminder": "Any sign of the Silver Bell? The goblin ran toward Thornwood.",
+          "done": ["My bell! Now we'll hear the floods coming.", "Take these boots. May they carry you far."],
+          "reward": { "gold": 30, "items": ["boots_of_striding"] }
+        }
+      },
+      "shop": {
+        "name": "Millbrook Market",
+        "keeper": { "id": "odo", "name": "Odo", "emoji": "👨🏽‍🦲", "avatar": "cheerful bald merchant in a honey-colored vest" },
+        "lines": ["Honey, hides, and hardware! Best prices on the river."],
+        "stock": [{ "item": "jar_of_honey" }, { "item": "healing_draught" }, { "item": "shield_tonic" }, { "item": "iron_sword" }, { "item": "travelers_cloak" }, { "item": "iron_helm" }]
+      },
+      "workshop": {
+        "name": "The Mill Wheel Workshop",
+        "keeper": { "id": "maud", "name": "Maud", "emoji": "👩🏻‍🔧", "avatar": "cheerful millwright with flour on her sleeves and a spanner in her belt" },
+        "lines": ["The river turns my grindstone. For yours, you'll have to pedal!"]
+      },
+      "npcs": [
+        {
+          "id": "beatrix", "name": "Beatrix", "role": "beekeeper", "emoji": "🐝",
+          "avatar": "beekeeper in a white veiled hat, bees drifting lazily around her",
+          "lines": ["My bees make the sweetest honey in the Amberlands.", "Odo sells it at the market, if you have a sweet tooth. Or know someone who does."],
+          "hint": "h_honey"
+        },
+        {
+          "id": "gus", "name": "Miller Gus", "role": "miller", "emoji": "👴🏽",
+          "avatar": "dusty old miller with flour in his eyebrows",
+          "lines": ["That goblin who took our bell went hopping into Thornwood.", "Goblins hide their loot in hollow trees. Everybody knows that."],
+          "hint": "h_bell"
+        }
+      ],
+      "spots": [
+        { "id": "mill_cellar", "name": "the Mill Cellar", "emoji": "📦", "item": "tome_of_might", "requiresKey": "rusty_key", "text": "The Rusty Key turns with a screech. Inside the old chest: a Tome of Might!", "lockedText": "A heavy chest in the cellar is locked tight. The keyhole is caked with rust." }
+      ]
+    },
+    {
+      "id": "saltmere",
+      "name": "Saltmere",
+      "biome": "coast",
+      "appearance": "port",
+      "x": 250,
+      "y": 500,
+      "blurb": "Salt-white cottages cling to the cliffs above a busy harbor. Gulls cry everywhere.",
+      "mayor": {
+        "id": "coralie",
+        "title": "Countess",
+        "name": "Countess Coralie",
+        "emoji": "👩🏽‍🦱",
+        "avatar": "elegant countess with dark curls, a sea-green gown, and a long pearl necklace",
+        "greeting": ["Welcome to Saltmere, Hero. Mind the gulls; they steal."],
+        "quest": {
+          "id": "q_saltmere",
+          "type": "slay",
+          "title": "Captain Barnacle",
+          "offer": ["That scoundrel Captain Barnacle robs our merchants on the forest road to Thornwood.", "Beat him, and Saltmere will reward you handsomely."],
+          "foe": "foe_barnacle",
+          "reminder": "Captain Barnacle still lurks on the road to Thornwood.",
+          "done": ["Barnacle beaten! The merchants will sing of you.", "Take this, with Saltmere's thanks."],
+          "reward": { "gold": 120, "items": ["lucky_clover"] }
+        }
+      },
+      "shop": {
+        "name": "The Barnacle & Pearl",
+        "keeper": { "id": "finn", "name": "Finn", "emoji": "👨🏽‍🦰", "avatar": "red-haired ex-sailor with a tattooed forearm and a gold earring" },
+        "lines": ["Everything the sea washes up, I sell. Mostly."],
+        "stock": [{ "item": "healing_draught" }, { "item": "greater_healing" }, { "item": "thunder_vial" }, { "item": "shield_tonic" }, { "item": "storm_charm" }, { "item": "travelers_cloak" }]
+      },
+      "workshop": {
+        "name": "The Salt & Tar Shed",
+        "keeper": { "id": "corin", "name": "Corin", "emoji": "🧑🏾‍🔧", "avatar": "weathered boatwright with tar-black hands and a coil of rope over one shoulder" },
+        "lines": ["Mind the tar pot. Everything else, help yourself."]
+      },
+      "npcs": [
+        {
+          "id": "old_salt", "name": "Old Salt", "role": "hermit", "emoji": "🧓🏼",
+          "avatar": "ancient bearded hermit in patched robes that smell of seaweed",
+          "lines": ["Eh? A hero? Heroes never bring me anything sweet.", "The shrine in Mirewater sank into the bog long ago. I keep its key. What's it to you?"],
+          "hint": "h_tidestone_2",
+          "trade": { "wants": "jar_of_honey", "gives": "shrine_key", "line": "Honey! Millbrook honey! Oh, you dear thing. Here, take the Shrine Key. Mind the frogs." }
+        },
+        {
+          "id": "nell", "name": "Fisher Nell", "role": "fisher", "emoji": "🎣",
+          "avatar": "weathered fisherwoman in oilskins with a net over one shoulder",
+          "lines": ["The tide brings in all sorts. Pearls, if you look in the tide pools.", "Pirates on the Thornwood road, sea-monsters in the old songs. Give me a quiet net any day."]
+        }
+      ],
+      "spots": [
+        { "id": "tide_pools", "name": "the Tide Pools", "emoji": "🌊", "item": "pearl", "text": "Among the rocks and anemones you find a shining Pearl!" }
+      ]
+    },
+    {
+      "id": "thornwood",
+      "name": "Thornwood",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 440,
+      "y": 360,
+      "blurb": "Houses built among giant oaks, joined by rope bridges. The forest is always whispering.",
+      "mayor": {
+        "id": "fenwick",
+        "title": "Lord",
+        "name": "Lord Fenwick",
+        "emoji": "👨🏿‍🦳",
+        "avatar": "tall, thin lord in a moss-green cloak with a tawny owl on his shoulder",
+        "greeting": ["Thornwood welcomes you. Walk softly; the forest listens."],
+        "hint": "h_tidestone_1",
+        "quest": {
+          "id": "q_thornwood",
+          "type": "deliver",
+          "title": "Herbs for Mirewater",
+          "offer": ["A fever has struck Mirewater. Lady Morwenna needs these healing herbs.", "Take them to her swiftly. She will reward you, I am sure."],
+          "item": "healing_herbs",
+          "to": { "town": "mirewater" },
+          "reminder": "Please hurry: Lady Morwenna in Mirewater needs those herbs.",
+          "done": ["Herbs from Thornwood! Bless you.", "This ring was my mother's. It will keep you strong."],
+          "reward": { "gold": 30, "items": ["ring_of_vigor"] }
+        }
+      },
+      "shop": {
+        "name": "Oakheart Outfitters",
+        "keeper": { "id": "willa", "name": "Willa", "emoji": "🧝🏼‍♀️", "avatar": "wood-elf shopkeeper with leaf-green braids and a quiver on her back" },
+        "lines": ["Bows, cloaks, and forest remedies. All handmade."],
+        "stock": [{ "item": "healing_draught" }, { "item": "quickening_elixir" }, { "item": "fire_flask" }, { "item": "hunting_bow" }, { "item": "elven_bow" }, { "item": "gauntlets_of_might" }, { "item": "travelers_cloak" }]
+      },
+      "workshop": {
+        "name": "The Whittled Owl",
+        "keeper": { "id": "fern", "name": "Fern", "emoji": "👩🏽‍🔧", "avatar": "wood-carver with leaf-green braids and shavings caught in her apron" },
+        "lines": ["Bark, sap and elbow grease. The bench is yours."]
+      },
+      "npcs": [
+        {"id": "zephyr", "name": "Zephyr the Wanderer", "emoji": "🧙🏾", "role": "travelling wizard", "avatar": "tall wizard in a starry indigo robe and a floppy pointed hat, with a long silver beard and a crooked staff", "lines": ["Tired of that face? I can change it. A little magic, a little gold.", "Build, clothes, hair. Nothing I have not done a thousand times."], "restyle": {"price": 60}},
+        {
+          "id": "ash", "name": "Ranger Ash", "role": "ranger", "emoji": "🧝🏼",
+          "avatar": "hooded ranger with a longbow and a scar across one cheek",
+          "lines": ["The Great Grey Wolf prowls the mountain road between Frostford and Highcrag.", "Only a hunt will draw it out. The Earl of Frostford has been asking for one.", "I can toughen you up, if you've the coin."],
+          "hint": "h_wolf",
+          "trains": { "stat": "vigor", "price": 40 }
+        },
+        {
+          "id": "mo", "name": "Peddler Mo", "role": "peddler", "emoji": "🧳",
+          "avatar": "round peddler under a huge pack hung with pots and trinkets",
+          "lines": ["Goblins, goblins everywhere! One ran past with something shiny.", "Straight into the big Hollow Oak by the pond, here in Thornwood."],
+          "hint": "h_bell"
+        }
+      ],
+      "spots": [
+        { "id": "hollow_oak", "name": "the Hollow Oak", "emoji": "🌳", "item": "silver_bell", "text": "Deep inside the Hollow Oak, among goblin junk, something glints: the Silver Bell!" }
+      ]
+    },
+    {
+      "id": "frostford",
+      "name": "Frostford",
+      "biome": "snow",
+      "appearance": "hillside",
+      "x": 470,
+      "y": 140,
+      "blurb": "Stone houses under deep snow, huddled around a frozen ford. Chimney smoke everywhere.",
+      "mayor": {
+        "id": "aldous",
+        "title": "Earl",
+        "name": "Earl Aldous",
+        "emoji": "🧓🏼",
+        "avatar": "white-bearded earl wrapped in a bearskin cloak, with a silver circlet",
+        "greeting": ["Brr! Come in, come in. Frostford is cold, but its heart is warm."],
+        "hint": "h_frostbrand_2",
+        "quest": {
+          "id": "q_frostford",
+          "type": "slay",
+          "title": "The Great Grey Wolf",
+          "offer": ["A monstrous wolf haunts the mountain road to Highcrag. It has taken our sheep and frightened every trader.", "Slay the Great Grey Wolf and I will give you Frostbrand, the ice-blade of my house. It was made for dragons."],
+          "foe": "foe_grey_wolf",
+          "reminder": "The Great Grey Wolf still prowls the road to Highcrag.",
+          "done": ["The wolf is dead? Then Frostford owes you much.", "Take Frostbrand. Its cold never fades. Let Cindermaw feel the winter."],
+          "reward": { "gold": 40, "items": ["frostbrand"] }
+        }
+      },
+      "shop": {
+        "name": "The Warm Hearth",
+        "keeper": { "id": "sven", "name": "Sven", "emoji": "🧔🏻‍♂️", "avatar": "huge shopkeeper with a braided blond beard and a fur vest" },
+        "lines": ["Furs, flasks, and frost-proof boots. Stay warm, friend."],
+        "stock": [{ "item": "healing_draught" }, { "item": "frost_flask" }, { "item": "fire_flask" }, { "item": "fur_cloak" }, { "item": "iron_helm" }, { "item": "war_axe" }]
+      },
+      "workshop": {
+        "name": "The Warm Hearth",
+        "keeper": { "id": "olaf", "name": "Olaf", "emoji": "👨🏿‍🔧", "avatar": "huge smith in furs, with steam rising off his bald head" },
+        "lines": ["Warmest room in Frostford! Keep that fire roaring and you can make anything."]
+      },
+      "npcs": [
+        {
+          "id": "greta", "name": "Smith Greta", "role": "smith", "emoji": "👩🏽‍🏭",
+          "avatar": "muscular smith with soot-streaked arms and a leather apron",
+          "lines": ["I forged Frostbrand's new hilt myself. Ice cuts through dragon hide like butter.", "Bring me good ore someday and I'll make you something fine."],
+          "hint": "h_cold"
+        },
+        {
+          "id": "wynn", "name": "Scholar Wynn", "role": "scholar", "emoji": "🧑🏻‍🏫",
+          "avatar": "young scholar with ink-stained fingers and round spectacles",
+          "lines": ["Potions obey those who understand them.", "I can teach you, for a modest fee."],
+          "trains": { "stat": "magic", "price": 40 }
+        }
+      ],
+      "spots": [
+        { "id": "frozen_pond", "name": "the Frozen Pond", "emoji": "🧊", "item": "frost_flask", "text": "A sealed Frost Flask is frozen into the ice at the pond's edge. You chip it free." }
+      ]
+    },
+    {
+      "id": "mirewater",
+      "name": "Mirewater",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 560,
+      "y": 540,
+      "blurb": "Stilt-houses over a green, bubbling bog. Frogs sing day and night.",
+      "mayor": {
+        "id": "morwenna",
+        "title": "Lady",
+        "name": "Lady Morwenna",
+        "emoji": "👩🏽‍🦳",
+        "avatar": "gray-haired lady in a dark plum dress, carrying a lantern, with kind, tired eyes",
+        "greeting": ["Welcome to Mirewater, Hero. Forgive the smell; it is the bog."],
+        "hint": "h_shrine",
+        "quest": {
+          "id": "q_mirewater",
+          "type": "fetch",
+          "title": "A Cure for the Fever",
+          "offer": ["Our children are burning with bog-fever. A Frost Flask would cool them.", "They sell them in Frostford, I am told. Bring me one, please."],
+          "item": "frost_flask",
+          "reminder": "A Frost Flask would save our children. Frostford sells them.",
+          "done": ["The fever will break tonight. Thank you.", "Take this hat; it was my late husband's. He was a wizard, of sorts."],
+          "reward": { "gold": 40, "items": ["wizards_hat"] }
+        }
+      },
+      "shop": {
+        "name": "Bogside Curios",
+        "keeper": { "id": "grimble", "name": "Grimble", "emoji": "🧙🏽", "avatar": "hunched curio dealer with a long nose and a ring on every finger" },
+        "lines": ["Potions, poisons, er, remedies. Curios of every kind."],
+        "stock": [{ "item": "healing_draught" }, { "item": "greater_healing" }, { "item": "holy_water" }, { "item": "shield_tonic" }, { "item": "plague_mask" }, { "item": "viper_dagger" }, { "item": "sunlit_mace" }]
+      },
+      "workshop": {
+        "name": "The Bubbling Cauldron",
+        "keeper": { "id": "nell", "name": "Nell", "emoji": "🧑🏼‍🔧", "avatar": "hunched brewer with a long wooden spoon and a necklace of dried frogs" },
+        "lines": ["Stir clockwise. Always clockwise. Trust me."]
+      },
+      "npcs": [
+        {
+          "id": "granny_moss", "name": "Granny Moss", "role": "good witch", "emoji": "🧙🏼‍♀️",
+          "avatar": "tiny, kindly swamp witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": ["Not all witches are wicked, dearie.", "The Tidestone sleeps in the Sunken Shrine. It drinks fire the way the bog drinks rain."],
+          "hint": "h_tidestone_3"
+        },
+        {
+          "id": "lem", "name": "Lem", "role": "frog-catcher", "emoji": "🐸",
+          "avatar": "barefoot boy with a net, muddy to the knees and grinning",
+          "lines": ["Ribbit! That's frog for hello.", "The shrine's over there, but the gate's locked. Only Old Salt has the key."]
+        }
+      ],
+      "spots": [
+        { "id": "sunken_shrine", "name": "the Sunken Shrine", "emoji": "⛩️", "item": "tidestone", "requiresKey": "shrine_key", "text": "The Shrine Key turns. Water pours from the gate, and on the altar lies the Tidestone, cool and blue.", "lockedText": "The shrine's gate is barred and locked. The keyhole is shaped like a wave." }
+      ]
+    },
+    {
+      "id": "highcrag",
+      "name": "Highcrag",
+      "biome": "mountain",
+      "appearance": "fortress",
+      "x": 650,
+      "y": 260,
+      "blurb": "A mining town carved into a cliff. Hammers ring from every tunnel.",
+      "mayor": {
+        "id": "osric",
+        "title": "Margrave",
+        "name": "Margrave Osric",
+        "emoji": "👷🏾",
+        "avatar": "broad margrave with a braided brown beard, a miner's helmet, and a heavy gold chain",
+        "greeting": ["Highcrag stands firm. Welcome, Hero."],
+        "hint": "h_shield_1",
+        "quest": {
+          "id": "q_highcrag",
+          "type": "deliver",
+          "title": "Ore for Frostford",
+          "offer": ["We've struck a new silver seam! Smith Greta in Frostford wants a sample.", "Take it to her. She'll pay you for your trouble."],
+          "item": "ore_sample",
+          "to": { "town": "frostford", "npc": "greta" },
+          "reminder": "Smith Greta in Frostford is waiting for that ore.",
+          "done": ["Highcrag silver! Beautiful.", "Here, take these, and my thanks."],
+          "reward": { "gold": 80, "items": ["potion_of_might", "potion_of_might"] }
+        }
+      },
+      "shop": {
+        "name": "Dunstan's Armory",
+        "keeper": { "id": "dunstan", "name": "Dunstan", "emoji": "👨🏿‍🏭", "avatar": "soot-faced armorer with a thick mustache and a hammer on his belt" },
+        "lines": ["Steel for heroes. Only the best, and the best isn't cheap."],
+        "stock": [{ "item": "dragonscale_shield", "qty": 1 }, { "item": "chainmail" }, { "item": "iron_helm" }, { "item": "steel_longsword" }, { "item": "storm_hammer" }, { "item": "healing_draught" }, { "item": "greater_healing" }]
+      },
+      "workshop": {
+        "name": "The High Forge",
+        "keeper": { "id": "brunhild", "name": "Brunhild", "emoji": "👩🏾‍🔧", "avatar": "stocky smith with braided hair, soot-streaked arms and a proud grin" },
+        "lines": ["Dwarves built this forge, and it has never once gone cold. Strike while it's hot!"]
+      },
+      "npcs": [
+        {
+          "id": "kara", "name": "Guide Kara", "role": "mountain guide", "emoji": "🧗🏾‍♀️",
+          "avatar": "wiry mountain guide with a coil of rope and wind-burned cheeks",
+          "lines": ["From here the road to Emberpeak climbs through ash.", "The swamp road from Mirewater is longer, and worse."],
+          "hint": "h_roads"
+        },
+        {
+          "id": "pell", "name": "Miner Pell", "role": "miner", "emoji": "⛏️",
+          "avatar": "stocky miner with a lamp on his helmet and coal on his nose",
+          "lines": ["There's an old mine shaft behind the chapel. Nobody's been down in years.", "Could be something left in there. Could be bats."]
+        }
+      ],
+      "spots": [
+        { "id": "old_mine", "name": "the Abandoned Mine", "emoji": "🕳️", "item": "silver_ore", "text": "In the dark of the old shaft your hand closes on a chunk of Silver Ore." }
+      ]
+    },
+    {
+      "id": "emberpeak",
+      "name": "Emberpeak",
+      "biome": "volcano",
+      "appearance": "ruins",
+      "x": 840,
+      "y": 400,
+      "blurb": "A town of red stone beneath a smoking mountain. Most folk have fled; ash drifts like snow.",
+      "crisis": true,
+      "mayor": {
+        "id": "roderic",
+        "title": "Duke",
+        "name": "Duke Roderic",
+        "emoji": "🤴🏻",
+        "avatar": "proud young duke with soot on his fine red coat and one arm in a sling",
+        "greeting": ["You've come! The Queen heard us!", "Cindermaw lairs in the cave above the town. It burned my hall, and half the town with it."],
+        "hint": "h_all_three"
+      },
+      "shop": {
+        "name": "The Last Lantern",
+        "keeper": { "id": "ivy", "name": "Ivy", "emoji": "👱🏾‍♀️", "avatar": "stubborn young shopkeeper with a soot-smudged face and a lantern" },
+        "lines": ["I'm staying till the end. Buy what you need; you'll need it."],
+        "stock": [{ "item": "healing_draught" }, { "item": "greater_healing" }, { "item": "frost_flask" }, { "item": "shield_tonic" }, { "item": "quickening_elixir" }]
+      },
+      "workshop": {
+        "name": "The Cracked Anvil",
+        "keeper": { "id": "soot", "name": "Soot", "emoji": "🧑🏻‍🔧", "avatar": "soot-covered young smith who refused to flee, with a bucket of water always at hand" },
+        "lines": ["Fire's the one thing we have plenty of. Use the forge, and hurry."]
+      },
+      "npcs": [
+        {
+          "id": "bess", "name": "Old Bess", "role": "grandmother", "emoji": "👵🏾",
+          "avatar": "stooped grandmother in a scorched shawl, clutching an indignant cat",
+          "lines": ["That dragon ate my goat. My GOAT!", "Frostbrand, the Dragonscale Shield, and the Tidestone. The old songs say you need all three."],
+          "hint": "h_all_three"
+        },
+        {
+          "id": "cole", "name": "Watchman Cole", "role": "watchman", "emoji": "💂🏿",
+          "avatar": "exhausted young watchman in a singed helmet, holding a bucket",
+          "lines": ["I've been throwing water on fires for a week.", "Please tell me you're here to stop it."]
+        }
+      ],
+      "spots": [
+        { "id": "ruined_hall", "name": "the Ruined Hall", "emoji": "🏚️", "item": "greater_healing", "text": "In the ashes of the Duke's hall, one Greater Healing Draught survived the flames." }
+      ]
+    }
+  ],
+  "routes": [
+    { "id": "r_oak_mill", "a": "oakvale", "b": "millbrook", "distance": 200, "terrain": "plains", "danger": 0.6, "enemies": ["wolf", "boar", "bandit"], "finds": [{ "id": "f_oak_mill", "item": "healing_draught", "at": 0.5 }] },
+    { "id": "r_oak_salt", "a": "oakvale", "b": "saltmere", "distance": 214, "terrain": "coast", "danger": 0.7, "enemies": ["crab", "boar", "bandit"], "finds": [{ "id": "f_oak_salt", "item": "pirate_doubloon", "at": 0.55 }] },
+    { "id": "r_mill_thorn", "a": "millbrook", "b": "thornwood", "distance": 219, "terrain": "forest", "danger": 0.8, "enemies": ["wolf", "goblin", "boar"], "finds": [{ "id": "f_mill_thorn", "item": "travelers_tonic", "at": 0.4 }] },
+    { "id": "r_mill_frost", "a": "millbrook", "b": "frostford", "distance": 203, "terrain": "snow", "danger": 0.8, "enemies": ["wolf", "frost_sprite", "snow_troll"], "finds": [{ "id": "f_mill_frost", "item": "wolf_pelt", "at": 0.45 }] },
+    { "id": "r_salt_thorn", "a": "saltmere", "b": "thornwood", "distance": 236, "terrain": "forest", "danger": 0.9, "enemies": ["goblin", "bandit", "pirate"], "fixed": [{ "id": "foe_barnacle", "enemy": "captain_barnacle", "at": 0.45, "quest": "q_saltmere" }], "finds": [{ "id": "f_salt_thorn", "item": "healing_draught", "at": 0.6 }] },
+    { "id": "r_salt_mire", "a": "saltmere", "b": "mirewater", "distance": 313, "terrain": "coast", "danger": 1.0, "enemies": ["crab", "pirate", "bog_lurker"], "finds": [{ "id": "f_salt_mire", "item": "pearl", "at": 0.3 }] },
+    { "id": "r_frost_thorn", "a": "frostford", "b": "thornwood", "distance": 222, "terrain": "hills", "danger": 0.8, "enemies": ["wolf", "goblin", "frost_sprite"], "finds": [{ "id": "f_frost_thorn", "item": "troll_tooth", "at": 0.5 }] },
+    { "id": "r_thorn_mire", "a": "thornwood", "b": "mirewater", "distance": 216, "terrain": "swamp", "danger": 1.0, "enemies": ["bog_lurker", "marsh_wisp", "goblin"], "finds": [{ "id": "f_thorn_mire", "item": "shield_tonic", "at": 0.45 }] },
+    { "id": "r_thorn_high", "a": "thornwood", "b": "highcrag", "distance": 233, "terrain": "mountain", "danger": 0.9, "enemies": ["goblin", "rock_golem", "cave_bats"], "finds": [{ "id": "f_thorn_high", "item": "silver_ore", "at": 0.55 }] },
+    { "id": "r_frost_high", "a": "frostford", "b": "highcrag", "distance": 216, "terrain": "mountain", "danger": 0.8, "enemies": ["frost_sprite", "rock_golem", "wolf"], "fixed": [{ "id": "foe_grey_wolf", "enemy": "great_grey_wolf", "at": 0.5, "quest": "q_frostford" }], "finds": [{ "id": "f_frost_high", "item": "potion_of_might", "at": 0.35 }] },
+    { "id": "r_high_ember", "a": "highcrag", "b": "emberpeak", "distance": 236, "terrain": "volcano", "danger": 1.1, "enemies": ["kobold", "fire_imp", "cave_bats"], "finds": [{ "id": "f_high_ember", "item": "greater_healing", "at": 0.5 }] },
+    { "id": "r_mire_ember", "a": "mirewater", "b": "emberpeak", "distance": 313, "terrain": "volcano", "danger": 1.3, "enemies": ["kobold", "fire_imp", "bog_lurker"], "finds": [{ "id": "f_mire_ember", "item": "ember_crystal", "at": 0.6 }] }
+  ],
+  "enemies": [
+    { "id": "wolf", "name": "Grey Wolf", "emoji": "🐺", "family": "beast", "tier": 1, "weakness": "fire", "gold": [8, 13], "drops": [{ "item": "wolf_pelt", "chance": 0.35 }], "taunt": "A wolf slinks out of the grass, teeth bared." },
+    { "id": "boar", "name": "Wild Boar", "emoji": "🐗", "family": "beast", "tier": 1, "gold": [8, 12], "taunt": "A boar paws the ground and snorts." },
+    { "id": "bandit", "name": "Road Bandit", "emoji": "🥷", "family": "bandit", "tier": 2, "battle": "tug", "gold": [15, 24], "drops": [{ "item": "healing_draught", "chance": 0.2 }], "taunt": "\"Your gold or your life, traveler!\"" },
+    { "id": "goblin", "name": "Goblin Scout", "emoji": "👺", "family": "goblin", "tier": 1, "battle": "race", "weakness": "fire", "gold": [9, 14], "drops": [{ "item": "goblin_trinket", "chance": 0.4 }], "taunt": "A goblin cackles and waves a rusty knife." },
+    { "id": "cave_bats", "name": "Cave Bats", "emoji": "🦇", "family": "beast", "tier": 1, "weakness": "holy", "gold": [6, 10], "taunt": "A swarm of bats pours out of the rocks!" },
+    { "id": "pirate", "name": "Pirate Deckhand", "emoji": "🏴‍☠️", "family": "pirate", "tier": 2, "battle": "tug", "gold": [14, 22], "drops": [{ "item": "pirate_doubloon", "chance": 0.5 }], "taunt": "\"Arr! Hand over yer valuables!\"" },
+    { "id": "crab", "name": "Giant Crab", "emoji": "🦀", "family": "sea", "tier": 1, "battle": "tug", "weakness": "storm", "gold": [7, 12], "drops": [{ "item": "pearl", "chance": 0.1 }], "taunt": "A crab the size of a cart clacks its claws." },
+    { "id": "bog_lurker", "name": "Bog Lurker", "emoji": "🐊", "family": "beast", "tier": 2, "weakness": "fire", "attack": "poison", "gold": [12, 18], "taunt": "Something scaly rises from the muck." },
+    { "id": "marsh_wisp", "name": "Marsh Wisp", "emoji": "👻", "family": "spirit", "tier": 2, "weakness": "holy", "gold": [10, 16], "taunt": "A pale light drifts closer, whispering your name." },
+    { "id": "frost_sprite", "name": "Frost Sprite", "emoji": "🥶", "family": "spirit", "tier": 1, "battle": "race", "weakness": "fire", "resist": "ice", "attack": "ice", "gold": [8, 13], "taunt": "A shivering sprite hurls a snowball. It is mostly ice." },
+    { "id": "snow_troll", "name": "Snow Troll", "emoji": "🧌", "family": "giant", "tier": 3, "battle": "tug", "weakness": "fire", "gold": [25, 35], "drops": [{ "item": "troll_tooth", "chance": 0.5 }], "taunt": "A troll heaves itself out of a snowdrift." },
+    { "id": "rock_golem", "name": "Rock Golem", "emoji": "🗿", "family": "giant", "tier": 2, "weakness": "storm", "gold": [14, 20], "drops": [{ "item": "silver_ore", "chance": 0.2 }], "taunt": "A boulder unfolds into a grinding, rumbling golem." },
+    { "id": "kobold", "name": "Kobold Firetender", "emoji": "🦎", "family": "dragon", "tier": 2, "weakness": "ice", "resist": "fire", "attack": "fire", "gold": [14, 22], "drops": [{ "item": "ember_crystal", "chance": 0.15 }], "taunt": "\"The Great Cindermaw will roast you!\"" },
+    { "id": "fire_imp", "name": "Fire Imp", "emoji": "👿", "family": "spirit", "tier": 2, "battle": "race", "weakness": "ice", "resist": "fire", "attack": "fire", "gold": [13, 20], "taunt": "An imp giggles and juggles little flames." },
+    { "id": "great_grey_wolf", "name": "the Great Grey Wolf", "emoji": "🐺", "family": "beast", "tier": 3, "weakness": "fire", "gold": [35, 45], "drops": [{ "item": "wolf_pelt", "chance": 1 }], "taunt": "A wolf as big as a pony blocks the road. Its eyes are yellow lamps.", "avatar": "enormous grey wolf with a torn ear and yellow eyes" },
+    { "id": "captain_barnacle", "name": "Captain Barnacle", "emoji": "🏴‍☠️", "family": "pirate", "tier": 3, "gold": [40, 55], "drops": [{ "item": "pirate_doubloon", "chance": 1 }], "taunt": "\"Captain Barnacle, at yer service! Now empty yer pockets.\"", "avatar": "barrel-chested pirate captain with a barnacle-crusted peg leg and a parrot" },
+    { "id": "cindermaw", "name": "Cindermaw the Red", "emoji": "🐉", "family": "dragon", "tier": 5, "weakness": "ice", "resist": "fire", "attack": "fire", "boss": true, "gold": [0, 0], "taunt": "\"Another morsel climbs my mountain. Come, little knight. Let me warm you.\"", "avatar": "huge crimson dragon with smoking nostrils, cracked gold horns, and eyes like molten glass" }
+  ],
+  "hints": [
+    { "id": "h_cold", "text": "Dragons hate the cold. A frost weapon would bite deep.", "about": "cindermaw" },
+    { "id": "h_frostbrand_1", "text": "The Earl of Frostford keeps a blade of living ice called Frostbrand. He'd give it to whoever rids his roads of wolves.", "about": "frostbrand" },
+    { "id": "h_frostbrand_2", "text": "Frostbrand belongs to Earl Aldous of Frostford. He has a task for a hero.", "about": "frostbrand" },
+    { "id": "h_wolf", "text": "The Great Grey Wolf prowls the road between Frostford and Highcrag.", "about": "great_grey_wolf" },
+    { "id": "h_shield_1", "text": "Dunstan's Armory in Highcrag sells a Dragonscale Shield. It costs a fortune: 240 gold.", "about": "dragonscale_shield" },
+    { "id": "h_shield_2", "text": "Dragonfire melts ordinary steel. Only dragonscale can turn it, and Highcrag's armorer has some.", "about": "dragonscale_shield" },
+    { "id": "h_tidestone_1", "text": "The Tidestone, a stone that drinks fire, lies in a sunken shrine in the swamps of Mirewater.", "about": "tidestone" },
+    { "id": "h_tidestone_2", "text": "Old Salt, the hermit of Saltmere, keeps the key to Mirewater's Sunken Shrine.", "about": "shrine_key" },
+    { "id": "h_tidestone_3", "text": "With the Tidestone, dragonfire can be quenched. It sleeps in Mirewater's Sunken Shrine.", "about": "tidestone" },
+    { "id": "h_shrine", "text": "The Sunken Shrine's gate is locked. Its key went to a hermit who lives by the sea in Saltmere.", "about": "shrine_key" },
+    { "id": "h_honey", "text": "The old hermit in Saltmere will trade almost anything for a jar of Millbrook honey.", "about": "jar_of_honey" },
+    { "id": "h_bell", "text": "The goblin who stole Millbrook's Silver Bell hid it in Thornwood's Hollow Oak.", "about": "silver_bell" },
+    { "id": "h_cellar", "text": "An old chest in the Millbrook mill cellar is locked. The key fell down Oakvale's Old Well years ago.", "about": "rusty_key" },
+    { "id": "h_roads", "text": "The quickest road to Emberpeak is the ash road from Highcrag.", "about": "emberpeak" },
+    { "id": "h_all_three", "text": "To defeat Cindermaw you need Frostbrand, a Dragonscale Shield, and the Tidestone.", "about": "cindermaw" }
+  ],
+  "recipes": [
+    { "item": "healing_draught", "seconds": 60 },
+    { "item": "travelers_tonic", "seconds": 120 },
+    { "item": "greater_healing", "needs": [{ "item": "healing_draught", "qty": 2 }], "seconds": 45 },
+    { "item": "fire_flask", "needs": [{ "item": "ember_crystal", "qty": 1 }], "seconds": 30 },
+    { "item": "fur_cloak", "needs": [{ "item": "wolf_pelt", "qty": 3 }], "seconds": 90 },
+    { "item": "chainmail", "needs": [{ "item": "silver_ore", "qty": 2 }], "seconds": 150 }
+  ],
+  "challenge": {
+    "threat": "dragon",
+    "title": "The Dragon of Emberpeak",
+    "summons": [
+      "Hero, thank you for coming so swiftly. Grave news has reached the throne.",
+      "A dragon, Cindermaw the Red, has woken beneath Emberpeak in the far east of the Amberlands. Its fire has driven the townsfolk from their homes.",
+      "Our scholars say three things can bring it down: the ice-blade Frostbrand, a Dragonscale Shield to turn its fire, and the Tidestone, which drinks flame.",
+      "Find all three, then face the beast in its lair above Emberpeak. Ask everyone you meet; the people of the Amberlands know more than they think.",
+      "Take this purse and these draughts. My carriage will carry you to Oakvale. The kingdom is counting on you."
+    ],
+    "crisisTown": "emberpeak",
+    "lair": { "name": "Cindermaw's Lair", "emoji": "🌋", "text": "Heat pours from a cave mouth above the town. Melted shields litter the slope." },
+    "requires": ["frostbrand", "dragonscale_shield", "tidestone"],
+    "boss": "cindermaw",
+    "victory": [
+      "You raise the Tidestone and Cindermaw's fire hisses into steam. Frostbrand bites, and bites again.",
+      "With a last roar that shakes the mountain, Cindermaw the Red crashes down the slope and moves no more.",
+      "The fires of Emberpeak gutter out. The townsfolk creep back, then cheer until they are hoarse."
+    ],
+    "sources": [
+      { "item": "frostbrand", "how": "quest", "town": "frostford", "ref": "q_frostford" },
+      { "item": "dragonscale_shield", "how": "shop", "town": "highcrag", "ref": "dunstan" },
+      { "item": "tidestone", "how": "spot", "town": "mirewater", "ref": "sunken_shrine" }
+    ]
+  }
+}

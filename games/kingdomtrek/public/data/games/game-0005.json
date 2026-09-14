@@ -1,0 +1,1912 @@
+{
+  "schemaVersion": 1,
+  "id": "game-0005",
+  "title": "The Iron Legion",
+  "theme": "medieval",
+  "region": {
+    "name": "the Rookmoor",
+    "blurb": "Green farmland in the west, high mountain passes and misty bogs in the middle, and in the east the besieged walls of Larkbury.",
+    "width": 1000,
+    "height": 640
+  },
+  "startTown": "brightbridge",
+  "towns": [
+    {
+      "id": "brightbridge",
+      "name": "Brightbridge",
+      "biome": "plains",
+      "appearance": "capital",
+      "x": 121,
+      "y": 367,
+      "blurb": "The royal city of the Rookmoor: white walls, red roofs, and a castle flying the Queen's banners.",
+      "mayor": {
+        "id": "mo",
+        "name": "Baron Mo",
+        "title": "Baron",
+        "emoji": "🧔🏿‍♂️",
+        "avatar": "white-haired, twinkling-eyed baron with a red beard braided with beads, a mustard-yellow waistcoat, and a lapdog under one arm",
+        "greeting": [
+          "Welcome to Brightbridge, Hero! The Queen's messenger said you would come.",
+          "Anything you need, ask. The Queen's champion is welcome everywhere in Brightbridge."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_brightbridge",
+          "type": "fetch",
+          "title": "The Brass Spyglass",
+          "offer": [
+            "The harbour master's spyglass is missing, and nobody can see the ships coming in.",
+            "A gull took it. It was last seen flying toward Eaglefell. Bring it back and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "Any sign of the Brass Spyglass? A gull took it. It was last seen flying toward Eaglefell.",
+          "done": [
+            "The spyglass! Now we can watch for ships again.",
+            "Here is your reward, and well earned."
+          ],
+          "item": "spyglass",
+          "reward": {
+            "gold": 30,
+            "items": [
+              "wizards_hat"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Golden Sheaf",
+        "keeper": {
+          "id": "marigold",
+          "name": "Marigold",
+          "emoji": "👩🏻‍🦱",
+          "avatar": "brisk shopkeeper with a pencil behind one ear and a ledger under one arm"
+        },
+        "lines": [
+          "Fresh bread, fresh draughts, fresh advice. What'll it be?"
+        ],
+        "stock": [
+          {
+            "item": "silk_ribbon"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "hunting_bow"
+          },
+          {
+            "item": "oak_cudgel"
+          },
+          {
+            "item": "leather_cap"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Olwen's Workshop",
+        "keeper": {
+          "id": "olwen",
+          "name": "Olwen",
+          "emoji": "👩🏿‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "cedric",
+          "name": "Cedric",
+          "role": "child",
+          "emoji": "👦🏽",
+          "avatar": "freckled child with a wooden sword and a helmet three sizes too big",
+          "lines": [
+            "When I grow up, I'm going to be a hero too!",
+            "One-Eyed Jack prowls the road between Miremarsh and Brightbridge."
+          ],
+          "gives": {
+            "item": "healing_draught",
+            "line": "Are you a real hero? Mum says heroes always carry healing draughts. Here, take one of mine!"
+          },
+          "hint": "h_2"
+        },
+        {
+          "id": "pip",
+          "name": "Smith Pip",
+          "role": "smith",
+          "emoji": "👨🏼‍🏭",
+          "avatar": "muscular smith with soot-streaked arms and a leather apron",
+          "lines": [
+            "Hammer and anvil, all day long. Look at these arms!",
+            "I can build up yours too, for a fee.",
+            "The Mossy Kettle in Ashglen sells a Bulwark Shield. It costs a fortune: 240 gold."
+          ],
+          "trains": {
+            "stat": "strength",
+            "price": 40
+          },
+          "hint": "h_3"
+        },
+        {
+          "id": "hale",
+          "name": "Fisher Hale",
+          "role": "fisher",
+          "emoji": "🎣",
+          "avatar": "weathered fisher in oilskins, with a net over one shoulder",
+          "lines": [
+            "A quiet net and a calm sea. That's all I ask.",
+            "The Golden Sheaf in Brightbridge sells silk ribbon."
+          ],
+          "hint": "h_6"
+        },
+        {
+          "id": "barnaby",
+          "name": "Peddler Barnaby",
+          "role": "peddler",
+          "emoji": "🧳",
+          "avatar": "round peddler under a huge pack hung with pots and trinkets",
+          "lines": [
+            "I walk every road in the Rookmoor. Most of them twice.",
+            "The Brass Spyglass from Brightbridge is hidden in the Bell Tower in Eaglefell."
+          ],
+          "hint": "h_8"
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "item": "travelers_tonic",
+          "text": "Up among the bells, in a pigeon's nest: a Traveler's Tonic!"
+        }
+      ]
+    },
+    {
+      "id": "larkbury",
+      "name": "Larkbury",
+      "biome": "plains",
+      "appearance": "ruins",
+      "x": 874,
+      "y": 450,
+      "blurb": "A walled border town under siege. Smoke rises from the fields beyond the walls.",
+      "crisis": true,
+      "mayor": {
+        "id": "bram",
+        "name": "Earl Bram",
+        "title": "Earl",
+        "emoji": "👨🏼‍🦳",
+        "avatar": "elegant earl with a neat white beard, a fur-trimmed mantle, and a lapdog under one arm",
+        "greeting": [
+          "Hero! You made it through the lines! The Queen heard us.",
+          "General Vorn camps beyond the walls with a whole legion. We have food for a week, maybe two."
+        ],
+        "hint": "h_14"
+      },
+      "shop": {
+        "name": "The Last Candle",
+        "keeper": {
+          "id": "sparrow",
+          "name": "Sparrow",
+          "emoji": "🧑🏿‍🍳",
+          "avatar": "cheerful cook-turned-shopkeeper in a flour-dusted apron"
+        },
+        "lines": [
+          "Everyone else has gone, but somebody has to sell the potions."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "frost_flask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Cracked Anvil",
+        "keeper": {
+          "id": "bryony",
+          "name": "Bryony",
+          "emoji": "👩🏻‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "Everyone else has fled. The anvil's all yours."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "wystan",
+          "name": "Grandpa Wystan",
+          "role": "grandfather",
+          "emoji": "👴🏼",
+          "avatar": "white-bearded grandfather on a bench, with a walking stick across his knees",
+          "lines": [
+            "I've lived in Larkbury for eighty years, and I'm not leaving now.",
+            "The Northwind Spear, the Bulwark Shield and the Queen's Banner. The old songs say you need all three."
+          ],
+          "hint": "h_14"
+        },
+        {
+          "id": "agatha",
+          "name": "Watchman Agatha",
+          "role": "watchman",
+          "emoji": "💂🏾‍♀️",
+          "avatar": "exhausted young watchman in a battered helmet, holding a bucket",
+          "lines": [
+            "I've been on this wall for six days. My feet have forgotten what a bed is.",
+            "Every morning they shout that we should surrender. Every morning we shout back something rude."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "ruined_hall",
+          "name": "the Ruined Hall",
+          "emoji": "🏚️",
+          "item": "greater_healing",
+          "text": "In the rubble of the old hall you find a Greater Healing Draught, somehow unbroken."
+        }
+      ]
+    },
+    {
+      "id": "silverpeak",
+      "name": "Silverpeak",
+      "biome": "mountain",
+      "appearance": "fortress",
+      "x": 589,
+      "y": 548,
+      "blurb": "A mining town behind thick stone walls. Hammers ring from every tunnel.",
+      "mayor": {
+        "id": "godfrey",
+        "name": "Mayor Godfrey",
+        "title": "Mayor",
+        "emoji": "👨🏿‍🦱",
+        "avatar": "broad mayor with a bald head that shines, a long blue coat with silver buttons, and a wheat-sheaf brooch",
+        "greeting": [
+          "Silverpeak welcomes you, Hero. We have heard all about you.",
+          "Silverpeak stands firm, and so do its people."
+        ],
+        "hint": "h_5",
+        "quest": {
+          "id": "q_silverpeak",
+          "type": "slay",
+          "title": "Old Boulderback",
+          "offer": [
+            "Old Boulderback has been prowling the road to Mistmoor, frightening every traveller. Nobody dares to use that road any more.",
+            "Beat Old Boulderback, and I'll make it worth your while."
+          ],
+          "reminder": "Old Boulderback is still out on the road to Mistmoor.",
+          "done": [
+            "Old Boulderback beaten? Then Silverpeak owes you a great deal.",
+            "Here is your reward, and well earned."
+          ],
+          "foe": "foe_boulderback",
+          "reward": {
+            "gold": 65,
+            "items": [
+              "tome_of_arcana"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Iron Anvil",
+        "keeper": {
+          "id": "robin",
+          "name": "Robin",
+          "emoji": "🧑🏾‍🦱",
+          "avatar": "quick-talking trader with curly hair and a ledger under one arm"
+        },
+        "lines": [
+          "Steel for heroes. Only the best, and the best isn't cheap."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "thornlash"
+          },
+          {
+            "item": "flame_blade"
+          },
+          {
+            "item": "chainmail"
+          },
+          {
+            "item": "iron_helm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Stonecutter's Yard",
+        "keeper": {
+          "id": "bertram",
+          "name": "Bertram",
+          "emoji": "👨🏼‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "Dwarves built this forge. It has never once gone cold."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "rowan",
+          "name": "Baker Rowan",
+          "role": "baker",
+          "emoji": "🧑🏽‍🍳",
+          "avatar": "round, rosy baker in a floury apron, with a tray of buns",
+          "lines": [
+            "My pies are famous as far as Mistmoor. Well, as far as the end of the street.",
+            "Only a Bulwark Shield can turn General Vorn's fire. The Mossy Kettle in Ashglen has one."
+          ],
+          "hint": "h_4"
+        },
+        {
+          "id": "lem",
+          "name": "Lem",
+          "role": "minstrel",
+          "emoji": "🎻",
+          "avatar": "cheerful minstrel in a feathered cap, with a fiddle under one arm",
+          "lines": [
+            "I'm writing a song about you! So far it's mostly about your boots.",
+            "The Harvest Cup from Ashglen is hidden in the Old Chapel in Silverpeak."
+          ],
+          "hint": "h_10"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "harvest_cup",
+          "text": "Behind the altar, in a dusty niche: the Harvest Cup."
+        }
+      ]
+    },
+    {
+      "id": "ashglen",
+      "name": "Ashglen",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 447,
+      "y": 355,
+      "blurb": "A woodcutters' village in a clearing, where the sawmill hums and the air smells of pine.",
+      "mayor": {
+        "id": "fenwick",
+        "name": "Mayor Fenwick",
+        "title": "Mayor",
+        "emoji": "👨🏼‍🦰",
+        "avatar": "plump, cheerful mayor with a magnificent moustache, a sea-green robe, and a very large hat",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Ashglen.",
+          "Walk softly; the forest listens."
+        ],
+        "quest": {
+          "id": "q_ashglen",
+          "type": "fetch",
+          "title": "The Harvest Cup",
+          "offer": [
+            "The Harvest Cup has vanished from the hall, and the fair is next week!",
+            "The folk of Silverpeak won it last year and never got over losing it. I bet it's there. Bring it back and I'll make it worth your while."
+          ],
+          "reminder": "Any sign of the Harvest Cup? The folk of Silverpeak won it last year and never got over losing it. I bet it's there.",
+          "done": [
+            "The Harvest Cup! Just in time for the fair.",
+            "Here is your reward, and well earned."
+          ],
+          "item": "harvest_cup",
+          "reward": {
+            "gold": 55,
+            "items": [
+              "ring_of_vigor"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Mossy Kettle",
+        "keeper": {
+          "id": "theobald",
+          "name": "Theobald",
+          "emoji": "👨🏿‍🏭",
+          "avatar": "soot-faced armourer with a thick moustache and a hammer on his belt"
+        },
+        "lines": [
+          "Bows, cloaks, and forest remedies. All handmade."
+        ],
+        "stock": [
+          {
+            "item": "bulwark_shield",
+            "qty": 1
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "iron_sword"
+          },
+          {
+            "item": "sunlit_mace"
+          },
+          {
+            "item": "iron_helm"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Crispin's Woodshop",
+        "keeper": {
+          "id": "crispin",
+          "name": "Crispin",
+          "emoji": "👨🏿‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "The grindstone sings when you pedal fast. Make it sing!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "nell",
+          "name": "Nell",
+          "role": "woodcutter",
+          "emoji": "👩🏾‍🦰",
+          "avatar": "broad woodcutter in a checked shirt, with a long axe and sawdust everywhere",
+          "lines": [
+            "Hear that? A woodpecker. Or a goblin with a hammer. Hard to say.",
+            "There is an eagle feather hidden in the Snowman in Whitehold."
+          ],
+          "hint": "h_7"
+        },
+        {
+          "id": "linnea",
+          "name": "Granny Linnea",
+          "role": "good witch",
+          "emoji": "🧙🏻‍♀️",
+          "avatar": "tiny, kindly witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": [
+            "Nettle soup for strength, willow tea for aches. Nothing for goblins, sadly.",
+            "The Harvest Cup from Ashglen is hidden in the Old Chapel in Silverpeak."
+          ],
+          "hint": "h_10"
+        },
+        {
+          "id": "rue",
+          "name": "Rue",
+          "role": "child",
+          "emoji": "🧒🏼",
+          "avatar": "small child with scabby knees and a pet frog in one pocket",
+          "lines": [
+            "Can I hold your sword? Just for a second? Please?",
+            "The Weather Rooster from Eaglefell is hidden in the Hollow Oak in Ashglen."
+          ],
+          "hint": "h_11"
+        }
+      ],
+      "spots": [
+        {
+          "id": "hollow_oak",
+          "name": "the Hollow Oak",
+          "emoji": "🌳",
+          "item": "weather_rooster",
+          "text": "Deep inside the hollow oak, among old acorns and junk, something glints: the Weather Rooster!"
+        }
+      ]
+    },
+    {
+      "id": "whitehold",
+      "name": "Whitehold",
+      "biome": "snow",
+      "appearance": "hillside",
+      "x": 494,
+      "y": 99,
+      "blurb": "Terraces of snowy roofs climb the mountainside, joined by steep, icy stairs.",
+      "mayor": {
+        "id": "coralie",
+        "name": "Baroness Coralie",
+        "title": "Baroness",
+        "emoji": "👩🏽‍🦰",
+        "avatar": "stout baroness with a long golden plait, a patched but proud coat, and a lapdog under one arm",
+        "greeting": [
+          "Whitehold welcomes you, Hero. We have heard all about you.",
+          "Keep your mittens on. Frostbite is no joke."
+        ],
+        "quest": {
+          "id": "q_whitehold",
+          "type": "deliver",
+          "title": "A Basket of Kittens for Eaglefell",
+          "offer": [
+            "Would you carry this basket of kittens to Lord Jasper in Eaglefell? Our cat had kittens again, and I hear they have mice.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Lord Jasper in Eaglefell is waiting for the basket of kittens.",
+          "done": [
+            "Kittens! Oh, look at them. The mice had better watch out.",
+            "Take this, with my thanks."
+          ],
+          "item": "kitten_basket",
+          "to": {
+            "town": "eaglefell"
+          },
+          "reward": {
+            "gold": 60,
+            "items": [
+              "oak_shield"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Frosted Kettle",
+        "keeper": {
+          "id": "leofric",
+          "name": "Leofric",
+          "emoji": "👨🏿‍🏭",
+          "avatar": "soot-faced armourer with a thick moustache and a hammer on his belt"
+        },
+        "lines": [
+          "Shut the door! You're letting the winter in."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "storm_hammer"
+          },
+          {
+            "item": "leather_cap"
+          },
+          {
+            "item": "fur_cloak"
+          },
+          {
+            "item": "knitted_socks"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Frost Forge",
+        "keeper": {
+          "id": "una",
+          "name": "Una",
+          "emoji": "👩🏿‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "The warmest room in town! Pedal and you'll soon forget the cold."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "juniper",
+          "name": "Juniper the Wise",
+          "role": "travelling wizard",
+          "emoji": "🧙🏻‍♀️",
+          "avatar": "small, round wizard in a patchwork robe covered in singe marks, with spectacles on a chain",
+          "lines": [
+            "Ooh, I could do wonders with you. New hair? New cloak?",
+            "Magic is cheap. Well, sixty gold. That is cheap, for magic.",
+            "The Golden Sheaf in Brightbridge sells silk ribbon."
+          ],
+          "restyle": {
+            "price": 60
+          },
+          "hint": "h_6"
+        },
+        {
+          "id": "blair",
+          "name": "Old Blair",
+          "role": "village elder",
+          "emoji": "🧓🏿",
+          "avatar": "bright-eyed village elder with a knobbly stick and a patchwork cloak",
+          "lines": [
+            "Mind the road to Miremarsh. It has a mind of its own.",
+            "The Mill Gear from Mistmoor is hidden in the Old Chapel in Whitehold."
+          ],
+          "hint": "h_12"
+        },
+        {
+          "id": "sven",
+          "name": "Baker Sven",
+          "role": "baker",
+          "emoji": "👨🏽‍🍳",
+          "avatar": "round, rosy baker in a floury apron, with a tray of buns",
+          "lines": [
+            "Heroes need feeding. You look like you skipped breakfast.",
+            "The quickest road to Larkbury is the one from Eaglefell."
+          ],
+          "hint": "h_16"
+        }
+      ],
+      "spots": [
+        {
+          "id": "snowman",
+          "name": "the Snowman",
+          "emoji": "☃️",
+          "item": "eagle_feather",
+          "text": "Inside the snowman, right where its heart would be: an eagle feather!"
+        },
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "mill_gear",
+          "text": "Behind the altar, in a dusty niche: the Mill Gear."
+        }
+      ]
+    },
+    {
+      "id": "eaglefell",
+      "name": "Eaglefell",
+      "biome": "mountain",
+      "appearance": "hillside",
+      "x": 674,
+      "y": 263,
+      "blurb": "A town of goatherds and stonecutters, stacked up a steep and windy slope.",
+      "mayor": {
+        "id": "jasper",
+        "name": "Lord Jasper",
+        "title": "Lord",
+        "emoji": "🧔🏾",
+        "avatar": "small, brisk lord with a neat white beard, a long blue coat with silver buttons, and a tawny owl on one shoulder",
+        "greeting": [
+          "A hero, in Eaglefell! Come in, come in, mind the step.",
+          "Eaglefell stands firm, and so do its people."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_eaglefell",
+          "type": "fetch",
+          "title": "The Weather Rooster",
+          "offer": [
+            "The weather rooster blew off the steeple in the last storm.",
+            "The wind was blowing toward Ashglen. It must have landed there. Bring it back and I'll make it worth your while."
+          ],
+          "reminder": "Any sign of the Weather Rooster? The wind was blowing toward Ashglen. It must have landed there.",
+          "done": [
+            "Our rooster! Back up on the steeple it goes.",
+            "Take this, with Eaglefell's thanks."
+          ],
+          "item": "weather_rooster",
+          "reward": {
+            "gold": 75,
+            "items": [
+              "quickening_elixir"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Deep Delve",
+        "keeper": {
+          "id": "poppy",
+          "name": "Poppy",
+          "emoji": "👩🏿‍🦰",
+          "avatar": "freckled shopkeeper in a patchwork apron, with a cat asleep on the counter"
+        },
+        "lines": [
+          "Steel for heroes. Only the best, and the best isn't cheap."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "storm_hammer"
+          },
+          {
+            "item": "dawnblade"
+          },
+          {
+            "item": "leather_cap"
+          },
+          {
+            "item": "iron_helm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The High Forge",
+        "keeper": {
+          "id": "dunstan",
+          "name": "Dunstan",
+          "emoji": "🧔🏾",
+          "avatar": "bearded woodworker with curls of shavings stuck to his jumper"
+        },
+        "lines": [
+          "Dwarves built this forge. It has never once gone cold."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "ivy",
+          "name": "Hunter Ivy",
+          "role": "hunter",
+          "emoji": "👩🏿‍🦰",
+          "avatar": "weathered hunter in green leather, with a hawk on one wrist",
+          "lines": [
+            "Out here, the tough get through and the rest go home.",
+            "A few coins, and I'll make you as tough as old roots.",
+            "There is an eagle feather hidden in the Snowman in Whitehold."
+          ],
+          "trains": {
+            "stat": "vigor",
+            "price": 40
+          },
+          "hint": "h_7"
+        },
+        {
+          "id": "wendel",
+          "name": "Wendel",
+          "role": "shepherd",
+          "emoji": "🐑",
+          "avatar": "shepherd in a thick wool cloak, with a crook and a sheepdog at heel",
+          "lines": [
+            "Four hundred sheep, and I know every one by name.",
+            "The Brass Spyglass from Brightbridge is hidden in the Bell Tower in Eaglefell."
+          ],
+          "hint": "h_8"
+        },
+        {
+          "id": "ottilie",
+          "name": "Ottilie",
+          "role": "child",
+          "emoji": "👧🏽",
+          "avatar": "small child with scabby knees and a pet frog in one pocket",
+          "lines": [
+            "When I grow up, I'm going to be a hero too!",
+            "The Weather Rooster from Eaglefell is hidden in the Hollow Oak in Ashglen."
+          ],
+          "hint": "h_11"
+        },
+        {
+          "id": "percival",
+          "name": "Guide Percival",
+          "role": "mountain guide",
+          "emoji": "🧗🏽",
+          "avatar": "wiry mountain guide with a coil of rope and wind-burned cheeks",
+          "lines": [
+            "From here the road to Whitehold climbs, and keeps on climbing.",
+            "The Old Chest in Eaglefell is locked. Its key was lost in the Old Boathouse in Miremarsh years ago."
+          ],
+          "hint": "h_13"
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "item": "spyglass",
+          "text": "Up among the bells, in a pigeon's nest: the Brass Spyglass!"
+        },
+        {
+          "id": "old_chest",
+          "name": "the Old Chest",
+          "emoji": "📦",
+          "item": "tome_of_might",
+          "requiresKey": "rusty_key",
+          "text": "The Rusty Key turns with a screech. Inside the old chest: a Tome of Might!",
+          "lockedText": "A heavy chest sits in the corner, locked tight. The keyhole is caked with rust."
+        }
+      ]
+    },
+    {
+      "id": "miremarsh",
+      "name": "Miremarsh",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 314,
+      "y": 235,
+      "blurb": "Lantern-lit walkways wind between the houses over dark, still water. Frogs sing all night.",
+      "mayor": {
+        "id": "rowena",
+        "name": "Baroness Rowena",
+        "title": "Baroness",
+        "emoji": "👩🏼‍🦲",
+        "avatar": "plump, cheerful baroness with dark curls, a fur-trimmed mantle, and a gold chain of office",
+        "greeting": [
+          "Miremarsh welcomes you, Hero. We have heard all about you.",
+          "Forgive the smell; it is the bog."
+        ],
+        "hint": "h_3",
+        "quest": {
+          "id": "q_miremarsh",
+          "type": "slay",
+          "title": "One-Eyed Jack",
+          "offer": [
+            "One-Eyed Jack has been prowling the road to Brightbridge, frightening every traveller. Even the bravest carters turn back.",
+            "Beat One-Eyed Jack, and the Northwind Spear, which has hung in my hall for a hundred years, is yours."
+          ],
+          "reminder": "One-Eyed Jack is still out on the road to Brightbridge.",
+          "done": [
+            "One-Eyed Jack beaten? Then Miremarsh owes you a great deal.",
+            "As promised: the Northwind Spear. May it serve you well against General Vorn."
+          ],
+          "foe": "foe_one_eyed_jack",
+          "reward": {
+            "gold": 40,
+            "items": [
+              "northwind_spear"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Jory's Curios",
+        "keeper": {
+          "id": "jory",
+          "name": "Jory",
+          "emoji": "👨🏽‍🦰",
+          "avatar": "red-haired ex-sailor with a tattooed forearm and a gold earring"
+        },
+        "lines": [
+          "Mind the jars. Some of them bite."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "oak_cudgel"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "plague_mask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Bog-Iron Forge",
+        "keeper": {
+          "id": "constance",
+          "name": "Constance",
+          "emoji": "👩🏽‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "Stir clockwise. Always clockwise. Trust me."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "ivor",
+          "name": "Ivor",
+          "role": "ferry-keeper",
+          "emoji": "🛶",
+          "avatar": "lean ferry-keeper in a wide hat, leaning on a long pole",
+          "lines": [
+            "I take anyone across. Except goblins. Goblins don't tip.",
+            "The Iron Legion comes from the hot south. They hate the cold."
+          ],
+          "hint": "h_15"
+        },
+        {
+          "id": "toby",
+          "name": "Old Toby",
+          "role": "grandfather",
+          "emoji": "👴🏼",
+          "avatar": "white-bearded grandfather on a bench, with a walking stick across his knees",
+          "lines": [
+            "Back in my day the roads were safe. Mostly. Sometimes.",
+            "Go on, Hero. Show them what Miremarsh is made of."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_boathouse",
+          "name": "the Old Boathouse",
+          "emoji": "🛶",
+          "item": "rusty_key",
+          "text": "Floating in the flooded boathouse: a Rusty Key!"
+        }
+      ]
+    },
+    {
+      "id": "mistmoor",
+      "name": "Mistmoor",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 367,
+      "y": 546,
+      "blurb": "Lantern-lit walkways wind between the houses over dark, still water. Frogs sing all night.",
+      "mayor": {
+        "id": "zinnia",
+        "name": "Mayor Zinnia",
+        "title": "Mayor",
+        "emoji": "👩🏼‍🦱",
+        "avatar": "plump, cheerful mayor with a long golden plait, a sea-green robe, and a wheat-sheaf brooch",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Mistmoor.",
+          "Forgive the smell; it is the bog."
+        ],
+        "hint": "h_5",
+        "quest": {
+          "id": "q_mistmoor",
+          "type": "fetch",
+          "title": "The Mill Gear",
+          "offer": [
+            "The mill has stopped. A gear is missing, and without it we can't grind a thing.",
+            "The miller's boy says a troll took it to Whitehold to wear as a hat. Bring it back and I'll make it worth your while."
+          ],
+          "reminder": "Any sign of the Mill Gear? The miller's boy says a troll took it to Whitehold to wear as a hat.",
+          "done": [
+            "The gear! The mill will be turning again by supper.",
+            "Take this, with Mistmoor's thanks."
+          ],
+          "item": "mill_gear",
+          "reward": {
+            "gold": 50,
+            "items": [
+              "gauntlets_of_might"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Bubbling Pot",
+        "keeper": {
+          "id": "sage",
+          "name": "Sage",
+          "emoji": "🧑🏻‍🍳",
+          "avatar": "cheerful cook-turned-shopkeeper in a flour-dusted apron"
+        },
+        "lines": [
+          "Mind the jars. Some of them bite."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "spark_rapier"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "plague_mask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Bubbling Cauldron",
+        "keeper": {
+          "id": "ellis",
+          "name": "Ellis",
+          "emoji": "🧑🏽‍🏭",
+          "avatar": "patient glassblower with singed sleeves and careful hands"
+        },
+        "lines": [
+          "The cauldron never stops bubbling. Put something good in it."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "tilly",
+          "name": "Scholar Tilly",
+          "role": "scholar",
+          "emoji": "👩🏽‍🏫",
+          "avatar": "young scholar with ink-stained fingers and round spectacles",
+          "lines": [
+            "Potions obey those who understand them.",
+            "I can teach you, for a modest fee.",
+            "Old Boulderback prowls the road between Silverpeak and Mistmoor."
+          ],
+          "trains": {
+            "stat": "magic",
+            "price": 40
+          },
+          "hint": "h_9"
+        },
+        {
+          "id": "rosalind",
+          "name": "Granny Rosalind",
+          "role": "good witch",
+          "emoji": "🧙🏿‍♀️",
+          "avatar": "tiny, kindly witch in a mossy shawl, with a toad sitting on her hat",
+          "lines": [
+            "Not all witches are wicked, dearie.",
+            "The Mill Gear from Mistmoor is hidden in the Old Chapel in Whitehold."
+          ],
+          "hint": "h_12"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "healing_draught",
+          "text": "Behind the altar, in a dusty niche: a Healing Draught."
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "id": "r_ashglen_mistmoor",
+      "a": "ashglen",
+      "b": "mistmoor",
+      "distance": 207,
+      "terrain": "swamp",
+      "danger": 0.8,
+      "enemies": [
+        "goblin",
+        "giant_toad",
+        "bog_lurker"
+      ],
+      "finds": [
+        {
+          "id": "f_ashglen_mistmoor",
+          "item": "pearl",
+          "at": 0.46
+        }
+      ]
+    },
+    {
+      "id": "r_silverpeak_mistmoor",
+      "a": "silverpeak",
+      "b": "mistmoor",
+      "distance": 222,
+      "terrain": "mountain",
+      "danger": 0.9,
+      "enemies": [
+        "stone_troll",
+        "goblin",
+        "rock_golem"
+      ],
+      "fixed": [
+        {
+          "id": "foe_boulderback",
+          "enemy": "boulderback",
+          "at": 0.57,
+          "quest": "q_silverpeak"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_silverpeak_mistmoor",
+          "item": "travelers_tonic",
+          "at": 0.45
+        }
+      ]
+    },
+    {
+      "id": "r_whitehold_miremarsh",
+      "a": "whitehold",
+      "b": "miremarsh",
+      "distance": 226,
+      "terrain": "snow",
+      "danger": 0.8,
+      "enemies": [
+        "frost_wolf",
+        "frost_sprite",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_whitehold_miremarsh",
+          "item": "shield_tonic",
+          "at": 0.49
+        }
+      ]
+    },
+    {
+      "id": "r_brightbridge_miremarsh",
+      "a": "brightbridge",
+      "b": "miremarsh",
+      "distance": 234,
+      "terrain": "plains",
+      "danger": 0.7,
+      "enemies": [
+        "wolf",
+        "boar",
+        "angry_swan"
+      ],
+      "fixed": [
+        {
+          "id": "foe_one_eyed_jack",
+          "enemy": "one_eyed_jack",
+          "at": 0.51,
+          "quest": "q_miremarsh"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_brightbridge_miremarsh",
+          "item": "shield_tonic",
+          "at": 0.43
+        }
+      ]
+    },
+    {
+      "id": "r_silverpeak_ashglen",
+      "a": "silverpeak",
+      "b": "ashglen",
+      "distance": 240,
+      "terrain": "forest",
+      "danger": 0.9,
+      "enemies": [
+        "giant_spider",
+        "goblin",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_silverpeak_ashglen",
+          "item": "shield_tonic",
+          "at": 0.57
+        }
+      ]
+    },
+    {
+      "id": "r_whitehold_eaglefell",
+      "a": "whitehold",
+      "b": "eaglefell",
+      "distance": 244,
+      "terrain": "snow",
+      "danger": 0.9,
+      "enemies": [
+        "wolf",
+        "frost_wolf",
+        "white_bear"
+      ],
+      "finds": [
+        {
+          "id": "f_whitehold_eaglefell",
+          "item": "potion_of_might",
+          "at": 0.5
+        }
+      ]
+    },
+    {
+      "id": "r_ashglen_eaglefell",
+      "a": "ashglen",
+      "b": "eaglefell",
+      "distance": 245,
+      "terrain": "mountain",
+      "danger": 0.9,
+      "enemies": [
+        "stone_troll",
+        "cave_bats",
+        "mountain_eagle"
+      ],
+      "finds": [
+        {
+          "id": "f_ashglen_eaglefell",
+          "item": "potion_of_might",
+          "at": 0.54
+        }
+      ]
+    },
+    {
+      "id": "r_ashglen_whitehold",
+      "a": "ashglen",
+      "b": "whitehold",
+      "distance": 260,
+      "terrain": "snow",
+      "danger": 0.8,
+      "enemies": [
+        "white_bear",
+        "frost_wolf",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_ashglen_whitehold",
+          "item": "troll_tooth",
+          "at": 0.55
+        }
+      ]
+    },
+    {
+      "id": "r_larkbury_eaglefell",
+      "a": "larkbury",
+      "b": "eaglefell",
+      "distance": 274,
+      "terrain": "plains",
+      "danger": 1.3,
+      "enemies": [
+        "legion_spearman",
+        "war_hound",
+        "boar"
+      ],
+      "finds": [
+        {
+          "id": "f_larkbury_eaglefell",
+          "item": "carved_tusk",
+          "at": 0.39
+        }
+      ]
+    },
+    {
+      "id": "r_silverpeak_eaglefell",
+      "a": "silverpeak",
+      "b": "eaglefell",
+      "distance": 297,
+      "terrain": "mountain",
+      "danger": 1,
+      "enemies": [
+        "goblin",
+        "stone_troll",
+        "mountain_eagle"
+      ],
+      "finds": [
+        {
+          "id": "f_silverpeak_eaglefell",
+          "item": "silver_ore",
+          "at": 0.55
+        }
+      ]
+    },
+    {
+      "id": "r_larkbury_silverpeak",
+      "a": "larkbury",
+      "b": "silverpeak",
+      "distance": 301,
+      "terrain": "plains",
+      "danger": 1.2,
+      "enemies": [
+        "legion_spearman",
+        "war_hound",
+        "angry_swan"
+      ],
+      "finds": [
+        {
+          "id": "f_larkbury_silverpeak",
+          "item": "carved_tusk",
+          "at": 0.42
+        }
+      ]
+    },
+    {
+      "id": "r_brightbridge_mistmoor",
+      "a": "brightbridge",
+      "b": "mistmoor",
+      "distance": 304,
+      "terrain": "plains",
+      "danger": 0.7,
+      "enemies": [
+        "bandit",
+        "boar",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_brightbridge_mistmoor",
+          "item": "healing_draught",
+          "at": 0.49
+        }
+      ]
+    },
+    {
+      "id": "r_miremarsh_mistmoor",
+      "a": "miremarsh",
+      "b": "mistmoor",
+      "distance": 315,
+      "terrain": "swamp",
+      "danger": 0.7,
+      "enemies": [
+        "marsh_wisp",
+        "giant_toad",
+        "goblin"
+      ],
+      "finds": [
+        {
+          "id": "f_miremarsh_mistmoor",
+          "item": "potion_of_might",
+          "at": 0.43
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "goblin",
+      "name": "Goblin Scout",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        9,
+        14
+      ],
+      "drops": [
+        {
+          "item": "goblin_trinket",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A goblin cackles and waves a rusty knife."
+    },
+    {
+      "id": "giant_toad",
+      "name": "Giant Toad",
+      "emoji": "🐸",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A toad the size of a barrel blinks at you, then flicks out a very long tongue."
+    },
+    {
+      "id": "bog_lurker",
+      "name": "Bog Lurker",
+      "emoji": "🐊",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "taunt": "Something scaly rises from the muck."
+    },
+    {
+      "id": "stone_troll",
+      "name": "Stone Troll",
+      "emoji": "🧌",
+      "family": "giant",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        24,
+        34
+      ],
+      "drops": [
+        {
+          "item": "troll_tooth",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "A troll steps out from behind a boulder. No, wait: the boulder IS the troll."
+    },
+    {
+      "id": "rock_golem",
+      "name": "Rock Golem",
+      "emoji": "🗿",
+      "family": "giant",
+      "tier": 2,
+      "weakness": "storm",
+      "gold": [
+        14,
+        20
+      ],
+      "drops": [
+        {
+          "item": "silver_ore",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "A boulder unfolds into a grinding, rumbling golem."
+    },
+    {
+      "id": "frost_wolf",
+      "name": "Frost Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A wolf as white as the snowfield pads closer, its breath freezing in the air."
+    },
+    {
+      "id": "frost_sprite",
+      "name": "Frost Sprite",
+      "emoji": "🥶",
+      "family": "spirit",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        8,
+        13
+      ],
+      "taunt": "A shivering sprite hurls a snowball. It is mostly ice."
+    },
+    {
+      "id": "wolf",
+      "name": "Grey Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "fire",
+      "gold": [
+        8,
+        13
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.35
+        }
+      ],
+      "taunt": "A wolf slinks out of the grass, teeth bared."
+    },
+    {
+      "id": "boar",
+      "name": "Wild Boar",
+      "emoji": "🐗",
+      "family": "beast",
+      "tier": 1,
+      "gold": [
+        8,
+        12
+      ],
+      "taunt": "A boar paws the ground and snorts."
+    },
+    {
+      "id": "angry_swan",
+      "name": "Angry Swan",
+      "emoji": "🦢",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        6,
+        11
+      ],
+      "taunt": "A swan spreads its wings and hisses like a kettle. It wants the whole road to itself."
+    },
+    {
+      "id": "giant_spider",
+      "name": "Giant Spider",
+      "emoji": "🕷️",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "spider_silk",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A spider as big as a pony drops from the branches on a silver thread."
+    },
+    {
+      "id": "white_bear",
+      "name": "White Bear",
+      "emoji": "🐻‍❄️",
+      "family": "beast",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "attack": "ice",
+      "gold": [
+        13,
+        20
+      ],
+      "drops": [
+        {
+          "item": "frost_lily",
+          "chance": 0.25
+        }
+      ],
+      "taunt": "A white bear lumbers out of the snow. It looks hungry, and a bit annoyed."
+    },
+    {
+      "id": "cave_bats",
+      "name": "Cave Bats",
+      "emoji": "🦇",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "holy",
+      "gold": [
+        6,
+        10
+      ],
+      "taunt": "A swarm of bats pours out of the rocks!"
+    },
+    {
+      "id": "mountain_eagle",
+      "name": "Mountain Eagle",
+      "emoji": "🦅",
+      "family": "beast",
+      "tier": 2,
+      "battle": "race",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "eagle_feather",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "An eagle with wings as wide as a cart dives out of the sun."
+    },
+    {
+      "id": "legion_spearman",
+      "name": "Legion Spearman",
+      "emoji": "💂",
+      "family": "soldier",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "ice",
+      "attack": "fire",
+      "gold": [
+        14,
+        22
+      ],
+      "drops": [
+        {
+          "item": "healing_draught",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "\"Halt! This road belongs to the Iron Legion now.\""
+    },
+    {
+      "id": "war_hound",
+      "name": "War Hound",
+      "emoji": "🐕",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        8,
+        13
+      ],
+      "taunt": "A huge hound in a spiked collar bounds toward you, barking."
+    },
+    {
+      "id": "bandit",
+      "name": "Road Bandit",
+      "emoji": "🥷",
+      "family": "bandit",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        15,
+        24
+      ],
+      "drops": [
+        {
+          "item": "healing_draught",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "\"Your gold or your life, traveler!\""
+    },
+    {
+      "id": "marsh_wisp",
+      "name": "Marsh Wisp",
+      "emoji": "👻",
+      "family": "spirit",
+      "tier": 2,
+      "weakness": "holy",
+      "gold": [
+        10,
+        16
+      ],
+      "taunt": "A pale light drifts closer, whispering your name."
+    },
+    {
+      "id": "one_eyed_jack",
+      "name": "One-Eyed Jack",
+      "emoji": "🥷",
+      "family": "bandit",
+      "tier": 3,
+      "battle": "tug",
+      "gold": [
+        40,
+        55
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 1
+        }
+      ],
+      "taunt": "\"One-Eyed Jack, at your service. Now hand over everything shiny.\"",
+      "avatar": "lanky bandit chief with an eyepatch, a feathered hat and far too many daggers"
+    },
+    {
+      "id": "boulderback",
+      "name": "Old Boulderback",
+      "emoji": "🧌",
+      "family": "giant",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        40,
+        55
+      ],
+      "drops": [
+        {
+          "item": "crystal_shard",
+          "chance": 1
+        }
+      ],
+      "taunt": "\"Old Boulderback says: nobody crosses my pass.\"",
+      "avatar": "moss-covered mountain troll with a back like a boulder and pebbles for eyes"
+    },
+    {
+      "id": "general_vorn",
+      "name": "General Vorn",
+      "emoji": "🤺",
+      "family": "soldier",
+      "tier": 5,
+      "weakness": "ice",
+      "attack": "fire",
+      "gold": [
+        0,
+        0
+      ],
+      "taunt": "\"Surrender, and I may let you carry my baggage.\"",
+      "boss": true,
+      "avatar": "giant of a soldier in plate armour, with a war-hammer as tall as a man"
+    }
+  ],
+  "hints": [
+    {
+      "id": "h_1",
+      "text": "Baroness Rowena of Miremarsh keeps the Northwind Spear, and has promised it to whoever defeats One-Eyed Jack."
+    },
+    {
+      "id": "h_2",
+      "text": "One-Eyed Jack prowls the road between Miremarsh and Brightbridge."
+    },
+    {
+      "id": "h_3",
+      "text": "The Mossy Kettle in Ashglen sells a Bulwark Shield. It costs a fortune: 240 gold."
+    },
+    {
+      "id": "h_4",
+      "text": "Only a Bulwark Shield can turn General Vorn's fire. The Mossy Kettle in Ashglen has one."
+    },
+    {
+      "id": "h_5",
+      "text": "The Queen's Banner can't be bought or found: it has to be made, at the workshop in any town, from two lengths of silk ribbon and an eagle feather. It takes a few minutes of hard pedaling."
+    },
+    {
+      "id": "h_6",
+      "text": "The Golden Sheaf in Brightbridge sells silk ribbon."
+    },
+    {
+      "id": "h_7",
+      "text": "There is an eagle feather hidden in the Snowman in Whitehold."
+    },
+    {
+      "id": "h_8",
+      "text": "The Brass Spyglass from Brightbridge is hidden in the Bell Tower in Eaglefell."
+    },
+    {
+      "id": "h_9",
+      "text": "Old Boulderback prowls the road between Silverpeak and Mistmoor."
+    },
+    {
+      "id": "h_10",
+      "text": "The Harvest Cup from Ashglen is hidden in the Old Chapel in Silverpeak."
+    },
+    {
+      "id": "h_11",
+      "text": "The Weather Rooster from Eaglefell is hidden in the Hollow Oak in Ashglen."
+    },
+    {
+      "id": "h_12",
+      "text": "The Mill Gear from Mistmoor is hidden in the Old Chapel in Whitehold."
+    },
+    {
+      "id": "h_13",
+      "text": "The Old Chest in Eaglefell is locked. Its key was lost in the Old Boathouse in Miremarsh years ago."
+    },
+    {
+      "id": "h_14",
+      "text": "To defeat General Vorn you need the Northwind Spear, the Bulwark Shield and the Queen's Banner."
+    },
+    {
+      "id": "h_15",
+      "text": "The Iron Legion comes from the hot south. They hate the cold."
+    },
+    {
+      "id": "h_16",
+      "text": "The quickest road to Larkbury is the one from Eaglefell."
+    }
+  ],
+  "recipes": [
+    {
+      "item": "queens_banner",
+      "needs": [
+        {
+          "item": "silk_ribbon",
+          "qty": 2
+        },
+        {
+          "item": "eagle_feather",
+          "qty": 1
+        }
+      ],
+      "seconds": 240
+    },
+    {
+      "item": "healing_draught",
+      "seconds": 60
+    },
+    {
+      "item": "travelers_tonic",
+      "seconds": 120
+    },
+    {
+      "item": "greater_healing",
+      "needs": [
+        {
+          "item": "healing_draught",
+          "qty": 2
+        }
+      ],
+      "seconds": 45
+    },
+    {
+      "item": "chainmail",
+      "needs": [
+        {
+          "item": "silver_ore",
+          "qty": 2
+        }
+      ],
+      "seconds": 150
+    },
+    {
+      "item": "frost_flask",
+      "needs": [
+        {
+          "item": "frost_lily",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    }
+  ],
+  "challenge": {
+    "threat": "enemy_nation",
+    "title": "The Iron Legion",
+    "summons": [
+      "Ah, Hero, you came! Sit, please. I am afraid the news is bad.",
+      "General Vorn has marched the Iron Legion over our eastern border and laid siege to Larkbury. The town walls will not hold for long.",
+      "Our scholars say three things can bring General Vorn down: the Northwind Spear of the old kings, a Bulwark Shield against fire arrows, and my own banner, lost in the last war, to rally the people.",
+      "Find all three, then face General Vorn at the Siege Lines. Ask everyone you meet; the people of the Rookmoor know more than they think.",
+      "Here is gold for the road, and a few draughts. My carriage waits to take you to Brightbridge. Go with my blessing."
+    ],
+    "crisisTown": "larkbury",
+    "lair": {
+      "name": "the Siege Lines",
+      "emoji": "⛺",
+      "text": "Rows of black tents, a forest of spears, and in the middle a great striped pavilion."
+    },
+    "requires": [
+      "northwind_spear",
+      "bulwark_shield",
+      "queens_banner"
+    ],
+    "boss": "general_vorn",
+    "victory": [
+      "You raise the Queen's Banner over the walls of Larkbury, and every soldier in the town cheers.",
+      "The Northwind Spear howls like a winter wind. The Iron Legion breaks and runs for the border.",
+      "The siege is over. General Vorn signs a peace treaty with a very shaky hand and marches home."
+    ],
+    "sources": [
+      {
+        "item": "northwind_spear",
+        "how": "quest",
+        "town": "miremarsh",
+        "ref": "q_miremarsh"
+      },
+      {
+        "item": "bulwark_shield",
+        "how": "shop",
+        "town": "ashglen",
+        "ref": "theobald"
+      },
+      {
+        "item": "queens_banner",
+        "how": "craft",
+        "town": "whitehold",
+        "ref": "queens_banner"
+      }
+    ]
+  }
+}

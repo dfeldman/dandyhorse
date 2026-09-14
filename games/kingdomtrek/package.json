@@ -1,0 +1,21 @@
+{
+  "name": "kingdomtrek",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "generate": "node tools/generate.ts",
+    "validate": "node tools/validate.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "typescript": "^5.8",
+    "vite": "^7",
+    "vitest": "^3.2"
+  }
+}

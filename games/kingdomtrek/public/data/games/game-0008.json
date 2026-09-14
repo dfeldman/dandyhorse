@@ -1,0 +1,1937 @@
+{
+  "schemaVersion": 1,
+  "id": "game-0008",
+  "title": "The Goblin War",
+  "theme": "medieval",
+  "region": {
+    "name": "the Silverdales",
+    "blurb": "Golden fields in the west, a long rocky coast and dark pine forest in the middle, and in the east goblin-infested Silverfell.",
+    "width": 1000,
+    "height": 640
+  },
+  "startTown": "crownbury",
+  "towns": [
+    {
+      "id": "crownbury",
+      "name": "Crownbury",
+      "biome": "plains",
+      "appearance": "capital",
+      "x": 141,
+      "y": 253,
+      "blurb": "The royal city of the Silverdales: white walls, red roofs, and a castle flying the Queen's banners.",
+      "mayor": {
+        "id": "quill",
+        "name": "Mayor Quill",
+        "title": "Mayor",
+        "emoji": "🧑🏼‍🦰",
+        "avatar": "white-haired, twinkling-eyed mayor with freckles and a crooked grin, a plum-coloured cloak, and a tawny owl on one shoulder",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Crownbury.",
+          "Anything you need, ask. The Queen's champion is welcome everywhere in Crownbury."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_crownbury",
+          "type": "fetch",
+          "title": "The Midsummer Bonfire",
+          "offer": [
+            "Our midsummer bonfire won't light. The wood is too damp. A Fire Flask would do it!",
+            "The Bubbling Pot in Murkmarsh sells Fire Flasks, I am told. Bring me one, please."
+          ],
+          "reminder": "Have you found a fire flask? The Bubbling Pot in Murkmarsh sells Fire Flasks.",
+          "done": [
+            "Now we'll have a bonfire to remember!",
+            "Take this, with Crownbury's thanks."
+          ],
+          "item": "fire_flask",
+          "reward": {
+            "gold": 30,
+            "items": [
+              "wizards_hat"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Busy Bee",
+        "keeper": {
+          "id": "lem",
+          "name": "Lem",
+          "emoji": "👨🏼‍🦰",
+          "avatar": "red-haired ex-sailor with a tattooed forearm and a gold earring"
+        },
+        "lines": [
+          "Best prices in Crownbury! Well, the only prices in Crownbury."
+        ],
+        "stock": [
+          {
+            "item": "crystal_shard"
+          },
+          {
+            "item": "thunder_vial"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "oak_cudgel"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "leather_vest"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Bryony's Workshop",
+        "keeper": {
+          "id": "bryony",
+          "name": "Bryony",
+          "emoji": "👩🏻‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "yvaine",
+          "name": "Yvaine",
+          "role": "child",
+          "emoji": "👧🏼",
+          "avatar": "small child with scabby knees and a pet frog in one pocket",
+          "lines": [
+            "When I grow up, I'm going to be a hero too!",
+            "Delphine's Outfitters in Hazelhollow sells a Boarhide Jerkin. It costs a fortune: 240 gold."
+          ],
+          "gives": {
+            "item": "healing_draught",
+            "line": "Are you a real hero? Mum says heroes always carry healing draughts. Here, take one of mine!"
+          },
+          "hint": "h_3"
+        },
+        {
+          "id": "rue",
+          "name": "Sergeant Rue",
+          "role": "guard",
+          "emoji": "💂🏿",
+          "avatar": "grizzled town guard in a dented steel cap, leaning on a halberd",
+          "lines": [
+            "Arms up, chin down, hit hard.",
+            "I can train you, for a few coins.",
+            "The Sunstone can't be bought or found: it has to be made, at the workshop in any town, from two crystal shards and an ember crystal. It takes a few minutes of hard pedaling."
+          ],
+          "trains": {
+            "stat": "strength",
+            "price": 40
+          },
+          "hint": "h_5"
+        },
+        {
+          "id": "tilly",
+          "name": "Granny Tilly",
+          "role": "grandmother",
+          "emoji": "👵🏻",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "I remember the last time Everwyn needed a hero. You look taller than that one.",
+            "The Busy Bee in Crownbury sells crystal shards."
+          ],
+          "hint": "h_6"
+        },
+        {
+          "id": "gus",
+          "name": "Miller Gus",
+          "role": "miller",
+          "emoji": "👴🏿",
+          "avatar": "dusty old miller with flour in the eyebrows",
+          "lines": [
+            "Flour for all of Crownbury, and half of Murkmarsh too.",
+            "The Bog Beast prowls the road between Murkmarsh and Crownbury."
+          ],
+          "hint": "h_8"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "greater_healing",
+          "text": "Behind the altar, in a dusty niche: a Greater Healing Draught."
+        }
+      ]
+    },
+    {
+      "id": "silverfell",
+      "name": "Silverfell",
+      "biome": "mountain",
+      "appearance": "ruins",
+      "x": 884,
+      "y": 368,
+      "blurb": "Every hen-house is empty, and there is goblin scribble all over the town hall.",
+      "crisis": true,
+      "mayor": {
+        "id": "ellis",
+        "name": "Warden Ellis",
+        "title": "Warden",
+        "emoji": "🧑🏽",
+        "avatar": "stout warden with freckles and a crooked grin, a plum-coloured cloak, and a gold chain of office",
+        "greeting": [
+          "A hero! A real one! The Queen heard us!",
+          "Skrag has turned the old warren into a palace. They stole my chain of office. And my socks."
+        ],
+        "hint": "h_12"
+      },
+      "shop": {
+        "name": "The Last Candle",
+        "keeper": {
+          "id": "beatrix",
+          "name": "Beatrix",
+          "emoji": "🧝🏼‍♀️",
+          "avatar": "wood-elf shopkeeper with leaf-green braids and a quiver on her back"
+        },
+        "lines": [
+          "Everyone else has gone, but somebody has to sell the potions."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "fire_flask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Last Forge",
+        "keeper": {
+          "id": "hester",
+          "name": "Hester",
+          "emoji": "👩🏽‍🔧",
+          "avatar": "strong-armed smith in a leather apron, with soot on her nose and a hammer on her belt"
+        },
+        "lines": [
+          "Everyone else has fled. The anvil's all yours."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "rufus",
+          "name": "Old Rufus",
+          "role": "grandfather",
+          "emoji": "👴🏾",
+          "avatar": "white-bearded grandfather on a bench, with a walking stick across his knees",
+          "lines": [
+            "Skrag? Terrible business. I've seen worse. Not much worse, mind.",
+            "Goblinsbane, the Boarhide Jerkin and the Sunstone. The old songs say you need all three."
+          ],
+          "hint": "h_12"
+        },
+        {
+          "id": "sage",
+          "name": "Watchman Sage",
+          "role": "watchman",
+          "emoji": "💂🏿",
+          "avatar": "exhausted young watchman in a battered helmet, holding a bucket",
+          "lines": [
+            "They stole my spear. I'm guarding the gate with a broom.",
+            "If you hear drums, hide the pies."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "ruined_hall",
+          "name": "the Ruined Hall",
+          "emoji": "🏚️",
+          "item": "greater_healing",
+          "text": "In the rubble of the old hall you find a Greater Healing Draught, somehow unbroken."
+        }
+      ]
+    },
+    {
+      "id": "hazelhollow",
+      "name": "Hazelhollow",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 599,
+      "y": 328,
+      "blurb": "Cottages with mossy roofs hide among the trees. Fireflies light the lanes at night.",
+      "mayor": {
+        "id": "lark",
+        "name": "Baroness Lark",
+        "title": "Baroness",
+        "emoji": "👩🏻",
+        "avatar": "elegant baroness with silver hair in a bun, a patched but proud coat, and spectacles on a ribbon",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Hazelhollow.",
+          "The trees here are older than the kingdom. Be kind to them."
+        ],
+        "quest": {
+          "id": "q_hazelhollow",
+          "type": "deliver",
+          "title": "A Bundle of Sea Charts for Millwick",
+          "offer": [
+            "Would you carry this bundle of sea charts to Miller Wendel in Millwick? They need new charts before the autumn storms.",
+            "You'll be well paid for your trouble."
+          ],
+          "reminder": "Miller Wendel in Millwick is waiting for the bundle of sea charts.",
+          "done": [
+            "The new charts! Now the boats can find their way home.",
+            "Here, for your trouble."
+          ],
+          "item": "sealed_charts",
+          "to": {
+            "town": "millwick",
+            "npc": "wendel"
+          },
+          "reward": {
+            "gold": 65,
+            "items": [
+              "oak_shield"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Delphine's Outfitters",
+        "keeper": {
+          "id": "delphine",
+          "name": "Delphine",
+          "emoji": "👩🏽‍🦱",
+          "avatar": "brisk shopkeeper with a pencil behind one ear and a ledger under one arm"
+        },
+        "lines": [
+          "Everything a traveller needs, and a few things they don't."
+        ],
+        "stock": [
+          {
+            "item": "boarhide_jerkin",
+            "qty": 1
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "iron_sword"
+          },
+          {
+            "item": "flame_blade"
+          },
+          {
+            "item": "iron_helm"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Aldous's Woodshop",
+        "keeper": {
+          "id": "aldous",
+          "name": "Aldous",
+          "emoji": "👨🏿‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "The grindstone sings when you pedal fast. Make it sing!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "saffron",
+          "name": "Ranger Saffron",
+          "role": "ranger",
+          "emoji": "🧝🏼‍♀️",
+          "avatar": "hooded ranger with a longbow and a scar across one cheek",
+          "lines": [
+            "The wild wears you down, if you let it.",
+            "I can toughen you up, if you've the coin.",
+            "The Busy Bee in Crownbury sells crystal shards."
+          ],
+          "trains": {
+            "stat": "vigor",
+            "price": 40
+          },
+          "hint": "h_6"
+        },
+        {
+          "id": "hazel",
+          "name": "Hazel",
+          "role": "woodcutter",
+          "emoji": "👩🏽‍🦰",
+          "avatar": "broad woodcutter in a checked shirt, with a long axe and sawdust everywhere",
+          "lines": [
+            "The deep woods are no place to wander after dark.",
+            "There is an ember crystal hidden in the Old Chapel in Murkmarsh."
+          ],
+          "hint": "h_7"
+        },
+        {
+          "id": "jasper",
+          "name": "Jasper",
+          "role": "minstrel",
+          "emoji": "🎻",
+          "avatar": "cheerful minstrel in a feathered cap, with a fiddle under one arm",
+          "lines": [
+            "I'm writing a song about you! So far it's mostly about your boots.",
+            "Captain Barnacle prowls the road between Stormhaven and Hazelhollow."
+          ],
+          "hint": "h_9"
+        },
+        {
+          "id": "crispin",
+          "name": "Crispin",
+          "role": "beekeeper",
+          "emoji": "🐝",
+          "avatar": "beekeeper in a white veiled hat, bees drifting lazily around",
+          "lines": [
+            "My bees make the sweetest honey in the Silverdales.",
+            "Old Mother Spider prowls the road between Stonespire and Hazelhollow."
+          ],
+          "hint": "h_10"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "goblin_trinket",
+          "text": "Behind the altar, in a dusty niche: a Goblin Trinket."
+        }
+      ]
+    },
+    {
+      "id": "shellhaven",
+      "name": "Shellhaven",
+      "biome": "coast",
+      "appearance": "port",
+      "x": 445,
+      "y": 462,
+      "blurb": "A snug harbour behind a long stone pier, where the fishing boats come home at dusk.",
+      "mayor": {
+        "id": "osric",
+        "name": "Mayor Osric",
+        "title": "Mayor",
+        "emoji": "👨🏾‍🦲",
+        "avatar": "small, brisk mayor with a neat white beard, a patched but proud coat, and spectacles on a ribbon",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Shellhaven.",
+          "Mind the gulls; they steal."
+        ],
+        "hint": "h_5",
+        "quest": {
+          "id": "q_shellhaven",
+          "type": "fetch",
+          "title": "The Stubborn Weathervane",
+          "offer": [
+            "The weathervane has stuck. The old priest says a jolt of lightning would free it.",
+            "The Busy Bee in Crownbury sells Thunder Vials, I am told. Bring me one, please."
+          ],
+          "reminder": "Have you found a thunder vial? The Busy Bee in Crownbury sells Thunder Vials.",
+          "done": [
+            "Look at it spin! Thank you, Hero.",
+            "Take this, with Shellhaven's thanks."
+          ],
+          "item": "thunder_vial",
+          "reward": {
+            "gold": 55,
+            "items": [
+              "boots_of_striding"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Gull & Oyster",
+        "keeper": {
+          "id": "una",
+          "name": "Una",
+          "emoji": "👱🏼‍♀️",
+          "avatar": "stubborn young shopkeeper with a smudged face and a lantern"
+        },
+        "lines": [
+          "Rope, tar, lanterns and luck. Everything a sailor needs."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "longbow"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "storm_charm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Sabine's Boatshed",
+        "keeper": {
+          "id": "sabine",
+          "name": "Sabine",
+          "emoji": "👩🏾‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "Ropes, tar and a cauldron that has boiled a thousand crabs. Use it all."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "jory",
+          "name": "Jory the Slightly Singed",
+          "role": "travelling wizard",
+          "emoji": "🧙🏼‍♂️",
+          "avatar": "small, round wizard in a patchwork robe covered in singe marks, with spectacles on a chain",
+          "lines": [
+            "Tired of that face? I can change it. A little magic, a little gold.",
+            "Build, clothes, hair. Nothing I have not done a thousand times."
+          ],
+          "restyle": {
+            "price": 60
+          }
+        },
+        {
+          "id": "bertram",
+          "name": "Fisher Bertram",
+          "role": "fisher",
+          "emoji": "🎣",
+          "avatar": "weathered fisher in oilskins, with a net over one shoulder",
+          "lines": [
+            "A quiet net and a calm sea. That's all I ask.",
+            "The fish are biting early this year. Something's got them nervous."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "bell_tower",
+          "name": "the Bell Tower",
+          "emoji": "🔔",
+          "item": "greater_healing",
+          "text": "Up among the bells, in a pigeon's nest: a Greater Healing Draught!"
+        }
+      ]
+    },
+    {
+      "id": "murkmarsh",
+      "name": "Murkmarsh",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 352,
+      "y": 264,
+      "blurb": "Lantern-lit walkways wind between the houses over dark, still water. Frogs sing all night.",
+      "mayor": {
+        "id": "rowena",
+        "name": "Mayor Rowena",
+        "title": "Mayor",
+        "emoji": "👩🏻‍🦲",
+        "avatar": "plump, cheerful mayor with braided red hair, a patched but proud coat, and a walking stick topped with a silver fox",
+        "greeting": [
+          "A hero, in Murkmarsh! Come in, come in, mind the step.",
+          "Forgive the smell; it is the bog."
+        ],
+        "hint": "h_3",
+        "quest": {
+          "id": "q_murkmarsh",
+          "type": "slay",
+          "title": "The Bog Beast",
+          "offer": [
+            "The Bog Beast has been prowling the road to Crownbury, frightening every traveller. Even the bravest carters turn back.",
+            "Beat the Bog Beast, and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "The Bog Beast is still out on the road to Crownbury.",
+          "done": [
+            "The Bog Beast beaten? Then Murkmarsh owes you a great deal.",
+            "Here is your reward, and well earned."
+          ],
+          "foe": "foe_bog_beast",
+          "reward": {
+            "gold": 45,
+            "items": [
+              "tome_of_arcana"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Bubbling Pot",
+        "keeper": {
+          "id": "rosalind",
+          "name": "Rosalind",
+          "emoji": "👩🏿‍🦱",
+          "avatar": "brisk shopkeeper with a pencil behind one ear and a ledger under one arm"
+        },
+        "lines": [
+          "Mind the jars. Some of them bite."
+        ],
+        "stock": [
+          {
+            "item": "fire_flask"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "holy_water"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "iron_sword"
+          },
+          {
+            "item": "icicle_dagger"
+          },
+          {
+            "item": "leather_vest"
+          },
+          {
+            "item": "plague_mask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Bog-Iron Forge",
+        "keeper": {
+          "id": "agatha",
+          "name": "Agatha",
+          "emoji": "👩🏽‍🔧",
+          "avatar": "strong-armed smith in a leather apron, with soot on her nose and a hammer on her belt"
+        },
+        "lines": [
+          "Stir clockwise. Always clockwise. Trust me."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "greta",
+          "name": "Old Greta",
+          "role": "grandmother",
+          "emoji": "👵🏽",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "Eat something! You're all bones.",
+            "Only a Boarhide Jerkin can turn Skrag's poison. Delphine's Outfitters in Hazelhollow has one."
+          ],
+          "hint": "h_4"
+        },
+        {
+          "id": "ida",
+          "name": "Fisher Ida",
+          "role": "fisher",
+          "emoji": "🎣",
+          "avatar": "weathered fisher in oilskins, with a net over one shoulder",
+          "lines": [
+            "The tide brings in all sorts. Pearls, if you look in the right places.",
+            "A quiet net and a calm sea. That's all I ask."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "ember_crystal",
+          "text": "Behind the altar, in a dusty niche: an ember crystal."
+        }
+      ]
+    },
+    {
+      "id": "stormhaven",
+      "name": "Stormhaven",
+      "biome": "coast",
+      "appearance": "port",
+      "x": 665,
+      "y": 501,
+      "blurb": "A lighthouse on the point, taverns on the quay, and a smell of salt and tar over everything.",
+      "mayor": {
+        "id": "ivy",
+        "name": "Lady Ivy",
+        "title": "Lady",
+        "emoji": "👱🏾‍♀️",
+        "avatar": "small, brisk lady with a long golden plait, a long blue coat with silver buttons, and a very large hat",
+        "greeting": [
+          "Welcome to Stormhaven, Hero! The Queen's messenger said you would come.",
+          "Mind the gulls; they steal."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_stormhaven",
+          "type": "slay",
+          "title": "Captain Barnacle",
+          "offer": [
+            "Captain Barnacle has been prowling the road to Hazelhollow, frightening every traveller. Nobody dares to use that road any more.",
+            "Beat Captain Barnacle, and I'll make it worth your while."
+          ],
+          "reminder": "Captain Barnacle is still out on the road to Hazelhollow.",
+          "done": [
+            "Captain Barnacle beaten? Then Stormhaven owes you a great deal.",
+            "Here is your reward, and well earned."
+          ],
+          "foe": "foe_captain_barnacle",
+          "reward": {
+            "gold": 70,
+            "items": [
+              "ring_of_vigor"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Gull & Oyster",
+        "keeper": {
+          "id": "tam",
+          "name": "Tam",
+          "emoji": "👨🏼‍🦲",
+          "avatar": "cheerful bald merchant in a honey-coloured vest"
+        },
+        "lines": [
+          "Rope, tar, lanterns and luck. Everything a sailor needs."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "sunlit_mace"
+          },
+          {
+            "item": "scorpion_bow"
+          },
+          {
+            "item": "travelers_cloak"
+          },
+          {
+            "item": "storm_charm"
+          },
+          {
+            "item": "spiced_tea"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Salt & Tar Shed",
+        "keeper": {
+          "id": "zinnia",
+          "name": "Zinnia",
+          "emoji": "👩🏻‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "Pedal hard and the bellows roar like the sea."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "petra",
+          "name": "Herbalist Petra",
+          "role": "herbalist",
+          "emoji": "🌿",
+          "avatar": "herbalist in a green apron, with bundles of drying herbs hanging from the belt",
+          "lines": [
+            "Every potion is a little poem, if you know how to read it.",
+            "Lessons are cheap. Not knowing is expensive.",
+            "Duchess Gwendolyn of Millwick is looking for a courier to Stormhaven."
+          ],
+          "trains": {
+            "stat": "magic",
+            "price": 40
+          },
+          "hint": "h_2"
+        },
+        {
+          "id": "cole",
+          "name": "Baker Cole",
+          "role": "baker",
+          "emoji": "👨🏿‍🍳",
+          "avatar": "round, rosy baker in a floury apron, with a tray of buns",
+          "lines": [
+            "Fresh buns every morning, before the rooster is up.",
+            "The quickest road to Silverfell is the one from Stormhaven."
+          ],
+          "hint": "h_14"
+        },
+        {
+          "id": "egbert",
+          "name": "Old Egbert",
+          "role": "old sailor",
+          "emoji": "🧓🏽",
+          "avatar": "ancient sailor in a salt-stained cap, with a telescope tucked under one arm",
+          "lines": [
+            "Sixty years at sea, and I only fell overboard twice.",
+            "Goblins are terrified of fire and bright light."
+          ],
+          "hint": "h_13"
+        }
+      ],
+      "spots": [
+        {
+          "id": "wrecked_boat",
+          "name": "the Wrecked Boat",
+          "emoji": "🛶",
+          "item": "rusty_key",
+          "text": "Wedged under the rotten planks of an old boat: a Rusty Key."
+        }
+      ]
+    },
+    {
+      "id": "stonespire",
+      "name": "Stonespire",
+      "biome": "mountain",
+      "appearance": "hillside",
+      "x": 690,
+      "y": 148,
+      "blurb": "A town of goatherds and stonecutters, stacked up a steep and windy slope.",
+      "mayor": {
+        "id": "morwenna",
+        "name": "Lady Morwenna",
+        "title": "Lady",
+        "emoji": "👵🏿",
+        "avatar": "plump, cheerful lady with silver hair in a bun, a long blue coat with silver buttons, and spectacles on a ribbon",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Stonespire.",
+          "Stonespire stands firm, and so do its people."
+        ],
+        "quest": {
+          "id": "q_stonespire",
+          "type": "slay",
+          "title": "Old Mother Spider",
+          "offer": [
+            "Old Mother Spider has been prowling the road to Hazelhollow, frightening every traveller. Nobody dares to use that road any more.",
+            "Beat Old Mother Spider, and I'll make it worth your while."
+          ],
+          "reminder": "Old Mother Spider is still out on the road to Hazelhollow.",
+          "done": [
+            "Old Mother Spider beaten? Then Stonespire owes you a great deal.",
+            "Here is your reward, and well earned."
+          ],
+          "foe": "foe_mother_spider",
+          "reward": {
+            "gold": 75,
+            "items": [
+              "fur_cloak"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Deep Delve",
+        "keeper": {
+          "id": "bram",
+          "name": "Bram",
+          "emoji": "👨🏽‍🦲",
+          "avatar": "cheerful bald merchant in a honey-coloured vest"
+        },
+        "lines": [
+          "Steel for heroes. Only the best, and the best isn't cheap."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "flame_blade"
+          },
+          {
+            "item": "steel_longsword"
+          },
+          {
+            "item": "chainmail"
+          },
+          {
+            "item": "iron_helm"
+          },
+          {
+            "item": "wheel_of_cheese"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Stonecutter's Yard",
+        "keeper": {
+          "id": "oswin",
+          "name": "Oswin",
+          "emoji": "🧔🏿",
+          "avatar": "bearded woodworker with curls of shavings stuck to his jumper"
+        },
+        "lines": [
+          "The best anvil this side of the mountains. Strike while it's hot!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "digby",
+          "name": "Digby",
+          "role": "shepherd",
+          "emoji": "🐑",
+          "avatar": "shepherd in a thick wool cloak, with a crook and a sheepdog at heel",
+          "lines": [
+            "Four hundred sheep, and I know every one by name.",
+            "The wind up here could blow the whiskers off a cat."
+          ]
+        },
+        {
+          "id": "violet",
+          "name": "Guide Violet",
+          "role": "mountain guide",
+          "emoji": "🧗🏼‍♀️",
+          "avatar": "wiry mountain guide with a coil of rope and wind-burned cheeks",
+          "lines": [
+            "From here the road to Hazelhollow climbs, and keeps on climbing.",
+            "The pass is open, for now. Snow could close it any day."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "eagle_s_nest",
+          "name": "the Eagle's Nest",
+          "emoji": "🦅",
+          "gold": 20,
+          "text": "High on the cliff, in an empty eagle's nest, lies a purse of 20 gold."
+        }
+      ]
+    },
+    {
+      "id": "millwick",
+      "name": "Millwick",
+      "biome": "plains",
+      "appearance": "river",
+      "x": 251,
+      "y": 546,
+      "blurb": "A town of boatmen and millers, where the river is wide and slow and full of fish.",
+      "mayor": {
+        "id": "gwendolyn",
+        "name": "Duchess Gwendolyn",
+        "title": "Duchess",
+        "emoji": "👩🏾‍🦳",
+        "avatar": "elegant duchess with a long golden plait, a patched but proud coat, and a tawny owl on one shoulder",
+        "greeting": [
+          "Millwick welcomes you, Hero. We have heard all about you.",
+          "Try the bread. Everyone in Millwick bakes."
+        ],
+        "hint": "h_7",
+        "quest": {
+          "id": "q_millwick",
+          "type": "deliver",
+          "title": "An Ore Sample for Stormhaven",
+          "offer": [
+            "Would you carry this ore sample to Lady Ivy in Stormhaven? We have struck a new seam, and they want to see a sample.",
+            "Lady Ivy has Goblinsbane, and has promised it to whoever brings this."
+          ],
+          "reminder": "Lady Ivy in Stormhaven is waiting for the ore sample.",
+          "done": [
+            "Beautiful! Look at that silver. Millwick will be rich.",
+            "I have kept Goblinsbane safe for years. It is yours now: go and put it to good use."
+          ],
+          "item": "ore_sample",
+          "to": {
+            "town": "stormhaven"
+          },
+          "reward": {
+            "gold": 40,
+            "items": [
+              "goblinsbane"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Golden Sheaf",
+        "keeper": {
+          "id": "horace",
+          "name": "Horace",
+          "emoji": "👨🏾‍🦰",
+          "avatar": "red-haired ex-sailor with a tattooed forearm and a gold earring"
+        },
+        "lines": [
+          "Best prices in Millwick! Well, the only prices in Millwick."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "iron_sword"
+          },
+          {
+            "item": "cutlass"
+          },
+          {
+            "item": "iron_helm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Elspeth's Workshop",
+        "keeper": {
+          "id": "elspeth",
+          "name": "Elspeth",
+          "emoji": "👩🏿‍🦰",
+          "avatar": "red-haired carpenter with a pencil behind her ear and sawdust in her hair"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "florian",
+          "name": "Farmer Florian",
+          "role": "farmer",
+          "emoji": "👨🏽‍🌾",
+          "avatar": "wiry old farmer in a straw hat, with a pitchfork over one shoulder",
+          "lines": [
+            "The crows are bold this year. Bolder than the scarecrow, anyway.",
+            "The Old Chest in Millwick is locked. Its key was lost in the Wrecked Boat in Stormhaven years ago."
+          ],
+          "hint": "h_11"
+        },
+        {
+          "id": "wendel",
+          "name": "Miller Wendel",
+          "role": "miller",
+          "emoji": "👴🏿",
+          "avatar": "dusty old miller with flour in the eyebrows",
+          "lines": [
+            "Hear that creak? That's the wheel. It's been creaking for forty years.",
+            "The mill never stops. Neither do I, most days."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chest",
+          "name": "the Old Chest",
+          "emoji": "📦",
+          "item": "tome_of_might",
+          "requiresKey": "rusty_key",
+          "text": "The Rusty Key turns with a screech. Inside the old chest: a Tome of Might!",
+          "lockedText": "A heavy chest sits in the corner, locked tight. The keyhole is caked with rust."
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "id": "r_hazelhollow_stormhaven",
+      "a": "hazelhollow",
+      "b": "stormhaven",
+      "distance": 185,
+      "terrain": "coast",
+      "danger": 1,
+      "enemies": [
+        "giant_octopus",
+        "pirate",
+        "crab"
+      ],
+      "fixed": [
+        {
+          "id": "foe_captain_barnacle",
+          "enemy": "captain_barnacle",
+          "at": 0.45,
+          "quest": "q_stormhaven"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_hazelhollow_stormhaven",
+          "item": "travelers_tonic",
+          "at": 0.42
+        }
+      ]
+    },
+    {
+      "id": "r_hazelhollow_stonespire",
+      "a": "hazelhollow",
+      "b": "stonespire",
+      "distance": 202,
+      "terrain": "forest",
+      "danger": 1,
+      "enemies": [
+        "giant_spider",
+        "goblin",
+        "brown_bear"
+      ],
+      "fixed": [
+        {
+          "id": "foe_mother_spider",
+          "enemy": "mother_spider",
+          "at": 0.44,
+          "quest": "q_stonespire"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_hazelhollow_stonespire",
+          "item": "shield_tonic",
+          "at": 0.54
+        }
+      ]
+    },
+    {
+      "id": "r_hazelhollow_shellhaven",
+      "a": "hazelhollow",
+      "b": "shellhaven",
+      "distance": 204,
+      "terrain": "coast",
+      "danger": 0.9,
+      "enemies": [
+        "pirate",
+        "crab",
+        "thieving_gulls"
+      ],
+      "finds": [
+        {
+          "id": "f_hazelhollow_shellhaven",
+          "item": "sea_glass",
+          "at": 0.41
+        }
+      ]
+    },
+    {
+      "id": "r_crownbury_murkmarsh",
+      "a": "crownbury",
+      "b": "murkmarsh",
+      "distance": 211,
+      "terrain": "swamp",
+      "danger": 0.7,
+      "enemies": [
+        "giant_toad",
+        "bog_lurker",
+        "goblin"
+      ],
+      "fixed": [
+        {
+          "id": "foe_bog_beast",
+          "enemy": "bog_beast",
+          "at": 0.4,
+          "quest": "q_murkmarsh"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_crownbury_murkmarsh",
+          "item": "healing_draught",
+          "at": 0.59
+        }
+      ]
+    },
+    {
+      "id": "r_shellhaven_millwick",
+      "a": "shellhaven",
+      "b": "millwick",
+      "distance": 211,
+      "terrain": "plains",
+      "danger": 0.8,
+      "enemies": [
+        "boar",
+        "wolf",
+        "angry_swan"
+      ],
+      "finds": [
+        {
+          "id": "f_shellhaven_millwick",
+          "item": "carved_tusk",
+          "at": 0.52
+        }
+      ]
+    },
+    {
+      "id": "r_shellhaven_murkmarsh",
+      "a": "shellhaven",
+      "b": "murkmarsh",
+      "distance": 219,
+      "terrain": "coast",
+      "danger": 0.8,
+      "enemies": [
+        "crab",
+        "pirate",
+        "thieving_gulls"
+      ],
+      "finds": [
+        {
+          "id": "f_shellhaven_murkmarsh",
+          "item": "sea_glass",
+          "at": 0.36
+        }
+      ]
+    },
+    {
+      "id": "r_shellhaven_stormhaven",
+      "a": "shellhaven",
+      "b": "stormhaven",
+      "distance": 223,
+      "terrain": "coast",
+      "danger": 0.9,
+      "enemies": [
+        "crab",
+        "thieving_gulls",
+        "giant_octopus"
+      ],
+      "finds": [
+        {
+          "id": "f_shellhaven_stormhaven",
+          "item": "potion_of_might",
+          "at": 0.53
+        }
+      ]
+    },
+    {
+      "id": "r_hazelhollow_murkmarsh",
+      "a": "hazelhollow",
+      "b": "murkmarsh",
+      "distance": 255,
+      "terrain": "forest",
+      "danger": 0.9,
+      "enemies": [
+        "boar",
+        "giant_spider",
+        "brown_bear"
+      ],
+      "finds": [
+        {
+          "id": "f_hazelhollow_murkmarsh",
+          "item": "potion_of_might",
+          "at": 0.57
+        }
+      ]
+    },
+    {
+      "id": "r_silverfell_stormhaven",
+      "a": "silverfell",
+      "b": "stormhaven",
+      "distance": 256,
+      "terrain": "mountain",
+      "danger": 1.3,
+      "enemies": [
+        "goblin_raider",
+        "wolf_rider",
+        "cave_bats"
+      ],
+      "finds": [
+        {
+          "id": "f_silverfell_stormhaven",
+          "item": "greater_healing",
+          "at": 0.55
+        }
+      ]
+    },
+    {
+      "id": "r_silverfell_hazelhollow",
+      "a": "silverfell",
+      "b": "hazelhollow",
+      "distance": 288,
+      "terrain": "mountain",
+      "danger": 1.3,
+      "enemies": [
+        "goblin_raider",
+        "wolf_rider",
+        "stone_troll"
+      ],
+      "finds": [
+        {
+          "id": "f_silverfell_hazelhollow",
+          "item": "silver_ore",
+          "at": 0.59
+        }
+      ]
+    },
+    {
+      "id": "r_silverfell_stonespire",
+      "a": "silverfell",
+      "b": "stonespire",
+      "distance": 293,
+      "terrain": "mountain",
+      "danger": 1.2,
+      "enemies": [
+        "goblin_raider",
+        "wolf_rider",
+        "mountain_eagle"
+      ],
+      "finds": [
+        {
+          "id": "f_silverfell_stonespire",
+          "item": "greater_healing",
+          "at": 0.6
+        }
+      ]
+    },
+    {
+      "id": "r_murkmarsh_millwick",
+      "a": "murkmarsh",
+      "b": "millwick",
+      "distance": 300,
+      "terrain": "swamp",
+      "danger": 0.7,
+      "enemies": [
+        "goblin",
+        "giant_toad",
+        "marsh_wisp"
+      ],
+      "finds": [
+        {
+          "id": "f_murkmarsh_millwick",
+          "item": "healing_draught",
+          "at": 0.51
+        }
+      ]
+    },
+    {
+      "id": "r_crownbury_millwick",
+      "a": "crownbury",
+      "b": "millwick",
+      "distance": 313,
+      "terrain": "plains",
+      "danger": 0.6,
+      "enemies": [
+        "boar",
+        "bandit",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_crownbury_millwick",
+          "item": "wolf_pelt",
+          "at": 0.54
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "giant_octopus",
+      "name": "Giant Octopus",
+      "emoji": "🐙",
+      "family": "sea",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "sea_glass",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "Eight long arms reach up out of a rock pool. One of them grabs your boot."
+    },
+    {
+      "id": "pirate",
+      "name": "Pirate Deckhand",
+      "emoji": "🏴‍☠️",
+      "family": "pirate",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        14,
+        22
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "\"Arr! Hand over yer valuables!\""
+    },
+    {
+      "id": "crab",
+      "name": "Giant Crab",
+      "emoji": "🦀",
+      "family": "sea",
+      "tier": 1,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        7,
+        12
+      ],
+      "drops": [
+        {
+          "item": "pearl",
+          "chance": 0.1
+        }
+      ],
+      "taunt": "A crab the size of a cart clacks its claws."
+    },
+    {
+      "id": "giant_spider",
+      "name": "Giant Spider",
+      "emoji": "🕷️",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "spider_silk",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A spider as big as a pony drops from the branches on a silver thread."
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin Scout",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        9,
+        14
+      ],
+      "drops": [
+        {
+          "item": "goblin_trinket",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A goblin cackles and waves a rusty knife."
+    },
+    {
+      "id": "brown_bear",
+      "name": "Brown Bear",
+      "emoji": "🐻",
+      "family": "beast",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "jar_of_honey",
+          "chance": 0.3
+        }
+      ],
+      "taunt": "A bear rears up on its hind legs. It smells of honey and bad temper."
+    },
+    {
+      "id": "thieving_gulls",
+      "name": "Thieving Gulls",
+      "emoji": "🐦",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        6,
+        10
+      ],
+      "drops": [
+        {
+          "item": "sea_glass",
+          "chance": 0.15
+        }
+      ],
+      "taunt": "A flock of gulls swoops down, screaming. One of them has your lunch."
+    },
+    {
+      "id": "giant_toad",
+      "name": "Giant Toad",
+      "emoji": "🐸",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A toad the size of a barrel blinks at you, then flicks out a very long tongue."
+    },
+    {
+      "id": "bog_lurker",
+      "name": "Bog Lurker",
+      "emoji": "🐊",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "taunt": "Something scaly rises from the muck."
+    },
+    {
+      "id": "boar",
+      "name": "Wild Boar",
+      "emoji": "🐗",
+      "family": "beast",
+      "tier": 1,
+      "gold": [
+        8,
+        12
+      ],
+      "taunt": "A boar paws the ground and snorts."
+    },
+    {
+      "id": "wolf",
+      "name": "Grey Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "fire",
+      "gold": [
+        8,
+        13
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.35
+        }
+      ],
+      "taunt": "A wolf slinks out of the grass, teeth bared."
+    },
+    {
+      "id": "angry_swan",
+      "name": "Angry Swan",
+      "emoji": "🦢",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        6,
+        11
+      ],
+      "taunt": "A swan spreads its wings and hisses like a kettle. It wants the whole road to itself."
+    },
+    {
+      "id": "goblin_raider",
+      "name": "Goblin Raider",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "goblin_trinket",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "A goblin in a saucepan helmet shrieks and charges."
+    },
+    {
+      "id": "wolf_rider",
+      "name": "Goblin Wolf-Rider",
+      "emoji": "🐺",
+      "family": "goblin",
+      "tier": 2,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        13,
+        20
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.3
+        }
+      ],
+      "taunt": "A goblin riding a wolf bursts out of the bushes, whooping."
+    },
+    {
+      "id": "cave_bats",
+      "name": "Cave Bats",
+      "emoji": "🦇",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "holy",
+      "gold": [
+        6,
+        10
+      ],
+      "taunt": "A swarm of bats pours out of the rocks!"
+    },
+    {
+      "id": "stone_troll",
+      "name": "Stone Troll",
+      "emoji": "🧌",
+      "family": "giant",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        24,
+        34
+      ],
+      "drops": [
+        {
+          "item": "troll_tooth",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "A troll steps out from behind a boulder. No, wait: the boulder IS the troll."
+    },
+    {
+      "id": "mountain_eagle",
+      "name": "Mountain Eagle",
+      "emoji": "🦅",
+      "family": "beast",
+      "tier": 2,
+      "battle": "race",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "eagle_feather",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "An eagle with wings as wide as a cart dives out of the sun."
+    },
+    {
+      "id": "marsh_wisp",
+      "name": "Marsh Wisp",
+      "emoji": "👻",
+      "family": "spirit",
+      "tier": 2,
+      "weakness": "holy",
+      "gold": [
+        10,
+        16
+      ],
+      "taunt": "A pale light drifts closer, whispering your name."
+    },
+    {
+      "id": "bandit",
+      "name": "Road Bandit",
+      "emoji": "🥷",
+      "family": "bandit",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        15,
+        24
+      ],
+      "drops": [
+        {
+          "item": "healing_draught",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "\"Your gold or your life, traveler!\""
+    },
+    {
+      "id": "bog_beast",
+      "name": "the Bog Beast",
+      "emoji": "🐊",
+      "family": "beast",
+      "tier": 3,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        35,
+        50
+      ],
+      "drops": [
+        {
+          "item": "pearl",
+          "chance": 1
+        }
+      ],
+      "taunt": "The bog heaves. A great scaly beast rises, dripping weed and bad temper.",
+      "avatar": "huge scaly swamp beast draped in pondweed, with lantern-yellow eyes"
+    },
+    {
+      "id": "captain_barnacle",
+      "name": "Captain Barnacle",
+      "emoji": "🏴‍☠️",
+      "family": "pirate",
+      "tier": 3,
+      "gold": [
+        40,
+        55
+      ],
+      "drops": [
+        {
+          "item": "pirate_doubloon",
+          "chance": 1
+        }
+      ],
+      "taunt": "\"Captain Barnacle, at yer service! Now empty yer pockets.\"",
+      "avatar": "barrel-chested pirate captain with a barnacle-crusted peg leg and a parrot"
+    },
+    {
+      "id": "mother_spider",
+      "name": "Old Mother Spider",
+      "emoji": "🕷️",
+      "family": "beast",
+      "tier": 3,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        35,
+        50
+      ],
+      "drops": [
+        {
+          "item": "spider_silk",
+          "chance": 1
+        }
+      ],
+      "taunt": "Old Mother Spider lowers herself from the treetops on a rope of silk. Her eight eyes glitter.",
+      "avatar": "spider as big as a cart, with grey-striped legs and a crown of cobwebs"
+    },
+    {
+      "id": "warchief_skrag",
+      "name": "Warchief Skrag",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 5,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        0,
+        0
+      ],
+      "taunt": "\"Bow to the king of all the goblins, or I'll pinch your trousers!\"",
+      "boss": true,
+      "avatar": "wiry goblin warchief with one enormous tooth, a saucepan helmet, and a spear decorated with spoons"
+    }
+  ],
+  "hints": [
+    {
+      "id": "h_1",
+      "text": "Lady Ivy in Stormhaven has Goblinsbane, and has promised it to whoever brings the ore sample from Millwick."
+    },
+    {
+      "id": "h_2",
+      "text": "Duchess Gwendolyn of Millwick is looking for a courier to Stormhaven."
+    },
+    {
+      "id": "h_3",
+      "text": "Delphine's Outfitters in Hazelhollow sells a Boarhide Jerkin. It costs a fortune: 240 gold."
+    },
+    {
+      "id": "h_4",
+      "text": "Only a Boarhide Jerkin can turn Skrag's poison. Delphine's Outfitters in Hazelhollow has one."
+    },
+    {
+      "id": "h_5",
+      "text": "The Sunstone can't be bought or found: it has to be made, at the workshop in any town, from two crystal shards and an ember crystal. It takes a few minutes of hard pedaling."
+    },
+    {
+      "id": "h_6",
+      "text": "The Busy Bee in Crownbury sells crystal shards."
+    },
+    {
+      "id": "h_7",
+      "text": "There is an ember crystal hidden in the Old Chapel in Murkmarsh."
+    },
+    {
+      "id": "h_8",
+      "text": "The Bog Beast prowls the road between Murkmarsh and Crownbury."
+    },
+    {
+      "id": "h_9",
+      "text": "Captain Barnacle prowls the road between Stormhaven and Hazelhollow."
+    },
+    {
+      "id": "h_10",
+      "text": "Old Mother Spider prowls the road between Stonespire and Hazelhollow."
+    },
+    {
+      "id": "h_11",
+      "text": "The Old Chest in Millwick is locked. Its key was lost in the Wrecked Boat in Stormhaven years ago."
+    },
+    {
+      "id": "h_12",
+      "text": "To defeat Skrag you need Goblinsbane, the Boarhide Jerkin and the Sunstone."
+    },
+    {
+      "id": "h_13",
+      "text": "Goblins are terrified of fire and bright light."
+    },
+    {
+      "id": "h_14",
+      "text": "The quickest road to Silverfell is the one from Stormhaven."
+    }
+  ],
+  "recipes": [
+    {
+      "item": "sunstone",
+      "needs": [
+        {
+          "item": "crystal_shard",
+          "qty": 2
+        },
+        {
+          "item": "ember_crystal",
+          "qty": 1
+        }
+      ],
+      "seconds": 240
+    },
+    {
+      "item": "healing_draught",
+      "seconds": 60
+    },
+    {
+      "item": "travelers_tonic",
+      "seconds": 120
+    },
+    {
+      "item": "greater_healing",
+      "needs": [
+        {
+          "item": "healing_draught",
+          "qty": 2
+        }
+      ],
+      "seconds": 45
+    },
+    {
+      "item": "chainmail",
+      "needs": [
+        {
+          "item": "silver_ore",
+          "qty": 2
+        }
+      ],
+      "seconds": 150
+    },
+    {
+      "item": "holy_water",
+      "needs": [
+        {
+          "item": "pearl",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    }
+  ],
+  "challenge": {
+    "threat": "goblin_horde",
+    "title": "The Goblin War",
+    "summons": [
+      "Hero, thank you for coming so swiftly. Grave news has reached the throne.",
+      "A goblin horde led by Warchief Skrag has overrun Silverfell. They have stolen every pie, pot and pony in the town, and they want more.",
+      "The old songs name three things that can defeat Skrag: the sword Goblinsbane, a Boarhide Jerkin against poisoned darts, and the Sunstone, which goblins cannot bear to look at.",
+      "Gather all three, then go to Silverfell and face Skrag. Talk to everyone: somebody always knows something.",
+      "Take this purse and these draughts. My carriage will carry you to Crownbury. Everwyn is counting on you."
+    ],
+    "crisisTown": "silverfell",
+    "lair": {
+      "name": "the Goblin Warren",
+      "emoji": "🕳️",
+      "text": "A heap of stolen furniture piled up into a sort of palace, with a goblin flag on top."
+    },
+    "requires": [
+      "goblinsbane",
+      "boarhide_jerkin",
+      "sunstone"
+    ],
+    "boss": "warchief_skrag",
+    "victory": [
+      "You hold up the Sunstone. The goblins shriek, cover their eyes, and run for their holes.",
+      "Goblinsbane throws sparks everywhere. Skrag drops a stolen crown and flees, howling.",
+      "The people of Silverfell get back every pie, pot and pony. Well, most of the pies."
+    ],
+    "sources": [
+      {
+        "item": "goblinsbane",
+        "how": "quest",
+        "town": "millwick",
+        "ref": "q_millwick"
+      },
+      {
+        "item": "boarhide_jerkin",
+        "how": "shop",
+        "town": "hazelhollow",
+        "ref": "delphine"
+      },
+      {
+        "item": "sunstone",
+        "how": "craft",
+        "town": "murkmarsh",
+        "ref": "sunstone"
+      }
+    ]
+  }
+}

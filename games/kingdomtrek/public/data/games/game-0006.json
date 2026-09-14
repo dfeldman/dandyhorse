@@ -1,0 +1,1736 @@
+{
+  "schemaVersion": 1,
+  "id": "game-0006",
+  "title": "Thunder over Highcombe",
+  "theme": "medieval",
+  "region": {
+    "name": "the Duskmere",
+    "blurb": "Wheat fields and windmills in the west, misty bogs and wheat fields and windmills in the middle, and in the east the thundering crags of Highcombe.",
+    "width": 1000,
+    "height": 640
+  },
+  "startTown": "crownhaven",
+  "towns": [
+    {
+      "id": "crownhaven",
+      "name": "Crownhaven",
+      "biome": "plains",
+      "appearance": "capital",
+      "x": 116,
+      "y": 305,
+      "blurb": "A walled city of bell towers and busy markets. The Queen's summer castle stands over it all.",
+      "mayor": {
+        "id": "ivor",
+        "name": "Mayor Ivor",
+        "title": "Mayor",
+        "emoji": "🧔🏿‍♂️",
+        "avatar": "white-haired, twinkling-eyed mayor with a neat white beard, a long blue coat with silver buttons, and a gold chain of office",
+        "greeting": [
+          "Ah, the Queen's champion! Welcome to Crownhaven.",
+          "Crownhaven is the pride of the Duskmere, and we are glad to have you."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_crownhaven",
+          "type": "deliver",
+          "title": "A Basket of Kittens for Eldergrove",
+          "offer": [
+            "Would you carry this basket of kittens to Lord Digby in Eldergrove? Our cat had kittens again, and I hear they have mice.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Lord Digby in Eldergrove is waiting for the basket of kittens.",
+          "done": [
+            "Kittens! Oh, look at them. The mice had better watch out.",
+            "Take this, with my thanks."
+          ],
+          "item": "kitten_basket",
+          "to": {
+            "town": "eldergrove"
+          },
+          "reward": {
+            "gold": 30,
+            "items": [
+              "tome_of_arcana"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Golden Sheaf",
+        "keeper": {
+          "id": "sage",
+          "name": "Sage",
+          "emoji": "🧑🏽‍🍳",
+          "avatar": "cheerful cook-turned-shopkeeper in a flour-dusted apron"
+        },
+        "lines": [
+          "Best prices in Crownhaven! Well, the only prices in Crownhaven."
+        ],
+        "stock": [
+          {
+            "item": "fire_flask"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "morningstar"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "travelers_cloak"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Busy Anvil",
+        "keeper": {
+          "id": "saffron",
+          "name": "Saffron",
+          "emoji": "👩🏿‍🔧",
+          "avatar": "strong-armed smith in a leather apron, with soot on her nose and a hammer on her belt"
+        },
+        "lines": [
+          "Mind the sparks, and put the tools back where you found them."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "nessa",
+          "name": "Nessa",
+          "role": "child",
+          "emoji": "👧🏾",
+          "avatar": "freckled child with a wooden sword and a helmet three sizes too big",
+          "lines": [
+            "When I grow up, I'm going to be a hero too!",
+            "Can I hold your sword? Just for a second? Please?"
+          ],
+          "gives": {
+            "item": "healing_draught",
+            "line": "Are you a real hero? Mum says heroes always carry healing draughts. Here, take one of mine!"
+          }
+        },
+        {
+          "id": "oswin",
+          "name": "Sergeant Oswin",
+          "role": "guard",
+          "emoji": "💂🏾",
+          "avatar": "grizzled town guard in a dented steel cap, leaning on a halberd",
+          "lines": [
+            "Arms up, chin down, hit hard.",
+            "I can train you, for a few coins."
+          ],
+          "trains": {
+            "stat": "strength",
+            "price": 40
+          }
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_well",
+          "name": "the Old Well",
+          "emoji": "🪣",
+          "item": "rusty_key",
+          "text": "You haul up the old bucket. Tangled in the rope is a Rusty Key!"
+        }
+      ]
+    },
+    {
+      "id": "highcombe",
+      "name": "Highcombe",
+      "biome": "hills",
+      "appearance": "ruins",
+      "x": 845,
+      "y": 202,
+      "blurb": "A hill town of flattened barns and giant footprints. Thunder rumbles day and night.",
+      "crisis": true,
+      "mayor": {
+        "id": "olwen",
+        "name": "Countess Olwen",
+        "title": "Countess",
+        "emoji": "👩🏾‍🦳",
+        "avatar": "elegant countess with braided red hair, a sea-green robe, and a silver circlet",
+        "greeting": [
+          "Mind your head! Oh, it's you. The Queen said you'd come.",
+          "Rumblebelly sleeps up on the crag and comes down every morning to stamp on something. Yesterday it was the bakery."
+        ],
+        "hint": "h_11"
+      },
+      "shop": {
+        "name": "The Last Candle",
+        "keeper": {
+          "id": "rolf",
+          "name": "Rolf",
+          "emoji": "👨🏼‍🦳",
+          "avatar": "kindly old shopkeeper in half-moon spectacles and a knitted waistcoat"
+        },
+        "lines": [
+          "I'm staying till the end. Buy what you need; you'll need it."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "greater_healing"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "venom_vial"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Cracked Anvil",
+        "keeper": {
+          "id": "wendel",
+          "name": "Wendel",
+          "emoji": "🧔🏽",
+          "avatar": "bearded woodworker with curls of shavings stuck to his jumper"
+        },
+        "lines": [
+          "Everyone else has fled. The anvil's all yours."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "linnea",
+          "name": "Old Linnea",
+          "role": "grandmother",
+          "emoji": "👵🏽",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "Rumblebelly? Terrible business. I've seen worse. Not much worse, mind.",
+            "The Giant's Needle, the Lodestone Belt and the Lullaby Horn. The old songs say you need all three."
+          ],
+          "hint": "h_11"
+        },
+        {
+          "id": "tam",
+          "name": "Watchman Tam",
+          "role": "watchman",
+          "emoji": "💂🏼",
+          "avatar": "exhausted young watchman in a battered helmet, holding a bucket",
+          "lines": [
+            "I used to guard the gate. Then the giant sat on it.",
+            "When the ground shakes, run. When it stops shaking, run faster."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "ruined_hall",
+          "name": "the Ruined Hall",
+          "emoji": "🏚️",
+          "item": "greater_healing",
+          "text": "In the rubble of the old hall you find a Greater Healing Draught, somehow unbroken."
+        }
+      ]
+    },
+    {
+      "id": "cloverwick",
+      "name": "Cloverwick",
+      "biome": "plains",
+      "appearance": "village",
+      "x": 517,
+      "y": 458,
+      "blurb": "A farming village of haystacks, duck ponds and very proud pumpkin growers.",
+      "mayor": {
+        "id": "quill",
+        "name": "Reeve Quill",
+        "title": "Reeve",
+        "emoji": "🧑🏻‍🦳",
+        "avatar": "white-haired, twinkling-eyed reeve with wild curly hair, a long blue coat with silver buttons, and a lapdog under one arm",
+        "greeting": [
+          "A hero, in Cloverwick! Come in, come in, mind the step.",
+          "Try the bread. Everyone in Cloverwick bakes."
+        ],
+        "hint": "h_1",
+        "quest": {
+          "id": "q_cloverwick",
+          "type": "deliver",
+          "title": "A Bundle of Healing Herbs for Heronmarsh",
+          "offer": [
+            "Would you carry this bundle of healing herbs to Baroness Lark in Heronmarsh? A fever has broken out there, and these herbs will cool it.",
+            "They pay their couriers well, I promise."
+          ],
+          "reminder": "Baroness Lark in Heronmarsh is waiting for the bundle of healing herbs.",
+          "done": [
+            "Herbs from Cloverwick! Bless you. The sick will sleep easy tonight.",
+            "Here, for your trouble."
+          ],
+          "item": "healing_herbs",
+          "to": {
+            "town": "heronmarsh"
+          },
+          "reward": {
+            "gold": 65,
+            "items": [
+              "lucky_clover"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Busy Bee",
+        "keeper": {
+          "id": "perry",
+          "name": "Perry",
+          "emoji": "🧑🏼‍🦱",
+          "avatar": "quick-talking trader with curly hair and a ledger under one arm"
+        },
+        "lines": [
+          "Fresh bread, fresh draughts, fresh advice. What'll it be?"
+        ],
+        "stock": [
+          {
+            "item": "lodestone_belt",
+            "qty": 1
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "glacier_pick"
+          },
+          {
+            "item": "gauntlets_of_might"
+          },
+          {
+            "item": "jar_of_honey"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Hugo's Workshop",
+        "keeper": {
+          "id": "hugo",
+          "name": "Hugo",
+          "emoji": "🧔🏼",
+          "avatar": "bearded woodworker with curls of shavings stuck to his jumper"
+        },
+        "lines": [
+          "Anvil, cauldron, grindstone: use what you like. Pedal hard and it all goes faster!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "posy",
+          "name": "Herbalist Posy",
+          "role": "herbalist",
+          "emoji": "🌿",
+          "avatar": "herbalist in a green apron, with bundles of drying herbs hanging from the belt",
+          "lines": [
+            "Every potion is a little poem, if you know how to read it.",
+            "Lessons are cheap. Not knowing is expensive.",
+            "The Old Chest in Cloverwick is locked. Its key was lost in the Old Well in Crownhaven years ago."
+          ],
+          "trains": {
+            "stat": "magic",
+            "price": 40
+          },
+          "hint": "h_10"
+        },
+        {
+          "id": "delphine",
+          "name": "Delphine",
+          "role": "shepherd",
+          "emoji": "🐑",
+          "avatar": "shepherd in a thick wool cloak, with a crook and a sheepdog at heel",
+          "lines": [
+            "The wolves have been bold this year. Keep to the road.",
+            "Stingnettle poison makes a giant sleepy and slow."
+          ],
+          "hint": "h_12"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chest",
+          "name": "the Old Chest",
+          "emoji": "📦",
+          "item": "tome_of_vigor",
+          "requiresKey": "rusty_key",
+          "text": "The Rusty Key turns with a screech. Inside the old chest: a Tome of Vigor!",
+          "lockedText": "A heavy chest sits in the corner, locked tight. The keyhole is caked with rust."
+        }
+      ]
+    },
+    {
+      "id": "eldergrove",
+      "name": "Eldergrove",
+      "biome": "forest",
+      "appearance": "village",
+      "x": 457,
+      "y": 104,
+      "blurb": "Tree-houses joined by rope bridges, high above the forest floor.",
+      "mayor": {
+        "id": "digby",
+        "name": "Lord Digby",
+        "title": "Lord",
+        "emoji": "👨🏿‍🦱",
+        "avatar": "white-haired, twinkling-eyed lord with a bushy black beard, a mustard-yellow waistcoat, and a lapdog under one arm",
+        "greeting": [
+          "A hero, in Eldergrove! Come in, come in, mind the step.",
+          "Walk softly; the forest listens."
+        ],
+        "hint": "h_5",
+        "quest": {
+          "id": "q_eldergrove",
+          "type": "slay",
+          "title": "Old Mother Spider",
+          "offer": [
+            "Old Mother Spider has been prowling the road to Mistmere, frightening every traveller. The traders have stopped coming, and the market is empty.",
+            "Beat Old Mother Spider, and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "Old Mother Spider is still out on the road to Mistmere.",
+          "done": [
+            "Old Mother Spider beaten? Then Eldergrove owes you a great deal.",
+            "Take this, with Eldergrove's thanks."
+          ],
+          "foe": "foe_mother_spider",
+          "reward": {
+            "gold": 60,
+            "items": [
+              "quickening_elixir"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Acorn & Arrow",
+        "keeper": {
+          "id": "rowan",
+          "name": "Rowan",
+          "emoji": "🧑🏿‍🍳",
+          "avatar": "cheerful cook-turned-shopkeeper in a flour-dusted apron"
+        },
+        "lines": [
+          "Bows, cloaks, and forest remedies. All handmade."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "ember_spear"
+          },
+          {
+            "item": "war_axe"
+          },
+          {
+            "item": "iron_helm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Beatrix's Woodshop",
+        "keeper": {
+          "id": "beatrix",
+          "name": "Beatrix",
+          "emoji": "👩🏻‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "Bark, sap and elbow grease. Help yourself to the bench."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "rosalind",
+          "name": "Rosalind the Slightly Singed",
+          "role": "travelling wizard",
+          "emoji": "🧙🏻‍♀️",
+          "avatar": "small, round wizard in a patchwork robe covered in singe marks, with spectacles on a chain",
+          "lines": [
+            "Ooh, I could do wonders with you. New hair? New cloak?",
+            "Magic is cheap. Well, sixty gold. That is cheap, for magic."
+          ],
+          "restyle": {
+            "price": 60
+          }
+        },
+        {
+          "id": "rufus",
+          "name": "Baker Rufus",
+          "role": "baker",
+          "emoji": "👨🏿‍🍳",
+          "avatar": "round, rosy baker in a floury apron, with a tray of buns",
+          "lines": [
+            "My pies are famous as far as Frostreach. Well, as far as the end of the street.",
+            "Fresh buns every morning, before the rooster is up."
+          ]
+        }
+      ],
+      "spots": [
+        {
+          "id": "fairy_ring",
+          "name": "the Fairy Ring",
+          "emoji": "🍄",
+          "gold": 15,
+          "text": "In the middle of the ring of mushrooms lies a purse of 15 gold. You hear tiny giggles."
+        }
+      ]
+    },
+    {
+      "id": "frostreach",
+      "name": "Frostreach",
+      "biome": "snow",
+      "appearance": "hillside",
+      "x": 656,
+      "y": 149,
+      "blurb": "Terraces of snowy roofs climb the mountainside, joined by steep, icy stairs.",
+      "mayor": {
+        "id": "gwendolyn",
+        "name": "Baroness Gwendolyn",
+        "title": "Baroness",
+        "emoji": "👵🏽",
+        "avatar": "small, brisk baroness with dark curls, a plum-coloured cloak, and a silver circlet",
+        "greeting": [
+          "A hero, in Frostreach! Come in, come in, mind the step.",
+          "Brr! Come in by the fire. It is cold here, but our hearts are warm."
+        ],
+        "hint": "h_3",
+        "quest": {
+          "id": "q_frostreach",
+          "type": "slay",
+          "title": "The Winter Wolf",
+          "offer": [
+            "The Winter Wolf has been prowling the road to Silvergate, frightening every traveller. Even the bravest carters turn back.",
+            "Beat the Winter Wolf, and you'll have my thanks, and a reward besides."
+          ],
+          "reminder": "The Winter Wolf is still out on the road to Silvergate.",
+          "done": [
+            "The Winter Wolf beaten? Then Frostreach owes you a great deal.",
+            "Take this, with Frostreach's thanks."
+          ],
+          "foe": "foe_winter_wolf",
+          "reward": {
+            "gold": 75,
+            "items": [
+              "fur_cloak"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Snug Mitten",
+        "keeper": {
+          "id": "gus",
+          "name": "Gus",
+          "emoji": "👨🏿‍🏭",
+          "avatar": "soot-faced armourer with a thick moustache and a hammer on his belt"
+        },
+        "lines": [
+          "Furs, flasks, and frost-proof boots. Stay warm, friend."
+        ],
+        "stock": [
+          {
+            "item": "frost_flask"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "flame_blade"
+          },
+          {
+            "item": "tempest_spear"
+          },
+          {
+            "item": "leather_cap"
+          },
+          {
+            "item": "fur_cloak"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Warm Hearth",
+        "keeper": {
+          "id": "osric",
+          "name": "Osric",
+          "emoji": "👨🏿‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "The warmest room in town! Pedal and you'll soon forget the cold."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "violet",
+          "name": "Old Violet",
+          "role": "grandmother",
+          "emoji": "👵🏾",
+          "avatar": "stooped grandmother in a knitted shawl, with a basket of eggs",
+          "lines": [
+            "Eat something! You're all bones.",
+            "The Deep Delve in Silvergate sells silver ore."
+          ],
+          "hint": "h_6"
+        },
+        {
+          "id": "theobald",
+          "name": "Theobald",
+          "role": "minstrel",
+          "emoji": "🎻",
+          "avatar": "cheerful minstrel in a feathered cap, with a fiddle under one arm",
+          "lines": [
+            "Every hero needs a ballad. Yours is coming along nicely.",
+            "The quickest road to Highcombe is the one from Frostreach."
+          ],
+          "hint": "h_13"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_chapel",
+          "name": "the Old Chapel",
+          "emoji": "⛪",
+          "item": "travelers_tonic",
+          "text": "Behind the altar, in a dusty niche: a Traveler's Tonic."
+        }
+      ]
+    },
+    {
+      "id": "mistmere",
+      "name": "Mistmere",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 349,
+      "y": 290,
+      "blurb": "A village of reed huts and boardwalks over the marsh. Everyone owns a punt.",
+      "mayor": {
+        "id": "edith",
+        "name": "Countess Edith",
+        "title": "Countess",
+        "emoji": "👵🏾",
+        "avatar": "tall, thin countess with dark curls, a green velvet coat, and a wheat-sheaf brooch",
+        "greeting": [
+          "Welcome to Mistmere, Hero! The Queen's messenger said you would come.",
+          "Forgive the smell; it is the bog."
+        ],
+        "hint": "h_4",
+        "quest": {
+          "id": "q_mistmere",
+          "type": "slay",
+          "title": "Old Croaker",
+          "offer": [
+            "Old Croaker has been prowling the road to Heronmarsh, frightening every traveller. Even the bravest carters turn back.",
+            "Beat Old Croaker, and the Giant's Needle, which has hung in my hall for a hundred years, is yours."
+          ],
+          "reminder": "Old Croaker is still out on the road to Heronmarsh.",
+          "done": [
+            "Old Croaker beaten? Then Mistmere owes you a great deal.",
+            "As promised: the Giant's Needle. May it serve you well against Rumblebelly."
+          ],
+          "foe": "foe_old_croaker",
+          "reward": {
+            "gold": 40,
+            "items": [
+              "giants_needle"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Bubbling Pot",
+        "keeper": {
+          "id": "bram",
+          "name": "Bram",
+          "emoji": "👨🏻‍🦰",
+          "avatar": "red-haired ex-sailor with a tattooed forearm and a gold earring"
+        },
+        "lines": [
+          "Potions, poisons, er, remedies. Curios of every kind."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "potion_of_might"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "thornlash"
+          },
+          {
+            "item": "iron_sword"
+          },
+          {
+            "item": "leather_vest"
+          },
+          {
+            "item": "plague_mask"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Bubbling Cauldron",
+        "keeper": {
+          "id": "hazel",
+          "name": "Hazel",
+          "emoji": "👩🏾‍🏭",
+          "avatar": "glassblower with goggles pushed up into her curls"
+        },
+        "lines": [
+          "The cauldron never stops bubbling. Put something good in it."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "pip",
+          "name": "Pip",
+          "role": "frog-catcher",
+          "emoji": "🐸",
+          "avatar": "barefoot child with a net, muddy to the knees and grinning",
+          "lines": [
+            "The bog is safe if you know where to step. I know where to step.",
+            "Yvaine in Heronmarsh has a carved tusk, and would give it to a hero."
+          ],
+          "hint": "h_7"
+        },
+        {
+          "id": "blair",
+          "name": "Old Blair",
+          "role": "village elder",
+          "emoji": "🧓🏿",
+          "avatar": "bright-eyed village elder with a knobbly stick and a patchwork cloak",
+          "lines": [
+            "I've seen eighty winters in Mistmere. This one feels different.",
+            "Old Mother Spider prowls the road between Eldergrove and Mistmere."
+          ],
+          "hint": "h_8"
+        }
+      ],
+      "spots": [
+        {
+          "id": "old_boathouse",
+          "name": "the Old Boathouse",
+          "emoji": "🛶",
+          "item": "quickening_elixir",
+          "text": "Floating in the flooded boathouse: a Quickening Elixir!"
+        }
+      ]
+    },
+    {
+      "id": "heronmarsh",
+      "name": "Heronmarsh",
+      "biome": "swamp",
+      "appearance": "village",
+      "x": 309,
+      "y": 502,
+      "blurb": "A village of reed huts and boardwalks over the marsh. Everyone owns a punt.",
+      "mayor": {
+        "id": "lark",
+        "name": "Baroness Lark",
+        "title": "Baroness",
+        "emoji": "👩🏽‍🦳",
+        "avatar": "stout baroness with a long golden plait, a patched but proud coat, and spectacles on a ribbon",
+        "greeting": [
+          "A hero, in Heronmarsh! Come in, come in, mind the step.",
+          "Forgive the smell; it is the bog."
+        ],
+        "quest": {
+          "id": "q_heronmarsh",
+          "type": "fetch",
+          "title": "The Midsummer Bonfire",
+          "offer": [
+            "Our midsummer bonfire won't light. The wood is too damp. A Fire Flask would do it!",
+            "The Golden Sheaf in Crownhaven sells Fire Flasks, I am told. Bring me one, please."
+          ],
+          "reminder": "Have you found a fire flask? The Golden Sheaf in Crownhaven sells Fire Flasks.",
+          "done": [
+            "Now we'll have a bonfire to remember!",
+            "Here is your reward, and well earned."
+          ],
+          "item": "fire_flask",
+          "reward": {
+            "gold": 45,
+            "items": [
+              "tome_of_might"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "Otto's Curios",
+        "keeper": {
+          "id": "otto",
+          "name": "Otto",
+          "emoji": "👨🏻‍🦰",
+          "avatar": "red-haired ex-sailor with a tattooed forearm and a gold earring"
+        },
+        "lines": [
+          "Mind the jars. Some of them bite."
+        ],
+        "stock": [
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "holy_water"
+          },
+          {
+            "item": "travelers_tonic"
+          },
+          {
+            "item": "oak_cudgel"
+          },
+          {
+            "item": "oak_shield"
+          },
+          {
+            "item": "plague_mask"
+          },
+          {
+            "item": "smoked_fish"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "The Bog-Iron Forge",
+        "keeper": {
+          "id": "quentin",
+          "name": "Quentin",
+          "emoji": "👨🏼‍🔧",
+          "avatar": "broad smith in a scorched leather apron, with forearms like hams"
+        },
+        "lines": [
+          "The cauldron never stops bubbling. Put something good in it."
+        ]
+      },
+      "npcs": [
+        {
+          "id": "crispin",
+          "name": "Ranger Crispin",
+          "role": "ranger",
+          "emoji": "🧝🏻",
+          "avatar": "hooded ranger with a longbow and a scar across one cheek",
+          "lines": [
+            "The wild wears you down, if you let it.",
+            "I can toughen you up, if you've the coin.",
+            "Old Croaker prowls the road between Mistmere and Heronmarsh."
+          ],
+          "trains": {
+            "stat": "vigor",
+            "price": 40
+          },
+          "hint": "h_2"
+        },
+        {
+          "id": "silas",
+          "name": "Silas",
+          "role": "ferry-keeper",
+          "emoji": "🛶",
+          "avatar": "lean ferry-keeper in a wide hat, leaning on a long pole",
+          "lines": [
+            "I take anyone across. Except goblins. Goblins don't tip.",
+            "Mind the water. It's deeper than it looks, and colder."
+          ]
+        },
+        {
+          "id": "yvaine",
+          "name": "Yvaine",
+          "role": "child",
+          "emoji": "👧🏼",
+          "avatar": "small child with scabby knees and a pet frog in one pocket",
+          "lines": [
+            "Have you ever fought a road bandit? What was it like?",
+            "Can I hold your sword? Just for a second? Please?"
+          ],
+          "gives": {
+            "item": "carved_tusk",
+            "line": "So you're the Queen's hero! Take this carved tusk, then. They say the Lullaby Horn is made with one."
+          }
+        }
+      ],
+      "spots": [
+        {
+          "id": "frog_pond",
+          "name": "the Frog Pond",
+          "emoji": "🐸",
+          "item": "quickening_elixir",
+          "text": "A very large frog is sitting on a Quickening Elixir. It lets you have it, eventually."
+        }
+      ]
+    },
+    {
+      "id": "silvergate",
+      "name": "Silvergate",
+      "biome": "mountain",
+      "appearance": "hillside",
+      "x": 690,
+      "y": 432,
+      "blurb": "A town of goatherds and stonecutters, stacked up a steep and windy slope.",
+      "mayor": {
+        "id": "robin",
+        "name": "Reeve Robin",
+        "title": "Reeve",
+        "emoji": "🧑🏾‍🦲",
+        "avatar": "stout reeve with wild curly hair, a patched but proud coat, and a very large hat",
+        "greeting": [
+          "Welcome to Silvergate, Hero! The Queen's messenger said you would come.",
+          "Silvergate stands firm, and so do its people."
+        ],
+        "hint": "h_5",
+        "quest": {
+          "id": "q_silvergate",
+          "type": "fetch",
+          "title": "A Cure for the Fever",
+          "offer": [
+            "Our children are burning with a fever. A Frost Flask would cool them.",
+            "The Snug Mitten in Frostreach sells Frost Flasks, I am told. Bring me one, please."
+          ],
+          "reminder": "Have you found a frost flask? The Snug Mitten in Frostreach sells Frost Flasks.",
+          "done": [
+            "The fever will break tonight. Thank you.",
+            "Here is your reward, and well earned."
+          ],
+          "item": "frost_flask",
+          "reward": {
+            "gold": 75,
+            "items": [
+              "tome_of_fortune"
+            ]
+          }
+        }
+      },
+      "shop": {
+        "name": "The Deep Delve",
+        "keeper": {
+          "id": "fenella",
+          "name": "Fenella",
+          "emoji": "👩🏽‍🍳",
+          "avatar": "broad-shouldered shopkeeper with rolled sleeves and a flour-dusted apron"
+        },
+        "lines": [
+          "Steel for heroes. Only the best, and the best isn't cheap."
+        ],
+        "stock": [
+          {
+            "item": "silver_ore"
+          },
+          {
+            "item": "healing_draught"
+          },
+          {
+            "item": "quickening_elixir"
+          },
+          {
+            "item": "shield_tonic"
+          },
+          {
+            "item": "storm_hammer"
+          },
+          {
+            "item": "tempest_spear"
+          },
+          {
+            "item": "oak_shield"
+          },
+          {
+            "item": "iron_helm"
+          }
+        ]
+      },
+      "workshop": {
+        "name": "Arden's Forge",
+        "keeper": {
+          "id": "arden",
+          "name": "Arden",
+          "emoji": "🧑🏿‍🔧",
+          "avatar": "cheerful tinker with a tool belt full of odd little tools"
+        },
+        "lines": [
+          "The best anvil this side of the mountains. Strike while it's hot!"
+        ]
+      },
+      "npcs": [
+        {
+          "id": "aldous",
+          "name": "Miner Aldous",
+          "role": "miner",
+          "emoji": "👷🏿",
+          "avatar": "stocky miner with a lamp on the helmet and coal on the nose",
+          "lines": [
+            "Never whistle in a mine. It annoys the trolls.",
+            "The Busy Bee in Cloverwick sells a Lodestone Belt. It costs a fortune: 240 gold."
+          ],
+          "hint": "h_3"
+        },
+        {
+          "id": "basil",
+          "name": "Guide Basil",
+          "role": "mountain guide",
+          "emoji": "🧗🏼",
+          "avatar": "wiry mountain guide with a coil of rope and wind-burned cheeks",
+          "lines": [
+            "Watch your step. The mountain doesn't forgive.",
+            "The Deep Delve in Silvergate sells silver ore."
+          ],
+          "hint": "h_6"
+        },
+        {
+          "id": "ellis",
+          "name": "Old Ellis",
+          "role": "village elder",
+          "emoji": "🧓🏿",
+          "avatar": "bright-eyed village elder with a knobbly stick and a patchwork cloak",
+          "lines": [
+            "I've seen eighty winters in Silvergate. This one feels different.",
+            "Yvaine in Heronmarsh has a carved tusk, and would give it to a hero."
+          ],
+          "hint": "h_7"
+        },
+        {
+          "id": "cole",
+          "name": "Cole",
+          "role": "shepherd",
+          "emoji": "🐑",
+          "avatar": "shepherd in a thick wool cloak, with a crook and a sheepdog at heel",
+          "lines": [
+            "The wind up here could blow the whiskers off a cat.",
+            "The Winter Wolf prowls the road between Frostreach and Silvergate."
+          ],
+          "hint": "h_9"
+        }
+      ],
+      "spots": [
+        {
+          "id": "abandoned_mine",
+          "name": "the Abandoned Mine",
+          "emoji": "🕳️",
+          "item": "travelers_tonic",
+          "text": "In the dark of the old shaft your hand closes on a Traveler's Tonic."
+        }
+      ]
+    }
+  ],
+  "routes": [
+    {
+      "id": "r_highcombe_frostreach",
+      "a": "highcombe",
+      "b": "frostreach",
+      "distance": 196,
+      "terrain": "hills",
+      "danger": 1.2,
+      "enemies": [
+        "hill_ogre",
+        "stone_troll"
+      ],
+      "finds": [
+        {
+          "id": "f_highcombe_frostreach",
+          "item": "shield_tonic",
+          "at": 0.52
+        }
+      ]
+    },
+    {
+      "id": "r_eldergrove_frostreach",
+      "a": "eldergrove",
+      "b": "frostreach",
+      "distance": 204,
+      "terrain": "forest",
+      "danger": 0.9,
+      "enemies": [
+        "boar",
+        "goblin",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_eldergrove_frostreach",
+          "item": "shield_tonic",
+          "at": 0.49
+        }
+      ]
+    },
+    {
+      "id": "r_cloverwick_heronmarsh",
+      "a": "cloverwick",
+      "b": "heronmarsh",
+      "distance": 213,
+      "terrain": "plains",
+      "danger": 0.8,
+      "enemies": [
+        "angry_swan",
+        "bandit",
+        "boar"
+      ],
+      "finds": [
+        {
+          "id": "f_cloverwick_heronmarsh",
+          "item": "carved_tusk",
+          "at": 0.53
+        }
+      ]
+    },
+    {
+      "id": "r_eldergrove_mistmere",
+      "a": "eldergrove",
+      "b": "mistmere",
+      "distance": 215,
+      "terrain": "forest",
+      "danger": 0.8,
+      "enemies": [
+        "wolf",
+        "boar",
+        "brown_bear"
+      ],
+      "fixed": [
+        {
+          "id": "foe_mother_spider",
+          "enemy": "mother_spider",
+          "at": 0.49,
+          "quest": "q_eldergrove"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_eldergrove_mistmere",
+          "item": "healing_draught",
+          "at": 0.63
+        }
+      ]
+    },
+    {
+      "id": "r_mistmere_heronmarsh",
+      "a": "mistmere",
+      "b": "heronmarsh",
+      "distance": 216,
+      "terrain": "swamp",
+      "danger": 0.7,
+      "enemies": [
+        "bog_lurker",
+        "goblin",
+        "marsh_wisp"
+      ],
+      "fixed": [
+        {
+          "id": "foe_old_croaker",
+          "enemy": "old_croaker",
+          "at": 0.38,
+          "quest": "q_mistmere"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_mistmere_heronmarsh",
+          "item": "goblin_trinket",
+          "at": 0.55
+        }
+      ]
+    },
+    {
+      "id": "r_crownhaven_mistmere",
+      "a": "crownhaven",
+      "b": "mistmere",
+      "distance": 233,
+      "terrain": "swamp",
+      "danger": 0.7,
+      "enemies": [
+        "goblin",
+        "marsh_wisp",
+        "giant_toad"
+      ],
+      "finds": [
+        {
+          "id": "f_crownhaven_mistmere",
+          "item": "goblin_trinket",
+          "at": 0.59
+        }
+      ]
+    },
+    {
+      "id": "r_cloverwick_mistmere",
+      "a": "cloverwick",
+      "b": "mistmere",
+      "distance": 238,
+      "terrain": "plains",
+      "danger": 0.8,
+      "enemies": [
+        "wolf",
+        "angry_swan",
+        "bandit"
+      ],
+      "finds": [
+        {
+          "id": "f_cloverwick_mistmere",
+          "item": "travelers_tonic",
+          "at": 0.51
+        }
+      ]
+    },
+    {
+      "id": "r_crownhaven_heronmarsh",
+      "a": "crownhaven",
+      "b": "heronmarsh",
+      "distance": 276,
+      "terrain": "swamp",
+      "danger": 0.6,
+      "enemies": [
+        "giant_toad",
+        "marsh_wisp",
+        "bog_lurker"
+      ],
+      "finds": [
+        {
+          "id": "f_crownhaven_heronmarsh",
+          "item": "goblin_trinket",
+          "at": 0.43
+        }
+      ]
+    },
+    {
+      "id": "r_highcombe_silvergate",
+      "a": "highcombe",
+      "b": "silvergate",
+      "distance": 277,
+      "terrain": "hills",
+      "danger": 1.2,
+      "enemies": [
+        "hill_ogre",
+        "stone_troll",
+        "wolf"
+      ],
+      "finds": [
+        {
+          "id": "f_highcombe_silvergate",
+          "item": "carved_tusk",
+          "at": 0.6
+        }
+      ]
+    },
+    {
+      "id": "r_frostreach_silvergate",
+      "a": "frostreach",
+      "b": "silvergate",
+      "distance": 285,
+      "terrain": "snow",
+      "danger": 1,
+      "enemies": [
+        "frost_wolf",
+        "wolf",
+        "frost_sprite"
+      ],
+      "fixed": [
+        {
+          "id": "foe_winter_wolf",
+          "enemy": "winter_wolf",
+          "at": 0.51,
+          "quest": "q_frostreach"
+        }
+      ],
+      "finds": [
+        {
+          "id": "f_frostreach_silvergate",
+          "item": "troll_tooth",
+          "at": 0.41
+        }
+      ]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "hill_ogre",
+      "name": "Hill Ogre",
+      "emoji": "👹",
+      "family": "giant",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        24,
+        34
+      ],
+      "drops": [
+        {
+          "item": "carved_tusk",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "An ogre sits in the road eating a whole cabbage. It wipes its mouth and stands up."
+    },
+    {
+      "id": "stone_troll",
+      "name": "Stone Troll",
+      "emoji": "🧌",
+      "family": "giant",
+      "tier": 3,
+      "battle": "tug",
+      "weakness": "storm",
+      "gold": [
+        24,
+        34
+      ],
+      "drops": [
+        {
+          "item": "troll_tooth",
+          "chance": 0.5
+        }
+      ],
+      "taunt": "A troll steps out from behind a boulder. No, wait: the boulder IS the troll."
+    },
+    {
+      "id": "boar",
+      "name": "Wild Boar",
+      "emoji": "🐗",
+      "family": "beast",
+      "tier": 1,
+      "gold": [
+        8,
+        12
+      ],
+      "taunt": "A boar paws the ground and snorts."
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin Scout",
+      "emoji": "👺",
+      "family": "goblin",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "gold": [
+        9,
+        14
+      ],
+      "drops": [
+        {
+          "item": "goblin_trinket",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A goblin cackles and waves a rusty knife."
+    },
+    {
+      "id": "wolf",
+      "name": "Grey Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 1,
+      "weakness": "fire",
+      "gold": [
+        8,
+        13
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.35
+        }
+      ],
+      "taunt": "A wolf slinks out of the grass, teeth bared."
+    },
+    {
+      "id": "angry_swan",
+      "name": "Angry Swan",
+      "emoji": "🦢",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "gold": [
+        6,
+        11
+      ],
+      "taunt": "A swan spreads its wings and hisses like a kettle. It wants the whole road to itself."
+    },
+    {
+      "id": "bandit",
+      "name": "Road Bandit",
+      "emoji": "🥷",
+      "family": "bandit",
+      "tier": 2,
+      "battle": "tug",
+      "gold": [
+        15,
+        24
+      ],
+      "drops": [
+        {
+          "item": "healing_draught",
+          "chance": 0.2
+        }
+      ],
+      "taunt": "\"Your gold or your life, traveler!\""
+    },
+    {
+      "id": "brown_bear",
+      "name": "Brown Bear",
+      "emoji": "🐻",
+      "family": "beast",
+      "tier": 2,
+      "battle": "tug",
+      "weakness": "fire",
+      "gold": [
+        12,
+        20
+      ],
+      "drops": [
+        {
+          "item": "jar_of_honey",
+          "chance": 0.3
+        }
+      ],
+      "taunt": "A bear rears up on its hind legs. It smells of honey and bad temper."
+    },
+    {
+      "id": "bog_lurker",
+      "name": "Bog Lurker",
+      "emoji": "🐊",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        12,
+        18
+      ],
+      "taunt": "Something scaly rises from the muck."
+    },
+    {
+      "id": "marsh_wisp",
+      "name": "Marsh Wisp",
+      "emoji": "👻",
+      "family": "spirit",
+      "tier": 2,
+      "weakness": "holy",
+      "gold": [
+        10,
+        16
+      ],
+      "taunt": "A pale light drifts closer, whispering your name."
+    },
+    {
+      "id": "giant_toad",
+      "name": "Giant Toad",
+      "emoji": "🐸",
+      "family": "beast",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        7,
+        12
+      ],
+      "taunt": "A toad the size of a barrel blinks at you, then flicks out a very long tongue."
+    },
+    {
+      "id": "frost_wolf",
+      "name": "Frost Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 2,
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        12,
+        18
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 0.4
+        }
+      ],
+      "taunt": "A wolf as white as the snowfield pads closer, its breath freezing in the air."
+    },
+    {
+      "id": "frost_sprite",
+      "name": "Frost Sprite",
+      "emoji": "🥶",
+      "family": "spirit",
+      "tier": 1,
+      "battle": "race",
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        8,
+        13
+      ],
+      "taunt": "A shivering sprite hurls a snowball. It is mostly ice."
+    },
+    {
+      "id": "old_croaker",
+      "name": "Old Croaker",
+      "emoji": "🐸",
+      "family": "beast",
+      "tier": 3,
+      "battle": "race",
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        35,
+        45
+      ],
+      "drops": [
+        {
+          "item": "crystal_shard",
+          "chance": 1
+        }
+      ],
+      "taunt": "Old Croaker, the biggest toad in the bog, blinks slowly and puffs up like a drum.",
+      "avatar": "toad as big as a haycart, warty and green, with a crown-shaped golden spot on its head"
+    },
+    {
+      "id": "mother_spider",
+      "name": "Old Mother Spider",
+      "emoji": "🕷️",
+      "family": "beast",
+      "tier": 3,
+      "weakness": "fire",
+      "attack": "poison",
+      "gold": [
+        35,
+        50
+      ],
+      "drops": [
+        {
+          "item": "spider_silk",
+          "chance": 1
+        }
+      ],
+      "taunt": "Old Mother Spider lowers herself from the treetops on a rope of silk. Her eight eyes glitter.",
+      "avatar": "spider as big as a cart, with grey-striped legs and a crown of cobwebs"
+    },
+    {
+      "id": "winter_wolf",
+      "name": "the Winter Wolf",
+      "emoji": "🐺",
+      "family": "beast",
+      "tier": 3,
+      "weakness": "fire",
+      "resist": "ice",
+      "attack": "ice",
+      "gold": [
+        35,
+        45
+      ],
+      "drops": [
+        {
+          "item": "wolf_pelt",
+          "chance": 1
+        }
+      ],
+      "taunt": "The Winter Wolf howls, and the air around you freezes.",
+      "avatar": "pale blue wolf with icicle fangs and breath that freezes the air"
+    },
+    {
+      "id": "old_rumblebelly",
+      "name": "Old Rumblebelly",
+      "emoji": "🧌",
+      "family": "giant",
+      "tier": 5,
+      "weakness": "poison",
+      "resist": "storm",
+      "attack": "storm",
+      "gold": [
+        0,
+        0
+      ],
+      "taunt": "\"FEE, FI, FO... oh, never mind. I'll just squash you.\"",
+      "boss": true,
+      "avatar": "enormous grey giant wearing a barn roof as a hat, with lightning crackling in both fists"
+    }
+  ],
+  "hints": [
+    {
+      "id": "h_1",
+      "text": "Countess Edith of Mistmere keeps the Giant's Needle, and has promised it to whoever defeats Old Croaker."
+    },
+    {
+      "id": "h_2",
+      "text": "Old Croaker prowls the road between Mistmere and Heronmarsh."
+    },
+    {
+      "id": "h_3",
+      "text": "The Busy Bee in Cloverwick sells a Lodestone Belt. It costs a fortune: 240 gold."
+    },
+    {
+      "id": "h_4",
+      "text": "Only a Lodestone Belt can turn Rumblebelly's lightning. The Busy Bee in Cloverwick has one."
+    },
+    {
+      "id": "h_5",
+      "text": "The Lullaby Horn can't be bought or found: it has to be made, at the workshop in any town, from a carved tusk bound with two lumps of silver ore. It takes a few minutes of hard pedaling."
+    },
+    {
+      "id": "h_6",
+      "text": "The Deep Delve in Silvergate sells silver ore."
+    },
+    {
+      "id": "h_7",
+      "text": "Yvaine in Heronmarsh has a carved tusk, and would give it to a hero."
+    },
+    {
+      "id": "h_8",
+      "text": "Old Mother Spider prowls the road between Eldergrove and Mistmere."
+    },
+    {
+      "id": "h_9",
+      "text": "The Winter Wolf prowls the road between Frostreach and Silvergate."
+    },
+    {
+      "id": "h_10",
+      "text": "The Old Chest in Cloverwick is locked. Its key was lost in the Old Well in Crownhaven years ago."
+    },
+    {
+      "id": "h_11",
+      "text": "To defeat Rumblebelly you need the Giant's Needle, the Lodestone Belt and the Lullaby Horn."
+    },
+    {
+      "id": "h_12",
+      "text": "Stingnettle poison makes a giant sleepy and slow."
+    },
+    {
+      "id": "h_13",
+      "text": "The quickest road to Highcombe is the one from Frostreach."
+    }
+  ],
+  "recipes": [
+    {
+      "item": "lullaby_horn",
+      "needs": [
+        {
+          "item": "silver_ore",
+          "qty": 2
+        },
+        {
+          "item": "carved_tusk",
+          "qty": 1
+        }
+      ],
+      "seconds": 240
+    },
+    {
+      "item": "healing_draught",
+      "seconds": 60
+    },
+    {
+      "item": "potion_of_might",
+      "seconds": 120
+    },
+    {
+      "item": "greater_healing",
+      "needs": [
+        {
+          "item": "healing_draught",
+          "qty": 2
+        }
+      ],
+      "seconds": 45
+    },
+    {
+      "item": "frost_flask",
+      "needs": [
+        {
+          "item": "frost_lily",
+          "qty": 1
+        }
+      ],
+      "seconds": 30
+    },
+    {
+      "item": "fur_cloak",
+      "needs": [
+        {
+          "item": "wolf_pelt",
+          "qty": 3
+        }
+      ],
+      "seconds": 90
+    }
+  ],
+  "challenge": {
+    "threat": "giant",
+    "title": "Thunder over Highcombe",
+    "summons": [
+      "Hero, thank you for coming so swiftly. Grave news has reached the throne.",
+      "Old Rumblebelly has come down from the mountains to Highcombe. The giant stamps on barns for fun, and thunderstorms follow wherever it goes.",
+      "The old songs name three things that can defeat Rumblebelly: the Giant's Needle, a Lodestone Belt to ground its lightning, and the Lullaby Horn, which sends giants to sleep.",
+      "Find all three, then face Rumblebelly at the Cloud Crag. Ask everyone you meet; the people of the Duskmere know more than they think.",
+      "Take this purse and these draughts. My carriage will carry you to Crownhaven. Everwyn is counting on you."
+    ],
+    "crisisTown": "highcombe",
+    "lair": {
+      "name": "the Cloud Crag",
+      "emoji": "⛰️",
+      "text": "A crag so high its top is lost in thunderclouds. The ground shakes with every step up there."
+    },
+    "requires": [
+      "giants_needle",
+      "lodestone_belt",
+      "lullaby_horn"
+    ],
+    "boss": "old_rumblebelly",
+    "victory": [
+      "You blow the Lullaby Horn. Rumblebelly gives a yawn as wide as a barn door.",
+      "One jab of the Giant's Needle, and down the giant goes, fast asleep, with a thud that shakes the hills.",
+      "The people of Highcombe tie up the snoring giant with every rope in town, then roll it home to the mountains."
+    ],
+    "sources": [
+      {
+        "item": "giants_needle",
+        "how": "quest",
+        "town": "mistmere",
+        "ref": "q_mistmere"
+      },
+      {
+        "item": "lodestone_belt",
+        "how": "shop",
+        "town": "cloverwick",
+        "ref": "perry"
+      },
+      {
+        "item": "lullaby_horn",
+        "how": "craft",
+        "town": "heronmarsh",
+        "ref": "lullaby_horn"
+      }
+    ]
+  }
+}

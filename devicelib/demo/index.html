@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>devicelib bench</title>
+<style>
+  :root { --bg: #f6f7f9; --card: #fff; --ink: #1d2330; --muted: #677089; --line: #dde1ea; --accent: #e8890c; --ok: #1f9d55; --warn: #c2410c; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.4 system-ui, -apple-system, Segoe UI, sans-serif; background: var(--bg); color: var(--ink); }
+  header { padding: 14px 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--line); background: var(--card); }
+  header h1 { font-size: 16px; margin: 0 12px 0 0; }
+  main { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; padding: 14px 20px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 10px; }
+  button { font: inherit; padding: 6px 12px; border-radius: 7px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  button.stop { background: #b91c1c; color: #fff; border-color: #b91c1c; }
+  button:disabled { opacity: .5; cursor: default; }
+  label { display: flex; gap: 6px; align-items: center; color: var(--muted); }
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .metric { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+  .metric b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+  .metric small { color: var(--muted); }
+  .metric.computed b { color: var(--muted); font-style: italic; }
+  .row { display: flex; gap: 8px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+  .row input[type=range] { flex: 1; min-width: 120px; }
+  .row output { min-width: 64px; text-align: right; font-variant-numeric: tabular-nums; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; }
+  dt { color: var(--muted); } dd { margin: 0; overflow-wrap: anywhere; }
+  pre { margin: 0; max-height: 280px; overflow: auto; font-size: 12px; background: #f1f3f7; border-radius: 6px; padding: 8px; white-space: pre-wrap; }
+  .pill { display: inline-block; padding: 1px 8px; border-radius: 99px; background: #eef1f6; color: var(--muted); font-size: 12px; }
+  .pill.ready { background: #dcfce7; color: var(--ok); } .pill.bad { background: #ffedd5; color: var(--warn); }
+  [hidden] { display: none !important; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; }
+  code { font: 12px ui-monospace, SFMono-Regular, Menlo, monospace; }
+</style>
+</head>
+<body>
+<header>
+  <h1>devicelib bench</h1>
+  <button id="connect" class="primary">Connect Bluetooth device</button>
+  <button id="sim-treadmill">Simulated Horizon treadmill</button>
+  <button id="sim-bike">Simulated Zwift Hub</button>
+  <label><input type="checkbox" id="opt-zwift"> Use Zwift protocol (native gears)</label>
+  <label><input type="checkbox" id="opt-vendor"> Allow vendor control</label>
+  <span id="state" class="pill">idle</span>
+</header>
+<main>
+  <section>
+    <h2>Device</h2>
+    <dl id="info"><dt>Status</dt><dd>Not connected. Web Bluetooth needs Chrome or Edge.</dd></dl>
+    <div class="row" id="protocol-switch" hidden>
+      <label>Protocol
+        <select id="protocol-pref">
+          <option value="auto">Automatic (recommended)</option>
+          <option value="ftms">Prefer FTMS</option>
+          <option value="native">Prefer device native</option>
+        </select>
+      </label>
+    </div>
+    <div class="row">
+      <button id="disconnect" disabled>Disconnect</button>
+      <button id="capture" disabled>Download capture</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Telemetry</h2>
+    <div class="metrics" id="metrics"></div>
+    <p><small>Italic values are computed by devicelib, not reported by the machine.</small></p>
+  </section>
+
+  <section id="controls">
+    <h2>Controls</h2>
+    <div data-for="treadmill">
+      <div class="row"><span>Speed</span><input id="speed" type="range" min="0" max="16" step="0.1" value="0"><output id="speed-out">0.0 km/h</output></div>
+      <div class="row"><span>Incline</span><input id="incline" type="range" min="0" max="15" step="0.5" value="0"><output id="incline-out">0.0 %</output></div>
+    </div>
+    <div data-for="bike">
+      <div class="row"><span>Grade</span><input id="grade" type="range" min="-10" max="15" step="0.5" value="0"><output id="grade-out">0.0 %</output></div>
+      <div class="row"><span>ERG</span><input id="power" type="range" min="50" max="400" step="5" value="150"><output id="power-out">150 W</output><button id="erg">Set power</button></div>
+      <div class="row"><span>Gear</span><button id="down">−</button><output id="gear-out">12</output><button id="up">+</button></div>
+    </div>
+    <div class="row">
+      <button id="start">Start</button><button id="pause">Pause</button><button id="stop" class="stop">Stop</button>
+    </div>
+  </section>
+
+  <section id="units-test" hidden>
+    <h2>FTMS speed units test</h2>
+    <p><small>Each button sends Request Control (<code>00</code>), Start (<code>07</code>), then Set Target Speed with a raw value.
+      Compare the console with the three readings. Values stop at 50: under the 0.1 mph reading, 60 would already be 6 mph.
+      Keep the safety key clipped on.</small></p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Send raw value</th><th>Standard 0.01 km/h</th><th>If 0.1 km/h</th><th>If 0.1 mph</th></tr></thead>
+        <tbody id="units-rows"></tbody>
+      </table>
+    </div>
+    <div class="row">
+      <button id="raw-stop" class="stop">Stop belt (08 01)</button>
+      <button id="raw-range">Read speed range</button>
+    </div>
+    <p><small>Treadmill reports:</small> <span id="raw-reported">—</span></p>
+    <pre id="raw-out">Results appear here.</pre>
+  </section>
+
+  <section>
+    <h2>Log</h2>
+    <label><input type="checkbox" id="show-traces"> Show raw bytes</label>
+    <pre id="log"></pre>
+  </section>
+
+  <section>
+    <h2>GATT table</h2>
+    <pre id="gatt">Connect to see services and characteristics.</pre>
+  </section>
+</main>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

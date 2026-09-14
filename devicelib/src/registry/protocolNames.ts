@@ -1,0 +1,78 @@
+/** Friendly names for protocol ids, for showing users what their device is speaking. */
+
+const NAMES: Record<string, string> = {
+  ftms: 'Bluetooth FTMS',
+  cycling_power: 'Bluetooth Cycling Power',
+  csc: 'Bluetooth Speed & Cadence',
+  rsc_cps: 'Bluetooth Running Speed & Cadence',
+  heart_rate: 'Bluetooth Heart Rate',
+  zwift_zap: 'Zwift protocol',
+  raw: 'Not supported yet (capture only)',
+  none: 'No Bluetooth data',
+  activio: 'Activio',
+  bkool_fec_pages: 'Bkool (FE-C)',
+  concept2_multiplexed: 'Concept2 PM5',
+  core_temp: 'CORE body temperature',
+  crossrope: 'Crossrope',
+  cycleops: 'CycleOps / Saris',
+  deerrun: 'PitPat / DeerRun',
+  domyos: 'Domyos (Decathlon)',
+  domyos_f0: 'Domyos (Decathlon)',
+  dyaco: 'Dyaco',
+  echelon: 'Echelon',
+  elite_347b: 'Elite (legacy)',
+  eslinker: 'esLinker',
+  fitshow: 'FitShow',
+  fitshow_rower: 'FitShow',
+  focus_f0: 'Focus Fitness',
+  ftms_plus_concept2: 'FTMS + Concept2',
+  horizon: 'Horizon (Johnson Health Tech)',
+  horizon_gr7_uart: 'Horizon GR7',
+  icg_uart: 'ICG / Life Fitness',
+  ifit_adb: 'iFit (tablet bridge)',
+  ifit_ble: 'iFit Bluetooth',
+  ifit_wifi_ws: 'iFit Wi-Fi',
+  keiser_adv: 'Keiser M Series',
+  kettler_c12: 'Kettler',
+  kinetic_obfuscated: 'Kinetic',
+  kingsmith_f7: 'KingSmith / WalkingPad',
+  kingsmith_text: 'KingSmith / WalkingPad',
+  lifefitness: 'Life Fitness',
+  lifespan: 'LifeSpan',
+  moxy: 'Moxy muscle oxygen',
+  nautilus: 'Nautilus',
+  nautilus_inc: 'Nautilus / Bowflex',
+  octane: 'Octane Fitness',
+  pafers_55: 'Pafers',
+  smartrow_ascii: 'SmartRow',
+  sole_dyaco_uart: 'Sole',
+  sperax_replay: 'Sperax',
+  spirit_dyaco_uart: 'Spirit Fitness',
+  sportsplus_20: 'Sportsplus',
+  sportstech_f0: 'Sportstech',
+  sportstech_f2: 'Sportstech',
+  sunnyfit_5a: 'SunnyFit',
+  tacx_fec_ble: 'Tacx (FE-C)',
+  technogym_f8f9: 'Technogym',
+  technogym_myrun: 'Technogym MyRun',
+  technogym_spp_text: 'Technogym',
+  toorx_appgate: 'Toorx / iConsole+',
+  toorx_appgate_spp: 'Toorx (Bluetooth Classic)',
+  toorx_spp: 'Toorx (Bluetooth Classic)',
+  true_wahoo_style: 'True Fitness',
+  udp_text_8003: 'Peloton bridge (network)',
+  wahoo_cps_ext: 'Wahoo trainer protocol',
+  yesoul_f5: 'Yesoul',
+  ypoo_fff0: 'Ypoo',
+  zipro: 'Zipro',
+};
+
+export function protocolDisplayName(id: string): string {
+  return (
+    NAMES[id] ??
+    id
+      .split('_')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ')
+  );
+}
