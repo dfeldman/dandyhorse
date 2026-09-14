@@ -781,6 +781,9 @@ Each game is a folder under `games/<gameId>/`. `gameId` is
 - `capabilities.autoPause: false` (2026-09-13): no automatic pauses (§5.3).
 - An option may carry `controls` (2026-09-13): `{"on": {"treadmill": "incline", "bike": "grade"}}`. Choosing that
   value changes what the game drives on those machines, and the session brief's `controls` follow.
+- `achievements` (2026-09-14, optional): `{"kom": {"name": "King of the mountain", "description": "…"}}`, keyed by
+  the ids the game sends in `setstate`. The console's Achievements page lists them by these names (locked until
+  earned); an earned id the game didn't name shows up humanized. See docs/GAME_AUTHORING.md.
 
 
 **Game options** (owner, 2026-09-11): choices a player makes **at launch, in
