@@ -3,14 +3,19 @@
  * same-origin by the API server and the auth cookie rides along. Errors throw `ApiError`.
  */
 import type {
-  GameState, Json, SessionStatus, SessionSummary, SetStateBody, SetStateResponse, StartPayload,
+  GameState, Json, PauseInfo, SessionStatus, SessionSummary, SetStateBody, SetStateResponse, StartPayload,
   StartSessionAdHoc, StartSessionBySession, TimelineRow, UnitSystem,
 } from './types.ts'
 
 export class ApiError extends Error {
-  constructor(public readonly status: number, public readonly code: string, message: string) {
+  readonly status: number
+  readonly code: string
+  // No parameter properties anywhere in gamekit: games may type-check it with erasableSyntaxOnly.
+  constructor(status: number, code: string, message: string) {
     super(message)
     this.name = 'ApiError'
+    this.status = status
+    this.code = code
   }
 }
 
@@ -54,9 +59,17 @@ export const getState = (sessionId: string, since = -1, wait = 0, signal?: Abort
 /** `POST /gameapi/setstate` — the game's ~1 Hz push. Accepted while paused; 409 pending, 410 ended. */
 export const setState = (body: SetStateBody) => request<SetStateResponse>('POST', '/gameapi/setstate', body)
 
-/** `POST /gameapi/answerinput` — the game's own on-screen buttons answer a prompt. */
-export const answerInput = (sessionId: string, promptId: string, choice: string) =>
-  request<{ accepted: boolean }>('POST', '/gameapi/answerinput', { sessionId, promptId, choice })
+/** `POST /gameapi/answerinput` — the game's own on-screen buttons answer a prompt (`rev`: the menu it was aimed at). */
+export const answerInput = (sessionId: string, promptId: string, choice: string, rev?: number) =>
+  request<{ accepted: boolean }>('POST', '/gameapi/answerinput', { sessionId, promptId, choice, ...(rev != null ? { rev } : {}) })
+
+/**
+ * `POST /gameapi/pause` — the game's own Pause (true) and Resume (false), the same as a bridge's ⏸ and ▶: the break is
+ * not counted as exercise and every bridge offers Play. Idempotent. The pause arrives back through getstate like any
+ * user pause (`pause.reason` "user").
+ */
+export const pauseSession = (sessionId: string, paused: boolean) =>
+  request<{ ok: boolean; sessionStatus: SessionStatus; pause: PauseInfo | null }>('POST', '/gameapi/pause', { sessionId, paused })
 
 /** `POST /gameapi/endsession` — idempotent; returns the session summary. */
 export const endSession = (sessionId: string, status: 'complete' | 'discarded', reason?: string) =>

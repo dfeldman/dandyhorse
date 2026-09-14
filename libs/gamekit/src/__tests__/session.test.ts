@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { setFetch } from '../api'
+import { menuPrompt } from '../inputs'
 import { SessionClient } from '../session'
 import type { GameState } from '../types'
 
@@ -78,6 +79,27 @@ describe('SessionClient', () => {
     expect(events).toEqual(['ended:complete'])
     expect(srv.calls.filter((x) => x === 'PUT /gameapi/sessions/s1/image').length).toBe(1)
     expect(srv.calls.includes('POST /gameapi/endsession')).toBe(false)
+  })
+
+  test('the game answers a menu with its rev, and pauses itself', async () => {
+    const state = base()
+    const bodies: Record<string, unknown>[] = []
+    setFetch(async (input, init) => {
+      const url = String(input)
+      if (init?.body) bodies.push({ url, ...JSON.parse(String(init.body)) })
+      const json = (d: unknown) => new Response(JSON.stringify(d), { status: 200, headers: { 'Content-Type': 'application/json' } })
+      if (url === '/gameapi/pause') return json({ ok: true, sessionStatus: 'paused', pause: null })
+      if (url === '/gameapi/answerinput') return json({ accepted: true })
+      return json(state)
+    })
+    const c = new SessionClient({ sessionId: 's1', buildTick: () => ({}) })
+    c.prompt = menuPrompt('kt', 7, { title: 'T', items: [{ id: 'a', label: 'A' }] })
+    expect(await c.answer('a')).toBe(true)
+    expect(await c.setPaused(true)).toBe(true)
+    expect(bodies).toEqual([
+      { url: '/gameapi/answerinput', sessionId: 's1', promptId: 'kt', choice: 'a', rev: 7 },
+      { url: '/gameapi/pause', sessionId: 's1', paused: true },
+    ])
   })
 
   test('ticks carry the open prompt until it is closed, and setstate never runs twice at once', async () => {

@@ -2,7 +2,7 @@
  * Prompts and the d-pad (PLAN.md §6.3, §9.7). Pure helpers; the SessionClient uses them to deliver every
  * answer exactly once, in order, even when taps arrive faster than the game polls.
  */
-import type { GameState, InputAnswer, Prompt, RemoteButton } from './types.ts'
+import type { GameState, InputAnswer, MenuItem, Prompt, RemoteButton } from './types.ts'
 import { REMOTE_BUTTONS } from './types.ts'
 
 /**
@@ -43,3 +43,73 @@ export function persistentPrompt(promptId: string, title: string, choices: strin
 }
 
 export const isRemoteButton = (s: string): s is RemoteButton => (REMOTE_BUTTONS as readonly string[]).includes(s)
+
+// --- menu prompts (PLAN.md §6.3) ----------------------------------------------------------------
+
+export const MENU_ITEMS_MAX = 100
+export const MENU_LABEL_MAX = 40
+const ESCAPE = 'item:'
+
+/**
+ * An item id as it travels in a menu prompt. An answer is either an item id or a d-pad button name, so an item whose
+ * id is a button name ("back" is a common one) travels as `item:back`; readMenuAnswer() undoes it.
+ */
+export const menuItemId = (id: string): string => (isRemoteButton(id) || id.startsWith(ESCAPE) ? ESCAPE + id : id)
+
+export interface MenuSpec {
+  title: string
+  items: MenuItem[]
+  highlight?: string | null
+  /** The item Back picks. */
+  back?: string | null
+  countdown?: number | null
+  /** The d-pad buttons to show beside the list (all six by default). */
+  buttons?: RemoteButton[]
+}
+
+/** At most `max` characters, counted the way the server counts them (code points, so an emoji is never cut in half). */
+const clip = (s: string, max: number): string => {
+  const chars = Array.from(s)
+  return chars.length <= max ? s : chars.slice(0, max - 1).join('') + '…'
+}
+
+/**
+ * A menu prompt: the game's whole choice list, so a phone can mirror it. Persistent; bump `rev` whenever the list
+ * itself changes (ids, disabled flags, the title), not when only the highlight moves or a label's number ticks.
+ */
+export function menuPrompt(promptId: string, rev: number, spec: MenuSpec): Prompt {
+  const items = spec.items.slice(0, MENU_ITEMS_MAX).map((it) => {
+    const out: MenuItem = { id: menuItemId(it.id), label: clip(it.label, MENU_LABEL_MAX) }
+    if (it.hint) out.hint = it.hint
+    if (it.disabled) out.disabled = true
+    return out
+  })
+  const buttons = (spec.buttons ?? [...REMOTE_BUTTONS]).filter(isRemoteButton)
+  return {
+    promptId, prompt: spec.title, choices: buttons, persistent: true, layout: 'menu', items, rev,
+    highlight: spec.highlight ? menuItemId(spec.highlight) : null,
+    back: spec.back ? menuItemId(spec.back) : null,
+    countdown: spec.countdown ?? null,
+  }
+}
+
+export type MenuAnswer =
+  | { kind: 'button'; button: RemoteButton; rev: number | null }
+  | { kind: 'item'; id: string; rev: number | null }
+
+/** What a menu answer means: a d-pad button, or a tap on an item (its id as the game gave it). */
+export function readMenuAnswer(a: InputAnswer): MenuAnswer {
+  const rev = typeof a.rev === 'number' ? a.rev : null
+  if (isRemoteButton(a.choice)) return { kind: 'button', button: a.choice, rev }
+  return { kind: 'item', id: a.choice.startsWith(ESCAPE) ? a.choice.slice(ESCAPE.length) : a.choice, rev }
+}
+
+/**
+ * Was this tap aimed at an older list? Item taps, Select and Back are (and should be dropped) when their `rev` is not
+ * the current one; directions always pass, and so does a tap that carries no rev (an older bridge).
+ */
+export function isStaleAnswer(a: MenuAnswer, currentRev: number): boolean {
+  if (a.rev === null) return false
+  if (a.kind === 'button' && a.button !== 'select' && a.button !== 'back') return false
+  return a.rev !== currentRev
+}

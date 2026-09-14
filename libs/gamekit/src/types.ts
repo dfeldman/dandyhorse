@@ -51,17 +51,42 @@ export type UnitSystem = 'metric' | 'us'
 export const REMOTE_BUTTONS = ['up', 'down', 'left', 'right', 'select', 'back'] as const
 export type RemoteButton = (typeof REMOTE_BUTTONS)[number]
 
+/** One entry of a menu prompt: a stable id, a label of at most 40 characters (it may start with an emoji). */
+export interface MenuItem {
+  id: string
+  label: string
+  /** One line shown under the highlighted item. */
+  hint?: string
+  /** Shown greyed; taps on it are rejected. */
+  disabled?: boolean
+}
+
 /** A prompt the game asks the user to answer (setstate.requestedInput). */
 export interface Prompt {
   promptId: string
   prompt: string
+  /** Button labels; for `dpad` and `menu`, the RemoteButton names the bridge draws (a menu may have none). */
   choices: string[]
   /** Seconds; advisory, the server does not enforce it. */
   timeout?: number
-  /** Persistent prompts stay open and every tap is delivered as a new `input`. */
+  /** Persistent prompts stay open and every tap is delivered as a new `input`. Menus are always persistent. */
   persistent?: boolean
-  /** `dpad`: the bridge draws a cross for the RemoteButton names in `choices`. */
-  layout?: 'buttons' | 'dpad'
+  /**
+   * `dpad`: the bridge draws a cross for the RemoteButton names in `choices`.
+   * `menu` (PLAN.md §6.3): the game's whole choice list in `items`; the phone shows it as big buttons plus a small
+   * d-pad. Tapping an item answers with its id, a d-pad button with the button name. Build it with `menuPrompt()`.
+   */
+  layout?: 'buttons' | 'dpad' | 'menu'
+  /** menu: up to 100 items. Ids must not be RemoteButton names (menuPrompt escapes them). */
+  items?: MenuItem[]
+  /** menu: the item the game has highlighted, so the phone and the big screen agree. */
+  highlight?: string | null
+  /** menu: the item the Back button picks. */
+  back?: string | null
+  /** menu: bump whenever the list changes (not when only the highlight moves); answers echo it. */
+  rev?: number
+  /** menu: seconds until the list picks its first item by itself (results screens), or null. */
+  countdown?: number | null
 }
 
 /** An answered prompt (getstate.input / getstate.inputs). `source` is "game" or "bridge:<id>". */
@@ -72,6 +97,8 @@ export interface InputAnswer {
   source: string
   /** Rising per answer (getstate.inputs only): handle entries with n greater than the last one you did. */
   n?: number
+  /** The menu `rev` the tap was aimed at, when the answering side knew it. */
+  rev?: number
 }
 
 export interface BridgeDevice {

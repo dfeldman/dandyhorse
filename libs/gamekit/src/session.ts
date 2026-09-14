@@ -71,8 +71,10 @@ export class SessionClient {
   private cursor: InputCursor = { n: null, t: null }
   private firstState = true
   private pausedSince: number | null = null
+  private readonly opts: SessionClientOptions
 
-  constructor(private readonly opts: SessionClientOptions) {
+  constructor(opts: SessionClientOptions) {
+    this.opts = opts
     this.sessionId = opts.sessionId
   }
 
@@ -112,13 +114,31 @@ export class SessionClient {
   }
 
   /** The game's own on-screen button. The answer comes back through onInput like any bridge answer. */
-  async answer(choice: string): Promise<boolean> {
+  async answer(choice: string, rev?: number): Promise<boolean> {
     const p = this.prompt
     if (!p) return false
     try {
-      return (await api.answerInput(this.sessionId, p.promptId, choice)).accepted
+      return (await api.answerInput(this.sessionId, p.promptId, choice, rev ?? p.rev)).accepted
     } catch (e) {
       this.opts.onError?.('answerinput', e)
+      return false
+    }
+  }
+
+  // --- the game's own pause -------------------------------------------------------------------
+
+  /**
+   * Pause (true) or resume (false) the session from the game, as a bridge's ⏸ / ▶ would. The change comes back
+   * through onPause / onResume like any other; resolves false if the server refused or could not be reached.
+   */
+  async setPaused(paused: boolean): Promise<boolean> {
+    if (this.ended) return false
+    try {
+      await api.pauseSession(this.sessionId, paused)
+      void this.requestTick()
+      return true
+    } catch (e) {
+      this.opts.onError?.('pause', e)
       return false
     }
   }
