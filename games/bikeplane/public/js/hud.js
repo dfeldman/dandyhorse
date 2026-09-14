@@ -186,7 +186,9 @@ const Hud = (() => {
       row('Laps:', String(stats.laps)),
       row('Distance:', stats.distance.value + ' ' + stats.distance.unit),
     ];
-    if (stats.best) rows.push(row(null, stats.best.isNew ? '★ A new best!' : 'Your best: ' + stats.best.best, 'end-row small'));
+    if (stats.best && (stats.best.isNew || stats.best.best > 0)) {
+      rows.push(row(null, stats.best.isNew ? '★ A new best!' : 'Your best: ' + stats.best.best, 'end-row small'));
+    }
     if (stats.again) rows.push(row(null, stats.again, 'end-row small'));
     el.endStats.replaceChildren(...rows);
     el.end.classList.add('show');
