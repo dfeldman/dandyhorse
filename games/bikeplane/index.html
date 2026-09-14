@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sky Rings — Bike Plane</title>
+<title>Flight Cycle</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
 <style>
   html, body { margin: 0; padding: 0; overflow: hidden; height: 100%; background: #7ec2f7; }
@@ -87,15 +87,16 @@
   #resist-fill.hard { background: linear-gradient(90deg, #ffd42a, #ff6b4d); }
   #resist-fill.easy { background: #7dd87d; }
 
-  /* Altitude bar */
+  /* Altitude bar: the plane, where it will be in a few seconds (the ghost), and the next ring */
   #alt-wrap { top: 50%; right: 22px; transform: translateY(-50%); height: 46vh; width: 46px; }
   #alt-bar {
     position: absolute; right: 0; top: 0; bottom: 0; width: 14px; border-radius: 8px;
     background: linear-gradient(to bottom, #2a6fd8, #9fd7ff 70%, #7fc97a 100%);
     border: 3px solid rgba(255,255,255,.85); box-shadow: 0 2px 8px rgba(0,0,0,.25);
   }
-  #alt-plane, #alt-ring { position: absolute; right: -6px; transform: translateY(-50%); }
+  #alt-plane, #alt-ghost, #alt-ring { position: absolute; right: -6px; transform: translateY(-50%); }
   #alt-plane { font-size: 26px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); right: 18px; }
+  #alt-ghost { font-size: 20px; right: 20px; opacity: .45; display: none; }
   #alt-ring {
     width: 26px; height: 26px; right: -9px; border-radius: 50%;
     border: 5px solid #ffd42a; box-shadow: 0 0 8px #ffb400, inset 0 0 4px #ffb400;
@@ -148,19 +149,23 @@
   #instruments .inst .val { color: #fff; font-size: 22px; font-weight: 800; line-height: 1.1; }
   #instruments .inst .lbl { color: #cfe4ff; font-size: 11px; font-weight: 800; letter-spacing: 1px; }
 
-  /* End-of-workout overlay */
-  #end-overlay {
+  /* End-of-workout and pause overlays */
+  #end-overlay, #pause-overlay {
     top: 0; left: 0; right: 0; bottom: 0; display: none;
     background: rgba(15, 30, 60, .55); backdrop-filter: blur(3px);
     align-items: center; justify-content: center;
   }
-  #end-overlay.show { display: flex; }
+  #pause-overlay { background: rgba(15, 30, 60, .3); backdrop-filter: none; }
+  #end-overlay.show, #pause-overlay.show { display: flex; }
   #end-panel {
     background: linear-gradient(#fffef5, #ffeaa8); border-radius: 24px;
     border: 6px solid #ffb400; box-shadow: 0 12px 40px rgba(0,0,0,.45);
     padding: 28px 60px; text-align: center; color: #6b4a00;
   }
   #end-panel h1 { margin: 0 0 8px; font-size: 40px; color: #d97800; text-shadow: 0 2px 0 #fff; }
+  #pause-panel { background: rgba(20, 40, 80, .8); border-radius: 20px; padding: 16px 40px; text-align: center; color: #fff; }
+  #pause-panel h1 { margin: 0; font-size: 44px; text-shadow: 0 3px 0 #3a6fb5; }
+  #pause-panel p { margin: 4px 0 0; font-size: 20px; font-weight: 600; }
   .end-score { font-size: 64px; font-weight: 800; color: #e8890c; line-height: 1; margin-bottom: 12px; }
   .end-score::before { content: '★ '; color: #ffb400; }
   .end-row { font-size: 22px; margin: 4px 0; }
@@ -171,7 +176,7 @@
     100% { transform: translateY(-120px) scale(1); opacity: 0; }
   }
 
-  /* Pedal test controls (stand-in for the bike trainer) */
+  /* Pedal test controls (practice: stands in for the trainer) */
   #pedal-wrap {
     bottom: 16px; left: 50%; transform: translateX(-50%);
     background: rgba(20, 40, 80, .55); border-radius: 16px; padding: 10px 20px;
@@ -182,6 +187,18 @@
   #pedal-slider { width: 240px; accent-color: #ffd42a; }
   #pedal-readout { color: #ffd42a; font-size: 26px; font-weight: 800; width: 44px; text-align: center; }
   #pedal-hint { color: #cfe4ff; font-size: 12px; font-weight: 600; }
+
+  /* boot overlay: the platform adapter talks here until the island is up */
+  #boot { inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #7ec2f7; pointer-events: auto; }
+  #boot[hidden] { display: none; }
+  #boot h1 { font-size: 56px; font-weight: 800; color: #fff; text-shadow: 0 4px 0 #e8890c, 0 8px 16px rgba(0,0,0,.3); margin: 0; }
+  #boot p { font-size: 20px; font-weight: 600; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.35); margin: 0; max-width: 560px; text-align: center; }
+  #boot .row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  #boot button, #boot a.btn {
+    font: inherit; font-size: 22px; font-weight: 800; color: #1a2a4a; background: #ffd42a; border: 0; border-radius: 16px; padding: 14px 28px;
+    cursor: pointer; box-shadow: 0 4px 0 #b88a00; text-decoration: none;
+  }
+  #boot pre { font: 600 14px/1.4 ui-monospace, monospace; color: #fff; background: rgba(20,40,80,.55); border-radius: 12px; padding: 12px 16px; max-width: 80vw; overflow: auto; }
 </style>
 </head>
 <body>
@@ -207,9 +224,9 @@
 <div class="hud" id="wind-chip"></div>
 
 <div class="hud" id="instruments">
-  <div class="inst"><div class="val" id="inst-spd">0</div><div class="lbl">KNOTS</div></div>
-  <div class="inst"><div class="val" id="inst-alt">0</div><div class="lbl">FEET</div></div>
-  <div class="inst"><div class="val" id="inst-dist">0.00</div><div class="lbl">MILES</div></div>
+  <div class="inst"><div class="val" id="inst-spd">0</div><div class="lbl" id="inst-spd-u">KNOTS</div></div>
+  <div class="inst"><div class="val" id="inst-alt">0</div><div class="lbl" id="inst-alt-u">FEET</div></div>
+  <div class="inst"><div class="val" id="inst-dist">0.00</div><div class="lbl" id="inst-dist-u">MILES</div></div>
 </div>
 
 <div class="hud" id="resist-wrap">
@@ -227,8 +244,16 @@
   </div>
 </div>
 
+<div class="hud" id="pause-overlay">
+  <div id="pause-panel">
+    <h1>PAUSED</h1>
+    <p id="pause-msg"></p>
+  </div>
+</div>
+
 <div class="hud" id="alt-wrap">
   <div id="alt-bar"></div>
+  <div id="alt-ghost">✈️</div>
   <div id="alt-plane">✈️</div>
   <div id="alt-ring"></div>
 </div>
@@ -244,17 +269,11 @@
   <div id="pedal-hint">↑/↓ keys or drag &middot; 50 = level &middot; M mutes</div>
 </div>
 
-<script src="https://cdn.babylonjs.com/babylon.js"></script>
-<script src="js/config.js?v=61"></script>
-<script src="js/levels.js?v=61"></script>
-<script src="js/input.js?v=61"></script>
-<script src="js/track.js?v=61"></script>
-<script src="js/sfx.js?v=61"></script>
-<script src="js/plane.js?v=61"></script>
-<script src="js/world.js?v=61"></script>
-<script src="js/rings.js?v=61"></script>
-<script src="js/rivals.js?v=61"></script>
-<script src="js/hud.js?v=61"></script>
-<script src="js/main.js?v=61"></script>
+<div id="boot" class="hud"><h1>Flight Cycle</h1><p id="boot-msg">Starting…</p><div id="boot-actions" class="row"></div></div>
+
+<!-- Babylon is pinned; the game scripts under public/js/ are loaded by src/main.ts once the session has
+     started (docs/GAME_DEVELOPER_GUIDE.md §10) -->
+<script src="https://cdn.babylonjs.com/v9.26.0/babylon.js"></script>
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>

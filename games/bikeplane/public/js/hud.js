@@ -1,7 +1,8 @@
 // Plain DOM overlay HUD: score, lap, timer, altitude bar with next-ring
-// marker, climb/descend cue, passes, float chip, popups, banners, end screen.
+// marker, climb/descend cue, passes, float chip, popups, banners, pause and end screens.
 const Hud = (() => {
   let el = {};
+  let over = false;   // the end screen is up: no more cues
 
   function init() {
     el.score = document.getElementById('hud-score');
@@ -12,6 +13,7 @@ const Hud = (() => {
     el.floatChip = document.getElementById('float-chip');
     el.altBar = document.getElementById('alt-bar');
     el.planeMarker = document.getElementById('alt-plane');
+    el.ghost = document.getElementById('alt-ghost');
     el.ringMarker = document.getElementById('alt-ring');
     el.cue = document.getElementById('hud-cue');
     el.banner = document.getElementById('hud-banner');
@@ -19,6 +21,8 @@ const Hud = (() => {
     el.pedalReadout = document.getElementById('pedal-readout');
     el.end = document.getElementById('end-overlay');
     el.endStats = document.getElementById('end-stats');
+    el.pause = document.getElementById('pause-overlay');
+    el.pauseMsg = document.getElementById('pause-msg');
     el.resistFill = document.getElementById('resist-fill');
     el.resistNum = document.getElementById('resist-num');
     el.turboSegs = Array.from(document.querySelectorAll('#turbo-meter .seg'));
@@ -29,6 +33,9 @@ const Hud = (() => {
     el.instSpd = document.getElementById('inst-spd');
     el.instAlt = document.getElementById('inst-alt');
     el.instDist = document.getElementById('inst-dist');
+    el.instSpdU = document.getElementById('inst-spd-u');
+    el.instAltU = document.getElementById('inst-alt-u');
+    el.instDistU = document.getElementById('inst-dist-u');
   }
 
   function altToPct(alt) {
@@ -42,19 +49,32 @@ const Hud = (() => {
     return m + ':' + String(s).padStart(2, '0');
   }
 
+  function setInst(value, unit, q) {
+    value.textContent = q.value;
+    unit.textContent = q.unit.toUpperCase();
+  }
+
   function update(state, pedal, next, extra) {
     el.planeMarker.style.top = altToPct(state.alt) + '%';
+    // Judge where the plane will be CUE_LEAD s from now, not where it is. The rider's effort reaches the
+    // plane seconds late, so a cue that says hold only on arrival makes them overshoot (PLAYABILITY.md).
+    // The ghost on the altitude bar shows that height.
+    const flying = state.phase === 'FLYING' && !over;
+    const ahead = state.alt + (flying ? state.speed * Math.tan(state.pitch) * Config.CUE_LEAD : 0);
+    el.ghost.style.display = flying ? 'block' : 'none';
+    el.ghost.style.top = altToPct(ahead) + '%';
     if (next) {
       el.ringMarker.style.display = 'block';
       el.ringMarker.style.top = altToPct(next.alt) + '%';
       el.ringMarker.classList.toggle('red', next.type === 'red');
-      const diff = next.alt - state.alt;
-      if (state.phase !== 'FLYING') {
+      const diff = next.alt - ahead;
+      const band = (next.type === 'red' ? Config.RED_RING_HIT_TOL : Config.RING_HIT_TOL) / 2;
+      if (!flying) {
         el.cue.textContent = '';
-      } else if (diff > Config.RING_HIT_TOL) {
+      } else if (diff > band) {
         el.cue.textContent = '▲ PEDAL FASTER!';
         el.cue.className = 'hud cue climb';
-      } else if (diff < -Config.RING_HIT_TOL) {
+      } else if (diff < -band) {
         el.cue.textContent = '▼ EASE OFF!';
         el.cue.className = 'hud cue descend';
       } else {
@@ -82,9 +102,9 @@ const Hud = (() => {
         el.windChip.style.display = 'none';
       }
       // Flight instruments
-      el.instSpd.textContent = Math.round(extra.speedKts);
-      el.instAlt.textContent = Math.round(extra.altFt);
-      el.instDist.textContent = extra.distMi.toFixed(2);
+      setInst(el.instSpd, el.instSpdU, extra.inst.spd);
+      setInst(el.instAlt, el.instAltU, extra.inst.alt);
+      setInst(el.instDist, el.instDistU, extra.inst.dist);
       // Trainer resistance (always shown so the rider knows what the pedals
       // are about to do)
       const rz = Math.round(extra.resistance);
@@ -138,15 +158,42 @@ const Hud = (() => {
   function hideBanner() { el.banner.classList.remove('show'); }
   function lapBanner(lap) { banner('LAP ' + lap + '!', 2500); }
 
-  function endScreen(stats) {
-    el.endStats.innerHTML =
-      '<div class="end-score">' + stats.score + '</div>' +
-      '<div class="end-row">Rings: <b>' + stats.ringsHit + ' / ' + stats.ringsPassed + '</b></div>' +
-      '<div class="end-row">Laps: <b>' + stats.laps + '</b></div>' +
-      '<div class="end-row">Distance: <b>' + stats.km + ' mi</b></div>' +
-      '<div class="end-row small">Press R to fly again</div>';
-    el.end.classList.add('show');
+  // The session is paused (message) or not (null).
+  function pause(message) {
+    el.pause.classList.toggle('show', message !== null);
+    if (message !== null) el.pauseMsg.textContent = message;
   }
 
-  return { init, update, setScore, popup, banner, hideBanner, lapBanner, endScreen };
+  function endScreen(stats) {
+    const row = (label, value, cls) => {
+      const d = document.createElement('div');
+      d.className = cls || 'end-row';
+      if (label) {
+        const b = document.createElement('b');
+        b.textContent = value;
+        d.append(label + ' ', b);
+      } else {
+        d.textContent = value;
+      }
+      return d;
+    };
+    const top = document.createElement('div');
+    top.className = 'end-score';
+    top.textContent = stats.score;
+    const rows = [
+      top,
+      row('Rings:', stats.ringsHit + ' / ' + stats.ringsPassed),
+      row('Laps:', String(stats.laps)),
+      row('Distance:', stats.distance.value + ' ' + stats.distance.unit),
+    ];
+    if (stats.best) rows.push(row(null, stats.best.isNew ? '★ A new best!' : 'Your best: ' + stats.best.best, 'end-row small'));
+    if (stats.again) rows.push(row(null, stats.again, 'end-row small'));
+    el.endStats.replaceChildren(...rows);
+    el.end.classList.add('show');
+    over = true;
+    el.cue.textContent = '';
+    el.ghost.style.display = 'none';
+  }
+
+  return { init, update, setScore, popup, banner, hideBanner, lapBanner, pause, endScreen };
 })();

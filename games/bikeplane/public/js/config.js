@@ -1,6 +1,7 @@
 // All game tunables in one place.
-// NOTE: the bike trainer will eventually feed window.setPedalInput(0..100).
-// NEUTRAL_INPUT is the effort that holds level flight.
+// On Dandyhorse the pedal value is the rider's effort: 50 x power / steady power (src/platform.ts), so
+// NEUTRAL_INPUT, the pedal that holds level flight, is riding at steady. The ring layout, the cue and the
+// boosts are sized for the lag between the pedals and the plane: PLAYABILITY.md.
 const Config = {
   // --- Input ---
   NEUTRAL_INPUT: 50,          // pedal value for level flight
@@ -10,7 +11,7 @@ const Config = {
   // --- Track / pacing ---
   TRACK_RADIUS: 420,          // meters
   LAP_SECONDS: 220,           // one lap ~3.7 min
-  NUM_RINGS: 25,
+  NUM_RINGS: 14,              // 176 m (15 s) apart: time to change height through the lag (was 25)
   RING_PHASE: 0.7,            // rings sit at (i + RING_PHASE) * spacing
   RUNWAY_LEN: 100,            // meters of ground roll before the circle joins
 
@@ -26,14 +27,16 @@ const Config = {
   TAKEOFF_PITCH: 12 * Math.PI / 180,
   LIFTOFF_S: -35,             // track param where the nose comes up
 
-  // --- Rings ---
+  // --- Rings (sized for the lag: PLAYABILITY.md) ---
   RING_MIN_ALT: 45,
   RING_MAX_ALT: 160,
-  RING_STEP_MAX: 35,          // max altitude change between consecutive rings
-  RING_RADIUS: 7,             // torus radius (meters)
-  RING_HIT_TOL: 6,            // |planeAlt - ringAlt| to count a pass
+  RING_STEP_MAX: 20,          // max altitude change between consecutive rings (was 35)
+  RING_RADIUS: 10,            // torus radius (meters): the gold window, drawn (was 7)
+  RING_HIT_TOL: 9,            // |planeAlt - ringAlt| to count a gold pass (was 6)
+  RED_RING_HIT_TOL: 6,        // red rings: smaller, worth more
   RING_LOW_COUNT: 5,          // first rings of the game stay low over the city
   RING_LOW_MAX: 60,
+  CUE_LEAD: 3,                // seconds: the HUD cue judges where the plane will be, not where it is
 
   // --- Workout ---
   WORKOUT_SECONDS: 30 * 60,
@@ -55,12 +58,12 @@ const Config = {
   // --- Turbo (streak-powered fever mode) ---
   TURBO_SEGMENTS: 6,          // ring hits to fill the meter
   TURBO_SECONDS: 15,
-  TURBO_SPEED: 0.35,          // ground-speed bonus while active
+  TURBO_SPEED: 0.15,          // ground-speed bonus while active (was 0.35: with the ring pulses, +25% at most)
   TURBO_SCORE_MULT: 2,
 
   // --- Ring-hit speed pulses (small surge on every hit) ---
-  BOOST_RING: 0.12,
-  BOOST_MAX: 0.24,
+  BOOST_RING: 0.05,           // was 0.12
+  BOOST_MAX: 0.10,            // was 0.24
   BOOST_TAU: 3,               // seconds, pulse decay
 
   // --- NPC pylon races ---
@@ -74,7 +77,7 @@ const Config = {
   STREAK_BONUS: 25,
   RED_RING_CHANCE: 0.15,      // rare, smaller, worth more
   RED_RING_SCORE: 300,
-  RED_RING_RADIUS: 5,
+  RED_RING_RADIUS: 7,         // drawn around the ±6 m window (was 5)
   STAR_CHANCE: 0.17,          // pickup: +1 pass to forgive a missed ring
   STAR_SCORE: 50,
   MAX_PASSES: 3,

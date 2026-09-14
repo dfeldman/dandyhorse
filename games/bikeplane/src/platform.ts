@@ -1,0 +1,118 @@
+/**
+ * The platform side of Flight Cycle: owns the SessionClient and implements the FcPlatform contract the
+ * classic scripts read every frame. One instance per page.
+ */
+import { EffortMeter, SessionClient, putSave, units, type GameState, type StartPayload, type TickBody } from '@dandyhorse/gamekit'
+import { gradeFromResistance, pedalFromEffort } from './drive.ts'
+import type { EndedInfo, FcHandle, FcPlatform, Formatted } from './globals.d.ts'
+
+export const GAME_ID = 'bikeplane'
+/** The island (public/js/levels.js): the route leaderboards group by. */
+const ROUTE = 'isla-uno'
+
+const seconds = (): number => performance.now() / 1000
+
+export class Platform implements FcPlatform {
+  readonly duration: number
+  readonly fmt: FcPlatform['fmt']
+  private readonly client: SessionClient
+  private readonly meter: EffortMeter
+  private handle: FcHandle | null = null
+  private latest: GameState | null = null
+  private receivedAt = 0
+  private endedInfo: EndedInfo | null = null
+  private finishing = false
+  private best: number
+  private readonly earned = new Set<string>()
+  private readonly queue: string[] = []
+  private sent: string[] = []
+
+  constructor(readonly start: StartPayload, private readonly log: (line: string) => void) {
+    const sys = start.unitSystem
+    const show = (q: { value: number | null; unit: string }, digits: number): Formatted =>
+      ({ value: q.value === null ? '–' : q.value.toFixed(digits), unit: q.unit })
+    this.fmt = {
+      speed: (ms) => show(units.speed(ms, sys, 0), 0),
+      length: (m) => show(units.length(m, sys, 0), 0),
+      distance: (m) => show(units.distance(m, sys, 2), 2),
+    }
+    this.duration = start.requestedDuration ?? 1800
+    const save = (start.saveState ?? {}) as { best?: unknown }
+    this.best = typeof save.best === 'number' ? save.best : 0
+    // Effort is the trainer's power over the rider's steady power. No smoothing of our own: the trainer and
+    // the game already smooth, and every second of lag costs rings (PLAYABILITY.md §2).
+    this.meter = new EffortMeter({
+      deviceType: 'bike',
+      bodyData: start.bodyData,
+      preferences: { global: start.preferences.global, device: start.preferences.device },
+      smoothing: { power: 0, cadence: 0 },
+    })
+    this.client = new SessionClient({
+      sessionId: start.sessionId,
+      buildTick: () => this.buildTick(),
+      onState: (s) => { this.latest = s; this.receivedAt = Date.now(); this.meter.update(s, seconds()) },
+      onPause: (p) => this.log(`paused: ${p.reason} — ${p.message}`),
+      onResume: (secs) => this.log(`resumed after ${secs.toFixed(0)} s`),
+      onEnded: (e) => { this.endedInfo = { status: e.status, reason: e.reason }; this.log(`ended: ${e.status} (${e.reason ?? 'no reason'})`) },
+      onError: (ctx, err) => this.log(`${ctx}: ${err instanceof Error ? err.message : String(err)}`),
+      onTick: (ok) => { if (!ok) this.queue.unshift(...this.sent); this.sent = [] },
+      sessionImage: () => this.handle?.sessionImage() ?? null,
+    })
+  }
+
+  /** Called once the world exists; starts the tick and poll loops. */
+  attach(handle: FcHandle): void {
+    this.handle = handle
+    this.client.start()
+  }
+
+  // --- FcPlatform (read by the game every frame) ---------------------------------------------
+  pedal = (): number | null => (this.latest ? pedalFromEffort(this.meter.value(seconds())) : null)
+  paused = (): boolean => this.client.paused
+  pauseMessage = (): string | null => this.latest?.pause?.message ?? null
+  ended = (): EndedInfo | null => this.endedInfo
+
+  activeSeconds = (): number => {
+    const s = this.latest
+    if (!s) return 0
+    const base = s.activeSeconds ?? Math.max(0, (s.elapsed ?? 0) - (s.pausedSeconds ?? 0))
+    return s.sessionStatus === 'active' ? base + Math.max(0, Date.now() - this.receivedAt) / 1000 : base
+  }
+
+  achievement = (id: string): void => {
+    if (this.earned.has(id)) return
+    this.earned.add(id)
+    this.queue.push(id)
+  }
+
+  finish = (): void => {
+    if (this.finishing) return
+    this.finishing = true
+    // let the end screen show, send the last tick (score, achievements), then end with the picture
+    setTimeout(() => void this.client.requestTick().then(() => this.client.end('complete')), 2000)
+  }
+
+  saveScore = (score: number): { best: number; isNew: boolean } => {
+    if (score <= this.best) return { best: this.best, isNew: false }
+    this.best = score
+    void putSave(GAME_ID, this.start.variant, { best: score }).catch((e) => this.log(`putsave: ${String(e)}`))
+    return { best: score, isNew: true }
+  }
+
+  // --- setstate --------------------------------------------------------------------------------
+  private buildTick(): TickBody | null {
+    if (!this.handle) return null
+    const t = this.handle.tick()
+    const body: TickBody = {
+      grade: gradeFromResistance(t.resistance),
+      // The plane's own speed: History's distance is the flight, and its profile the plane's height (y).
+      speed: t.speed,
+      x: t.pos.x, y: t.pos.y, z: t.pos.z,
+      score: t.score,
+      route: ROUTE,
+      custom: { ringsHit: t.ringsHit, ringsPassed: t.ringsPassed, streak: t.streak, lap: t.lap, turbo: t.turbo, race: t.race, flying: t.flying },
+    }
+    if (this.queue.length) { this.sent = this.queue.splice(0); body.achievements = this.sent }
+    return body
+  }
+}

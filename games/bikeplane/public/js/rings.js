@@ -204,7 +204,7 @@ const Rings = (() => {
       const node = new BABYLON.TransformNode('pickup' + i, scene);
       const p = {
         node, starNode: makeStarNode(i), balloonNode: makeBalloonNode(i), windNode: makeWindNode(i),
-        // Slots 0-1 start empty: slot 0's altitude anchor (ring 24) still holds
+        // Slots 0-1 start empty: slot 0's altitude anchor (the last ring) still holds
         // its lap-1 value at build time and could be unreachable during climb-out.
         // After the first crossing every reroll anchors to an already-regenerated
         // ring, so this suppression is only needed for the very first lap.
@@ -214,7 +214,7 @@ const Rings = (() => {
       p.balloonNode.parent = node;
       p.windNode.parent = node;
       const behind = rings[(i - 1 + Config.NUM_RINGS) % Config.NUM_RINGS];
-      p.alt = Math.max(Config.RING_MIN_ALT, Math.min(Config.RING_MAX_ALT, behind.alt + (Math.random() * 2 - 1) * 20));
+      p.alt = pickupAlt(behind.alt, rings[i].alt);
       placePickup(p);
       pickups.push(p);
     }
@@ -264,7 +264,8 @@ const Rings = (() => {
 
     for (const r of rings) {
       if (!crossed(prev, cur, r.s)) continue;
-      const hit = Math.abs(planeAlt - r.alt) < Config.RING_HIT_TOL;
+      const tol = r.type === 'red' ? Config.RED_RING_HIT_TOL : Config.RING_HIT_TOL;
+      const hit = Math.abs(planeAlt - r.alt) < tol;
       if (hit) burstAt(r.mesh.position);
       if (onRing) onRing(hit, r.type, r.mesh.position.clone());
       // Regenerate now (keeps the walk chain and HUD cue correct), move later.
@@ -273,6 +274,9 @@ const Rings = (() => {
       r.type = rollRingType();
       r.mesh.setEnabled(false);
       r.reappearS = sNow + Config.CAM_BACK + 25;
+      // The pickup before this ring now knows both heights of its next lap: the previous ring's (already
+      // regenerated, or for slot 0 the last ring of this lap, flown just before it) and this ring's.
+      respawnPickup(pickups[r.slot], prevSlot.alt, r.alt, sNow);
     }
 
     for (const p of pickups) {
@@ -282,12 +286,23 @@ const Rings = (() => {
         burstAt(p.node.position);
         if (onPickup) onPickup(p.kind, p.node.position.clone());
       }
-      const behind = rings[(p.slot - 1 + Config.NUM_RINGS) % Config.NUM_RINGS];
-      p.alt = Math.max(Config.RING_MIN_ALT, Math.min(Config.RING_MAX_ALT, behind.alt + (Math.random() * 2 - 1) * 20));
-      p.kind = rollPickupKind();
-      p.node.setEnabled(false);
-      p.reappearS = sNow + Config.CAM_BACK + 25;
+      p.node.setEnabled(false);   // back once its ring has its next height (above)
+      p.reappearS = null;
     }
+  }
+
+  // Pickups sit on the straight line between the rings either side, give or take a few metres, so flying
+  // toward the next ring collects them: nothing should pull the rider off that line (PLAYABILITY.md).
+  function pickupAlt(fromAlt, toAlt) {
+    const a = (fromAlt + toAlt) / 2 + (Math.random() * 2 - 1) * 3;
+    return Math.max(Config.RING_MIN_ALT, Math.min(Config.RING_MAX_ALT, a));
+  }
+
+  function respawnPickup(p, fromAlt, toAlt, sNow) {
+    p.alt = pickupAlt(fromAlt, toAlt);
+    p.kind = rollPickupKind();
+    p.node.setEnabled(false);
+    p.reappearS = sNow + Config.CAM_BACK + 25;
   }
 
   // The nearest ring ahead of s — for the HUD altitude cue.

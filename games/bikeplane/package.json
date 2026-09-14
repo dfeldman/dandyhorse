@@ -1,0 +1,23 @@
+{
+  "name": "dandyhorse-bikeplane",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "playability": "node tools/playability.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "typescript": "^5.8",
+    "vite": "^7",
+    "vitest": "^3.2"
+  },
+  "dependencies": {
+    "@dandyhorse/gamekit": "file:../../libs/gamekit"
+  }
+}

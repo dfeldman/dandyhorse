@@ -74,6 +74,11 @@ hardware yet):
 to uids in `oidc_identities`, a username asked on the first sign-in, and the user-number login kept for
 development only (§11; setup in README "Put it online").
 
+**Flight Cycle (2026-09-14).** `games/bikeplane` (the Sky Rings prototype) is integrated as Flight Cycle, bike
+only. Its `PLAYABILITY.md` measures the lag from the pedals to the plane (about 5 s, 8 s with gamekit's power
+smoothing) and resizes the course for it: 14 rings a lap, a ±9 m window, height steps up to 20 m, a cue that
+looks 3 s ahead, and boosts capped at +25%. gamekit's EffortMeter gained a `smoothing` option for it.
+
 **Not built yet / deviations from the design:**
 - Leaderboards are a live query; no precomputed table, no periods.
 - The 10 Hz rate limit (§4.2) and the OpenAPI contract tests (§2).

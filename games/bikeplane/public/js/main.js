@@ -1,20 +1,31 @@
 // Engine, scene, camera, game loop, scoring, workout timer, trainer
 // resistance, turbo, NPC races. Level mechanics come from Levels.current.
-(() => {
+//
+// On Dandyhorse, src/main.ts loads these scripts once the session has started and calls
+// FlightCycle.boot(platform). The platform feeds the pedal (the rider's effort), says when the session is
+// paused or over, and counts the workout on the session's active time; the handle boot returns is what the
+// adapter reads once a second (src/globals.d.ts). boot(null) is practice: the keyboard and the slider fly.
+window.FlightCycle = {
+  boot(platform) { return flightCycle(platform); },
+};
+
+function flightCycle(platform) {
   Levels.apply(Config.DEFAULT_LEVEL);
 
   const canvas = document.getElementById('game-canvas');
-  const engine = new BABYLON.Engine(canvas, true, { adaptToDeviceRatio: false });
+  // preserveDrawingBuffer: the session picture is read back from the last frame drawn
+  const engine = new BABYLON.Engine(canvas, true, { adaptToDeviceRatio: false, preserveDrawingBuffer: true });
   const scene = new BABYLON.Scene(engine);
 
   let score = 0, ringsHit = 0, ringsPassed = 0, streak = 0, passes = 0;
   let elapsed = 0;
-  let workoutLeft = Config.WORKOUT_SECONDS;
+  const workoutSeconds = platform ? platform.duration : Config.WORKOUT_SECONDS;
+  let workoutLeft = workoutSeconds;
   let floatUntil = -1;
   let gameOver = false;
 
-  // Trainer resistance (0-100). Displayed always; a real trainer subscribes
-  // by assigning window.onResistanceChange = (r) => { ... }.
+  // Trainer resistance (0-100). On Dandyhorse the adapter reads it once a second and asks the trainer for
+  // the matching grade (src/drive.ts); in practice a trainer may subscribe with window.onResistanceChange.
   let resistance = Config.RESIST_TAKEOFF;
   let lastSentResistance = -1;
   let tailwinds = [];   // expiry timestamps of active Tailwind boosts
@@ -30,6 +41,15 @@
   let raceActive = false, raceEndS = 0, nextRaceLap = 2;
 
   Input.init();
+  if (platform) {
+    // A Tailwind makes the pedals lighter, and the same power counts for more, so easing the resistance
+    // never makes the plane sink.
+    Input.setSource(() => {
+      const p = platform.pedal();
+      return p === null ? null : p / Math.pow(Config.TAILWIND_FACTOR, tailwinds.length);
+    });
+    document.getElementById('pedal-wrap').style.display = 'none';
+  }
   Hud.init();
   World.build(scene);
   Plane.build(scene);
@@ -183,6 +203,8 @@
     raceCloud.flag.rotation.y = Math.sin(t * 6) * 0.45;     // wave the flag
   }
 
+  function achieve(id) { if (platform) platform.achievement(id); }
+
   function turboActive() { return elapsed < turboUntil; }
 
   function fireTurbo() {
@@ -191,6 +213,7 @@
     Hud.banner('TURBO!', 1800);
     Hud.popup('🔥 2× POINTS', 'red');
     Sfx.turbo();
+    achieve('turbo');
   }
 
   function addTurboMeter(n) {
@@ -225,6 +248,7 @@
       Hud.popup('MISS', 'miss');
       Sfx.whiff();
     }
+    if (streak >= Config.NUM_RINGS) achieve('streak-lap');   // a whole lap's worth in a row
     Hud.setScore(score, ringsHit, ringsPassed);
   }
 
@@ -274,6 +298,7 @@
     Hud.banner('🏁 FINISHED P' + st.pos + '!  +' + pts, 3500);
     Hud.popup('+' + pts, st.pos === 1 ? 'good' : 'pass');
     Sfx.fanfare();
+    if (st.pos === 1) achieve('race-win');
     Hud.setScore(score, ringsHit, ringsPassed);
   }
 
@@ -300,14 +325,43 @@
     }
   }
 
-  function endWorkout() {
+  // The workout is over: the time is up, or the session ended from outside (the bridge's End).
+  function endWorkout(fromOutside) {
+    if (gameOver) return;
     gameOver = true;
     if (raceActive) { raceActive = false; Rivals.endRace(); }
+    const dist = Math.max(0, Plane.state.s);
     Hud.endScreen({
       score, ringsHit, ringsPassed,
       laps: Plane.state.lap,
-      km: (Math.max(0, Plane.state.s) * 0.000621371).toFixed(2),
+      distance: platform ? platform.fmt.distance(dist) : { value: (dist * 0.000621371).toFixed(2), unit: 'mi' },
+      best: platform ? platform.saveScore(score) : null,
+      again: platform ? null : 'Press R to fly again',
     });
+    if (platform && !fromOutside) {
+      achieve('workout-complete');
+      platform.finish();
+    }
+  }
+
+  // The session picture for History: the last frame, 640 x 360, with the score along the bottom.
+  function sessionPicture() {
+    const out = document.createElement('canvas');
+    out.width = 640; out.height = 360;
+    const g = out.getContext('2d');
+    if (!g || !canvas.width || !canvas.height) return null;
+    const scale = Math.max(640 / canvas.width, 360 / canvas.height);   // cover
+    const sw = 640 / scale, sh = 360 / scale;
+    g.drawImage(canvas, (canvas.width - sw) / 2, (canvas.height - sh) / 2, sw, sh, 0, 0, 640, 360);
+    g.fillStyle = 'rgba(15, 30, 60, 0.6)';
+    g.fillRect(0, 292, 640, 68);
+    g.fillStyle = '#ffe14d';
+    g.font = "800 34px 'Baloo 2', sans-serif";
+    g.fillText('★ ' + score, 22, 338);
+    g.fillStyle = '#ffffff';
+    g.font = "600 22px 'Baloo 2', sans-serif";
+    g.fillText('Rings ' + ringsHit + ' / ' + ringsPassed + '  ·  Lap ' + Plane.state.lap, 250, 334);
+    return out.toDataURL('image/jpeg', 0.85);
   }
 
   // Debug/test hooks
@@ -316,7 +370,7 @@
     get state() { return Plane.state; },
     get score() { return { score, ringsHit, ringsPassed, streak, passes, turboMeter }; },
     get workoutLeft() { return workoutLeft; },
-    set workoutLeft(v) { workoutLeft = v; },
+    set workoutLeft(v) { workoutLeft = v; },   // practice only: on Dandyhorse the session's clock counts
     get gameOver() { return gameOver; },
     get resistance() { return resistance; },
     get turboActive() { return turboActive(); },
@@ -332,13 +386,21 @@
   window.addEventListener('keydown', unlockOnce);
   window.addEventListener('keydown', (e) => {
     if (e.key === 'm' || e.key === 'M') Sfx.toggleMute();
-    if ((e.key === 'r' || e.key === 'R') && gameOver) location.reload();
+    // On Dandyhorse, flying again is a new session: the bridge's Play again.
+    if ((e.key === 'r' || e.key === 'R') && gameOver && !platform) location.reload();
   });
 
   let tookOff = false;
   let lastLap = 1;
 
   engine.runRenderLoop(() => {
+    // The session ended from outside: show the end screen (the bridge's End keeps the ride).
+    if (platform && !gameOver && platform.ended()) endWorkout(true);
+    // Paused (waiting for the trainer, or the rider pressed pause): the world holds still.
+    const paused = !!platform && !gameOver && platform.paused();
+    Hud.pause(paused ? (platform.pauseMessage() || 'Paused') : null);
+    if (paused) { scene.render(); return; }
+
     const dt = Math.min(0.05, engine.getDeltaTime() / 1000) * window.__debug.timeScale;
     elapsed += dt;
 
@@ -349,18 +411,23 @@
     ringBoost *= Math.exp(-dt / Config.BOOST_TAU);
     const speedBoost = ringBoost + (turboActive() ? Config.TURBO_SPEED : 0);
 
+    // A balloon lifts the plane toward the next ring, never past it: collecting a bonus should not make
+    // the rider miss the ring after it.
     const floatLeft = Math.max(0, floatUntil - elapsed);
+    const ahead = Rings.nextRing(Plane.state.s);
+    const lift = floatLeft > 0 && ahead && Plane.state.alt < ahead.alt - Config.RING_HIT_TOL / 2 ? Config.FLOAT_BONUS : 0;
     const wasReady = Plane.state.phase === 'READY';
-    Plane.update(dt, pedal, floatLeft > 0 ? Config.FLOAT_BONUS : 0, speedBoost);
+    Plane.update(dt, pedal, lift, speedBoost);
     if (wasReady && Plane.state.phase !== 'READY' && !tookOff) {
       tookOff = true;
       Hud.hideBanner();
       Hud.banner('GO!', 1500);
     }
 
-    if (tookOff && !gameOver) {
-      workoutLeft -= dt;
-      if (workoutLeft <= 0) { workoutLeft = 0; endWorkout(); }
+    // The workout runs on the session's active time on Dandyhorse; in practice, from takeoff.
+    if (!gameOver && (platform || tookOff)) {
+      workoutLeft = platform ? Math.max(0, workoutSeconds - platform.activeSeconds()) : workoutLeft - dt;
+      if (workoutLeft <= 0) { workoutLeft = 0; endWorkout(false); }
     }
 
     if (!gameOver) {
@@ -396,14 +463,21 @@
     trail.emitter.set(f.px - f.tx * 4, f.py, f.pz - f.tz * 4);
     trail.emitRate = turboActive() ? 90 : 0;
 
+    const speed = Plane.state.phase === 'READY' ? 0 : Plane.state.speed;
+    const dist = Math.max(0, Plane.state.s);
     Hud.update(Plane.state, pedal, Rings.nextRing(Plane.state.s), {
       timeLeft: workoutLeft, passes, floatLeft,
       resistance,
       tailwindCount: tailwinds.length,
       tailwindLeft: tailwinds.length ? Math.max(...tailwinds) - elapsed : 0,
-      speedKts: Plane.state.phase === 'READY' ? 0 : Plane.state.speed * 1.944,
-      altFt: Plane.state.alt * 3.281,
-      distMi: Math.max(0, Plane.state.s) * 0.000621371,
+      // flight instruments: the rider's units on Dandyhorse, the prototype's knots, feet and miles in practice
+      inst: platform
+        ? { spd: platform.fmt.speed(speed), alt: platform.fmt.length(Plane.state.alt), dist: platform.fmt.distance(dist) }
+        : {
+          spd: { value: String(Math.round(speed * 1.944)), unit: 'knots' },
+          alt: { value: String(Math.round(Plane.state.alt * 3.281)), unit: 'feet' },
+          dist: { value: (dist * 0.000621371).toFixed(2), unit: 'miles' },
+        },
       turboMeter,
       turboLeft: Math.max(0, turboUntil - elapsed),
       race: raceActive ? Object.assign(Rivals.standings(Plane.state.s), {
@@ -415,4 +489,24 @@
   });
 
   window.addEventListener('resize', () => engine.resize());
-})();
+
+  // What the Dandyhorse adapter reads once a second.
+  return {
+    tick() {
+      const st = Plane.state;
+      const p = Track.poseAt(st.s);
+      return {
+        resistance: Math.round(resistance),
+        pos: { x: p.x, y: st.alt, z: p.z },
+        speed: st.phase === 'READY' ? 0 : st.speed,
+        flying: st.phase === 'FLYING',
+        score, ringsHit, ringsPassed, streak,
+        lap: st.lap,
+        turbo: turboActive(),
+        race: raceActive,
+        over: gameOver,
+      };
+    },
+    sessionImage: sessionPicture,
+  };
+}
