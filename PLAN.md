@@ -70,8 +70,11 @@ hardware yet):
   bridge that returns to the console after a game.
 - **Console:** device buttons in the launch dialog, defaulting to the machine the user owns.
 
+**Google sign-in (2026-09-14).** OIDC through Flask-OIDC, login tokens as encrypted JWTs, Google accounts mapped
+to uids in `oidc_identities`, a username asked on the first sign-in, and the user-number login kept for
+development only (§11; setup in README "Put it online").
+
 **Not built yet / deviations from the design:**
-- OIDC login (stub `?uid=` login only).
 - Leaderboards are a live query; no precomputed table, no periods.
 - The 10 Hz rate limit (§4.2) and the OpenAPI contract tests (§2).
 - Real machines and heart-rate straps go through devicelib (its FTMS and
@@ -1613,8 +1616,10 @@ less developer data per screen. As built:
 Vue + TypeScript SPA served at `/`.
 
 Pages:
-- **Login** (`/login?uid=<n>`): stub — POSTs the uid, receives the token
-  cookie. Later replaced by OIDC redirect.
+- **Login**: asks `GET /api/auth` which login this server has. Development:
+  a user number (`/login?uid=<n>` works too). Online: "Sign in with Google",
+  a full-page trip through `/login?next=` (§11); a new account then gets a
+  one-field username page before anything else (`needsHandle`).
 - **Active-session modal**: on load, if `GET /api/sessions/current` returns
   a pending/active session, the console shows a modal first, because the
   usual reason to open the console while a session exists is to start a
@@ -1648,9 +1653,11 @@ Pages:
 
 | Method & path | Purpose |
 |---|---|
-| `POST /api/login` `{uid}` | Stub login; sets `dh_token` cookie (HttpOnly, SameSite=Lax, Secure in prod). |
+| `GET /api/auth` | No login needed: `{mode: "stub" or "oidc", loginUrl}`, for the login screens (§11). |
+| `POST /api/login` `{uid}` | Development login (stub mode only, never through a tunnel); sets `dh_token` cookie (HttpOnly, SameSite=Lax, Secure over https). |
+| `GET /login?next=` | Google sign-in (oidc mode): to Google and back through `/oidc/authorize` and `/auth/complete`, then to `next`. Stub mode: `?uid=` logs in. |
 | `POST /api/logout` | Revoke token. |
-| `GET /api/me` / `PUT /api/me` | Profile, body data, unit system, time zone, public flag, global preferences. |
+| `GET /api/me` / `PUT /api/me` | Profile, body data, unit system, time zone, public flag, global preferences. `needsHandle` until a new Google user picks a username (2–24 letters, digits, `_ . -`, unique ignoring case). |
 | `GET /api/games` | Catalog: games with variants, screenshots (as URLs under `/games/<id>/`), validation status. |
 | `POST /api/sessions/launch` `{gameId, variant, deviceType, duration?, seed?, debug?}` | Creates pending session, supersedes old; returns `{sessionId, bridgeUrl}`. |
 | `GET /api/sessions?status=&game=&limit=&before=&includeDiscarded=` | Own sessions, summaries with `imageUrl`. Discarded sessions are omitted unless `status=discarded` or `includeDiscarded=1` (they pile up by the thousands). |
@@ -1671,20 +1678,60 @@ Pages:
 
 ## 11. Auth
 
-- **Now**: `POST /api/login {uid}` (or `GET /login?uid=` landing page)
-  creates the user row if missing and issues a random token stored in
-  `tokens`, set as an HttpOnly cookie `dh_token`. Every API route reads the
-  cookie, or `Authorization: Bearer <token>` for non-browser clients (tests,
-  future native bridge). No device-to-device login flow: each browser logs
-  in on its own.
+Two ways in, one login token (built 2026-09-14; setup in README "Put it online"):
+- **Development (`stub`)**: `POST /api/login {uid}` (or the `GET /login?uid=`
+  landing page) creates the user row if missing and logs in as that user. It
+  is off whenever Google sign-in is on, and it refuses any request that came
+  through a Cloudflare tunnel (`Cf-Connecting-Ip`), so a forgotten setting
+  cannot put it online.
+- **Google (`oidc`)**, through Flask-OIDC (on Authlib), which does discovery,
+  state, nonce, the code exchange and the ID-token checks. `GET /login?next=`
+  → `/oidc/login` → Google → `/oidc/authorize` (the redirect URI:
+  `DANDYHORSE_PUBLIC_URL` + `/oidc/authorize`) → `/auth/complete`, which maps
+  the account's `(issuer, sub)` to a uid in `oidc_identities`, creates the
+  user on the first sign-in, sets the login token, and empties the sign-in
+  cookie (`dh_oidc`, Flask's session), so no Google token is kept. The email
+  is stored for people to read and for the optional allow-list
+  (`DANDYHORSE_ALLOWED_EMAILS`), never to match accounts. A new user has a
+  placeholder username (`rider-1a2b3c4d`) and `handle_set = 0`: `/api/me`
+  says `needsHandle`, and the console asks for a username before anything
+  else.
+- **Which one**: `DANDYHORSE_AUTH`, else `oidc` when Google's client id and
+  secret are configured (`client_secrets.json` in the data folder, or the
+  environment), else `stub`. `GET /api/auth` tells the login screens.
+- **The login token** is an encrypted JWT (JWE, `dir` + `A256GCM`) holding
+  `{uid, jti, iat, exp}`, set as the HttpOnly cookie `dh_token` (Secure when
+  the public URL is https). Every API route reads the cookie, or
+  `Authorization: Bearer <token>` for non-browser clients (tests, a future
+  native bridge). Each token's `jti` has a row in `tokens`, so logging out
+  revokes it. Its key is derived (HKDF) from the master secret,
+  `DANDYHORSE_SECRET_KEY` or `<data>/secret.key` (made on first start, mode
+  600); the sign-in cookie is signed with a second derived key. No
+  device-to-device login flow: each browser logs in on its own.
 - Same-origin iframes inherit the cookie, so games and the bridge need no
   auth code at all.
-- **Later**: OIDC (Authorization Code + PKCE). The `tokens` table and cookie
-  stay; only the login route changes: subject claim → `users.oidc_subject`.
 - Every session/device/preference query is scoped by `uid` from the token;
   cross-user reads exist only through `public` profiles.
 - CSRF: cookie is SameSite=Lax and all mutating routes require
-  `Content-Type: application/json`, which blocks cross-site form posts.
+  `Content-Type: application/json`, which blocks cross-site form posts. After
+  logging in, the browser only goes on to a path on this server (`next` must
+  start with a single `/`).
+
+Decisions to revisit:
+- Tokens last a year, as the cookie always did, with no refresh or sliding
+  expiry. Logging out, or a new secret, ends them sooner.
+- Logging out ends the Dandyhorse login only, not the Google one.
+- The first Google user on a fresh data folder is uid 1, the admin. A
+  development database moved online keeps its users, who have no Google
+  identity; to take over an old uid, point your identity at it
+  (`UPDATE oidc_identities SET uid=1 WHERE email='you@example.com'`); the
+  placeholder user the first sign-in made stays, unused.
+- New users get their first name from Google as the display name.
+- Usernames: 2–24 of `A-Z a-z 0-9 _ . -`, starting with a letter or digit,
+  unique ignoring case. Checked only when a username changes, so older names
+  still save.
+- The server is Flask's threaded development server: fine for a handful of
+  people, not for more.
 
 ---
 
@@ -1965,7 +2012,7 @@ today** and **still open** are marked.
 | Pick the route / difficulty and how long before starting, without a keyboard | **Fixed**: launch options from `metadata.json` and 15/30/45/60 min as buttons in the launch dialog. |
 | Play the same thing again | **Fixed**: ▶ Play again on the bridge's ended card. |
 | A crash or a closed tab must not throw the ride away | **Fixed**: a session that goes silent after at least 60 s of activity is completed (`endReason: timeout`), not discarded. |
-| A name and a password, or "who am I" | **Open**: login is the `?uid=` stub; no sign-up, no profile beyond preferences. OIDC is Phase 4. |
+| A name and a password, or "who am I" | **Fixed (2026-09-14)**: Google sign-in; the first sign-in makes the account and asks for a username (§11). The `?uid=` login stays for development. |
 | Leaderboards and Achievements tabs with something in them | **Open**: skeletons; achievements are stored but not shown per game with names and pictures. |
 | First-run guidance on the TV ("connect your treadmill on your phone: open this address") | **Half**: the status layer has the instructions and the join URL; nothing shows them unprompted on first run. QR pairing is Phase 5. |
 | Pause or end from the console screen itself | **Open**: only bridges can pause and end. The console's status layer could carry Pause / End for a TV with a remote but no phone at hand. |

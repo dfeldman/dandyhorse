@@ -39,6 +39,8 @@ make serve       # Flask on http://localhost:8080
 
 Then open <http://localhost:8080/login?uid=1>. The stub login stores a
 token cookie for user 1 (any positive integer works; user 1 is admin).
+That is the development login; to put Dandyhorse online with Google
+sign-in, see [Put it online](#put-it-online).
 
 - Console: <http://localhost:8080/consoles/web/>
 - Bridge: <http://localhost:8080/bridges/web/>
@@ -64,8 +66,60 @@ make dev-kingdomtrek   # :5188 (http://localhost:5188/games/kingdomtrek/)
 
 Run the API server with `make serve` (no reloader: a reload would wipe
 live sessions). Environment: `DANDYHORSE_ROOT`, `DANDYHORSE_DATA`,
-`DANDYHORSE_PORT`, `DANDYHORSE_ADMIN_UID`, `DANDYHORSE_SECURE_COOKIE=1`
-behind HTTPS.
+`DANDYHORSE_PORT`, `DANDYHORSE_ADMIN_UID`, `DANDYHORSE_SECURE_COOKIE`
+(on by itself when `DANDYHORSE_PUBLIC_URL` is https), and the login settings below.
 
 Web Bluetooth needs a secure context: `localhost` is fine on the machine
 running the server; a phone needs HTTPS (see PLAN.md §9.5).
+
+## Put it online
+
+For a few friends, through a Cloudflare tunnel, with Google sign-in. The user-number login is for
+development only: it turns itself off when Google sign-in is set up, and it refuses anything that comes
+through a tunnel.
+
+1. **A Google OAuth client.** Google Cloud Console → APIs & Services → Credentials → Create credentials →
+   OAuth client ID → Web application. Authorized redirect URI: `https://<your-hostname>/oidc/authorize`
+   (and `http://localhost:8081/oidc/authorize` to try it on this machine first). Download the JSON.
+2. **A data folder for the online server**, apart from your development data, with the JSON in it. A
+   `client_secrets.json` in the data folder is what switches the server to Google sign-in (or set
+   `DANDYHORSE_GOOGLE_CLIENT_ID` and `DANDYHORSE_GOOGLE_CLIENT_SECRET`):
+
+   ```bash
+   mkdir -p ~/dandyhorse-online && cp ~/Downloads/client_secret_*.json ~/dandyhorse-online/client_secrets.json
+   ```
+
+3. **Start it** with its public address, on a port apart from the development server's:
+
+   ```bash
+   DANDYHORSE_DATA=~/dandyhorse-online DANDYHORSE_PORT=8081 DANDYHORSE_PUBLIC_URL=https://<your-hostname> make serve
+   ```
+
+   The log says `login: Google sign-in; redirect URI https://<your-hostname>/oidc/authorize`.
+4. **A named tunnel** to it. A quick `trycloudflare.com` tunnel gets a new hostname every run, and Google
+   only returns to redirect URIs you registered. With `cloudflared tunnel create dandyhorse` and
+   `cloudflared tunnel route dns dandyhorse <your-hostname>`, then this in `~/.cloudflared/config.yml`:
+
+   ```yaml
+   tunnel: dandyhorse
+   credentials-file: /Users/<you>/.cloudflared/<tunnel-id>.json
+   ingress:
+     - hostname: <your-hostname>
+       service: http://localhost:8081
+     - service: http_status:404
+   ```
+
+   run `cloudflared tunnel run dandyhorse`.
+5. **Sign in first.** On a fresh data folder the first person to sign in is user 1, the admin. Everyone
+   picks a username the first time they sign in.
+
+| Setting | |
+|---|---|
+| `DANDYHORSE_PUBLIC_URL` | The address people use. Google returns to `<it>/oidc/authorize`; https turns on secure cookies. |
+| `DANDYHORSE_ALLOWED_EMAILS` | Comma-separated Google accounts that may sign in. Empty: anyone with a Google account can make an account. |
+| `DANDYHORSE_AUTH` | `stub` or `oidc`, to override the choice made from the data folder. |
+| `DANDYHORSE_SECRET_KEY` | The master secret behind login tokens. Unset: one is made in `<data>/secret.key`. A new one logs everyone out. |
+| `DANDYHORSE_ADMIN_UIDS` | More admins, by user number (`2,5`). |
+
+The server is Flask's own threaded server, fine for a handful of people. The tunnel's HTTPS also lets
+phones run the bridge (Web Bluetooth needs it). How login works: PLAN.md §11.
