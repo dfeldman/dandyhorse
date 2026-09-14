@@ -84,6 +84,7 @@ def launch(dh: "Platform", conn: sqlite3.Connection, user: dict[str, Any], *, ga
         debug=bool(debug), requested_duration=num_or_none(duration), body_data=dict(user.get("body_data") or {}),
         options=dict(options or {}), created_at=t, allow_sim=_allow_sim(user, bool(debug)),
         integrator=Integrator(device_type, user.get("body_data") or {}, dh.config.efficiency, dh.config.default_weight),
+        auto_pause=(game.get("capabilities") or {}).get("autoPause") is not False,
     )
     _insert_row(conn, live)
     dh.store.add(live)
@@ -157,7 +158,7 @@ def game_tick(dh: "Platform", live: LiveSession, body: dict[str, Any]) -> int:
     live.prompt = prompt if (prompt and prompt["promptId"] not in live.answered) else None
     live.last_game_at = t
     live.append({"k": "game", "t": t, "tc": num_or_none(body.get("timestamp")), "seq": live.seq + 1,
-                 "req": req, "pos": pos, "ach": ach, "prompt": prompt, "route": live.route,
+                 "req": req, "pos": pos, "ach": ach, "prompt": _loggable_prompt(live, prompt), "route": live.route,
                  "score": live.score, "custom": custom, "urgent": bool(body.get("urgent"))})
     new_ach = []
     if not live.debug:
@@ -175,11 +176,16 @@ def game_tick(dh: "Platform", live: LiveSession, body: dict[str, Any]) -> int:
     return live.bump()
 
 
+MENU_ITEMS_MAX = 100
+
+
 def _validate_prompt(p: Any) -> dict[str, Any] | None:
     if p is None:
         return None
     if not isinstance(p, dict):
         raise ApiError(400, "prompt_invalid", "requestedInput must be an object")
+    if p.get("layout") == "menu":
+        return _validate_menu(p)
     pid = p.get("promptId")
     choices = p.get("choices")
     if not isinstance(pid, str) or not pid or not isinstance(choices, list) or not (1 <= len(choices) <= 10) \
@@ -194,14 +200,79 @@ def _validate_prompt(p: Any) -> dict[str, Any] | None:
     return out
 
 
-def answer_input(dh: "Platform", live: LiveSession, prompt_id: str, choice: str, source: str) -> bool:
+def _validate_menu(p: dict[str, Any]) -> dict[str, Any]:
+    """A menu prompt (PLAN.md §6.3): the game's whole choice list, so a phone can mirror it. Items carry stable ids;
+    `choices` names the d-pad buttons shown beside the list; `rev` changes whenever the list does. Always persistent."""
+    from .store import REMOTE_BUTTONS
+    pid = p.get("promptId")
+    if not isinstance(pid, str) or not pid:
+        raise ApiError(400, "prompt_invalid", "promptId required")
+    buttons = p.get("choices") if p.get("choices") is not None else []
+    if not isinstance(buttons, list) or any(b not in REMOTE_BUTTONS for b in buttons):
+        raise ApiError(400, "prompt_invalid", f"a menu's choices are d-pad buttons ({', '.join(REMOTE_BUTTONS)})")
+    raw = p.get("items")
+    if not isinstance(raw, list) or not 1 <= len(raw) <= MENU_ITEMS_MAX:
+        raise ApiError(400, "prompt_invalid", f"a menu needs 1-{MENU_ITEMS_MAX} items")
+    items: list[dict[str, Any]] = []
+    ids: set[str] = set()
+    for it in raw:
+        iid = it.get("id") if isinstance(it, dict) else None
+        label = it.get("label") if isinstance(it, dict) else None
+        # An item id may not be a d-pad button name, so an answer is never ambiguous (gamekit escapes them).
+        if not isinstance(iid, str) or not 1 <= len(iid) <= 64 or iid in ids or iid in REMOTE_BUTTONS \
+                or not isinstance(label, str) or not 1 <= len(label) <= 40:
+            raise ApiError(400, "prompt_invalid",
+                           "menu items need a unique id (1-64 chars, not a d-pad button name) and a label (1-40 chars)")
+        ids.add(iid)
+        item: dict[str, Any] = {"id": iid, "label": label}
+        if isinstance(it.get("hint"), str) and it["hint"]:
+            item["hint"] = it["hint"][:200]
+        if it.get("disabled") is True:
+            item["disabled"] = True
+        items.append(item)
+    rev = p.get("rev")
+    countdown = num_or_none(p.get("countdown"))
+    return {"promptId": pid[:64], "prompt": str(p.get("prompt") or "")[:200], "choices": list(dict.fromkeys(buttons)),
+            "persistent": True, "layout": "menu", "items": items,
+            "highlight": p["highlight"] if p.get("highlight") in ids else None,
+            "back": p["back"] if p.get("back") in ids else None,
+            "rev": rev if isinstance(rev, int) and not isinstance(rev, bool) else 0,
+            "countdown": countdown if countdown is not None and countdown >= 0 else None}
+
+
+def _loggable_prompt(live: LiveSession, prompt: dict[str, Any] | None) -> dict[str, Any] | None:
+    """A menu prompt can carry 100 items every second: the log gets it in full only when its list changes (a new
+    promptId or rev), otherwise just where the highlight is."""
+    if not prompt or prompt.get("layout") != "menu":
+        return prompt
+    key = (prompt["promptId"], prompt["rev"])
+    if live.logged_prompt == key:
+        return {"promptId": prompt["promptId"], "rev": prompt["rev"], "highlight": prompt["highlight"]}
+    live.logged_prompt = key
+    return prompt
+
+
+def parse_rev(v: Any) -> int | None:
+    """The menu `rev` an answer was aimed at (PLAN.md §6.3), or None."""
+    return v if isinstance(v, int) and not isinstance(v, bool) else None
+
+
+def _answer_ok(prompt: dict[str, Any], choice: str) -> bool:
+    if choice in prompt["choices"]:
+        return True
+    return prompt.get("layout") == "menu" and any(
+        it["id"] == choice and not it.get("disabled") for it in prompt.get("items") or [])
+
+
+def answer_input(dh: "Platform", live: LiveSession, prompt_id: str, choice: str, source: str,
+                 rev: int | None = None) -> bool:
     if live.status not in RUNNING:
         return False
     if prompt_id in live.answered:
         return False
     if live.prompt is None or live.prompt["promptId"] != prompt_id:
         return False
-    if choice not in live.prompt["choices"]:
+    if not _answer_ok(live.prompt, choice):
         return False
     t = _now()
     if not live.prompt.get("persistent"):
@@ -209,8 +280,11 @@ def answer_input(dh: "Platform", live: LiveSession, prompt_id: str, choice: str,
         live.answered.add(prompt_id)
         live.prompt = None
     live.input = {"promptId": prompt_id, "choice": choice, "t": t, "source": source}
+    if rev is not None:
+        live.input["rev"] = rev  # which version of a menu the tap was aimed at; the game drops stale ones
     live.inputs.append({**live.input, "n": live.seq + 1})
-    live.append({"k": "input", "t": t, "source": source, "promptId": prompt_id, "choice": choice})
+    live.append({"k": "input", "t": t, "source": source, "promptId": prompt_id, "choice": choice,
+                 **({"rev": rev} if rev is not None else {})})
     live.bump()
     return True
 
@@ -278,17 +352,32 @@ def _touch_device(conn: sqlite3.Connection, uid: int, dtype: str, address: str, 
     conn.commit()
 
 
+def resolve_controls(game: dict[str, Any], var: dict[str, Any], device_type: str, chosen: dict[str, Any]) -> str:
+    """What the game drives on this device type (metadata `controls`, §7.1): "incline" is the usual treadmill game,
+    "none" a read-only one. A launch option may change it: an option's `controls` maps one of its values to
+    per-device-type controls (Kingdom Trek's Hills: On drives incline / grade, Off only reads the machine)."""
+    controls = (var.get("controls") or {}).get(device_type) or "none"
+    for key, spec in (game.get("options") or {}).items():
+        by_value = spec.get("controls") if isinstance(spec, dict) else None
+        over = ((by_value or {}).get(chosen.get(key)) or {}).get(device_type)
+        if isinstance(over, str) and over:
+            controls = over
+    return controls
+
+
 def session_brief(dh: "Platform", live: LiveSession) -> dict[str, Any]:
     t = _now()
     entry = dh.catalog.game_entry_url(live.game_id) or f"/games/{live.game_id}/index.html"
     var = dh.catalog.variant(live.game_id, live.variant) or {}
-    # What the game drives on this device type (metadata `controls`, §7.1): "incline" is the usual
-    # treadmill game, "none" a read-only one. Bridges use it for wording and to skip FTMS control.
-    controls = (var.get("controls") or {}).get(live.device_type) or "none"
+    # Bridges use `controls` for wording.
+    controls = resolve_controls(dh.catalog.game(live.game_id) or {}, var, live.device_type,
+                                (live.options or {}).get("game") or {})
     return {
         "sessionId": live.session_id, "status": live.status, "endReason": live.end_reason,
         "gameId": live.game_id, "variant": live.variant, "deviceType": live.device_type,
         "seed": live.seed, "debug": live.debug, "seq": live.seq, "controls": controls,
+        # False: the game plays on without a machine (a heart-rate strap alone is fine) and only the user pauses.
+        "autoPause": live.auto_pause,
         "elapsed": (t - live.started_at) if live.started_at else 0.0,
         "requestedDuration": live.requested_duration, "route": live.route,
         # seconds since the game last called setstate; bridges hold, then ramp a treadmill down, when it grows
@@ -603,16 +692,25 @@ def _update_pause(dh: "Platform", live: LiveSession, reports: dict[str, dict[str
 
     silent = t - (live.fitness_data_at if live.fitness_data_at is not None else t)
 
-    # A pause pressed on a bridge wins over everything until Play; device loss cannot resume it.
+    # A pause pressed on a bridge (or in the game) wins over everything until Play; device loss cannot resume it.
     if live.user_pause is not None:
         up = live.user_pause
-        info = {"reason": "user", "message": f"Paused from {up.get('label') or 'a bridge'}. Press Play to continue.",
+        message = ("Paused in the game. Resume there, or press Play." if up.get("by") == "game"
+                   else f"Paused from {up.get('label') or 'a bridge'}. Press Play to continue.")
+        info = {"reason": "user", "message": message,
                 "bridgeId": up.get("bridgeId"), "bridgeLabel": up.get("label"), "deviceName": None, "deviceStatus": None}
         if live.status == "active":
             _enter_pause(live, t, info)
-        elif (live.pause or {}).get("reason") != "user":
-            live.pause = info  # already paused for the device; now also held by the user
+        elif (live.pause or {}).get("message") != message:
+            live.pause = info  # paused for the device, or by someone else; now held by this user pause
             live.bump()
+        return
+
+    if not live.auto_pause:
+        # The game opted out (capabilities.autoPause false): missing data never pauses it, and once the user's
+        # pause is lifted it runs again at once, whatever the device is doing.
+        if live.status == "paused":
+            _leave_pause(live, t)
         return
 
     if live.status == "active":
@@ -622,12 +720,7 @@ def _update_pause(dh: "Platform", live: LiveSession, reports: dict[str, dict[str
     # paused
     streak = (live.last_valid_t - live.valid_since) if live.valid_since is not None and live.last_valid_t is not None else -1
     if streak >= cfg.resume_streak and silent <= cfg.pause_after:
-        live.paused_total += t - (live.paused_since or t)
-        live.status = "active"
-        live.paused_since = None
-        live.pause = None
-        live.append({"k": "status", "t": t, "from": "paused", "to": "active"})
-        live.bump()
+        _leave_pause(live, t)
         return
     info = _pause_info(live, reports, own, t, device_type, allow_sim, cfg.fresh_seconds)
     if live.pause is None or info["message"] != live.pause.get("message"):
@@ -643,13 +736,22 @@ def _enter_pause(live: LiveSession, t: float, info: dict[str, Any]) -> None:
     live.bump()
 
 
-def user_pause(dh: "Platform", live: LiveSession, bridge_id: str, label: str | None) -> None:
-    """The user pressed Pause on a bridge."""
+def _leave_pause(live: LiveSession, t: float) -> None:
+    live.paused_total += t - (live.paused_since or t)
+    live.status = "active"
+    live.paused_since = None
+    live.pause = None
+    live.append({"k": "status", "t": t, "from": "paused", "to": "active"})
+    live.bump()
+
+
+def user_pause(dh: "Platform", live: LiveSession, bridge_id: str | None, label: str | None, by: str = "bridge") -> None:
+    """The user pressed Pause on a bridge, or paused inside the game (`by="game"`, POST /gameapi/pause)."""
     if live.status not in RUNNING:
         raise ApiError(409, "session_not_running", f"session is {live.status}")
     t = _now()
-    live.user_pause = {"bridgeId": bridge_id, "label": label, "t": t}
-    live.append({"k": "userPause", "t": t, "action": "pause", "by": bridge_id})
+    live.user_pause = {"bridgeId": bridge_id, "label": label, "t": t, "by": by}
+    live.append({"k": "userPause", "t": t, "action": "pause", "by": bridge_id if by == "bridge" else by})
     resolve_owners(dh, live.uid, t, live)
 
 

@@ -18,7 +18,7 @@ def launch(client, variant="bike", debug=True, **kw):
 def test_login_and_me(client):
     me = client.get("/api/me").get_json()
     assert me["uid"] == 7 and me["username"] == "user7" and me["unitSystem"] == "metric"
-    assert client.get("/api/games").get_json()["games"][0]["id"] == "mockgame"
+    assert "mockgame" in [g["id"] for g in client.get("/api/games").get_json()["games"]]
     anon = client.application.test_client()
     assert anon.get("/api/me").status_code == 401
 

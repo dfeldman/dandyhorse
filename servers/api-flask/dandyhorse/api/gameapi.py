@@ -105,8 +105,29 @@ def setstate():
 def answerinput():
     b = body()
     live = user_session(b.get("sessionId"))
-    ok = lifecycle.answer_input(dh(), live, str(b.get("promptId") or ""), str(b.get("choice") or ""), "game")
+    ok = lifecycle.answer_input(dh(), live, str(b.get("promptId") or ""), str(b.get("choice") or ""), "game",
+                                lifecycle.parse_rev(b.get("rev")))
     return jsonify({"accepted": ok})
+
+
+@bp.post("/pause")
+@require_auth
+def pause():
+    """The game's own pause (PLAN.md §5.3): the same as a bridge's ⏸ (paused true) and ▶ (paused false), so a break
+    is not counted as exercise and every bridge shows Play. Idempotent."""
+    b = body()
+    live = user_session(b.get("sessionId"))
+    paused = b.get("paused")
+    if not isinstance(paused, bool):
+        raise ApiError(400, "paused_required", "paused must be true or false")
+    if paused:
+        lifecycle.user_pause(dh(), live, None, None, by="game")
+    else:
+        if live.status not in lifecycle.RUNNING:
+            raise ApiError(409, "session_not_running", f"session is {live.status}")
+        lifecycle.user_resume(dh(), live, "game")
+    t = _now()
+    return jsonify({"ok": True, "sessionStatus": live.status, "pause": lifecycle.pause_view(live, t)})
 
 
 @bp.post("/endsession")

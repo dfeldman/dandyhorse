@@ -57,7 +57,11 @@ class LiveSession:
     paused_total: float = 0.0
     pause: dict[str, Any] | None = None
     last_fitness: dict[str, Any] | None = None  # bridge/device that last supplied fitness data
-    user_pause: dict[str, Any] | None = None    # {bridgeId, label, t} while the user pressed Pause on a bridge
+    user_pause: dict[str, Any] | None = None    # {bridgeId, label, t, by} while the user pressed Pause (bridge or game)
+    # capabilities.autoPause (PLAN.md §5.3): False = missing device data never pauses; only the user does.
+    auto_pause: bool = True
+    # (promptId, rev) of the menu prompt last written to the log in full (PLAN.md §6.3)
+    logged_prompt: tuple[str, Any] | None = None
     records: list[dict[str, Any]] = field(default_factory=list)
     writer: LogWriter | None = None
     log_rel: str | None = None

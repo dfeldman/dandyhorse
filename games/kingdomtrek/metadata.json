@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "kingdomtrek",
+  "name": "Kingdom Trek",
+  "version": "0.1.0",
+  "author": "Dandyhorse",
+  "description": "Save the kingdom a ride at a time: your workout earns Energy, Energy walks you between towns, and you fight by pushing harder.",
+  "entry": "index.html",
+  "screenshot": "screenshot.png",
+  "minPlatformVersion": "1.0",
+  "capabilities": { "seed": false, "input": true, "saveState": true, "ghosts": false, "autoPause": false },
+  "variants": [
+    {
+      "id": "trek",
+      "name": "Kingdom Trek",
+      "description": "One hero on either machine. Energy comes from your effort against your own steady pace, so a level takes everyone about the same time.",
+      "deviceTypes": ["bike", "treadmill"],
+      "defaultDuration": 2700,
+      "controls": { "bike": "none", "treadmill": "none" }
+    }
+  ],
+  "options": {
+    "effortFrom": {
+      "label": "Effort from",
+      "enum": ["machine", "heartRate"],
+      "labels": ["Machine", "Heart rate"],
+      "default": "machine",
+      "description": "What turns your workout into Energy. Heart rate lags by up to a minute, so fights feel slower."
+    },
+    "hills": {
+      "label": "Hills",
+      "enum": ["off", "on"],
+      "labels": ["Off", "On"],
+      "default": "off",
+      "description": "The game sets your incline (treadmill) or grade (bike) from the road. Turn on if your treadmill doesn't report its incline.",
+      "controls": { "on": { "treadmill": "incline", "bike": "grade" } }
+    }
+  }
+}

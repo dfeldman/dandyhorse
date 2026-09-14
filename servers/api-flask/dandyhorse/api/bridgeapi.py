@@ -114,7 +114,7 @@ def sendinput():
     if live is None:
         return jsonify({"accepted": False, "reason": "no_session"})
     ok = lifecycle.answer_input(dh(), live, str(b.get("promptId") or ""), str(b.get("choice") or ""),
-                                f"bridge:{b.get('bridgeId') or '?'}")
+                                f"bridge:{b.get('bridgeId') or '?'}", lifecycle.parse_rev(b.get("rev")))
     return jsonify({"accepted": ok})
 
 

@@ -11,6 +11,7 @@ from .config import DEVICE_TYPES, Config
 
 ID_RE = re.compile(r"^[a-z0-9_-]{2,32}$")
 SEMVER_RE = re.compile(r"^\d+\.\d+(\.\d+)?([-+][0-9A-Za-z.-]+)?$")
+CONTROLS = ("speed", "incline", "speed+incline", "grade", "power", "none")
 
 
 def _validate_game(folder: Path, meta: Any) -> list[str]:
@@ -27,6 +28,11 @@ def _validate_game(folder: Path, meta: Any) -> list[str]:
             errs.append(f"{k} is required")
     if isinstance(meta.get("version"), str) and not SEMVER_RE.match(meta["version"]):
         errs.append("version must be semver")
+    caps = meta.get("capabilities", {})
+    if not isinstance(caps, dict):
+        errs.append("capabilities must be an object")
+    elif "autoPause" in caps and not isinstance(caps["autoPause"], bool):
+        errs.append("capabilities.autoPause must be true or false")
     opts = meta.get("options", {})
     if not isinstance(opts, dict):
         errs.append("options must be an object of {key: {enum, default?, label?, labels?}}")
@@ -41,6 +47,13 @@ def _validate_game(folder: Path, meta: Any) -> list[str]:
                 errs.append(f"option {k!r}: default must be one of enum")
             if "labels" in o and (not isinstance(o["labels"], list) or len(o["labels"]) != len(o["enum"])):
                 errs.append(f"option {k!r}: labels must match enum")
+            # {"on": {"treadmill": "incline", "bike": "grade"}}: choosing that value changes what the game drives
+            ctl = o.get("controls", {})
+            if not isinstance(ctl, dict) or any(
+                    v not in o["enum"] or not isinstance(m, dict)
+                    or any(d not in DEVICE_TYPES or c not in CONTROLS for d, c in m.items())
+                    for v, m in ctl.items()):
+                errs.append(f"option {k!r}: controls must map enum values to {{deviceType: one of {CONTROLS}}}")
     variants = meta.get("variants")
     if not isinstance(variants, list) or not variants:
         errs.append("variants must be a non-empty list")

@@ -37,6 +37,11 @@ def root(tmp_path: Path) -> Path:
             "variants": [{"id": "treadmill", "name": "T", "deviceTypes": ["treadmill"]},
                          {"id": "bike", "name": "B", "deviceTypes": ["bike"]}]}))
     (rh / "index.html").write_text("<html>rh</html>")
+    # a game that opts out of automatic pauses and has an option that changes what it drives
+    kt = tmp_path / "games" / "kingdomtrek"
+    kt.mkdir(parents=True)
+    shutil.copy(REPO / "games" / "kingdomtrek" / "metadata.json", kt / "metadata.json")
+    (kt / "index.html").write_text("<html>kt</html>")
     for kind in ("consoles", "bridges"):
         d = tmp_path / kind / "web"
         d.mkdir(parents=True)
