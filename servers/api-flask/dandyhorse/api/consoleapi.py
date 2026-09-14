@@ -62,10 +62,11 @@ def login():
 
 @bp.get("/login")
 def login_redirect():
-    """Google sign-in: /login?next=/path signs in, then goes there.
+    """Google sign-in: /login?next=/path signs in, then goes there. A uid means nothing then, so the games'
+    "log in and come back" links (/login?uid=1&next=...) sign in with Google too.
     Stub: /login?uid=7 sets the cookie and lands on the console (or ?next=); without a uid, the login screen."""
     nxt = auth.safe_next(request.args.get("next"))
-    if dh().config.auth_mode == "oidc" and "uid" not in request.args:
+    if dh().config.auth_mode == "oidc":
         from .. import oidc
         return oidc.start(nxt)
     _stub_only()

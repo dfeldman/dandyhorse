@@ -1681,9 +1681,10 @@ Pages:
 Two ways in, one login token (built 2026-09-14; setup in README "Put it online"):
 - **Development (`stub`)**: `POST /api/login {uid}` (or the `GET /login?uid=`
   landing page) creates the user row if missing and logs in as that user. It
-  is off whenever Google sign-in is on, and it refuses any request that came
-  through a Cloudflare tunnel (`Cf-Connecting-Ip`), so a forgotten setting
-  cannot put it online.
+  is off whenever Google sign-in is on (then `/login` ignores a uid and signs
+  in with Google, so the games' "log in and come back" links still work), and
+  it refuses any request that came through a Cloudflare tunnel
+  (`Cf-Connecting-Ip`), so a forgotten setting cannot put it online.
 - **Google (`oidc`)**, through Flask-OIDC (on Authlib), which does discovery,
   state, nonce, the code exchange and the ID-token checks. `GET /login?next=`
   → `/oidc/login` → Google → `/oidc/authorize` (the redirect URI:

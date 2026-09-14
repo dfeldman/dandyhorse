@@ -119,7 +119,9 @@ def test_google_sign_in_turns_the_stub_off(root):
     assert c.get("/api/auth").get_json() == {"mode": "oidc", "loginUrl": "/login"}
     r = c.post("/api/login", json={"uid": 1})
     assert r.status_code == 403 and r.get_json()["error"]["code"] == "stub_disabled"
-    assert c.get("/login?uid=1").status_code == 403
+    # the games' "log in and come back" links carry ?uid=1: under Google it is ignored, never obeyed
+    r = c.get("/login?uid=1&next=/games/rollinghills/")
+    assert r.status_code == 302 and r.location.startswith("/oidc/login?next=")
     assert c.get("/api/me").status_code == 401
 
 
