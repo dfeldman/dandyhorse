@@ -631,6 +631,9 @@ Made while building this. Each says what was decided, why, and what would change
   the game catches up gaps of up to 65 s so its clock keeps pace with the workout. The bridge in the same tab is
   throttled too; that is the platform's problem, not this game's.
 - **Players see "pedal"** on a treadmill (above).
+- **"This session" means this page load.** The farewell card and the session picture count the minutes, Energy and
+  deeds since the page last loaded (`engine.session`), so after a reload mid-session they undercount. Seen in
+  testing when Chrome reloaded a long-hidden tab. A fix would keep the totals at the session's start next to its id.
 - **The phone's menu:**
   - hold-to-repeat on the d-pad was tested with synthetic pointer events only, and a real long press on some phones
     may cancel it;
