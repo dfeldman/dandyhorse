@@ -201,6 +201,9 @@ export interface EffortMeterOptions {
   weightKg?: number | null
   bodyData?: BodyData | null
   preferences?: EffortPreferences
+  /** Seconds of smoothing per source, over SMOOTHING (0: none). A game that needs the least lag, and smooths
+   *  on its own, turns power's off (Flight Cycle: games/bikeplane/PLAYABILITY.md). */
+  smoothing?: Partial<Record<EffortSourceKind, number>>
 }
 
 /** What the meter is doing right now, for a HUD. */
@@ -237,9 +240,11 @@ export class EffortMeter {
   private source: EffortSourceKind = 'none'
   private machineAt = -Infinity
   private machineMoving: boolean | null = null
+  private readonly smoothing: Record<EffortSourceKind, number>
 
   constructor(opts: EffortMeterOptions) {
     this.deviceType = opts.deviceType
+    this.smoothing = { ...SMOOTHING, ...opts.smoothing }
     this.prefer = opts.prefer ?? 'machine'
     this.weightKg = positive(opts.weightKg) ?? positive(opts.bodyData?.weight)
     this.prefs = { global: opts.preferences?.global ?? {}, device: opts.preferences?.device ?? {} }
@@ -292,7 +297,7 @@ export class EffortMeter {
     const src = this.pick(now)
     const target = src === 'none' ? 0 : this.held.get(src)!.raw
     const dt = this.lastAt === null ? Infinity : Math.max(0, now - this.lastAt)
-    const tau = SMOOTHING[src]
+    const tau = this.smoothing[src]
     this.smoothed = tau > 0 && Number.isFinite(dt) && src === this.source
       ? this.smoothed + (target - this.smoothed) * (1 - Math.exp(-dt / tau))
       : target

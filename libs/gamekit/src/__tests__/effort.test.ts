@@ -42,6 +42,21 @@ describe('treadmillWatts', () => {
   })
 })
 
+describe('smoothing', () => {
+  test('a game can turn power smoothing off for the least lag', () => {
+    const preferences = { global: { steadyWatts: 100 } }
+    const smooth = new EffortMeter({ deviceType: 'bike', preferences })
+    const raw = new EffortMeter({ deviceType: 'bike', preferences, smoothing: { power: 0 } })
+    for (const m of [smooth, raw]) {
+      m.update(state({ power: 100 }), 0)
+      m.update(state({ power: 200 }), 1)
+    }
+    expect(raw.value(1)).toBeCloseTo(2)
+    expect(smooth.value(1)).toBeGreaterThan(1.2) // 3 s: a second in, it has gone 28% of the way
+    expect(smooth.value(1)).toBeLessThan(1.35)
+  })
+})
+
 describe('steady pace', () => {
   test('the most specific preference wins', () => {
     const pace = { speed: kmh(6), incline: 3 }
