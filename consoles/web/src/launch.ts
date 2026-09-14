@@ -36,3 +36,16 @@ export function defaultDeviceType(variantTypes: DeviceType[], hints: MachineHint
   }
   return recent?.type ?? variantTypes[0] ?? 'treadmill'
 }
+
+/** A saved machine the user really has, not one of the bridge's simulators (address sim:bike, protocol sim). */
+export function isRealMachine(d: { type: string; address: string | null; protocol: string | null }): boolean {
+  return d.type !== 'hrm' && d.protocol !== 'sim' && !(d.address ?? '').startsWith('sim:')
+}
+
+/**
+ * Debug is on by default only for someone with no real machine saved: the simulator needs it, and a debug
+ * session earns no achievements and counts for no leaderboard, so a real rider's sessions must not be debug.
+ */
+export function defaultDebug(saved: { type: string; address: string | null; protocol: string | null }[]): boolean {
+  return !saved.some(isRealMachine)
+}

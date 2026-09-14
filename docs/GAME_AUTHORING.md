@@ -51,6 +51,11 @@ Two optional extras, both used by Kingdom Trek:
   `"options": {"hills": {"enum": ["off", "on"], "controls": {"on": {"treadmill": "incline", "bike": "grade"}}}}`.
   The session's `controls`, which bridges read, are then the variant's, overridden by the chosen value's.
 
+And one for any game: **names for your achievements**, shown on the console's Achievements page:
+`"achievements": {"turbo": {"name": "Turbo!", "description": "Filled the Turbo meter."}}`. The page lists the
+named ones before they are earned, as goals. An id you send without a name still shows, spelled out from the id
+(`level-5` → "Level 5").
+
 ## Lifecycle
 
 1. The bridge loads your entry as an iframe with

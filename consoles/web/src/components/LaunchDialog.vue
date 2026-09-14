@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { api, ApiError } from '../api'
 import { store } from '../session'
 import { connection, deviceTypeName } from '../status'
-import { defaultDeviceType } from '../launch'
+import { defaultDebug, defaultDeviceType } from '../launch'
 import type { Device, DeviceType, Game, LaunchResponse, Variant } from '../types'
 
 // One column, every row reachable with Down and every choice with Left/Right: device type (if several, as buttons
@@ -32,12 +32,16 @@ const deviceType = computed<DeviceType>(() => {
     saved: savedDevices.value,
   })
 })
+// Debug starts on (the simulator needs it) and turns itself off once the saved devices show a real machine,
+// unless the user has already flipped it (launch.ts defaultDebug).
+const debug = ref(true)
+const debugTouched = ref(false)
 onMounted(async () => {
-  if (props.variant.deviceTypes.length < 2) return
   try {
     savedDevices.value = (await api<{ devices: Device[] }>('/api/devices')).devices
+    if (!debugTouched.value) debug.value = defaultDebug(savedDevices.value)
   } catch {
-    // the default then goes without the saved devices
+    // the defaults then go without the saved devices
   }
 })
 const defaultSeconds = props.variant.defaultDuration ?? store.me?.preferences.defaultDuration ?? 1800
@@ -47,7 +51,6 @@ const customMinutes = ref<number | null>(null)
 const optionRows = computed(() => Object.entries(props.game.options ?? {}))
 const options = ref<Record<string, string>>(Object.fromEntries(optionRows.value.map(([k, o]) => [k, o.default ?? o.enum[0] ?? ''])))
 const seed = ref<number>(randomSeed())
-const debug = ref(true)
 const advanced = ref(false)
 const busy = ref(false)
 const error = ref<string | null>(null)
@@ -114,7 +117,7 @@ async function launch() {
           </div>
         </div>
 
-        <button type="button" class="switch" role="switch" :aria-checked="debug" @click="debug = !debug">
+        <button type="button" class="switch" role="switch" :aria-checked="debug" @click="debug = !debug; debugTouched = true">
           <span>Debug session<span class="hint">Logged and shown in History, but not counted for leaderboards or achievements. Needed for the simulator.</span></span>
           <span class="knob" aria-hidden="true"></span>
         </button>

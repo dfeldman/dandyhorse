@@ -2019,11 +2019,11 @@ today** and **still open** are marked.
 | Play the same thing again | **Fixed**: ▶ Play again on the bridge's ended card. |
 | A crash or a closed tab must not throw the ride away | **Fixed**: a session that goes silent after at least 60 s of activity is completed (`endReason: timeout`), not discarded. |
 | A name and a password, or "who am I" | **Fixed (2026-09-14)**: Google sign-in; the first sign-in makes the account and asks for a username (§11). The `?uid=` login stays for development. |
-| Leaderboards and Achievements tabs with something in them | **Open**: skeletons; achievements are stored but not shown per game with names and pictures. |
+| Leaderboards and Achievements tabs with something in them | **Achievements fixed (2026-09-14)**: every achievement by game, earned ones with the day and the ride, the ones a game names but you haven't earned as goals; games name theirs in `metadata.json` (`achievements`). Debug sessions earn none. **Leaderboards open**: still a skeleton. |
 | First-run guidance on the TV ("connect your treadmill on your phone: open this address") | **Half**: the status layer has the instructions and the join URL; nothing shows them unprompted on first run. QR pairing is Phase 5. |
 | Pause or end from the console screen itself | **Open**: only bridges can pause and end. The console's status layer could carry Pause / End for a TV with a remote but no phone at hand. |
 | Pick up a ride where it stopped after a reload | **Open**: the session resumes, the game restarts from its own start (Rolling Hills goes back to the start line). Games could restore from `getstate.position`. |
-| Debug off by default for real riding | **Open**: the launch dialog defaults to Debug on (simulators need it). Once real hardware is the norm this must default off, or follow whether a real device was ever saved. |
+| Debug off by default for real riding | **Fixed (2026-09-14)**: the launch dialog starts with Debug on only while no real machine is saved (the simulators are saved as `sim:` devices, a heart-rate strap is not a machine); a real rider's sessions count for achievements. |
 | Sound, music, a mute button | **Open**: nothing plays anything yet; when a game does, the console needs a global mute that games read. |
 | The game on the big screen when the phone launched it | **By design**: the game runs where Start game / Show game here was pressed; the TV bridge hosts it and the phone supplies the device. Worth one line of on-screen wording on the phone ("the game is on your other screen"). |
 | Delete a session, log out, set weight and units | Present (History detail, Preferences). |

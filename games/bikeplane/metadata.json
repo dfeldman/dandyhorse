@@ -15,6 +15,12 @@
     "saveState": true,
     "routes": ["isla-uno"]
   },
+  "achievements": {
+    "workout-complete": { "name": "Full flight", "description": "Flew a whole workout." },
+    "turbo": { "name": "Turbo!", "description": "Filled the Turbo meter." },
+    "race-win": { "name": "Race winner", "description": "Won a pylon race." },
+    "streak-lap": { "name": "Perfect lap", "description": "A lap's worth of rings in a row (passes count)." }
+  },
   "variants": [
     {
       "id": "bike",

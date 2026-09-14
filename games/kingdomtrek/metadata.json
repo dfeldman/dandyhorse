@@ -9,6 +9,13 @@
   "screenshot": "screenshot.png",
   "minPlatformVersion": "1.0",
   "capabilities": { "seed": false, "input": true, "saveState": true, "ghosts": false, "autoPause": false },
+  "achievements": {
+    "kingdom-saved": { "name": "Kingdom saved", "description": "Saved a kingdom from its threat." },
+    "first-craft": { "name": "Made by hand", "description": "Made something at a workshop." },
+    "level-2": { "name": "Level 2", "description": "Your hero reached level 2." },
+    "level-5": { "name": "Level 5", "description": "Your hero reached level 5." },
+    "level-10": { "name": "Level 10", "description": "Your hero reached level 10." }
+  },
   "variants": [
     {
       "id": "trek",

@@ -8,6 +8,7 @@ import * as u from '../units'
 import * as charts from '../charts'
 import { deviceTypeName, hueIndex, initialOf } from '../status'
 import LineChart from '../components/LineChart.vue'
+import AchievementPills from '../components/AchievementPills.vue'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -185,7 +186,7 @@ async function end() {
           </dl>
           <h2>Achievements earned</h2>
           <p v-if="session.achievements.length === 0" class="muted">None in this session.</p>
-          <div v-else class="actions"><span v-for="a in session.achievements" :key="a" class="pill">{{ a }}</span></div>
+          <AchievementPills v-else :keys="session.achievements" />
         </div>
       </div>
 

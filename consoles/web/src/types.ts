@@ -96,6 +96,8 @@ export interface Game {
   /** Options chosen at launch (PLAN.md §7.1): one row of choices each in the launch dialog. */
   options: Record<string, GameOption>
   variants: Variant[]
+  /** Names of the ids the game sends as achievements (metadata.json), for the Achievements page. */
+  achievements?: Record<string, { name: string; description?: string }>
 }
 
 export interface GameOption {

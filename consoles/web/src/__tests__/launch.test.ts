@@ -1,9 +1,26 @@
 import { describe, expect, test } from 'vitest'
-import { defaultDeviceType } from '../launch'
+import { defaultDebug, defaultDeviceType, isRealMachine } from '../launch'
 import type { DeviceType } from '../types'
 
 const none = { connected: [], owned: [], saved: [] }
 const both: DeviceType[] = ['bike', 'treadmill']
+
+describe('defaultDebug', () => {
+  const sim = { type: 'bike', address: 'sim:bike', protocol: 'sim' }
+  const kickr = { type: 'bike', address: 'AA:BB:CC:DD:EE:FF', protocol: 'ftms' }
+  const strap = { type: 'hrm', address: '11:22:33:44:55:66', protocol: 'hrs' }
+  test('the simulators and a heart-rate strap are not a machine', () => {
+    expect(isRealMachine(sim)).toBe(false)
+    expect(isRealMachine({ ...sim, protocol: null })).toBe(false)
+    expect(isRealMachine(strap)).toBe(false)
+    expect(isRealMachine(kickr)).toBe(true)
+  })
+  test('on until a real machine is saved, so real rides count', () => {
+    expect(defaultDebug([])).toBe(true)
+    expect(defaultDebug([sim, strap])).toBe(true)
+    expect(defaultDebug([sim, kickr])).toBe(false)
+  })
+})
 
 describe('defaultDeviceType', () => {
   test('nothing known: the variant first', () => {

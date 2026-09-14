@@ -54,6 +54,15 @@ def _validate_game(folder: Path, meta: Any) -> list[str]:
                     or any(d not in DEVICE_TYPES or c not in CONTROLS for d, c in m.items())
                     for v, m in ctl.items()):
                 errs.append(f"option {k!r}: controls must map enum values to {{deviceType: one of {CONTROLS}}}")
+    # {"turbo": {"name": "Turbo!", "description": "Filled the Turbo meter."}}: names for the Achievements page
+    ach = meta.get("achievements", {})
+    if not isinstance(ach, dict) or any(
+            not isinstance(k, str) or not re.match(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,47}$", k) or not isinstance(a, dict)
+            or not isinstance(a.get("name"), str) or not a["name"].strip() or len(a["name"]) > 60
+            or not isinstance(a.get("description", ""), str) or len(a.get("description", "")) > 200
+            for k, a in ach.items()):
+        errs.append('achievements must map ids to {"name", "description"?} (a name up to 60 characters, '
+                    'a description up to 200)')
     variants = meta.get("variants")
     if not isinstance(variants, list) or not variants:
         errs.append("variants must be a non-empty list")
@@ -165,6 +174,7 @@ class Catalog:
                 "preferencesSchema": g.get("preferencesSchema"),
                 "options": g.get("options", {}),
                 "variants": variants,
+                "achievements": g.get("achievements", {}),
             })
         return out
 
