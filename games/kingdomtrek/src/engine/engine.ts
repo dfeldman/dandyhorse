@@ -582,9 +582,12 @@ export class Engine {
     this.push(new CreatorMode(this, price))
   }
 
-  /** The pause menu: Esc or B where there is nothing to back out of. The clock stops until Resume. */
-  openMenu(): void {
-    this.push(new MenuMode(this))
+  /**
+   * The pause menu: Esc or B where there is nothing to back out of. The clock stops until Resume. `timeUp`: the
+   * session's planned time has run out (on Dandyhorse), so End session comes first.
+   */
+  openMenu(opts: { timeUp?: boolean } = {}): void {
+    this.push(new MenuMode(this, opts.timeUp ?? false))
   }
 
   /** How this session went, then save and exit, or keep playing. */

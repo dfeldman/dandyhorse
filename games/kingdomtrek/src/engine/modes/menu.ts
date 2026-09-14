@@ -7,19 +7,23 @@ import { listNames } from './throne.ts'
 
 export class MenuMode implements Mode {
   readonly kind = 'menu' as const
+  /** Opened because the session's planned time is up: End session comes first. */
+  readonly timeUp: boolean
   private engine: Engine
 
-  constructor(engine: Engine) {
+  constructor(engine: Engine, timeUp = false) {
     this.engine = engine
+    this.timeUp = timeUp
   }
 
   choices(): ChoiceSpec {
+    const end: ChoiceOption = { id: 'end', label: '🏁 End session', hint: 'See how you did, save, and exit' }
+    if (this.timeUp) {
+      return { title: "⏱ Time's up", options: [end, { id: 'resume', label: '▶ Keep going', hint: 'Carry on; end whenever you like' }], backId: 'resume' }
+    }
     return {
       title: '⏸ Paused',
-      options: [
-        { id: 'resume', label: '▶ Resume', hint: 'Back to your adventure' },
-        { id: 'end', label: '🏁 End session', hint: 'See how you did, save, and exit' },
-      ],
+      options: [{ id: 'resume', label: '▶ Resume', hint: 'Back to your adventure' }, end],
       backId: 'resume',
     }
   }
@@ -39,6 +43,22 @@ function duration(seconds: number): string {
   return `${plural(Math.floor(m / 60), 'hour', 'hours')}${m % 60 ? ` ${plural(m % 60, 'minute', 'minutes')}` : ''}`
 }
 
+/** What this session (this page load) amounted to, for the farewell and the platform's session picture. */
+export function sessionDeeds(engine: Engine): { minutes: string; energy: number; deeds: string[] } {
+  const t = engine.save.totals
+  const was = engine.session.totals
+  const leagues = Math.round((t.distance - was.distance) / 10)
+  const won = t.battlesWon - was.battlesWon
+  const made = t.itemsCrafted - was.itemsCrafted
+  const deeds = [
+    leagues > 0 ? `walked ${plural(leagues, 'league', 'leagues')}` : '',
+    won > 0 ? `won ${plural(won, 'battle', 'battles')}` : '',
+    made > 0 ? `made ${plural(made, 'thing', 'things')} at the workshop` : '',
+    t.kingdomsSaved > was.kingdomsSaved ? 'saved the kingdom' : '',
+  ].filter(Boolean)
+  return { minutes: duration(t.playSeconds - was.playSeconds), energy: Math.round(t.energyEarned - was.energyEarned), deeds }
+}
+
 /** How this session went; then save and hand back to the console, or keep playing. No time passes here. */
 export class FarewellMode extends Room {
   readonly kind = 'farewell' as const
@@ -46,19 +66,8 @@ export class FarewellMode extends Room {
 
   constructor(engine: Engine) {
     super(engine)
-    const t = engine.save.totals
-    const was = engine.session.totals
-    const leagues = Math.round((t.distance - was.distance) / 10)
-    const won = t.battlesWon - was.battlesWon
-    const made = t.itemsCrafted - was.itemsCrafted
-    const deeds = [
-      leagues > 0 ? `walked ${plural(leagues, 'league', 'leagues')}` : '',
-      won > 0 ? `won ${plural(won, 'battle', 'battles')}` : '',
-      made > 0 ? `made ${plural(made, 'thing', 'things')} at the workshop` : '',
-      t.kingdomsSaved > was.kingdomsSaved ? 'saved the kingdom' : '',
-    ].filter(Boolean)
-    const energy = Math.round(t.energyEarned - was.energyEarned)
-    this.say(null, `Well ridden! You pedaled for ${duration(t.playSeconds - was.playSeconds)} and earned ${energy.toLocaleString()} Energy.`)
+    const { minutes, energy, deeds } = sessionDeeds(engine)
+    this.say(null, `Well ridden! You pedaled for ${minutes} and earned ${energy.toLocaleString()} Energy.`)
     if (deeds.length) this.say(null, `Today you ${listNames(deeds)}.`)
     this.say(null, `Next time: ${R.objective(engine.save, engine.world)}.`)
   }

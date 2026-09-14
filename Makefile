@@ -1,7 +1,7 @@
-.PHONY: install build test serve devicelib dev-console dev-bridge dev-mockgame dev-rollinghills
+.PHONY: install build test serve devicelib dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek
 
 LIBS := libs/gamekit devicelib
-FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills
+FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills games/kingdomtrek
 VUE_APPS := consoles/web bridges/web
 SERVER := servers/api-flask
 
@@ -19,7 +19,7 @@ build: devicelib
 
 test: devicelib
 	cd $(SERVER) && uv run pytest
-	for d in $(LIBS) $(VUE_APPS) games/rollinghills; do (cd $$d && npm test) || exit 1; done
+	for d in $(LIBS) $(VUE_APPS) games/rollinghills games/kingdomtrek; do (cd $$d && npm test) || exit 1; done
 
 serve:
 	cd $(SERVER) && uv run python -m dandyhorse
@@ -35,3 +35,6 @@ dev-mockgame:
 
 dev-rollinghills:
 	cd games/rollinghills && npm run dev
+
+dev-kingdomtrek:
+	cd games/kingdomtrek && npm run dev

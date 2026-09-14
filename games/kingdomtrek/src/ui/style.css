@@ -203,6 +203,25 @@ canvas.map { width: 100%; border-radius: 16px; display: block; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(-8px) scale(0.96); } }
 @keyframes toast-out { to { opacity: 0; transform: translateY(-6px); } }
 
+/* --- Dandyhorse: the notice line and the end of a session ------------------------------ */
+
+#notice {
+  position: absolute; top: calc(var(--hud-h) + var(--gap)); left: calc((100% - var(--panel-w) - var(--gap)) / 2);
+  transform: translateX(-50%); max-width: min(760px, calc(100% - var(--panel-w) - 4 * var(--gap)));
+  background: rgba(58, 36, 0, 0.92); border: 2px solid var(--orange); color: #ffe9b0; padding: 6px 18px;
+  border-radius: 14px; font-weight: 700; font-size: calc(var(--fs) * 0.85); text-align: center; z-index: 6;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+#ended { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10, 8, 20, 0.72); z-index: 8; }
+.ended-card {
+  max-width: min(560px, 90vw); padding: 22px 30px; text-align: center; line-height: 1.45; font-size: var(--fs);
+  background: linear-gradient(180deg, #fbf3dc, #efe0b8); color: var(--parchment-ink);
+  border: 3px solid #c9a24a; border-radius: 22px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+.ended-card h2 { font-family: var(--font-title); color: #6b2f0c; margin: 0 0 10px; font-size: calc(var(--fs) * 1.6); }
+.ended-card p { margin: 6px 0; }
+.ended-card .muted { color: #8a7458; }
+
 /* --- narrow screens (a phone running the whole game): the list becomes a bottom sheet ------ */
 
 @media (max-width: 760px) {
@@ -222,9 +241,12 @@ canvas.map { width: 100%; border-radius: 16px; display: block; }
   #journal .jr-body { padding: 10px 14px 24px; }
   #toasts { left: 50%; }
   .toast { white-space: normal; text-align: center; max-width: 90vw; }
+  #notice { left: 50%; max-width: 92vw; }
 }
 
 #loading { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-title); font-size: 28px; color: var(--gold); background: #0f0e1a; z-index: 10; }
+#loading .boot-msg { text-align: center; line-height: 1.8; }
+#loading .boot-msg a { font-family: var(--font-ui); font-size: 20px; font-weight: 700; color: var(--sky); }
 #dev {
   position: absolute; left: var(--gap); top: calc(var(--hud-h) + var(--gap)); width: min(520px, 45vw); max-height: 70vh; overflow: auto;
   margin: 0; padding: 12px; font: 12px/1.35 ui-monospace, Menlo, monospace; color: #cfe; background: rgba(0, 0, 0, 0.82);

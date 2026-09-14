@@ -127,6 +127,13 @@ export class ChoicePanel {
     else if (p === 'back' && this.list?.backId) this.onChoose(this.list.backId)
   }
 
+  /** A phone tapped this option: highlight it first (the town scene walks the hero there), then select it. */
+  pick(id: string): void {
+    if (!this.list?.options.some((o) => o.id === id)) return
+    this.setHighlight(id)
+    this.select()
+  }
+
   /** Number keys 1–9, 0 pick directly. */
   pickIndex(n: number): void {
     const o = this.list?.options[n]

@@ -17,5 +17,8 @@
     "typescript": "^5.8",
     "vite": "^7",
     "vitest": "^3.2"
+  },
+  "dependencies": {
+    "@dandyhorse/gamekit": "file:../../libs/gamekit"
   }
 }
