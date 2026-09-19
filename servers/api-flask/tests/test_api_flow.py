@@ -39,6 +39,21 @@ def test_avatar_assets(client):
     assert client.get("/avatars/../../etc/passwd").status_code == 404
 
 
+def test_avatar_on_the_profile(client):
+    # the designer stores the player's avatar in users.profile.avatar (libs/avatarkit/INTEGRATION.md)
+    client.put("/api/me", json={"profile": {"bio": "hi"}})
+    avatar = {"v": 2, "macros": {"Gender": 0.7}, "clothes": [{"id": "shirt"}]}
+    me = client.put("/api/me", json={"profile": {"bio": "hi", "avatar": avatar}}).get_json()
+    assert me["profile"]["avatar"] == avatar
+    assert client.get("/api/me").get_json()["profile"] == {"bio": "hi", "avatar": avatar}
+    # a profile that isn't a dict is ignored, and an oversized one is refused
+    client.put("/api/me", json={"profile": "nope"})
+    assert client.get("/api/me").get_json()["profile"]["avatar"] == avatar
+    big = client.put("/api/me", json={"profile": {"avatar": {"junk": "x" * 40000}}})
+    assert big.status_code == 400 and big.get_json()["error"]["code"] == "profile_too_big"
+    assert client.get("/api/me").get_json()["profile"]["avatar"] == avatar
+
+
 def test_full_flow(client):
     l = launch(client)
     sid = l["sessionId"]

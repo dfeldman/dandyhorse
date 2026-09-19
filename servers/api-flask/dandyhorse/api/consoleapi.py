@@ -99,6 +99,7 @@ def get_me():
 
 
 _HANDLE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{1,23}")
+PROFILE_MAX = 32 * 1024
 
 
 @bp.put("/api/me")
@@ -124,8 +125,13 @@ def put_me():
         sets.append("display_name=?")
         args.append(b["displayName"][:80])
     if isinstance(b.get("profile"), dict):
+        # the profile holds the bio and the avatar (an AvatarSpec is 1-3 KB); a cap keeps a client from parking
+        # anything it likes on the user row
+        p = dumps(b["profile"])
+        if len(p) > PROFILE_MAX:
+            raise ApiError(400, "profile_too_big", f"the profile must be under {PROFILE_MAX // 1024} KB")
         sets.append("profile=?")
-        args.append(dumps(b["profile"]))
+        args.append(p)
     if isinstance(b.get("public"), bool):
         sets.append("public=?")
         args.append(int(b["public"]))

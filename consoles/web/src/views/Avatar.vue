@@ -4,6 +4,7 @@
 // MakeHuman assets), so it loads on demand: nothing here is in the console's main bundle.
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { loadAvatar, saveAvatar } from '../avatar'
 import { readTheme, resolveTheme } from '../theme'
 
 const router = useRouter()
@@ -11,17 +12,6 @@ const host = ref<HTMLElement | null>(null)
 const error = ref<string | null>(null)
 const saved = ref(false)
 let designer: { dispose: () => void } | null = null
-
-/** Where the avatar is kept for now: this browser. Storing it on the player's profile comes next. */
-const KEY = 'dh.avatar'
-function loadLocal(): unknown {
-  try {
-    const raw = localStorage.getItem(KEY)
-    return raw ? JSON.parse(raw) : undefined
-  } catch {
-    return undefined
-  }
-}
 
 onMounted(async () => {
   try {
@@ -37,9 +27,10 @@ onMounted(async () => {
     host.value.dataset.theme = resolveTheme(readTheme(), window.matchMedia('(prefers-color-scheme: dark)').matches)
     designer = await mountDesigner(host.value, {
       title: 'Your avatar',
-      initial: loadLocal(),
-      onSave: (spec) => {
-        localStorage.setItem(KEY, JSON.stringify(spec))
+      initial: await loadAvatar(),
+      // the designer says "Saved ✓", or shows the message of anything thrown here
+      onSave: async (spec) => {
+        await saveAvatar(spec)
         saved.value = true
       },
     })
@@ -59,7 +50,7 @@ function back(): void {
   <section class="page page-avatar">
     <div class="actions">
       <button type="button" class="btn back" @click="back">Back</button>
-      <span v-if="saved" class="pill ok">Saved on this device</span>
+      <span v-if="saved" class="pill ok">Saved to your profile</span>
     </div>
     <p v-if="error" class="notice error">The designer didn’t load: {{ error }}</p>
     <div ref="host" class="designer-host"></div>
