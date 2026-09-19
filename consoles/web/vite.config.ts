@@ -2,11 +2,13 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 const API = 'http://localhost:8080'
-const proxyPaths = ['/api', '/gameapi', '/bridgeapi', '/games', '/consoles', '/bridges']
+const proxyPaths = ['/api', '/gameapi', '/bridgeapi', '/games', '/consoles', '/bridges', '/avatars']
 
 export default defineConfig({
   plugins: [vue()],
   base: '/consoles/web/',
+  // the avatar designer builds bodies in a module worker (libs/avatarkit), which rules out the default iife workers
+  worker: { format: 'es' },
   server: {
     port: 5173,
     strictPort: true,

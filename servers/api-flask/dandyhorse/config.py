@@ -42,6 +42,9 @@ class Config:
         self.games_dir = Path(o.get("GAMES_DIR") or self.root / "games")
         self.consoles_dir = Path(o.get("CONSOLES_DIR") or self.root / "consoles")
         self.bridges_dir = Path(o.get("BRIDGES_DIR") or self.root / "bridges")
+        # the avatar designer's assets: mh/ (MakeHuman bodies and garments, put there by `make avatar-assets`) and
+        # env/ (the studio lighting). See libs/avatarkit/README.md.
+        self.avatars_dir = Path(o.get("AVATARS_DIR") or env.get("DANDYHORSE_AVATARS") or self.root / "libs/avatarkit/public")
         self.default_console = o.get("DEFAULT_CONSOLE", env.get("DANDYHORSE_CONSOLE", "web"))
         self.default_bridge = o.get("DEFAULT_BRIDGE", env.get("DANDYHORSE_BRIDGE", "web"))
 

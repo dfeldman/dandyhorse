@@ -4,8 +4,18 @@
     {
       "name": "server",
       "runtimeExecutable": "make",
-      "runtimeArgs": ["serve"],
+      "runtimeArgs": [
+        "serve"
+      ],
       "port": 8080
+    },
+    {
+      "name": "avatar",
+      "runtimeExecutable": "make",
+      "runtimeArgs": [
+        "dev-avatar"
+      ],
+      "port": 5194
     }
   ]
 }

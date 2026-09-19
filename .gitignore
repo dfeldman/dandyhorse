@@ -3,6 +3,10 @@ node_modules/
 dist/
 *.tsbuildinfo
 
+# The avatar designer's assets: MakeHuman bodies and textures (~300 MB) and the studio lighting.
+# Brought in with `make avatar-assets`.
+/libs/avatarkit/public/
+
 # Runtime data: the SQLite DB and session logs. Anchored to the repo root on purpose:
 # games/*/public/data/ is game content and must be committed.
 /data/

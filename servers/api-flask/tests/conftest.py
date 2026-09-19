@@ -49,6 +49,10 @@ def root(tmp_path: Path) -> Path:
                                                      "entry": "index.html", "default": True}))
         (d / "dist").mkdir()
         (d / "dist" / "index.html").write_text(f"<html>{kind} dist</html>")
+    # the avatar designer's assets (libs/avatarkit/public: mh/ and env/)
+    mh = tmp_path / "libs" / "avatarkit" / "public" / "mh"
+    mh.mkdir(parents=True)
+    (mh / "index.json").write_text(json.dumps({"assets": []}))
     return tmp_path
 
 

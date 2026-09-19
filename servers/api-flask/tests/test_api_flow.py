@@ -32,6 +32,13 @@ def test_static_dist_first(client):
     assert client.get("/games/../servers/x").status_code == 404
 
 
+def test_avatar_assets(client):
+    # the designer's MakeHuman assets, served for the console page (libs/avatarkit/README.md)
+    assert client.get("/avatars/mh/index.json").status_code == 200
+    assert client.get("/avatars/mh/nope.json").status_code == 404
+    assert client.get("/avatars/../../etc/passwd").status_code == 404
+
+
 def test_full_flow(client):
     l = launch(client)
     sid = l["sessionId"]

@@ -1,4 +1,4 @@
-"""Static serving of consoles/, bridges/ and games/ with dist-first resolution."""
+"""Static serving of consoles/, bridges/ and games/ with dist-first resolution, and the avatar assets."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -44,6 +44,19 @@ def consoles(name: str, path: str = ""):
 @bp.get("/bridges/<name>/<path:path>")
 def bridges(name: str, path: str = ""):
     return _serve(_cfg().bridges_dir, name, path)
+
+
+@bp.get("/avatars/<path:path>")
+def avatars(path: str):
+    """The avatar designer's assets: mh/ (bodies, garments, hair, textures) and env/ (studio lighting). They never
+    change in place, so they are cached for a day; a 404 under mh/ means `make avatar-assets` hasn't been run."""
+    if ".." in path.split("/"):
+        abort(404)
+    root = _cfg().avatars_dir
+    full = safe_join(str(root), path)
+    if not full or not Path(full).is_file():
+        abort(404)
+    return send_from_directory(str(root), path, max_age=86400)
 
 
 @bp.get("/games/<name>")

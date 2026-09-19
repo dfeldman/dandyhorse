@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { RouterLink } from 'vue-router'
 import { api, ApiError } from '../api'
 import { store, loadMe, logout } from '../session'
 import type { Game, GamesResponse, GlobalPreferences, JsonSchemaProperty, Me, UnitSystem } from '../types'
@@ -251,6 +252,14 @@ onMounted(async () => {
         <button v-for="t in THEMES" :key="t" type="button" class="choice" :aria-pressed="theme === t" @click="pickTheme(t)">{{ THEME_LABEL[t] }}</button>
       </div>
       <p class="hint">System follows the device's light/dark setting.</p>
+    </div>
+
+    <div class="panel">
+      <h2>Avatar</h2>
+      <p class="hint">The rider the games show as you: body, face, hair and clothes.</p>
+      <div class="actions">
+        <RouterLink to="/avatar" class="btn">Design your avatar</RouterLink>
+      </div>
     </div>
 
     <form class="panel" @submit.prevent="save">

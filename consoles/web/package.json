@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "vue": "^3.5",
-    "vue-router": "^4.5"
+    "vue-router": "^4.5",
+    "@dandyhorse/avatarkit": "file:../../libs/avatarkit",
+    "@babylonjs/core": "9.26.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6",
