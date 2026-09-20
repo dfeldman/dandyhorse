@@ -19,10 +19,12 @@ Decor.register({
     const banner = BABYLON.MeshBuilder.CreateBox('banner', { width: W + 0.4, height: 1.4, depth: 0.2 }, scene);
     banner.position.set(p0.x, p0.y + 5.2, p0.z); banner.rotation.y = Math.atan2(p0.hx, p0.hz);
     Util.colorize(banner, '#ffd42a'); parts.push(banner);
-    // checker stripe under the arch
+    // checker stripe under the arch: paint on the trail surface, not a kerb to stand in — all but 4 mm of it
+    // sits below the road, or the rider parked on the start line looks sunk into the ground
+    const sqY = p0.y + Config.TRAIL_LIFT - 0.021;
     for (let i = 0; i < 6; i++) {
       const sq = BABYLON.MeshBuilder.CreateBox('sq', { width: W / 6, height: 0.05, depth: 1.2 }, scene);
-      sq.position.set(p0.x - p0.hz * (-W / 2 + (i + 0.5) * W / 6), p0.y + 0.12, p0.z + p0.hx * (-W / 2 + (i + 0.5) * W / 6));
+      sq.position.set(p0.x - p0.hz * (-W / 2 + (i + 0.5) * W / 6), sqY, p0.z + p0.hx * (-W / 2 + (i + 0.5) * W / 6));
       sq.rotation.y = Math.atan2(p0.hx, p0.hz);
       Util.colorize(sq, i % 2 ? '#222222' : '#ffffff'); parts.push(sq);
     }
