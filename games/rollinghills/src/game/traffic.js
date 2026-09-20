@@ -1,6 +1,6 @@
 import { GeometryService, randomSpec, suggestQuality } from '@dandyhorse/avatarkit'
 import { Config } from './config.js'
-import { bikeAccel, runSpeed } from './physics.js'
+import { bikeAccel, cruiseSpeed, freewheeling, runSpeed } from './physics.js'
 import { Rider } from './rider.js'
 import { Rng } from './rng.js'
 import { Track } from './track.js'
@@ -57,10 +57,13 @@ const Traffic = (() => {
         // what they can hold all day: watts on a bike, meters per second on foot
         effort: riding ? rng.range(115, 265) : rng.range(2.3, 4.3),
         mass: rng.range(72, 96),
+        cruise: 0,       // the speed their effort holds on the flat: past it downhill, they freewheel
+        coasting: false,
         seen: true,
         rider: null,
       };
-      n.v = riding ? 6 : n.effort;
+      n.cruise = riding ? cruiseSpeed(n.effort, n.mass) : n.effort;
+      n.v = riding ? n.cruise : n.effort;
       n.rider = Rider.create(scene, {
         name: 'other' + i,
         spec: randomSpec(Math.floor(rng.range(1, 1e9))),
@@ -78,7 +81,10 @@ const Traffic = (() => {
       for (const n of list) {
         const pose = Track.poseAt(n.s);
         if (riding) {
-          n.v = Util.clamp(n.v + bikeAccel(n.v, pose.grade, n.effort, n.mass) * dt, 1.2, Config.MAX_SPEED);
+          // nobody pedals down a hill that is already taking them faster than they ride on the flat
+          n.coasting = freewheeling(n.coasting, pose.grade, n.v, n.cruise);
+          const power = n.coasting ? 0 : n.effort;
+          n.v = Util.clamp(n.v + bikeAccel(n.v, pose.grade, power, n.mass) * dt, 1.2, Config.MAX_SPEED);
         } else {
           // a runner settles into the new pace over a few strides rather than changing speed on the line
           const target = runSpeed(n.effort, pose.grade);
@@ -92,7 +98,7 @@ const Traffic = (() => {
         else if (d > AHEAD) n.s = playerS + rng.range(-160, -70);
         const seen = d > SEEN_BACK && d < SEEN_AHEAD;
         if (seen !== n.seen) { n.seen = seen; n.rider.setEnabled(seen); }
-        if (seen) n.rider.update(pose, n.v, riding ? 100 : 0, dt);
+        if (seen) n.rider.update(pose, n.v, riding && !n.coasting ? 100 : 0, dt);
       }
     }
 

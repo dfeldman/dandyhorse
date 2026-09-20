@@ -28,4 +28,23 @@ function runSpeed(base, grade) {
   return base / Math.max(0.9, cost);
 }
 
-export { bikeAccel, runSpeed };
+/**
+ * Whether a rider is freewheeling: once a descent is carrying them along faster than they would ride on
+ * the flat, they stop pedalling and let it. `cruise` is the speed their effort holds on the level. The
+ * two thresholds are hysteresis, so a rider on a shallow grade doesn't flicker in and out of pedalling.
+ *
+ * (A runner has no equivalent: there is no coasting on foot, which is why gravity buys them so little.)
+ */
+function freewheeling(wasCoasting, grade, v, cruise) {
+  if (grade > -0.01) return false;
+  return v > cruise * (wasCoasting ? 0.95 : 1.02);
+}
+
+/** The speed `power` watts holds on the flat for a rider of `mass` kg: where the forces balance. */
+function cruiseSpeed(power, mass) {
+  let v = 8;
+  for (let i = 0; i < 4000; i++) v = Math.max(0.5, v + bikeAccel(v, 0, power, mass) * 0.02);
+  return v;
+}
+
+export { bikeAccel, runSpeed, freewheeling, cruiseSpeed };

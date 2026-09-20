@@ -5,11 +5,13 @@ import { beforeAll, describe, expect, it } from 'vitest'
 type Accel = (v: number, grade: number, power: number, mass: number, gravityScale?: number) => number
 let bikeAccel: Accel
 let runSpeed: (base: number, grade: number) => number
+let freewheeling: (wasCoasting: boolean, grade: number, v: number, cruise: number) => boolean
+let cruiseSpeed: (power: number, mass: number) => number
 beforeAll(async () => {
   const g = globalThis as unknown as { location?: unknown; window?: unknown }
   g.location ??= { search: '' }
   g.window ??= {}
-  ;({ bikeAccel, runSpeed } = await import('./game/physics.js'))
+  ;({ bikeAccel, runSpeed, freewheeling, cruiseSpeed } = await import('./game/physics.js'))
 })
 
 describe('bikeAccel', () => {
@@ -53,5 +55,35 @@ describe('runSpeed', () => {
       expect(v).toBeGreaterThan(0.5)
       expect(v).toBeLessThan(3.3 / 0.9 + 1e-9)
     }
+  })
+})
+
+describe('freewheeling', () => {
+  const cruise = 8
+  it('keeps pedalling on the flat and uphill however fast the rider is going', () => {
+    expect(freewheeling(false, 0, 20, cruise)).toBe(false)
+    expect(freewheeling(true, 0.04, 20, cruise)).toBe(false)
+  })
+  it('stops pedalling once the descent is carrying them faster than their own flat speed', () => {
+    expect(freewheeling(false, -0.06, cruise * 1.1, cruise)).toBe(true)
+    expect(freewheeling(false, -0.06, cruise * 0.8, cruise)).toBe(false)   // still slower than the flat: pedal
+  })
+  it('does not flicker at the threshold', () => {
+    const v = cruise           // exactly at the flat speed
+    expect(freewheeling(false, -0.06, v, cruise)).toBe(false)   // needs to be clearly faster to stop
+    expect(freewheeling(true, -0.06, v, cruise)).toBe(true)     // and clearly slower to start again
+  })
+  it('has no equivalent on foot: a runner gains only a little on a descent', () => {
+    expect(runSpeed(3.3, -0.06) / 3.3).toBeLessThan(1.1)
+  })
+})
+
+describe('cruiseSpeed', () => {
+  it('is the speed where the flat-ground forces balance', () => {
+    const v = cruiseSpeed(200, 80)
+    expect(Math.abs(bikeAccel(v, 0, 200, 80))).toBeLessThan(0.02)
+  })
+  it('rises with power', () => {
+    expect(cruiseSpeed(300, 80)).toBeGreaterThan(cruiseSpeed(150, 80))
   })
 })
