@@ -66,6 +66,9 @@ const Config = {
   GRADE_TAU: 0.6,             // seconds, smoothing so a 1 Hz request does not chatter
   GRADE_STEP: 0.5,            // percent, resolution of the request
 
+  // --- Company on the trail ---
+  TRAFFIC: 5,                 // other riders/runners out there (0 for an empty trail)
+
   // --- Workout ---
   WORKOUT_SECONDS: 30 * 60,
 };

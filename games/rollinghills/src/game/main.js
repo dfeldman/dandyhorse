@@ -1,6 +1,7 @@
 import * as BABYLON from '@babylonjs/core'
 import { Ambient } from './ambient.js'
 import { Rider } from './rider.js'
+import { Traffic } from './traffic.js'
 import { Biome } from './biome.js'
 import { Camera } from './camera.js'
 import { Config } from './config.js'
@@ -110,6 +111,8 @@ const RollingHills = (() => {
       if (!shadowGen) return
       for (const m of meshes) shadowGen.addShadowCaster(m, false)
     } });
+    // everyone else out on the trail, each with their own body and their own pace
+    const traffic = Traffic.create(scene, { startS: 0 });
     Camera.init(scene);
     scene.activeCamera = Camera.camera;
     Weather.init(scene, { sun, hemi, skyMat, sunMat, cloudMat: scene.getMaterialByName('cloudMat') });
@@ -206,6 +209,7 @@ const RollingHills = (() => {
       // the bike and camera smooth exponentially, so they may take the real frame time and stay put at low fps
       const dtVis = Math.min(1, dtReal);
       bike.update(state.pose, state.v, state.pedaling ? 100 : 0, dtVis);
+      traffic.update(dtVis, state.s);
       Camera.update(state.pose, state.v, dtVis, state.laps % 2 ? -1 : 1);
       fwd.set(state.pose.hx, 0, state.pose.hz);
       Weather.update(dt, Camera.camera.position, fwd);
@@ -263,7 +267,7 @@ const RollingHills = (() => {
 
     // debug handles; step(dt, n) advances the simulation without waiting for frames
     window.__game = {
-      scene, engine, bike, Ride, Track, Terrain, Biome, Weather, Daylight, Segments, Config, shadowGen, platform,
+      scene, engine, bike, traffic, Ride, Track, Terrain, Biome, Weather, Daylight, Segments, Config, shadowGen, platform,
       step: (dt, n = 1) => { for (let i = 0; i < n; i++) frame(dt); scene.render(); },
       jump: (name, back = 40) => { const th = Biome.sectorMid(name); const r = Loop.radiusAt(th); const n = Track.nearest(Math.cos(th) * r, Math.sin(th) * r); Ride.setS(n.s - back); for (let i = 0; i < 120; i++) frame(1 / 60); scene.render(); return n.s; },
       timeFrames: (n = 30) => { const gl = engine._gl; const t0 = performance.now(); for (let i = 0; i < n; i++) { frame(1 / 60); scene.render(); if (gl && gl.finish) gl.finish(); } return (performance.now() - t0) / n; },

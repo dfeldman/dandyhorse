@@ -51,42 +51,53 @@ const Rider = (() => {
   /**
    * opts:
    *   spec        the avatar to wear (default: the signed-in player's)
+   *   mode        'bike' or 'run' (default: whatever the player's machine is)
    *   bike        which bike to build; only 'kit' for now, fitted to this rider's own body
+   *   offset      meters to the right of the trail's centre line (the player rides the middle)
+   *   name        prefix for this rider's meshes
+   *   service     a GeometryService to build on; shared, one body is built at a time
+   *   extras      dust, headlight and blob shadow (default true; the strangers on the trail go without)
    *   onReady     called with the rider's meshes once it is built (shadow casters)
    */
   function create(scene, opts = {}) {
-    const root = new BABYLON.TransformNode('rider', scene)
+    const name = opts.name ?? 'player'
+    const root = new BABYLON.TransformNode(name + '.rider', scene)
     root.rotationQuaternion = BABYLON.Quaternion.Identity()
-    const body = new BABYLON.TransformNode('riderBody', scene) // lean happens here, as on the old bike
+    const body = new BABYLON.TransformNode(name + '.riderBody', scene) // lean happens here, as on the old bike
     body.parent = root
-    const riding = Config.DEVICE_TYPE === 'bike'
-    const service = new GeometryService()
+    const riding = (opts.mode ?? Config.DEVICE_TYPE) === 'bike'
+    const offset = opts.offset ?? 0
+    const extras = opts.extras ?? true
+    const service = opts.service ?? new GeometryService()
+    const ownService = !opts.service
 
     // A headlight for the dark half of the day. The cartoon bike carried lamp meshes; the kit's bike has none,
     // so this is the light alone — on a bike it reads as a bar lamp, on foot as a head torch.
-    const spot = new BABYLON.SpotLight('riderLight', new BABYLON.Vector3(0, 0.95, 0.4), new BABYLON.Vector3(0, -0.3, 1), 0.75, 14, scene)
-    spot.parent = body
-    spot.intensity = 0
-    spot.diffuse = Util.hex('#fff2c0')
-    spot.specular = BABYLON.Color3.Black()
-    spot.range = 28
-    spot.innerAngle = 0.25 // soft edge instead of a hard-cut cone
+    const spot = !extras ? null : new BABYLON.SpotLight(name + '.riderLight', new BABYLON.Vector3(0, 0.95, 0.4), new BABYLON.Vector3(0, -0.3, 1), 0.75, 14, scene)
+    if (spot) {
+      spot.parent = body
+      spot.intensity = 0
+      spot.diffuse = Util.hex('#fff2c0')
+      spot.specular = BABYLON.Color3.Black()
+      spot.range = 28
+      spot.innerAngle = 0.25 // soft edge instead of a hard-cut cone
+    }
 
     // blob shadow, the ground-contact cue when the real sun shadows are off
-    const blob = BABYLON.MeshBuilder.CreateDisc('riderShadow', { radius: 0.7, tessellation: 16 }, scene)
-    blob.setEnabled(!Config.SHADOWS)
+    const blob = BABYLON.MeshBuilder.CreateDisc(name + '.riderShadow', { radius: 0.7, tessellation: 16 }, scene)
+    blob.setEnabled(!Config.SHADOWS || !extras)   // the strangers get the disc instead of real shadows
     blob.rotation.x = Math.PI / 2
     blob.position.y = 0.04
     blob.scaling.z = 1.4
     blob.parent = root
-    const blobMat = new BABYLON.StandardMaterial('riderShadowMat', scene)
+    const blobMat = new BABYLON.StandardMaterial(name + '.riderShadowMat', scene)
     blobMat.diffuseColor = BABYLON.Color3.Black()
     blobMat.specularColor = BABYLON.Color3.Black()
     blobMat.alpha = 0.28
     blobMat.disableLighting = true
     blob.material = blobMat
 
-    const dust = riding ? makeDust(scene) : null
+    const dust = riding && extras ? makeDust(scene) : null
     const dustPos = new BABYLON.Vector3()
 
     let avatar = null
@@ -100,12 +111,12 @@ const Rider = (() => {
       const quality = opts.quality ?? suggestQuality(scene.getEngine())
       const geometry = await service.request(spec ?? {}, quality)
       if (!geometry) return
-      const a = new Avatar(scene, spec ?? {}, { geometry, quality, name: opts.name ?? 'player' })
+      const a = new Avatar(scene, spec ?? {}, { geometry, quality, name })
       a.root.parent = body
       if (riding) {
         // the kit's bike is built around this rider's own measurements, so the feet reach the pedals. Other
         // designs go here, each fitted the same way (avatar.animator.fit gives the numbers to build to).
-        bike = new KitBike(scene, a.animator.fit, { name: 'riderBike', color: opts.color ?? '#ff5a5a', accent: '#ffffff' })
+        bike = new KitBike(scene, a.animator.fit, { name: name + '.bike', color: opts.color ?? '#ff5a5a', accent: opts.accent ?? '#ffffff' })
         bike.root.parent = body
       }
       a.setMotion(riding ? { mode: 'cycle', cadence: 0, speed: 0 } : { mode: 'idle', speed: 0 })
@@ -128,7 +139,9 @@ const Rider = (() => {
 
     /** Same shape as the cartoon bike's: where the trail is, how fast, whether the legs are working. */
     function update(pose, speed, pedal, dt) {
-      root.position.set(pose.x, pose.y + Config.TRAIL_LIFT, pose.z) // the trail surface, not the profile under it
+      // the trail surface, not the profile under it; offset riders keep to one side of the centre line
+      // (hx/hz is the trail's horizontal tangent, so the sideways direction is (-hz, hx))
+      root.position.set(pose.x - pose.hz * offset, pose.y + Config.TRAIL_LIFT, pose.z + pose.hx * offset)
       const yaw = Math.atan2(pose.tx, pose.tz)
       const pitch = -Math.asin(Math.max(-1, Math.min(1, pose.ty)))
       BABYLON.Quaternion.RotationYawPitchRollToRef(yaw, pitch, 0, root.rotationQuaternion)
@@ -161,7 +174,7 @@ const Rider = (() => {
 
     /** night: 0..1 from Daylight */
     function setNight(n) {
-      spot.intensity = 15 * n
+      if (spot) spot.intensity = 15 * n
       // sunlit dust is tan; after dark it would glow against a black road, so let it fade out
       if (dust) { const a = 0.16 * (1 - 0.8 * n); dust.color1.a = a; dust.color2.a = a }
     }
@@ -170,12 +183,15 @@ const Rider = (() => {
       avatar?.dispose()
       bike?.dispose()
       dust?.dispose()
-      spot.dispose()
-      service.dispose()
+      spot?.dispose()
+      if (ownService) service.dispose()
       root.dispose()
     }
 
-    return { root, body, update, setNight, dispose, meshes, ready, get lean() { return lean } }
+    /** Off means not drawn and not posed: for riders the player cannot see. */
+    function setEnabled(on) { root.setEnabled(on) }
+
+    return { root, body, update, setNight, setEnabled, dispose, meshes, ready, get lean() { return lean } }
   }
 
   return { create }

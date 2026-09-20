@@ -1,4 +1,5 @@
 import { Config } from './config.js'
+import { bikeAccel } from './physics.js'
 import { Track } from './track.js'
 import { Util } from './util.js'
 
@@ -9,7 +10,6 @@ import { Util } from './util.js'
 // Either way the trail grade is what the game asks the machine for (as incline or grade); the
 // platform scales it by the user's difficulty / incline scale and clamps it to the machine.
 const Ride = (() => {
-  const g = 9.81;
   let s = 0, v = 0, dist = 0, laps = 0, gradeOut = 0;
   let pose = Track.poseAt(0);
   const isBike = () => Config.DEVICE_TYPE === 'bike';
@@ -20,14 +20,9 @@ const Ride = (() => {
     pose = Track.poseAt(s);
     let power = null, pedaling = false;
     if (active) {
-      const theta = Math.atan(pose.grade);
       if (isBike()) {
         power = m.power == null ? 0 : m.power;
-        const fProp = power / Math.max(v, 1.5);
-        const fGrav = -Config.MASS * g * Math.sin(theta) * Config.GRAVITY_SCALE;
-        const fRoll = -Config.MASS * g * Config.ROLLING * Math.cos(theta) * (v > 0 ? 1 : 0);
-        const fDrag = -Config.DRAG * v * Math.abs(v);
-        v += (fProp + fGrav + fRoll + fDrag) / Config.MASS * dt;
+        v += bikeAccel(v, pose.grade, power, Config.MASS) * dt;
         if (power < 1 && v < 0.3 && pose.grade >= -0.005) v = 0;   // not pedaling on the flat: stop, never creep
         pedaling = power > Config.PEDAL_POWER;
       } else {
