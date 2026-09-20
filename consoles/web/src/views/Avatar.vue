@@ -60,9 +60,10 @@ function back(): void {
 <style scoped>
 /* The designer lays itself out to the full height of its host, so the host needs a definite one (with only a
    min-height its stage grows with the controls beside it and the avatar ends up far down a very tall canvas).
-   On phones the designer stacks and sizes itself, so there it takes what it needs. */
+   On phones it stacks the stage over the controls and scrolls the controls inside itself, so it wants a
+   definite height there too — otherwise the avatar scrolls off the top the moment you touch a slider. */
 .designer-host { height: min(78vh, 900px); }
 @media (max-width: 860px) {
-  .designer-host { height: auto; }
+  .designer-host { height: 82dvh; }
 }
 </style>
