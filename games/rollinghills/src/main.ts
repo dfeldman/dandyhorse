@@ -5,12 +5,15 @@
  *
  *   1. startsession (by ?session= from the bridge, or ad-hoc for developers)
  *   2. publish seed / route / preferences on window.RH_START
- *   3. load public/js/*.js in order (they define window.RollingHills)
+ *   3. import src/game/ (Babylon and the world come in with it, so this is where the wait is)
  *   4. RollingHills.boot(platform) builds the world and returns the handle; the tick loop starts
+ *
+ * The import is dynamic on purpose: src/game/config.js reads window.RH_START as it loads, so the
+ * session has to be there first.
  */
 import { ApiError, startSession, type DeviceType, type StartPayload, type StartSessionAdHoc, type StartSessionBySession } from '@dandyhorse/gamekit'
 import { GAME_ID, Platform } from './platform.ts'
-import { GAME_SCRIPTS, loadScripts } from './scripts.ts'
+import type { RhHandle, RhPlatform } from './globals.d.ts'
 
 const bootEl = document.getElementById('boot') as HTMLDivElement
 const bootMsg = document.getElementById('boot-msg') as HTMLParagraphElement
@@ -73,19 +76,14 @@ async function begin(body: StartSessionBySession | StartSessionAdHoc): Promise<v
   window.RH_START = platform.startInfo
   log(`session ${start.sessionId} · ${start.variant} · ${start.deviceType} · seed ${start.seed} · route ${platform.startInfo.route} · ${start.unitSystem}${start.debug ? ' · debug' : ''}`)
 
-  if (!window.BABYLON) {
-    fail('The 3D engine did not load.', 'Babylon.js comes from cdn.babylonjs.com; this screen needs internet access for it.')
-    return
-  }
   say('Building the world…')
+  let game: { boot: (p: RhPlatform) => RhHandle }
   try {
-    await loadScripts(GAME_SCRIPTS.map((p) => `${import.meta.env.BASE_URL}${p}`))
+    game = (await import('./game/main.js')).RollingHills
   } catch (e) {
-    fail('The game files did not load.', String(e))
+    fail('The game did not load.', e instanceof Error ? (e.stack ?? e.message) : String(e))
     return
   }
-  const game = window.RollingHills
-  if (!game) { fail('The game did not initialise.'); return }
   // the world builds synchronously in boot(); give the browser one frame to paint the message
   await new Promise((r) => requestAnimationFrame(r))
   let handle

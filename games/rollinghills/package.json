@@ -11,11 +11,13 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/node": "^24",
     "typescript": "^5.8",
     "vite": "^7",
     "vitest": "^3.2"
   },
   "dependencies": {
+    "@babylonjs/core": "9.26.0",
     "@dandyhorse/gamekit": "file:../../libs/gamekit"
   }
 }

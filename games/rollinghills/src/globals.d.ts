@@ -1,6 +1,6 @@
 /**
  * The contract between the TypeScript adapter (src/) and the classic game scripts (public/js/).
- * The scripts read window.RH_START at load and define window.RollingHills.boot(platform).
+ * src/game/config.js reads window.RH_START as it loads; boot(platform) comes from src/game/main.js.
  */
 import type { DeviceType, UnitSystem } from '@dandyhorse/gamekit'
 
@@ -69,7 +69,5 @@ export interface RhHandle {
 declare global {
   interface Window {
     RH_START?: RhStart
-    RollingHills?: { boot: (platform: RhPlatform) => RhHandle }
-    BABYLON?: unknown
   }
 }
