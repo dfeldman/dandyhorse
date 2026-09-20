@@ -17,13 +17,13 @@ const Ride = (() => {
   // m: {power, speed} measured, null = unknown (never treated as a number)
   // active=false holds the bike still (before the ride starts, while paused, after the workout)
   function update(m, dt, active = true) {
-    pose = Track.poseAt(s);
+    const from = Track.poseAt(s);   // where this step begins: the slope the rider is on for its duration
     let power = null, pedaling = false;
     if (active) {
       if (isBike()) {
         power = m.power == null ? 0 : m.power;
-        v += bikeAccel(v, pose.grade, power, Config.MASS) * dt;
-        if (power < 1 && v < 0.3 && pose.grade >= -0.005) v = 0;   // not pedaling on the flat: stop, never creep
+        v += bikeAccel(v, from.grade, power, Config.MASS) * dt;
+        if (power < 1 && v < 0.3 && from.grade >= -0.005) v = 0;   // not pedaling on the flat: stop, never creep
         pedaling = power > Config.PEDAL_POWER;
       } else {
         const belt = m.speed == null ? 0 : m.speed;
@@ -38,6 +38,11 @@ const Ride = (() => {
     } else {
       v = 0;
     }
+    // Where the rider ENDS the step, which is what gets drawn. Reporting the pose the step started from
+    // left the avatar short by one substep, and the substep left over from a frame is whatever is left of
+    // it after the 50 ms ones — so on a machine with uneven frame times (iOS Safari) that shortfall changed
+    // every frame and the rider surged and stalled against a camera that smooths it away.
+    pose = Track.poseAt(s);
     // the request to the machine: the trail grade in percent, smoothed and stepped
     const target = pose.grade * 100;
     gradeOut += (target - gradeOut) * (1 - Math.exp(-dt / Config.GRADE_TAU));
