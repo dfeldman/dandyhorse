@@ -16,6 +16,24 @@
         "dev-avatar"
       ],
       "port": 5194
+    },
+    {
+      "name": "nightracer",
+      "runtimeExecutable": "make",
+      "runtimeArgs": [
+        "dev-nightracer"
+      ],
+      "port": 5190,
+      "url": "http://localhost:5190"
+    },
+    {
+      "name": "nightwatch",
+      "runtimeExecutable": "make",
+      "runtimeArgs": [
+        "dev-nightwatch"
+      ],
+      "port": 5192,
+      "url": "http://localhost:5192"
     }
   ]
 }

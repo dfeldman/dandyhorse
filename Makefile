@@ -1,7 +1,7 @@
-.PHONY: install build test serve devicelib avatar-assets dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek dev-bikeplane dev-avatar
+.PHONY: install build test serve devicelib avatar-assets dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek dev-bikeplane dev-nightracer dev-nightwatch dev-avatar
 
 LIBS := libs/gamekit libs/avatarkit devicelib
-FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills games/kingdomtrek games/bikeplane
+FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch
 
 # The avatar designer's assets: mh/ (MakeHuman bodies, garments, hair and textures, about 300 MB) and env/ (the
 # studio lighting). None of it is in git; see libs/avatarkit/README.md. The MakeHuman set is built once from
@@ -32,7 +32,7 @@ build: devicelib
 
 test: devicelib
 	cd $(SERVER) && uv run pytest
-	for d in $(VUE_APPS) games/rollinghills games/kingdomtrek games/bikeplane; do (cd $$d && npm test) || exit 1; done
+	for d in $(VUE_APPS) games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch; do (cd $$d && npm test) || exit 1; done
 	cd libs/gamekit && npm test
 	cd devicelib && npm test
 	@if [ -d $(AVATAR_DIR)/mh ]; then (cd libs/avatarkit && npm test) || exit 1; \
@@ -58,6 +58,12 @@ dev-kingdomtrek:
 
 dev-bikeplane:
 	cd games/bikeplane && npm run dev
+
+dev-nightracer:
+	cd games/nightracer && npm run dev
+
+dev-nightwatch:
+	cd games/nightwatch && npm run dev
 
 # the avatar designer on its own (the console embeds the same thing under Preferences)
 dev-avatar:

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Night Watch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brass: #ffc94a;
+    --brass-dark: #8a5a10;
+    --ink: #0a0f26;
+    --panel: rgba(9, 16, 44, 0.66);
+    --panel-edge: rgba(255, 222, 150, 0.28);
+    --cream: #fff6e2;
+    --good: #7dffa8;
+    --warn: #ffc14a;
+    --bad: #ff5e5e;
+    --sea: #7fd4ff;
+  }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #050a1e; }
+  body { font-family: 'Baloo 2', 'Arial Rounded MT Bold', 'Comic Sans MS', sans-serif; color: var(--cream); user-select: none; }
+  #game-canvas { width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+  .hud { position: absolute; pointer-events: none; }
+  .panel { background: var(--panel); border: 2px solid var(--panel-edge); border-radius: 18px; backdrop-filter: blur(5px); box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+  .pop { text-shadow: 0 3px 0 var(--brass-dark), 0 6px 14px rgba(0, 0, 0, 0.5); }
+
+  /* the clock */
+  #hud-clock { top: 14px; left: 16px; padding: 6px 16px 10px; min-width: 220px; }
+  .clock-row { display: flex; align-items: baseline; gap: 10px; }
+  #clock { font-size: 52px; font-weight: 800; line-height: 1; color: var(--cream); letter-spacing: 1px; }
+  #weather { font-size: 18px; font-weight: 700; color: rgba(255,246,226,.8); white-space: nowrap; }
+  #night-bar { position: relative; height: 12px; border-radius: 6px; margin: 6px 22px 4px; background: linear-gradient(90deg, #ff9a5a, #3a3f9a 12%, #141a50 50%, #3a3f9a 88%, #ffc26a); }
+  #night-fill { position: absolute; top: -4px; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fff, #ffe9a8 60%, #d8a030); box-shadow: 0 0 10px #ffe9a8; left: 0; }
+  #night-bar .moon, #night-bar .sun { position: absolute; top: -7px; font-size: 16px; }
+  #night-bar .moon { left: -24px; }
+  #night-bar .sun { right: -24px; }
+  #tally { display: flex; gap: 14px; font-size: 22px; font-weight: 800; margin-top: 2px; }
+  #tally .stars { color: var(--brass); }
+  #tally .pts { color: rgba(255,246,226,.75); font-size: 18px; margin-left: auto; align-self: center; }
+  #tally .bump { animation: bump .5s ease-out; display: inline-block; }
+  @keyframes bump { 30% { transform: scale(1.4) rotate(-6deg); } 100% { transform: scale(1); } }
+
+  /* the harbour board */
+  #hud-board { top: 14px; right: 16px; width: 330px; padding: 8px 10px 10px; }
+  .board-title { font-size: 13px; font-weight: 800; letter-spacing: 3px; color: var(--brass); text-align: center; margin-bottom: 4px; }
+  .card { border-radius: 12px; background: rgba(255,255,255,.08); padding: 5px 8px 7px; margin-bottom: 6px; border: 2px solid rgba(255,255,255,.12); position: relative; }
+  .card.watch { background: rgba(127, 212, 255, .14); border-color: rgba(127, 212, 255, .5); }
+  .card.danger { border-color: var(--bad); animation: dangerPulse .5s infinite alternate; }
+  @keyframes dangerPulse { to { background: rgba(255, 60, 60, .28); } }
+  .c-top { display: flex; align-items: center; gap: 6px; font-size: 20px; font-weight: 800; }
+  .c-top .emo { font-size: 24px; }
+  .c-top .nm { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .need { font-size: 15px; font-weight: 800; padding: 0 8px; border-radius: 9px; background: var(--brass); color: var(--ink); }
+  .pips { font-size: 12px; letter-spacing: -1px; color: var(--brass); white-space: nowrap; }
+  .pips .off { color: rgba(255,255,255,.22); }
+  .channel { position: relative; height: 22px; border-radius: 11px; margin: 5px 2px 3px; overflow: hidden;
+    background: linear-gradient(90deg, #7a2030 0%, #d84a3a 13%, #e8a030 14%, #e8a030 37%, #3a9a6a 37.5%, #3a9a6a 62.5%, #e8a030 63%, #e8a030 86%, #d84a3a 87%, #7a2030 100%); }
+  .channel::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 9px, rgba(255,255,255,.08) 9px 10px); }
+  .channel .boat { position: absolute; top: 1px; width: 20px; height: 20px; margin-left: -10px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--ink), 0 0 8px #fff; transition: left .2s linear; font-size: 13px; line-height: 20px; text-align: center; }
+  .channel .rocks { position: absolute; top: 0; bottom: 0; font-size: 13px; line-height: 22px; }
+  .channel .rocks.l { left: 4px; } .channel .rocks.r { right: 4px; }
+  .c-bot { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: rgba(255,246,226,.75); }
+  .c-bot .prog { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,.15); overflow: hidden; }
+  .c-bot .prog i { display: block; height: 100%; background: var(--sea); border-radius: 3px; }
+  .c-bot .hull { color: #ff8a8a; letter-spacing: -1px; min-width: 40px; text-align: right; }
+  .hail-chip { display: none; margin-top: 4px; text-align: center; font-size: 15px; font-weight: 800; border-radius: 9px; background: #3adfa0; color: var(--ink); animation: pulse .45s infinite alternate; }
+  .card.hail .hail-chip { display: block; }
+  .row { display: flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 700; padding: 2px 6px; border-radius: 9px; }
+  .row .emo { font-size: 19px; }
+  .row .nm { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: rgba(255,246,226,.9); }
+  .row .eta { min-width: 44px; text-align: right; font-weight: 800; color: var(--sea); }
+  .row.soon { background: rgba(255, 201, 74, .18); }
+  .row.soon .eta { color: var(--brass); }
+  .row .wx { font-size: 15px; }
+  .board-empty { font-size: 15px; text-align: center; color: rgba(255,246,226,.6); padding: 4px; }
+  .board-sub { font-size: 11px; font-weight: 800; letter-spacing: 2px; color: rgba(255,246,226,.5); margin: 4px 4px 1px; }
+
+  /* the lamp gauge */
+  #hud-lamp { left: 16px; bottom: 16px; width: 380px; padding: 8px 14px 12px; }
+  .lamp-top { display: flex; align-items: center; gap: 12px; }
+  #lamp-icon { position: relative; width: 58px; height: 64px; flex: none; }
+  #lamp-icon svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #lamp-glow { position: absolute; left: 50%; top: 42%; width: 90px; height: 90px; margin: -45px 0 0 -45px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,236,160,1) 0%, rgba(255,200,80,.55) 30%, rgba(255,180,60,0) 70%); transition: opacity .15s, transform .15s; }
+  #lamp-status { font-size: 30px; font-weight: 800; line-height: 1; }
+  #lamp-sub { font-size: 16px; font-weight: 700; color: rgba(255,246,226,.75); line-height: 1.2; margin-top: 2px; }
+  #lamp-status.good { color: var(--good); } #lamp-status.warn { color: var(--warn); } #lamp-status.bad { color: var(--bad); animation: pulse .4s infinite alternate; }
+  #lamp-status.steam { color: var(--brass); }
+  #gauge { position: relative; height: 30px; border-radius: 15px; margin-top: 30px; background: rgba(255,255,255,.1); overflow: visible; }
+  #gauge-zones { position: absolute; inset: 0; border-radius: 15px; opacity: .55; }
+  #gauge-fill { position: absolute; left: 3px; top: 3px; bottom: 3px; border-radius: 12px; width: 0; background: var(--good); box-shadow: 0 0 12px rgba(255,255,255,.4); transition: width .12s linear, background .3s; }
+  #gauge-fill.warn { background: var(--warn); } #gauge-fill.bad { background: var(--bad); }
+  #gauge-fill.steam { background: linear-gradient(90deg, var(--good), var(--brass) 70%, #fff5c0); }
+  #gauge-target { position: absolute; top: -8px; bottom: -8px; width: 4px; margin-left: -2px; background: #fff; border-radius: 2px; box-shadow: 0 0 8px #fff; transition: left .3s; }
+  #gauge-target span { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); font-size: 14px; font-weight: 800; background: #fff; color: var(--ink); padding: 0 6px; border-radius: 8px; white-space: nowrap; }
+  #gauge-ghost { position: absolute; top: -6px; bottom: -6px; width: 0; margin-left: -2px; border-left: 4px dashed var(--brass); display: none; }
+  #gauge-ghost span { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 800; color: var(--brass); white-space: nowrap; }
+  #gauge-ghost.on { display: block; animation: pulse .5s infinite alternate; }
+  .gauge-scale { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: rgba(255,246,226,.45); margin: 3px 4px 0; }
+  #harness { margin-top: 10px; pointer-events: auto; display: none; }
+  #harness input { width: 100%; accent-color: var(--brass); }
+  #harness .keys { font-size: 12px; color: rgba(255,246,226,.6); line-height: 1.3; }
+
+  /* the horn */
+  #hud-buttons { right: 16px; bottom: 16px; }
+  .big-btn { pointer-events: auto; position: relative; width: 150px; height: 150px; border-radius: 50%; border: none; cursor: pointer; padding: 0;
+    font-family: inherit; color: var(--cream); background: radial-gradient(circle at 50% 35%, #34407a, #121a44 70%); box-shadow: 0 6px 0 #050a1e, 0 10px 18px rgba(0,0,0,.45); transition: transform .08s; }
+  .big-btn:active, .big-btn.tap { transform: translateY(4px) scale(0.96); box-shadow: 0 2px 0 #050a1e, 0 4px 10px rgba(0,0,0,.4); }
+  .big-btn .icon { position: relative; font-size: 52px; line-height: 1; margin-top: 16px; display: block; }
+  .big-btn .label { position: relative; font-size: 22px; font-weight: 800; letter-spacing: 2px; display: block; }
+  .big-btn .steam { display: flex; justify-content: center; gap: 6px; margin-top: 3px; }
+  .big-btn .steam i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,246,226,.6); background: transparent; position: relative; overflow: hidden; }
+  .big-btn .steam i b { position: absolute; left: 0; right: 0; bottom: 0; background: var(--brass); }
+  .big-btn .key { position: absolute; bottom: -22px; left: 0; right: 0; font-size: 12px; color: rgba(255,246,226,.55); display: none; }
+  .harness-on .big-btn .key { display: block; }
+  .harness-on #hud-buttons { bottom: 30px; }
+  .big-btn.ready { background: radial-gradient(circle at 50% 35%, #ffb84a, #b85a10 72%); }
+  .big-btn.hot { background: radial-gradient(circle at 50% 35%, #ff6a6a, #a81a2a 72%); animation: ready .45s infinite alternate; }
+  .big-btn.hail { background: radial-gradient(circle at 50% 35%, #5affb8, #0a8a5a 72%); animation: ready .45s infinite alternate; }
+  .big-btn .now { position: absolute; top: -34px; left: 50%; transform: translateX(-50%); font-size: 22px; font-weight: 800; white-space: nowrap; display: none; padding: 0 10px; border-radius: 10px; background: var(--cream); color: var(--ink); }
+  .big-btn.hot .now, .big-btn.hail .now { display: block; animation: bob .4s infinite alternate; }
+  @keyframes ready { from { box-shadow: 0 6px 0 #050a1e, 0 0 10px rgba(255,220,120,.4); } to { box-shadow: 0 6px 0 #050a1e, 0 0 40px rgba(255,220,120,1); } }
+  @keyframes bob { to { transform: translateX(-50%) translateY(-5px); } }
+  .big-btn.nope { animation: nope .35s; }
+  @keyframes nope { 25% { transform: translateX(-7px); } 50% { transform: translateX(7px); } 75% { transform: translateX(-4px); } }
+  @keyframes pulse { to { opacity: 0.55; } }
+
+  /* middle */
+  #callouts { top: 20%; left: 0; right: 0; text-align: center; }
+  .callout { font-size: 56px; font-weight: 800; line-height: 1.05; animation: callout 2.4s ease-out forwards; }
+  .callout.small { font-size: 34px; }
+  .callout.good { color: var(--brass); }
+  .callout.bad { color: #ff7a7a; text-shadow: 0 3px 0 #5a0000, 0 6px 14px rgba(0,0,0,.5); }
+  .callout.cool { color: #9ae8ff; text-shadow: 0 3px 0 #0a3a6b, 0 6px 14px rgba(0,0,0,.5); }
+  .callout .stars { letter-spacing: 4px; }
+  .callout .stars .off { color: rgba(255,255,255,.25); }
+  @keyframes callout { 0% { opacity: 0; transform: scale(0.4); } 10% { opacity: 1; transform: scale(1.15); } 18% { transform: scale(1); } 82% { opacity: 1; } 100% { opacity: 0; transform: translateY(-30px); } }
+  #hud-hint { bottom: 18px; left: 50%; transform: translateX(-50%); width: min(520px, 40vw); text-align: center; }
+  #hint { display: inline-block; font-size: 21px; font-weight: 800; line-height: 1.2; padding: 6px 18px; border-radius: 16px; background: rgba(255, 246, 226, .93); color: var(--ink); box-shadow: 0 4px 14px rgba(0,0,0,.4); opacity: 0; transform: translateY(10px); transition: opacity .3s, transform .3s; }
+  #hint.on { opacity: 1; transform: none; }
+  #tags { inset: 0; }
+  .tag { position: absolute; transform: translate(-50%, -100%); font-size: 14px; font-weight: 800; padding: 0 8px; border-radius: 9px; white-space: nowrap; color: var(--cream); background: rgba(9,16,44,.72); border: 2px solid rgba(255,246,226,.6); }
+  .tag.far { opacity: .75; font-size: 12px; }
+  .tag.watch { border-color: var(--sea); }
+  .tag.danger { border-color: var(--bad); background: rgba(160, 20, 30, .85); }
+  .tag.aground { border-color: var(--bad); background: rgba(120, 10, 20, .9); }
+  .tag .bubble { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin-bottom: 4px; font-size: 22px; padding: 0 8px; border-radius: 12px; background: #3adfa0; color: var(--ink); animation: bob2 .5s infinite alternate; }
+  @keyframes bob2 { to { transform: translateX(-50%) translateY(-6px); } }
+  #vignette { inset: 0; opacity: 0; transition: opacity .3s; box-shadow: inset 0 0 120px 30px rgba(255, 30, 40, .7); }
+  #vignette.on { animation: vig .5s infinite alternate; }
+  @keyframes vig { from { opacity: .25; } to { opacity: .7; } }
+
+  /* overlays */
+  .overlay { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(5, 10, 30, .55); }
+  .overlay.on { display: flex; }
+  #boot { z-index: 6; background: rgba(5, 10, 30, .82); }
+  #boot .sheet { max-width: 560px; }
+  #boot #boot-actions .btn { font-family: inherit; font-size: 24px; font-weight: 800; border-radius: 16px; padding: 8px 26px;
+    margin: 12px auto 0; display: block; width: max-content; cursor: pointer; background: #1a2a6a; color: #fff6e2;
+    box-shadow: 0 4px 0 #0a1030; text-decoration: none; }
+  #boot pre { font-size: 14px; font-weight: 600; color: rgba(255,255,255,.72); white-space: pre-wrap; margin: 12px 0 0; text-align: left; }
+  .sheet { background: linear-gradient(#fff8e8, #f4e6c4); color: var(--ink); border-radius: 24px; padding: 20px 28px 22px; min-width: 340px; max-width: min(640px, 92vw); max-height: 88vh; overflow: auto; box-shadow: 0 12px 40px rgba(0,0,0,.5); border: 4px solid #d8b870; }
+  .sheet h1 { margin: 0; font-size: 40px; line-height: 1.1; text-align: center; }
+  .sheet .sub { text-align: center; font-size: 18px; font-weight: 700; color: #5a4a2a; margin-bottom: 10px; }
+  .sheet button { pointer-events: auto; font-family: inherit; font-size: 24px; font-weight: 800; border: none; border-radius: 16px; padding: 8px 26px; margin: 12px auto 0; display: block; cursor: pointer; background: #1a2a6a; color: #fff6e2; box-shadow: 0 4px 0 #0a1030; }
+  .log { width: 100%; border-collapse: collapse; font-size: 17px; font-weight: 700; }
+  .log td { padding: 2px 6px; border-bottom: 1px dashed rgba(90, 74, 42, .3); }
+  .log td.st { color: #d89a10; letter-spacing: 1px; white-space: nowrap; }
+  .log td.st .off { color: rgba(90,74,42,.25); }
+  .log td.hl { text-align: center; white-space: nowrap; }
+  .log .missed { opacity: .25; filter: grayscale(1); }
+  .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; text-align: center; }
+  .totals div { background: rgba(26, 42, 106, .08); border-radius: 12px; padding: 4px; }
+  .totals b { display: block; font-size: 28px; line-height: 1.1; }
+  .totals span { font-size: 13px; font-weight: 700; color: #5a4a2a; }
+  .best { text-align: center; margin-top: 8px; font-size: 17px; font-weight: 800; color: #1a6a3a; }
+  #loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; font-size: 34px; font-weight: 800; background: radial-gradient(circle at 50% 40%, #1a2560, #050a1e); color: var(--cream); transition: opacity .6s; z-index: 5; }
+  #loading .beam { font-size: 72px; animation: pulse .6s infinite alternate; }
+
+  @media (max-width: 640px) {
+    #hud-clock { top: 8px; left: 8px; padding: 4px 10px 6px; min-width: 0; }
+    #clock { font-size: 30px; }
+    #weather { display: none; }
+    #night-bar { margin: 4px 18px 2px; height: 8px; }
+    #night-fill { width: 14px; height: 14px; margin-left: -7px; top: -3px; }
+    #tally { font-size: 16px; gap: 8px; }
+    #tally .pts { display: none; }
+    #hud-board { top: 8px; right: 8px; width: 56vw; padding: 5px 6px 6px; }
+    .board-title { font-size: 10px; letter-spacing: 1px; }
+    .c-top { font-size: 15px; } .c-top .emo { font-size: 18px; }
+    .row { font-size: 13px; gap: 4px; padding: 1px 3px; } .row .emo { font-size: 14px; } .row .pips, .row .wx { display: none; }
+    .need { font-size: 12px; padding: 0 5px; }
+    .channel { height: 16px; } .channel .boat { width: 14px; height: 14px; margin-left: -7px; font-size: 10px; line-height: 14px; }
+    #hud-lamp { left: 8px; bottom: 8px; width: calc(100vw - 132px); padding: 6px 10px 8px; box-sizing: border-box; }
+    #lamp-icon { width: 38px; height: 44px; }
+    #lamp-status { font-size: 20px; } #lamp-sub { font-size: 12px; }
+    #gauge { height: 22px; margin-top: 24px; }
+    #hud-buttons, .harness-on #hud-buttons { right: 8px; bottom: 14px; }
+    .big-btn { width: 108px; height: 108px; }
+    .big-btn .icon { font-size: 34px; margin-top: 10px; } .big-btn .label { font-size: 16px; }
+    .big-btn .steam i { width: 12px; height: 12px; }
+    #hud-hint { bottom: auto; top: 40%; width: 88vw; }
+    #hint { font-size: 16px; }
+    .callout { font-size: 30px; } .callout.small { font-size: 22px; }
+    .sheet { padding: 12px 14px; } .sheet h1 { font-size: 30px; } .log { font-size: 14px; }
+  }
+  @media (min-width: 641px) and (max-width: 900px) {
+    #hud-board { width: 250px; }
+    #hud-lamp { width: 280px; }
+    #clock { font-size: 38px; }
+    .big-btn { width: 118px; height: 118px; }
+    .big-btn .icon { font-size: 38px; margin-top: 12px; }
+    .callout { font-size: 38px; }
+    #hud-hint { bottom: 200px; width: 80vw; }
+  }
+</style>
+</head>
+<body>
+<canvas id="game-canvas"></canvas>
+<div id="loading"><div class="beam">💡</div>Lighting the lamp…</div>
+
+<div id="vignette" class="hud"></div>
+<div id="tags" class="hud"></div>
+
+<div id="hud-clock" class="hud panel">
+  <div class="clock-row"><span id="clock">20:00</span><span id="weather"></span></div>
+  <div id="night-bar"><span class="moon">🌙</span><div id="night-fill"></div><span class="sun">🌅</span></div>
+  <div id="tally"><span class="stars" id="stars">★ 0</span><span id="home">⚓ 0</span><span class="pts" id="points">0</span></div>
+</div>
+
+<div id="hud-board" class="hud panel">
+  <div class="board-title">⚓ HARBOUR BOARD ⚓</div>
+  <div id="watch-cards"></div>
+  <div class="board-sub" id="next-title">DUE IN</div>
+  <div id="next-rows"></div>
+</div>
+
+<div id="hud-lamp" class="hud panel">
+  <div class="lamp-top">
+    <div id="lamp-icon">
+      <div id="lamp-glow"></div>
+      <svg viewBox="0 0 58 64" aria-hidden="true">
+        <path d="M17 14 L29 4 L41 14 Z" fill="#d9333b" stroke="#0a0f26" stroke-width="2"/>
+        <rect x="18" y="14" width="22" height="4" rx="1" fill="#2a2d3a"/>
+        <rect x="20" y="18" width="18" height="22" rx="3" fill="rgba(255,240,190,.25)" stroke="#2a2d3a" stroke-width="2.5"/>
+        <line x1="29" y1="18" x2="29" y2="40" stroke="#2a2d3a" stroke-width="2"/>
+        <rect x="16" y="40" width="26" height="5" rx="2" fill="#2a2d3a"/>
+        <path d="M20 45 L38 45 L36 62 L22 62 Z" fill="#f3efe6" stroke="#0a0f26" stroke-width="2"/>
+        <rect x="21" y="51" width="16" height="4" fill="#d9333b"/>
+      </svg>
+    </div>
+    <div class="lamp-text"><div id="lamp-status">Light the lamp!</div><div id="lamp-sub">Pedal to spin it up</div></div>
+  </div>
+  <div id="gauge">
+    <div id="gauge-zones"></div>
+    <div id="gauge-fill"></div>
+    <div id="gauge-ghost"><span></span></div>
+    <div id="gauge-target"><span>25</span></div>
+  </div>
+  <div class="gauge-scale"><span>easy</span><span>steady</span><span>hard</span></div>
+  <div id="harness">
+    <input type="range" id="pedal" min="0" max="100" step="1" value="0">
+    <div class="keys">↑/↓ or 1–9: pedal (5 = steady) · Space: horn · P: pause</div>
+  </div>
+</div>
+
+<div id="hud-buttons" class="hud">
+  <button id="btn-horn" class="big-btn" aria-label="Horn">
+    <span class="now">NOW!</span>
+    <span class="icon">📯</span><span class="label">HORN</span>
+    <span class="steam"><i><b></b></i><i><b></b></i><i><b></b></i></span>
+    <span class="key">Space</span>
+  </button>
+</div>
+
+<div id="callouts" class="hud"></div>
+<div id="hud-hint" class="hud"><span id="hint"></span></div>
+
+<div id="boot" class="overlay on">
+  <div class="sheet">
+    <h1>🌙 Night Watch</h1>
+    <div class="sub" id="boot-msg">Starting your session…</div>
+    <div id="boot-actions"></div>
+  </div>
+</div>
+
+<div id="pause" class="overlay">
+  <div class="sheet">
+    <h1>⏸ Paused</h1>
+    <div class="sub" id="pause-sub">The lamp holds its light while you catch your breath.</div>
+    <button id="resume">Keep watch</button><button id="end-watch" hidden>🏁 End workout</button>
+  </div>
+</div>
+
+<div id="logbook" class="overlay">
+  <div class="sheet">
+    <h1>🌅 Dawn</h1>
+    <div class="sub" id="log-sub">The night watch is over.</div>
+    <table class="log" id="log-table"></table>
+    <div class="totals" id="log-totals"></div>
+    <div class="best" id="log-best"></div>
+    <button id="again">Another night</button>
+  </div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

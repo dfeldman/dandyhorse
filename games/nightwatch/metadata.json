@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "id": "nightwatch",
+  "name": "Night Watch",
+  "version": "0.1.0",
+  "author": "Dandyhorse",
+  "description": "Keep the lighthouse lamp bright through the night. Ships come in on a timetable; below the target pace the lamp dims and they drift toward the rocks. Tap the horn to pull them back and answer their signals.",
+  "entry": "index.html",
+  "screenshot": "screenshot.jpg",
+  "minPlatformVersion": "1.0",
+  "capabilities": {
+    "seed": true,
+    "ghosts": false,
+    "input": true,
+    "saveState": true
+  },
+  "achievements": {
+    "safe-harbour": { "name": "Safe harbour", "description": "Brought a ship home with three stars." },
+    "perfect-night": { "name": "Perfect watch", "description": "Every ship home with three stars." },
+    "big-one": { "name": "The big one", "description": "Brought the ocean liner home with three stars." },
+    "storm-keeper": { "name": "Storm keeper", "description": "Three stars for a ship that came in through a storm." },
+    "all-hands": { "name": "All hands", "description": "Answered every hail in a night." },
+    "steady-hand": { "name": "Steady hand", "description": "A whole night without the horn, and no ship aground." },
+    "full-watch": { "name": "Until dawn", "description": "Kept watch to the end of the workout." }
+  },
+  "variants": [
+    {
+      "id": "bike",
+      "name": "Night Watch (Bike)",
+      "description": "Your power keeps the lamp lit; the harbour board tells you when to push.",
+      "deviceTypes": ["bike"],
+      "defaultDuration": 1800,
+      "controls": { "bike": "none" }
+    },
+    {
+      "id": "treadmill",
+      "name": "Night Watch (Treadmill)",
+      "description": "Your pace keeps the lamp lit; the game never touches the belt.",
+      "deviceTypes": ["treadmill"],
+      "defaultDuration": 1800,
+      "controls": { "treadmill": "none" }
+    }
+  ],
+  "options": {
+    "difficulty": {
+      "label": "Ships",
+      "enum": ["easy", "normal", "hard"],
+      "labels": ["Easy", "Normal", "Hard"],
+      "default": "normal",
+      "description": "How bright the ships need the lamp, compared with your steady pace."
+    },
+    "weather": {
+      "label": "Weather",
+      "enum": ["calm", "mixed", "wild"],
+      "labels": ["Calm", "Mixed", "Wild"],
+      "default": "mixed",
+      "description": "Mist only, a bit of everything, or fog and storms."
+    }
+  }
+}

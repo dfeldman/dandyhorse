@@ -25,6 +25,8 @@ Read [PLAN.md](PLAN.md) for the full design. Game developers: start with
 | `games/rollinghills/` | Rolling Hills: a 3D bike ride over generated hills, for bike trainers and treadmills (ported from bikebike) |
 | `games/kingdomtrek/` | Kingdom Trek: a role-playing adventure paced by your effort against your own steady pace, on either machine, played from a phone menu or at the screen (see its `INTEGRATION.md`) |
 | `games/bikeplane/` | Flight Cycle: pedal a biplane through rings around an island city, bike only; the rings are sized for the lag between pedals and plane (see its `PLAYABILITY.md`) |
+| `games/nightracer/` | Night Racer: race three rivals through a neon city at night, on either machine; your pace is the throttle, and Turbo and Oil are buttons on the phone (see its `INTEGRATION.md`) |
+| `games/nightwatch/` | Night Watch: keep a lighthouse lamp bright through the night so ships make harbour, on either machine; an interval workout set by the ships' timetable (see its `INTEGRATION.md`) |
 | `data/` | Runtime data (SQLite DB, session logs), gitignored |
 
 Every console, bridge and game is a peer folder with a `metadata.json`;
@@ -36,7 +38,7 @@ the server discovers them by name and serves them under
 ```bash
 make install     # npm install in each frontend, uv sync for the server
 make avatar-assets  # the avatar designer's assets (~300 MB, not in git)
-make build       # build console, bridge, mockgame, rollinghills, kingdomtrek, bikeplane into their dist/ folders
+make build       # build console, bridge and every game into their dist/ folders
 make serve       # Flask on http://localhost:8080
 ```
 
@@ -57,6 +59,10 @@ sign-in, see [Put it online](#put-it-online).
   console to play on the platform
 - Flight Cycle (a debug session, or practice with the keyboard): <http://localhost:8080/games/bikeplane/>;
   launch it from the console to fly with a bike
+- Night Racer (a debug session, or practice with the keyboard): <http://localhost:8080/games/nightracer/>;
+  launch it from the console to race with a machine
+- Night Watch (a debug session, or practice with the keyboard): <http://localhost:8080/games/nightwatch/>;
+  launch it from the console to keep watch with a machine
 
 Try a session without hardware: in the console pick Mock Game (Bike) with
 debug on, which opens the bridge; on the Devices tab enable the bike
@@ -72,6 +78,8 @@ make dev-mockgame  # :5175
 make dev-rollinghills  # :5176
 make dev-kingdomtrek   # :5188 (http://localhost:5188/games/kingdomtrek/)
 make dev-bikeplane     # :5177 (http://localhost:5177/games/bikeplane/)
+make dev-nightracer    # :5190 (http://localhost:5190/games/nightracer/)
+make dev-nightwatch    # :5192 (http://localhost:5192/games/nightwatch/)
 make dev-avatar        # :5194, the avatar designer on its own (the console embeds the same thing)
 ```
 
