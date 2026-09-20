@@ -37,7 +37,20 @@ function stepSelect(el: HTMLSelectElement, dir: 1 | -1): void {
   el.dispatchEvent(new Event('change', { bubbles: true }))
 }
 
+/**
+ * A page can take the presses for itself while it is mounted, and say which ones it dealt with. The avatar
+ * designer does: it renders into a shadow root, and the picker in focus.ts walks `document`, which cannot
+ * see inside one. Back is normally left to the console so the remote can always leave the page.
+ */
+type PressClaim = (p: Press) => boolean
+let claim: PressClaim | null = null
+export function claimPresses(handler: PressClaim): () => void {
+  claim = handler
+  return () => { if (claim === handler) claim = null }
+}
+
 export function handlePress(p: Press, router: Router): void {
+  if (claim?.(p)) return
   const layer = currentLayer(mainRoot())
   const active = document.activeElement as HTMLElement | null
   const tag = active?.tagName.toLowerCase() ?? ''

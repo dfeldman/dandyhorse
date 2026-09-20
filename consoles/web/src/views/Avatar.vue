@@ -5,13 +5,15 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadAvatar, saveAvatar } from '../avatar'
+import { claimPresses } from '../navigation'
 import { readTheme, resolveTheme } from '../theme'
 
 const router = useRouter()
 const host = ref<HTMLElement | null>(null)
 const error = ref<string | null>(null)
 const saved = ref(false)
-let designer: { dispose: () => void } | null = null
+let designer: { dispose: () => void; press: (p: 'up' | 'down' | 'left' | 'right' | 'select' | 'back') => void } | null = null
+let release: (() => void) | null = null
 
 onMounted(async () => {
   try {
@@ -27,6 +29,8 @@ onMounted(async () => {
     host.value.dataset.theme = resolveTheme(readTheme(), window.matchMedia('(prefers-color-scheme: dark)').matches)
     designer = await mountDesigner(host.value, {
       title: 'Your avatar',
+      // the console maps the arrow keys itself (they are the bridge remote's too) and forwards them below
+      arrows: false,
       initial: await loadAvatar(),
       // the designer says "Saved ✓", or shows the message of anything thrown here
       onSave: async (spec) => {
@@ -34,11 +38,18 @@ onMounted(async () => {
         saved.value = true
       },
     })
+    // the bridge's d-pad drives the designer while this page is up; Back still belongs to the console, so
+    // the remote can always leave
+    release = claimPresses((p) => {
+      if (p === 'back' || !designer) return false
+      designer.press(p)
+      return true
+    })
   } catch (e) {
     error.value = (e as Error).message
   }
 })
-onUnmounted(() => designer?.dispose())
+onUnmounted(() => { release?.(); designer?.dispose() })
 
 function back(): void {
   if (window.history.length > 1) router.back()
