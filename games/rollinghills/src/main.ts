@@ -94,6 +94,8 @@ async function begin(body: StartSessionBySession | StartSessionAdHoc): Promise<v
     return
   }
   platform.attach(handle)
+  // (a handle on the running game while developing: the scene, the rider, the world it built)
+  if (import.meta.env.DEV) (window as unknown as { __rh?: unknown }).__rh = handle
   bootEl.hidden = true
 }
 

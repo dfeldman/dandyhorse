@@ -1,6 +1,6 @@
 import * as BABYLON from '@babylonjs/core'
 import { Ambient } from './ambient.js'
-import { Bike } from './bike.js'
+import { Rider } from './rider.js'
 import { Biome } from './biome.js'
 import { Camera } from './camera.js'
 import { Config } from './config.js'
@@ -104,7 +104,12 @@ const RollingHills = (() => {
     Segments.build();
     console.log('segments', Segments.list.map(s => `${s.name} ${s.s0}-${s.s1} (${s.len} m, +${s.gain.toFixed(0)} m)`).join('; '));
     Hud.init(platform);
-    const bike = Bike.create(scene, { color: '#ff5a5a' });
+    let shadowGen = null;
+    // the player, on a bike or on their feet (src/game/rider.js); it keeps the shape the cartoon bike had
+    const bike = Rider.create(scene, { color: '#ff5a5a', onReady: (meshes) => {
+      if (!shadowGen) return
+      for (const m of meshes) shadowGen.addShadowCaster(m, false)
+    } });
     Camera.init(scene);
     scene.activeCamera = Camera.camera;
     Weather.init(scene, { sun, hemi, skyMat, sunMat, cloudMat: scene.getMaterialByName('cloudMat') });
@@ -113,11 +118,11 @@ const RollingHills = (() => {
     const glowLayer = new BABYLON.GlowLayer('nightGlow', scene, { mainTextureSamples: 1, blurKernelSize: 24, mainTextureRatio: 0.5 });
     glowLayer.intensity = 0;
     for (const m of Decor.glowers) glowLayer.addIncludedOnlyMesh(m);
-    for (const m of bike.root.getChildMeshes()) if (m.name === 'headLamp' || m.name === 'tailLamp') glowLayer.addIncludedOnlyMesh(m);
+
     Daylight.init(scene, { sun, hemi, sky: skyMesh, skyMat, sunMat, cloudMat: scene.getMaterialByName('cloudMat'), glow: glowLayer, poolMat: Decor.poolMat });
 
-    // cascaded sun shadows near the bike; terrain only receives
-    let shadowGen = null;
+    // cascaded sun shadows near the rider; terrain only receives
+
     if (Config.SHADOWS) {
       shadowGen = new BABYLON.CascadedShadowGenerator(Config.SHADOW_MAP, sun);
       shadowGen.numCascades = 2; shadowGen.shadowMaxZ = Config.SHADOW_MAX_Z; shadowGen.lambda = 0.8;
@@ -126,7 +131,7 @@ const RollingHills = (() => {
       shadowGen.bias = 0.01; shadowGen.normalBias = 0.02;
       shadowGen.cascadeBlendPercentage = 0.1;
       for (const m of Decor.casters) shadowGen.addShadowCaster(m, false);
-      for (const m of bike.root.getChildMeshes()) if (m.name !== 'shadow' && m.name !== 'spokeDisc') shadowGen.addShadowCaster(m, false);
+      for (const m of bike.meshes()) shadowGen.addShadowCaster(m, false);   // (the rider's own arrive with onReady)
       sun.shadowMinZ = 1; sun.shadowMaxZ = Config.SHADOW_MAX_Z;
     }
     // per-area atmosphere tint, applied after Weather writes the fog color

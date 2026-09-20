@@ -14,6 +14,7 @@ const Config = {
   WATER_Y: 0,                 // sea level (terrain noise is centered above it)
   TRAIL_RADIUS: 560,          // mean loop radius (loop ~3.5 km)
   TRAIL_WIDTH: 4.5,           // meters, ribbon width
+  TRAIL_LIFT: 0.06,           // the trail surface rides this far above Track's profile; the rider stands on it
   CORRIDOR: 22,               // meters, terrain blends toward the trail within this
   MAX_GRADE: 0.13,            // cap on trail slope (13%), overridden by the route preset
   // Route presets (?route=flat|rolling|hilly): terrain relief multiplier and grade cap

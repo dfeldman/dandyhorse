@@ -258,7 +258,7 @@ const Terrain = (() => {
       return [a, b];
     };
     // surface
-    const [left, right] = [edge(1, hw, 0, 0.06)[0], edge(-1, hw, 0, 0.06)[0]];
+    const [left, right] = [edge(1, hw, 0, Config.TRAIL_LIFT)[0], edge(-1, hw, 0, Config.TRAIL_LIFT)[0]];
     const ribbon = BABYLON.MeshBuilder.CreateRibbon('trail', { pathArray: [left, right], closePath: true, sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
     const tmat = new BABYLON.StandardMaterial('trailMat', scene);
     tmat.diffuseTexture = trailTexture(scene);
