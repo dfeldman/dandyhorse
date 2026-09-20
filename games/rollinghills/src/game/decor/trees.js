@@ -32,6 +32,26 @@ Decor.register({
       });
       return Util.merge(parts, name);
     }
+    // A frond as a tapered blade that leaves the crown, arches over and droops at the tip. The points are built
+    // in the tree's own space, so the blade starts exactly at the crown: rotating a box about a shifted pivot
+    // used to fling the leaves off the trunk and turn them the wrong way up.
+    function frond(top, yaw, len, rise, droop, color) {
+      const N = 7;
+      const dx = Math.sin(yaw), dz = Math.cos(yaw);       // out from the trunk
+      const sx = Math.cos(yaw), sz = -Math.sin(yaw);      // across the blade
+      const left = [], right = [];
+      for (let i = 0; i <= N; i++) {
+        const t = i / N;
+        const out = len * t;
+        const y = top.y + rise * t - droop * Math.pow(t, 2.3);
+        const w = 0.32 * Math.sin(Math.PI * Math.pow(t, 0.5));   // nothing at the stem, a point at the tip
+        const cx = top.x + dx * out, cz = top.z + dz * out;
+        left.push(new BABYLON.Vector3(cx + sx * w, y, cz + sz * w));
+        right.push(new BABYLON.Vector3(cx - sx * w, y, cz - sz * w));
+      }
+      const f = BABYLON.MeshBuilder.CreateRibbon('f', { pathArray: [left, right], sideOrientation: BABYLON.Mesh.DOUBLESIDE }, scene);
+      return Util.colorize(f, color);
+    }
     function palm() {
       const path = [];
       for (let i = 0; i <= 6; i++) path.push(new BABYLON.Vector3(Math.sin(i / 6 * 1.2) * 1.2, i * 0.9, 0));
@@ -39,15 +59,17 @@ Decor.register({
       Util.colorize(trunk, '#b07a3c');
       const parts = [trunk];
       const top = path[6];
-      for (let i = 0; i < 6; i++) {
-        const f = BABYLON.MeshBuilder.CreateBox('f', { width: 0.5, height: 0.08, depth: 2.6 }, scene);
-        f.position.copyFrom(top); f.rotation.y = i * Math.PI / 3; f.rotation.x = -0.35;
-        f.setPivotPoint(new BABYLON.Vector3(0, 0, -1.3));
-        f.translate(new BABYLON.Vector3(0, 0, 1), 1.2, BABYLON.Space.LOCAL);
-        Util.colorize(f, i % 2 ? '#3fd15e' : '#57e070'); parts.push(f);
+      const greens = ['#3fd15e', '#57e070', '#34bf50', '#69e87d'];
+      for (let i = 0; i < 9; i++) {
+        const yaw = (i / 9) * Math.PI * 2 + 0.15;
+        // every other frond reaches further and hangs lower, so the crown is not a flat wheel
+        const long = i % 2 === 0;
+        parts.push(frond(top, yaw, long ? 3.2 : 2.5, long ? 0.9 : 1.0, long ? 2.3 : 1.7, greens[i % greens.length]));
       }
-      const nut = BABYLON.MeshBuilder.CreateSphere('n', { diameter: 0.45, segments: 5 }, scene);
-      nut.position.copyFrom(top); nut.position.y -= 0.1; Util.colorize(nut, '#6b4423'); parts.push(nut);
+      for (const [ox, oz] of [[0.16, 0.1], [-0.14, 0.13], [0.02, -0.18]]) {
+        const nut = BABYLON.MeshBuilder.CreateSphere('n', { diameter: 0.3, segments: 5 }, scene);
+        nut.position.set(top.x + ox, top.y - 0.22, top.z + oz); Util.colorize(nut, '#6b4423'); parts.push(nut);
+      }
       return Util.merge(parts, 'palm');
     }
     function cactus() {

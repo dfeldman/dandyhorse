@@ -23,25 +23,58 @@ Decor.register({
       const root = new BABYLON.TransformNode('plaza', scene); root.position.set(c.x, y, c.z); root.rotation.y = yaw;
       const pad = BABYLON.MeshBuilder.CreateCylinder('pad', { height: 0.4, diameter: 26, tessellation: 16 }, scene);
       pad.position.y = -0.1; Util.colorize(pad, '#e6dcc4'); pad.parent = root;
-      // fountain
-      const basin = BABYLON.MeshBuilder.CreateCylinder('basin', { height: 0.9, diameter: 6, tessellation: 14 }, scene);
-      basin.position.y = 0.45; Util.colorize(basin, '#cfd8e6'); basin.parent = root;
+      // fountain: a stepped stone basin, a raised bowl spilling a sheet of water into it, and a jet on top
+      const stone = '#cfd8e6', shade = '#b3bed2';
+      const live = (m) => { m.metadata = { live: true }; return m; };   // animated: stays out of the merge
+      const stoneAt = (mesh, y) => { mesh.position.y = y; Util.colorize(mesh, stone); mesh.parent = root; return mesh };
+      stoneAt(BABYLON.MeshBuilder.CreateCylinder('step', { height: 0.3, diameter: 7.2, tessellation: 20 }, scene), 0.15);
+      stoneAt(BABYLON.MeshBuilder.CreateCylinder('basin', { height: 0.95, diameter: 5.9, tessellation: 20 }, scene), 0.68);
+      const rim = BABYLON.MeshBuilder.CreateTorus('rim', { diameter: 5.85, thickness: 0.4, tessellation: 20 }, scene);
+      rim.position.y = 1.13; Util.colorize(rim, shade); rim.parent = root;
       const waterM = new BABYLON.StandardMaterial('fountainWater', scene);
-      waterM.diffuseColor = Util.hex('#3fbdf3'); waterM.emissiveColor = new BABYLON.Color3(0.1, 0.3, 0.45); waterM.specularColor = BABYLON.Color3.Black(); waterM.alpha = 0.85;
-      const pool = BABYLON.MeshBuilder.CreateCylinder('pool', { height: 0.1, diameter: 5.4, tessellation: 14 }, scene);
-      pool.position.y = 0.9; pool.material = waterM; pool.parent = root;
-      const col = BABYLON.MeshBuilder.CreateCylinder('col', { height: 2.2, diameterTop: 0.5, diameterBottom: 0.9, tessellation: 10 }, scene);
-      col.position.y = 1.9; Util.colorize(col, '#cfd8e6'); col.parent = root;
-      const tier = BABYLON.MeshBuilder.CreateCylinder('tier', { height: 0.3, diameter: 2.4, tessellation: 12 }, scene);
-      tier.position.y = 2.6; Util.colorize(tier, '#cfd8e6'); tier.parent = root;
-      const jet = BABYLON.MeshBuilder.CreateSphere('jet', { diameter: 1.2, segments: 6 }, scene);
-      jet.position.y = 3.4; jet.scaling.y = 1.6; jet.material = waterM; jet.parent = root;
+      waterM.diffuseColor = Util.hex('#2aa6e6'); waterM.emissiveColor = new BABYLON.Color3(0.06, 0.22, 0.36); waterM.specularColor = BABYLON.Color3.Black(); waterM.alpha = 0.78;
+      const fallM = new BABYLON.StandardMaterial('fountainFall', scene);
+      fallM.diffuseColor = Util.hex('#bfe9fb'); fallM.emissiveColor = new BABYLON.Color3(0.22, 0.4, 0.5); fallM.specularColor = BABYLON.Color3.Black();
+      fallM.alpha = 0.22; fallM.backFaceCulling = false;
+      const pool = BABYLON.MeshBuilder.CreateCylinder('pool', { height: 0.1, diameter: 5.4, tessellation: 20 }, scene);
+      // the water fills the ring, just clear of the basin's stone cap at 1.155
+      pool.position.y = 1.17; pool.material = waterM; pool.parent = root; live(pool);
+      // pedestal and column
+      stoneAt(BABYLON.MeshBuilder.CreateCylinder('plinth', { height: 0.45, diameterTop: 1.15, diameterBottom: 1.6, tessellation: 12 }, scene), 1.15);
+      stoneAt(BABYLON.MeshBuilder.CreateCylinder('col', { height: 1.5, diameterTop: 0.62, diameterBottom: 0.8, tessellation: 12 }, scene), 2.1);
+      const collar = BABYLON.MeshBuilder.CreateTorus('collar', { diameter: 0.95, thickness: 0.2, tessellation: 12 }, scene);
+      collar.position.y = 2.78; Util.colorize(collar, shade); collar.parent = root;
+      // upper bowl
+      stoneAt(BABYLON.MeshBuilder.CreateCylinder('bowl', { height: 0.55, diameterTop: 3.1, diameterBottom: 0.85, tessellation: 18 }, scene), 3.1);
+      const bowlRim = BABYLON.MeshBuilder.CreateTorus('bowlRim', { diameter: 3.05, thickness: 0.18, tessellation: 18 }, scene);
+      bowlRim.position.y = 3.37; Util.colorize(bowlRim, shade); bowlRim.parent = root;
+      const bowlWater = BABYLON.MeshBuilder.CreateCylinder('bowlWater', { height: 0.06, diameter: 2.85, tessellation: 18 }, scene);
+      bowlWater.position.y = 3.36; bowlWater.material = waterM; bowlWater.parent = root; live(bowlWater);
+      // the skirt of water spilling over the bowl's lip: a short fall, not a glass case around the whole fountain
+      const fall = BABYLON.MeshBuilder.CreateCylinder('fall', { height: 0.95, diameterTop: 3.02, diameterBottom: 2.55, tessellation: 18 }, scene);
+      fall.position.y = 2.9; fall.material = fallM; fall.parent = root; live(fall);
+      // the jet
+      const jet = BABYLON.MeshBuilder.CreateCylinder('jet', { height: 1.05, diameterTop: 0.08, diameterBottom: 0.34, tessellation: 8 }, scene);
+      jet.position.y = 3.92; jet.material = waterM; jet.parent = root; live(jet);
+      const crown = BABYLON.MeshBuilder.CreateSphere('crown', { diameter: 0.26, segments: 6 }, scene);
+      crown.position.y = 4.5; crown.material = waterM; crown.parent = root; live(crown);
       const drops = [];
-      for (let i = 0; i < 6; i++) {
-        const d = BABYLON.MeshBuilder.CreateSphere('drop', { diameter: 0.35, segments: 4 }, scene);
-        d.material = waterM; d.parent = root; drops.push({ m: d, ph: i / 6 * Math.PI * 2 });
+      for (let i = 0; i < 10; i++) {
+        const d = BABYLON.MeshBuilder.CreateSphere('drop', { diameter: 0.15, segments: 4 }, scene);
+        d.material = waterM; d.parent = root; live(d);
+        drops.push({ m: d, ph: (i / 10) * Math.PI * 2, reach: 0.9 + (i % 3) * 0.35 });
       }
-      anim.push({ jet, drops, ph: rng.range(0, 6.28) });
+      // rings spreading where the sheet lands
+      const ripples = [];
+      for (let i = 0; i < 3; i++) {
+        const rm = new BABYLON.StandardMaterial('ripple' + i, scene);
+        rm.diffuseColor = Util.hex('#dff4ff'); rm.specularColor = BABYLON.Color3.Black(); rm.disableLighting = true;
+        rm.emissiveColor = Util.hex('#cdeeff'); rm.alpha = 0.35; rm.backFaceCulling = false;
+        const r = BABYLON.MeshBuilder.CreateTorus('ripple', { diameter: 2, thickness: 0.06, tessellation: 20 }, scene);
+        r.position.y = 1.24; r.material = rm; r.parent = root; live(r);
+        ripples.push({ m: r, mat: rm, ph: i / 3 });
+      }
+      anim.push({ jet, crown, drops, ripples, ph: rng.range(0, 6.28) });
       // hedges ringing the plaza
       for (let i = 0; i < 10; i++) {
         const a = i / 10 * Math.PI * 2;
@@ -71,7 +104,7 @@ Decor.register({
       }
       root.computeWorldMatrix(true);
       for (const m of root.getChildMeshes()) {
-        if (m.material === waterM) { continue; }   // animated pieces stay live
+        if (m.metadata?.live) { continue; }   // animated pieces stay live
         m.computeWorldMatrix(true); m.bakeCurrentTransformIntoVertices(); m.parent = null; parts.push(m);
       }
       placed++;
@@ -81,8 +114,22 @@ Decor.register({
     return {
       update(dt, t) {
         for (const a of anim) {
-          a.jet.scaling.y = 1.6 + Math.sin(t * 6 + a.ph) * 0.25;
-          for (const d of a.drops) { const f = ((t * 0.8 + d.ph / 6.28) % 1); const r = 0.6 + f * 1.6; d.m.position.set(Math.cos(d.ph) * r, 3.6 + Math.sin(f * Math.PI) * 1.4 - f * 1.2, Math.sin(d.ph) * r); }
+          const pulse = Math.sin(t * 6 + a.ph);
+          a.jet.scaling.y = 1 + pulse * 0.12;
+          a.crown.position.y = 4.5 + pulse * 0.12;
+          a.crown.scaling.setAll(1 + pulse * 0.1);
+          // drops leave the top of the jet, arc outward and fall past the bowl into the pool
+          for (const d of a.drops) {
+            const f = (t * 0.7 + d.ph / 6.28) % 1;
+            const r = 0.25 + f * d.reach;
+            d.m.position.set(Math.cos(d.ph) * r, 4.5 + Math.sin(f * Math.PI) * 0.5 - f * f * 3.9, Math.sin(d.ph) * r);
+          }
+          // rings spread from where the sheet lands and fade as they go
+          for (const rp of a.ripples) {
+            const f = (t * 0.5 + rp.ph) % 1;
+            rp.m.scaling.setAll(1.35 + f * 0.4);
+            rp.mat.alpha = 0.3 * (1 - f);
+          }
         }
       },
     };
