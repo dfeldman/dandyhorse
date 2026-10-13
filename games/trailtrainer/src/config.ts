@@ -387,6 +387,15 @@ export const Config = {
   cardCut: 0.45,
 
   /**
+   * Where the tree, plant and rock libraries and the rider's avatar assets are loaded from: the shared asset
+   * bucket (assetkit's and avatarkit's assetmgr indexes, public, no key), or 'local' for the old public/ folders.
+   * `?assets=local` overrides it per page. See render/assetsource.ts.
+   */
+  assetSource: 'bucket' as 'bucket' | 'local',
+  /** The shared asset bucket's public URL. */
+  assetBucket: 'https://pub-32f6f3f21c18414cbeaf4bf0ac34ebe5.r2.dev',
+
+  /**
    * Which of the pre-generated trees to load, out of the library under `public/trees/`. A handful is enough:
    * what stops a wood looking stamped out is a few shapes at different sizes and rotations, not a different
    * tree for every tree.

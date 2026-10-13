@@ -14,6 +14,7 @@ import {
   Avatar,
   Bike,
   GeometryService,
+  loadFromBucket,
   PRESETS,
   setAssetBase,
   setStudioHdri,
@@ -24,6 +25,7 @@ import {
   type AvatarSpec,
 } from '@dandyhorse/avatarkit'
 import { Config } from '../config.ts'
+import { assetSource } from './assetsource.ts'
 import type { Pose } from '../route/route.ts'
 import type { SurfaceName } from '../route/package.ts'
 import type { Frame } from './frame.ts'
@@ -33,8 +35,19 @@ import { Layer } from './layers.ts'
 // Dandyhorse the platform serves them at /avatars/, and this is the one place that changes. The base has to be
 // an absolute URL rather than './mh/': the kit builds bodies in a worker, and a relative path there resolves
 // against the worker's own script rather than the page, which quietly fetches index.html instead of the index.
-setAssetBase(new URL('mh/', document.baseURI).href)
-setStudioHdri(new URL(`env/${STUDIO_HDRI}`, document.baseURI).href)
+//
+// By default the kit's assets now come from the shared asset bucket (avatarkit's assetmgr indexes, see
+// render/assetsource.ts); the local folders are the fallback, and what ?assets=local asks for.
+function useLocalAvatarAssets(): void {
+  setAssetBase(new URL('mh/', document.baseURI).href)
+  setStudioHdri(new URL(STUDIO_HDRI, document.baseURI).href)
+}
+const avatarAssets: Promise<void> = assetSource() === 'bucket'
+  ? loadFromBucket(Config.assetBucket).then(() => undefined, (e: unknown) => {
+    console.warn('rider: avatar assets unavailable from the bucket, using the local copy', e)
+    useLocalAvatarAssets()
+  })
+  : Promise.resolve(useLocalAvatarAssets())
 
 export interface RiderOptions {
   /** which of the kit's presets to wear; on the platform this is the player's own avatar */
@@ -130,6 +143,7 @@ export class Rider {
   private async build(opts: RiderOptions): Promise<void> {
     const spec = normalizeSpec(opts.spec ?? (opts.preset ?? PRESETS[0]).spec)
     const quality = suggestQuality(this.scene.getEngine())
+    await avatarAssets
     const geometry = await new GeometryService().request(spec, quality)
     if (!geometry) return
     const avatar = new Avatar(this.scene, spec, { geometry, quality, name: 'player' })

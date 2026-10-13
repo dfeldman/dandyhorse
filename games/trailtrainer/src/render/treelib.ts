@@ -19,6 +19,7 @@
  */
 import '@babylonjs/loaders/glTF'
 import { type Band, type Ecology, type Library, pickFiles } from './ecology.ts'
+import { libraryIndex } from './assetsource.ts'
 import {
   type AbstractMesh,
   Color3,
@@ -147,21 +148,16 @@ function convert(scene: Scene, source: PBRMaterial, name: string): StandardMater
  */
 export async function loadTrees(
   scene: Scene,
-  folder: string,
+  folder: Library,
   files: string[],
   detail: TreeDetail,
   dress?: (material: StandardMaterial, kind: 'bark' | 'leaves') => void,
 ): Promise<TreeVariant[]> {
+  // The library's index and its file URLs come from the asset source (the shared bucket, or public/ with
+  // ?assets=local): see assetsource.ts.
+  const lib = await libraryIndex(folder)
   const byFile = new Map<string, IndexEntry>()
-  try {
-    const res = await fetch(`${folder}/index.json`)
-    if (res.ok) {
-      const index = (await res.json()) as { trees: IndexEntry[] }
-      for (const t of index.trees) byFile.set(t.file, t)
-    }
-  } catch {
-    // no index; every tree is measured below instead
-  }
+  for (const t of lib?.entries ?? []) byFile.set(t.file, t as unknown as IndexEntry)
   const out: TreeVariant[] = []
 
   for (const file of files) {
@@ -170,7 +166,8 @@ export async function loadTrees(
     // not a reason for the ride not to start — it is a reason for that tree not to be in the wood.
     let container
     try {
-      container = await loadAssetContainerAsync(`${folder}/${file}`, scene)
+      if (!lib) throw new Error('library unavailable')
+      container = await loadAssetContainerAsync(lib.url(file), scene)
     } catch (e) {
       console.warn(`treelib: skipping ${folder}/${file}`, e)
       continue
@@ -289,14 +286,9 @@ export async function loadEcology(
 ): Promise<PlantedBand[]> {
   const indexes = new Map<Library, Array<{ species: string; file: string; season?: string }>>()
   for (const folder of ['trees', 'plants', 'rocks'] as Library[]) {
-    try {
-      const res = await fetch(`${folder}/index.json`)
-      if (!res.ok) continue
-      const body = (await res.json()) as { trees: Array<{ species: string; file: string; season?: string }> }
-      indexes.set(folder, body.trees)
-    } catch {
-      // a library that is not there yet simply has nothing in it
-    }
+    // a library that can't be read simply has nothing in it
+    const lib = await libraryIndex(folder)
+    if (lib) indexes.set(folder, lib.entries)
   }
 
   const wanted = new Map<string, { folder: Library; file: string }>()

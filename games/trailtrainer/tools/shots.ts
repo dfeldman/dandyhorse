@@ -17,6 +17,7 @@
  *                                      hand-written shader snippets compile in GLSL as well as WGSL
  *   npm run shots -- --only=alpe       only spots whose route matches
  *   npm run shots -- --out=before      a named folder rather than today's date
+ *   npm run shots -- --assets=local    load the nature libraries and avatar from public/ instead of the bucket
  *
  * It drives a dev server that is already running (`npm run dev`) rather than starting one, so it can be run
  * against whatever is on screen.
@@ -56,7 +57,8 @@ const today = (): string => new Date().toISOString().slice(0, 10)
 
 async function capture(page: Page, spot: Spot, dir: string, index: number, withRider: boolean, loaded: { route: string }): Promise<Stats> {
   const engine = arg('engine')
-  const url = `${BASE}/?route=${spot.route}&s=${spot.s}&others=0&go=1${engine ? `&engine=${engine}` : ''}`
+  const assets = arg('assets')
+  const url = `${BASE}/?route=${spot.route}&s=${spot.s}&others=0&go=1${engine ? `&engine=${engine}` : ''}${assets ? `&assets=${assets}` : ''}`
   /**
    * `--reuse` seeks within the page that is already open rather than loading a new one.
    *
