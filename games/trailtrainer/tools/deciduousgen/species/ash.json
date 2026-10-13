@@ -1,0 +1,213 @@
+{
+  "name": "ash",
+  "kind": "deciduous",
+  "about": "common ash: tall open crown, few thick upswept boughs with tips that curve up, feathery compound leaves in loose clusters",
+  "height": [
+    20,
+    4
+  ],
+  "bark": "brown",
+  "leaves_page": "fine",
+  "bark_tile": 1.5,
+  "trunk": {
+    "radius": [
+      0.026,
+      0.003
+    ],
+    "tip": 0.02,
+    "flare": 0.6,
+    "taper": [
+      1.0,
+      0.88,
+      0.75,
+      0.55,
+      0.3
+    ],
+    "tropism": 0.45,
+    "wander": 0.08,
+    "gnarl": 0.05,
+    "lean": [
+      0,
+      3
+    ],
+    "segment": 1.0,
+    "splits": {
+      "count": [
+        2.2,
+        0.9
+      ],
+      "at": [
+        0.5,
+        0.12
+      ],
+      "angle": [
+        20,
+        8
+      ],
+      "length": [
+        1.0,
+        0.12
+      ],
+      "extend": true
+    }
+  },
+  "envelope": {
+    "base": 0.35,
+    "top": 1.08,
+    "width": 0.36,
+    "profile": [
+      0.4,
+      0.75,
+      1.0,
+      0.95,
+      0.7,
+      0.3
+    ]
+  },
+  "levels": [
+    {
+      "name": "boughs",
+      "distribution": "proportional",
+      "density": 1.1,
+      "first": 0.35,
+      "last": 0.97,
+      "min": 4,
+      "angle": {
+        "curve": [
+          50,
+          42,
+          32,
+          22
+        ],
+        "var": 10
+      },
+      "roll": {
+        "mode": "opposite",
+        "var": 15
+      },
+      "length": {
+        "curve": [
+          0.5,
+          0.65,
+          0.55,
+          0.3
+        ],
+        "var": 0.1
+      },
+      "radius": [
+        0.6,
+        0.08
+      ],
+      "tip": 0.012,
+      "tropism": {
+        "curve": [
+          -0.1,
+          0.1,
+          0.9
+        ],
+        "var": 0.15
+      },
+      "wander": 0.25,
+      "segment": 1.1,
+      "knockout": 0.08,
+      "min_keep": 0.4
+    },
+    {
+      "name": "branches",
+      "distribution": "proportional",
+      "density": 1.3,
+      "first": 0.25,
+      "last": 0.95,
+      "min": 2,
+      "angle": [
+        45,
+        12
+      ],
+      "roll": {
+        "mode": "opposite",
+        "var": 20
+      },
+      "length": {
+        "curve": [
+          0.45,
+          0.55,
+          0.4
+        ],
+        "var": 0.1
+      },
+      "radius": [
+        0.55,
+        0.1
+      ],
+      "tip": 0.006,
+      "tropism": {
+        "curve": [
+          -0.2,
+          0.2,
+          0.9
+        ],
+        "var": 0.15
+      },
+      "wander": 0.35,
+      "segment": 0.9,
+      "knockout": 0.1
+    },
+    {
+      "name": "twigs",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 2.0,
+      "first": 0.2,
+      "last": 1.0,
+      "min": 2,
+      "angle": [
+        40,
+        12
+      ],
+      "roll": {
+        "mode": "opposite",
+        "var": 25
+      },
+      "length": {
+        "curve": [
+          0.4,
+          0.5,
+          0.35
+        ],
+        "var": 0.12
+      },
+      "radius": [
+        0.45,
+        0.1
+      ],
+      "tip": 0.004,
+      "tropism": [
+        0.5,
+        0.2
+      ],
+      "wander": 0.4,
+      "segment": 0.4,
+      "min_keep": 0.3,
+      "slack": 1.1
+    }
+  ],
+  "leaves": {
+    "size": [
+      0.1,
+      0.02
+    ],
+    "aspect": 1.0,
+    "spacing": 0.4,
+    "tip": 2,
+    "first": 0.3,
+    "outward": 0.5,
+    "up": 0.3,
+    "ao": 0.35,
+    "hue_var": 0.05,
+    "cells": 2
+  },
+  "budget": [
+    2300,
+    4500
+  ]
+}

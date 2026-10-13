@@ -1,0 +1,27 @@
+{
+  "name": "prickly_pear",
+  "kind": "plant",
+  "about": "prickly pear: a clump of flat pads standing on each other",
+  "form": "bush",
+  "page": "painted_pads",
+  "cards": [
+    6,
+    14
+  ],
+  "height": [
+    0.5,
+    1.1
+  ],
+  "width": [
+    0.3,
+    0.7
+  ],
+  "card": 0.8,
+  "aspect": 0.7,
+  "cross": 0.0,
+  "ao": 0.15,
+  "budget": [
+    20,
+    100
+  ]
+}

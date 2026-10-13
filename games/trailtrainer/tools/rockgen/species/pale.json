@@ -1,0 +1,56 @@
+{
+  "name": "pale",
+  "kind": "rock",
+  "about": "pale cracked limestone, dry and bright",
+  "surface": "marble",
+  "tile": 1.5,
+  "shapes": [
+    "round",
+    "egg",
+    "flat",
+    "slab",
+    "tall",
+    "long",
+    "block",
+    "shard",
+    "wedge",
+    "dome",
+    "lumpy",
+    "split"
+  ],
+  "shape_weights": [
+    2,
+    1,
+    3,
+    3,
+    2,
+    2,
+    2,
+    2,
+    2,
+    2,
+    1,
+    2
+  ],
+  "roughness": 0.12,
+  "tint": [
+    1.0,
+    0.98,
+    0.92
+  ],
+  "moss": 0.0,
+  "lichen": 0.35,
+  "boulders": [
+    1,
+    1
+  ],
+  "size": [
+    0.5,
+    1.4
+  ],
+  "detail": 0.04,
+  "budget": [
+    800,
+    4500
+  ]
+}

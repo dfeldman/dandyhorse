@@ -1,0 +1,38 @@
+{
+  "name": "fern",
+  "kind": "plant",
+  "about": "a shuttlecock of fronds, arching out and over",
+  "form": "tuft",
+  "page": "fern",
+  "cards": [
+    9,
+    14
+  ],
+  "height": [
+    0.5,
+    1.0
+  ],
+  "width": 0.7,
+  "lean": [
+    30,
+    65
+  ],
+  "spread": 0.05,
+  "cross": 0.0,
+  "clumps": [
+    1,
+    2
+  ],
+  "clump_spread": 0.6,
+  "tint": [
+    0.95,
+    1.0,
+    0.9
+  ],
+  "light_var": 0.12,
+  "ao": 0.35,
+  "budget": [
+    30,
+    120
+  ]
+}

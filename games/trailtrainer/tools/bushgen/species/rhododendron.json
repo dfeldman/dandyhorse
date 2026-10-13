@@ -1,0 +1,186 @@
+{
+  "name": "rhododendron",
+  "kind": "plant",
+  "form": "bush",
+  "about": "rhododendron: a dense dark evergreen mound, leathery leaves",
+  "height": [
+    1.8,
+    0.6
+  ],
+  "bark": "brown",
+  "bark_tile": 0.55,
+  "leaves_page": "dark",
+  "leaf_share": 0.6,
+  "trunk": {
+    "radius": [
+      0.02,
+      0.004
+    ],
+    "tip": 0.006,
+    "flare": 0.4,
+    "taper": [
+      1.0,
+      0.8,
+      0.6,
+      0.4,
+      0.2
+    ],
+    "tropism": 0.6,
+    "wander": 0.25,
+    "gnarl": 0.3,
+    "lean": [
+      0,
+      6
+    ],
+    "segment": 0.35,
+    "splits": {
+      "count": [
+        5,
+        1.5
+      ],
+      "at": [
+        0.1,
+        0.04
+      ],
+      "angle": [
+        40,
+        12
+      ],
+      "length": [
+        1.0,
+        0.2
+      ],
+      "extend": false
+    }
+  },
+  "envelope": {
+    "base": 0.0,
+    "top": 1.05,
+    "width": 0.75,
+    "profile": [
+      0.9,
+      1.0,
+      1.0,
+      0.9,
+      0.7,
+      0.3
+    ]
+  },
+  "levels": [
+    {
+      "name": "stems",
+      "distribution": "proportional",
+      "density": 2.6,
+      "first": 0.15,
+      "last": 0.97,
+      "min": 3,
+      "angle": {
+        "curve": [
+          62,
+          52,
+          40,
+          28
+        ],
+        "var": 14
+      },
+      "roll": {
+        "mode": "spiral",
+        "var": 30
+      },
+      "length": {
+        "curve": [
+          0.5,
+          0.65,
+          0.5,
+          0.25
+        ],
+        "var": 0.14
+      },
+      "radius": [
+        0.55,
+        0.1
+      ],
+      "tip": 0.004,
+      "taper": [
+        1.0,
+        0.75,
+        0.5,
+        0.2
+      ],
+      "tropism": {
+        "curve": [
+          0.5,
+          0.3,
+          0.1
+        ],
+        "var": 0.2
+      },
+      "wander": 0.5,
+      "gnarl": 0.4,
+      "segment": 0.3,
+      "knockout": 0.08,
+      "min_keep": 0.3,
+      "slack": 1.08
+    },
+    {
+      "name": "twigs",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 4.0,
+      "first": 0.1,
+      "last": 1.0,
+      "min": 3,
+      "angle": [
+        48,
+        16
+      ],
+      "roll": {
+        "mode": "alternate",
+        "var": 35
+      },
+      "length": {
+        "curve": [
+          0.45,
+          0.6,
+          0.45
+        ],
+        "var": 0.15
+      },
+      "radius": [
+        0.45,
+        0.1
+      ],
+      "tip": 0.003,
+      "tropism": [
+        0.3,
+        0.25
+      ],
+      "wander": 0.7,
+      "segment": 0.2,
+      "min_keep": 0.3,
+      "slack": 1.15
+    }
+  ],
+  "leaves": {
+    "size": [
+      0.161,
+      0.031
+    ],
+    "size_min": 0.13,
+    "spacing": 0.15,
+    "tip": 2,
+    "first": 0.2,
+    "bough_first": 0.25,
+    "outward": 0.45,
+    "up": 0.3,
+    "ao": 0.45,
+    "hue_var": 0.07,
+    "light_var": 0.14,
+    "scatter": 0.8,
+    "cells": 2
+  },
+  "budget": [
+    400,
+    1400
+  ]
+}

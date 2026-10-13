@@ -1,0 +1,62 @@
+{
+  "name": "yucca",
+  "kind": "plant",
+  "about": "yucca: a rosette of stiff blades and a tall white flower spike",
+  "form": "flower",
+  "stems": [
+    1,
+    1
+  ],
+  "height": [
+    0.9,
+    1.6
+  ],
+  "stem_radius": 0.012,
+  "lean": 4,
+  "wander": 0.05,
+  "leaves_page": "grass_tall",
+  "rosette": {
+    "cards": [
+      8,
+      12
+    ],
+    "height": [
+      0.5,
+      0.8
+    ],
+    "width": 0.7,
+    "lean": [
+      20,
+      50
+    ],
+    "spread": 0.05,
+    "cross": 0.5,
+    "ao": 0.2,
+    "tint": [
+      0.8,
+      0.95,
+      0.75
+    ]
+  },
+  "heads_page": "painted_spikes",
+  "head": {
+    "mode": "cross",
+    "size": [
+      0.4,
+      0.6
+    ],
+    "cells": [
+      2
+    ],
+    "aspect": 0.5,
+    "tint": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "budget": [
+    40,
+    200
+  ]
+}

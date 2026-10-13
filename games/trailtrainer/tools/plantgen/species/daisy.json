@@ -1,0 +1,56 @@
+{
+  "name": "daisy",
+  "kind": "plant",
+  "about": "orange mountain daisies in a clump, heads turned to the sun",
+  "form": "flower",
+  "stems": [
+    3,
+    8
+  ],
+  "spread": 0.2,
+  "height": [
+    0.2,
+    0.4
+  ],
+  "stem_radius": 0.004,
+  "lean": 15,
+  "wander": 0.4,
+  "leaves_page": "rosette",
+  "rosette": {
+    "cards": [
+      3,
+      6
+    ],
+    "height": [
+      0.1,
+      0.2
+    ],
+    "width": 0.5,
+    "lean": [
+      40,
+      75
+    ],
+    "spread": 0.03,
+    "cells": [
+      2,
+      3
+    ],
+    "ao": 0.2
+  },
+  "heads_page": "daisy",
+  "head": {
+    "mode": "both",
+    "size": [
+      0.08,
+      0.12
+    ],
+    "tilt": [
+      15,
+      45
+    ]
+  },
+  "budget": [
+    60,
+    250
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "name": "cow_parsley",
+  "kind": "plant",
+  "about": "cow parsley: white lace umbels on tall stems, every hedgerow in May",
+  "form": "flower",
+  "stems": [
+    4,
+    9
+  ],
+  "spread": 0.3,
+  "height": [
+    0.7,
+    1.3
+  ],
+  "stem_radius": 0.005,
+  "lean": 10,
+  "wander": 0.2,
+  "leaves_page": "rosette",
+  "stem_leaves": [
+    1,
+    2
+  ],
+  "leaf_size": 0.16,
+  "leaf_cells": [
+    2,
+    3
+  ],
+  "heads_page": "painted_discs",
+  "head": {
+    "mode": "both",
+    "size": [
+      0.12,
+      0.2
+    ],
+    "cells": [
+      1
+    ],
+    "tilt": [
+      5,
+      30
+    ]
+  },
+  "budget": [
+    40,
+    300
+  ]
+}

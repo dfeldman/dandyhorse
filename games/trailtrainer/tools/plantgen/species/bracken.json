@@ -1,0 +1,36 @@
+{
+  "name": "bracken",
+  "kind": "plant",
+  "about": "bracken: tall fronds in a spreading stand, hillside and wood edge",
+  "form": "tuft",
+  "page": "fern",
+  "cards": [
+    8,
+    14
+  ],
+  "height": [
+    0.8,
+    1.4
+  ],
+  "width": 0.6,
+  "lean": [
+    15,
+    50
+  ],
+  "spread": 0.3,
+  "clumps": [
+    2,
+    4
+  ],
+  "clump_spread": 0.8,
+  "tint": [
+    0.95,
+    1.0,
+    0.85
+  ],
+  "ao": 0.3,
+  "budget": [
+    30,
+    200
+  ]
+}

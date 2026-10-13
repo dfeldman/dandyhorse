@@ -1,0 +1,33 @@
+{
+  "name": "meadow_grass",
+  "kind": "plant",
+  "about": "a low green meadow clump",
+  "form": "tuft",
+  "page": "grass_tuft",
+  "cards": [
+    5,
+    9
+  ],
+  "height": [
+    0.25,
+    0.5
+  ],
+  "width": 1.4,
+  "lean": [
+    10,
+    35
+  ],
+  "spread": 0.15,
+  "cross": 0.2,
+  "clumps": [
+    1,
+    4
+  ],
+  "clump_spread": 0.5,
+  "light_var": 0.12,
+  "ao": 0.2,
+  "budget": [
+    30,
+    120
+  ]
+}

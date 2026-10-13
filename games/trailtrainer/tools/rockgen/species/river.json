@@ -1,0 +1,40 @@
+{
+  "name": "river",
+  "kind": "rock",
+  "about": "rounded river stone and pebbles",
+  "surface": "pebble",
+  "tile": 0.6,
+  "shapes": [
+    "round",
+    "egg",
+    "flat",
+    "dome",
+    "lumpy",
+    "long"
+  ],
+  "shape_weights": [
+    3,
+    3,
+    2,
+    2,
+    1,
+    2
+  ],
+  "roughness": 0.08,
+  "facet_offset": -0.2,
+  "moss": 0.0,
+  "lichen": 0.0,
+  "boulders": [
+    1,
+    1
+  ],
+  "size": [
+    0.5,
+    1.4
+  ],
+  "detail": 0.04,
+  "budget": [
+    800,
+    4500
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "cypress",
+  "kind": "conifer",
+  "about": "a columnar cypress or juniper: a tight dark green pillar, short upswept branches hugging the trunk, foliage to the ground",
+  "height": [8, 2],
+  "bark": "cedar",
+  "leaves_page": "larch",
+  "bark_tile": 0.8,
+  "leaf_share": 0.7,
+  "trunk": {
+    "radius": [0.02, 0.003], "tip": 0.006, "flare": 0.3,
+    "taper": [1.0, 0.85, 0.7, 0.5, 0.3, 0.08],
+    "tropism": 1.0, "wander": 0.03, "lean": [0, 2], "segment": 0.6
+  },
+  "envelope": {"base": 0.02, "top": 1.0, "width": 0.11, "profile": [0.7, 0.95, 1.0, 1.0, 0.95, 0.8, 0.5, 0.12]},
+  "levels": [
+    {
+      "name": "whorls", "distribution": "whorls", "step": [0.35, 0.1], "per_whorl": [4, 1], "first": 0.04, "last": 0.97,
+      "angle": {"curve": [40, 35, 30, 25], "var": 8},
+      "length_abs": {"curve": [0.14, 0.16, 0.15, 0.12, 0.08, 0.03], "var": 0.02}, "radius": [0.3, 0.05], "tip": 0.004,
+      "taper": [1.0, 0.7, 0.4, 0.15], "tropism": {"curve": [1.2, 1.2, 1.0], "var": 0.15},
+      "wander": 0.15, "segment": 0.5, "min_segments": 2, "knockout": 0.05, "min_keep": 0.3, "slack": 1.15
+    },
+    {
+      "name": "sprays", "mesh": false, "distribution": "proportional", "density": 3.0, "first": 0.2, "last": 0.95, "min": 1,
+      "angle": [35, 12], "roll": {"mode": "alternate", "var": 25},
+      "length": {"curve": [0.4, 0.45, 0.35], "var": 0.1}, "radius": [0.4, 0.1], "tip": 0.003,
+      "tropism": [1.0, 0.3], "wander": 0.3, "segment": 0.3, "min_keep": 0.3, "slack": 1.25, "prune": false
+    }
+  ],
+  "leaves": {"mode": "frond", "spacing": 0.35, "overlap": 2.0, "width": 0.7, "first": 0.05, "droop": -0.4, "cross": 0.5,
+             "leader": 0.06, "size": [1.0, 0.12], "size_min": 0.45, "ao": 0.4, "hue_var": 0.05, "light_var": 0.1,
+             "tint": [0.85, 0.9, 0.85], "cells": 2},
+  "budget": [1200, 2600]
+}

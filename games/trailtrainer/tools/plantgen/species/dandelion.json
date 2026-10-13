@@ -1,0 +1,64 @@
+{
+  "name": "dandelion",
+  "kind": "plant",
+  "about": "dandelions: a rosette of toothed leaves, several stems, yellow heads and a clock or two",
+  "form": "flower",
+  "stems": [
+    3,
+    7
+  ],
+  "spread": 0.18,
+  "height": [
+    0.15,
+    0.35
+  ],
+  "stem_radius": 0.004,
+  "lean": 12,
+  "wander": 0.4,
+  "leaves_page": "rosette",
+  "rosette": {
+    "cards": [
+      4,
+      7
+    ],
+    "height": [
+      0.12,
+      0.22
+    ],
+    "width": 0.35,
+    "lean": [
+      55,
+      85
+    ],
+    "spread": 0.02,
+    "cells": [
+      0,
+      1
+    ],
+    "ao": 0.2
+  },
+  "heads_page": "dandelion",
+  "head": {
+    "mode": "both",
+    "size": [
+      0.06,
+      0.09
+    ],
+    "cells": [
+      0,
+      0,
+      1,
+      1,
+      2,
+      3
+    ],
+    "tilt": [
+      15,
+      45
+    ]
+  },
+  "budget": [
+    60,
+    250
+  ]
+}

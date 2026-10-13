@@ -1,0 +1,190 @@
+{
+  "name": "mugo_pine",
+  "kind": "plant",
+  "form": "bush",
+  "about": "dwarf mountain pine: a dense dark conifer bush, several leaders, the tree line",
+  "height": [
+    1.7,
+    0.5
+  ],
+  "bark": "knotted",
+  "bark_tile": 0.55,
+  "leaves_page": "spruce",
+  "leaf_share": 0.6,
+  "trunk": {
+    "radius": [
+      0.02,
+      0.004
+    ],
+    "tip": 0.006,
+    "flare": 0.4,
+    "taper": [
+      1.0,
+      0.8,
+      0.6,
+      0.4,
+      0.2
+    ],
+    "tropism": 0.6,
+    "wander": 0.25,
+    "gnarl": 0.3,
+    "lean": [
+      0,
+      6
+    ],
+    "segment": 0.35,
+    "splits": {
+      "count": [
+        5,
+        1.5
+      ],
+      "at": [
+        0.1,
+        0.04
+      ],
+      "angle": [
+        35,
+        12
+      ],
+      "length": [
+        1.0,
+        0.2
+      ],
+      "extend": false
+    }
+  },
+  "envelope": {
+    "base": 0.0,
+    "top": 1.05,
+    "width": 0.6,
+    "profile": [
+      0.75,
+      0.95,
+      1.0,
+      0.95,
+      0.75,
+      0.35
+    ]
+  },
+  "levels": [
+    {
+      "name": "stems",
+      "distribution": "proportional",
+      "density": 2.6,
+      "first": 0.15,
+      "last": 0.97,
+      "min": 3,
+      "angle": {
+        "curve": [
+          62,
+          52,
+          40,
+          28
+        ],
+        "var": 14
+      },
+      "roll": {
+        "mode": "spiral",
+        "var": 30
+      },
+      "length": {
+        "curve": [
+          0.5,
+          0.65,
+          0.5,
+          0.25
+        ],
+        "var": 0.14
+      },
+      "radius": [
+        0.55,
+        0.1
+      ],
+      "tip": 0.004,
+      "taper": [
+        1.0,
+        0.75,
+        0.5,
+        0.2
+      ],
+      "tropism": {
+        "curve": [
+          0.5,
+          0.3,
+          0.1
+        ],
+        "var": 0.2
+      },
+      "wander": 0.5,
+      "gnarl": 0.4,
+      "segment": 0.3,
+      "knockout": 0.08,
+      "min_keep": 0.3,
+      "slack": 1.08
+    },
+    {
+      "name": "twigs",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 4.0,
+      "first": 0.1,
+      "last": 1.0,
+      "min": 3,
+      "angle": [
+        48,
+        16
+      ],
+      "roll": {
+        "mode": "alternate",
+        "var": 35
+      },
+      "length": {
+        "curve": [
+          0.45,
+          0.6,
+          0.45
+        ],
+        "var": 0.15
+      },
+      "radius": [
+        0.45,
+        0.1
+      ],
+      "tip": 0.003,
+      "tropism": [
+        0.3,
+        0.25
+      ],
+      "wander": 0.7,
+      "segment": 0.2,
+      "min_keep": 0.3,
+      "slack": 1.15
+    }
+  ],
+  "leaves": {
+    "mode": "frond",
+    "spacing": 0.128,
+    "overlap": 2.0,
+    "width": 0.8,
+    "first": 0.05,
+    "droop": 0.1,
+    "cross": 0.45,
+    "leader": 0.0,
+    "size": [
+      1.0,
+      0.15
+    ],
+    "size_min": 0.12,
+    "ao": 0.3,
+    "hue_var": 0.05,
+    "light_var": 0.12,
+    "tilt": 40,
+    "cells": 2
+  },
+  "budget": [
+    400,
+    1400
+  ],
+  "bark_from": "conifer",
+  "leaves_from": "conifer"
+}

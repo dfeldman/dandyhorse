@@ -1,0 +1,214 @@
+{
+  "name": "birch",
+  "kind": "deciduous",
+  "about": "silver birch: slender pale trunk, narrow airy crown, thin branches that rise and then hang in drooping twigs",
+  "height": [
+    15,
+    3
+  ],
+  "bark": "platanus",
+  "leaves_page": "light",
+  "bark_tile": 1.0,
+  "trunk": {
+    "radius": [
+      0.016,
+      0.002
+    ],
+    "tip": 0.012,
+    "flare": 0.4,
+    "taper": [
+      1.0,
+      0.85,
+      0.7,
+      0.5,
+      0.2
+    ],
+    "tropism": 0.35,
+    "wander": 0.1,
+    "gnarl": 0.1,
+    "lean": [
+      0,
+      6
+    ],
+    "segment": 0.9,
+    "splits": {
+      "count": [
+        1.4,
+        0.8
+      ],
+      "at": [
+        0.6,
+        0.1
+      ],
+      "angle": [
+        18,
+        6
+      ],
+      "length": [
+        1.0,
+        0.1
+      ],
+      "extend": true
+    }
+  },
+  "envelope": {
+    "base": 0.3,
+    "top": 1.05,
+    "width": 0.24,
+    "profile": [
+      0.4,
+      0.8,
+      1.0,
+      0.9,
+      0.6,
+      0.2
+    ]
+  },
+  "levels": [
+    {
+      "name": "boughs",
+      "distribution": "proportional",
+      "density": 2.0,
+      "first": 0.3,
+      "last": 0.98,
+      "min": 5,
+      "angle": {
+        "curve": [
+          55,
+          45,
+          35,
+          22
+        ],
+        "var": 10
+      },
+      "roll": {
+        "mode": "spiral",
+        "var": 25
+      },
+      "length": {
+        "curve": [
+          0.35,
+          0.45,
+          0.4,
+          0.2
+        ],
+        "var": 0.08
+      },
+      "radius": [
+        0.45,
+        0.08
+      ],
+      "tip": 0.008,
+      "tropism": {
+        "curve": [
+          0.6,
+          0.1,
+          -0.6
+        ],
+        "var": 0.15
+      },
+      "wander": 0.3,
+      "segment": 0.9,
+      "knockout": 0.1,
+      "min_keep": 0.4
+    },
+    {
+      "name": "branches",
+      "distribution": "proportional",
+      "density": 2.0,
+      "first": 0.2,
+      "last": 0.95,
+      "min": 2,
+      "angle": [
+        50,
+        15
+      ],
+      "roll": {
+        "mode": "alternate",
+        "var": 30
+      },
+      "length": {
+        "curve": [
+          0.5,
+          0.6,
+          0.45
+        ],
+        "var": 0.12
+      },
+      "radius": [
+        0.5,
+        0.1
+      ],
+      "tip": 0.005,
+      "tropism": {
+        "curve": [
+          0.1,
+          -0.5,
+          -1.0
+        ],
+        "var": 0.2
+      },
+      "wander": 0.5,
+      "segment": 0.7,
+      "knockout": 0.1
+    },
+    {
+      "name": "twigs",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 2.5,
+      "first": 0.1,
+      "last": 1.0,
+      "min": 2,
+      "angle": [
+        40,
+        15
+      ],
+      "roll": {
+        "mode": "alternate",
+        "var": 30
+      },
+      "length": {
+        "curve": [
+          0.5,
+          0.6,
+          0.5
+        ],
+        "var": 0.12
+      },
+      "radius": [
+        0.45,
+        0.1
+      ],
+      "tip": 0.003,
+      "tropism": [
+        -1.2,
+        0.3
+      ],
+      "wander": 0.5,
+      "segment": 0.4,
+      "min_keep": 0.3,
+      "slack": 1.1
+    }
+  ],
+  "leaves": {
+    "size": [
+      0.075,
+      0.015
+    ],
+    "aspect": 1.2,
+    "spacing": 0.3,
+    "tip": 2,
+    "first": 0.2,
+    "outward": 0.35,
+    "up": 0.0,
+    "droop": 0.5,
+    "ao": 0.3,
+    "hue_var": 0.08,
+    "cells": 2
+  },
+  "budget": [
+    2200,
+    4000
+  ]
+}

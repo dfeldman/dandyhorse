@@ -1,0 +1,43 @@
+{
+  "name": "goldenrod",
+  "kind": "plant",
+  "about": "goldenrod: yellow plumes on tall stems, late summer verges",
+  "form": "flower",
+  "stems": [
+    4,
+    10
+  ],
+  "spread": 0.3,
+  "height": [
+    0.6,
+    1.2
+  ],
+  "stem_radius": 0.005,
+  "lean": 10,
+  "wander": 0.2,
+  "leaves_page": "rosette",
+  "stem_leaves": [
+    1,
+    2
+  ],
+  "leaf_size": 0.12,
+  "leaf_cells": [
+    3
+  ],
+  "heads_page": "painted_spikes",
+  "head": {
+    "mode": "cross",
+    "size": [
+      0.25,
+      0.4
+    ],
+    "cells": [
+      1
+    ],
+    "aspect": 0.5
+  },
+  "budget": [
+    40,
+    300
+  ]
+}

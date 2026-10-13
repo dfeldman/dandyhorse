@@ -1,0 +1,166 @@
+{
+  "name": "black_pine",
+  "kind": "conifer",
+  "about": "black/mountain pine: dense, dark, broadly conical to rounded, crown from low on the trunk, stiff level limbs",
+  "extends": "scots_pine",
+  "height": [
+    16,
+    3
+  ],
+  "bark": "knotted",
+  "leaves_page": "spruce",
+  "trunk": {
+    "lean": [
+      0,
+      3
+    ],
+    "wander": 0.08,
+    "gnarl": 0.1,
+    "splits": {
+      "count": [
+        1.1,
+        0.5
+      ],
+      "at": [
+        0.75,
+        0.08
+      ],
+      "angle": [
+        25,
+        8
+      ]
+    }
+  },
+  "envelope": {
+    "base": 0.25,
+    "top": 1.04,
+    "width": 0.34,
+    "profile": [
+      0.85,
+      1.0,
+      0.95,
+      0.8,
+      0.55,
+      0.2
+    ]
+  },
+  "levels": [
+    {
+      "name": "limbs",
+      "distribution": "whorls",
+      "step": [
+        0.9,
+        0.2
+      ],
+      "per_whorl": [
+        5,
+        1.5
+      ],
+      "first": 0.28,
+      "last": 0.97,
+      "angle": {
+        "curve": [
+          85,
+          78,
+          65,
+          45
+        ],
+        "var": 10
+      },
+      "length_abs": {
+        "curve": [
+          0.28,
+          0.3,
+          0.24,
+          0.12
+        ],
+        "var": 0.04
+      },
+      "radius": [
+        0.4,
+        0.08
+      ],
+      "tip": 0.008,
+      "taper": [
+        1.0,
+        0.75,
+        0.5,
+        0.2
+      ],
+      "tropism": {
+        "curve": [
+          0.0,
+          0.2,
+          0.6
+        ],
+        "var": 0.15
+      },
+      "wander": 0.3,
+      "gnarl": 0.3,
+      "segment": 0.9,
+      "min_segments": 3,
+      "knockout": 0.08,
+      "min_keep": 0.35,
+      "slack": 1.08
+    },
+    {
+      "name": "tufts",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 2.6,
+      "first": 0.3,
+      "last": 1.0,
+      "min": 2,
+      "angle": [
+        50,
+        15
+      ],
+      "roll": {
+        "mode": "spiral",
+        "var": 30
+      },
+      "length": {
+        "curve": [
+          0.3,
+          0.4,
+          0.35
+        ],
+        "var": 0.1
+      },
+      "radius": [
+        0.4,
+        0.1
+      ],
+      "tip": 0.003,
+      "tropism": [
+        0.5,
+        0.3
+      ],
+      "wander": 0.4,
+      "segment": 0.4,
+      "min_keep": 0.3,
+      "slack": 1.15,
+      "prune": false
+    }
+  ],
+  "leaves": {
+    "mode": "frond",
+    "spacing": 0.8,
+    "overlap": 2.1,
+    "width": 0.7,
+    "first": 0.2,
+    "droop": -0.1,
+    "cross": 0.5,
+    "leader": 0.03,
+    "size": [
+      1.0,
+      0.12
+    ],
+    "size_min": 0.55,
+    "ao": 0.4,
+    "hue_var": 0.05,
+    "light_var": 0.1,
+    "cells": 2
+  },
+  "leaf_share": 0.62
+}

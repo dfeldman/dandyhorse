@@ -1,0 +1,62 @@
+{
+  "name": "mullein",
+  "kind": "plant",
+  "about": "mullein: one tall yellow spike over a big grey-green rosette",
+  "form": "flower",
+  "stems": [
+    1,
+    2
+  ],
+  "spread": 0.3,
+  "height": [
+    0.9,
+    1.8
+  ],
+  "stem_radius": 0.012,
+  "lean": 4,
+  "wander": 0.05,
+  "leaves_page": "broadleaf",
+  "stem_leaves": [
+    2,
+    4
+  ],
+  "leaf_size": 0.22,
+  "rosette": {
+    "cards": [
+      5,
+      8
+    ],
+    "height": [
+      0.25,
+      0.4
+    ],
+    "width": 0.6,
+    "lean": [
+      45,
+      80
+    ],
+    "spread": 0.05,
+    "ao": 0.2,
+    "tint": [
+      0.85,
+      0.9,
+      0.75
+    ]
+  },
+  "heads_page": "painted_spikes",
+  "head": {
+    "mode": "cross",
+    "size": [
+      0.45,
+      0.7
+    ],
+    "cells": [
+      2
+    ],
+    "aspect": 0.4
+  },
+  "budget": [
+    40,
+    250
+  ]
+}

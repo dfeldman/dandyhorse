@@ -1,0 +1,38 @@
+{
+  "name": "prairie_grass",
+  "kind": "plant",
+  "about": "tall bunch grass, a tussock of long blades, the prairie in one card",
+  "form": "tuft",
+  "page": "grass_tall",
+  "cards": [
+    6,
+    9
+  ],
+  "height": [
+    0.7,
+    1.3
+  ],
+  "width": 0.8,
+  "lean": [
+    8,
+    28
+  ],
+  "spread": 0.12,
+  "cross": 0.3,
+  "clumps": [
+    1,
+    3
+  ],
+  "clump_spread": 0.5,
+  "tint": [
+    1.0,
+    1.0,
+    0.95
+  ],
+  "light_var": 0.15,
+  "ao": 0.2,
+  "budget": [
+    30,
+    120
+  ]
+}

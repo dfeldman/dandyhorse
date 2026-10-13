@@ -1,0 +1,58 @@
+{
+  "name": "poppy",
+  "kind": "plant",
+  "about": "poppies: red cups on wiry stems, field edge and verge",
+  "form": "flower",
+  "stems": [
+    4,
+    10
+  ],
+  "spread": 0.3,
+  "height": [
+    0.3,
+    0.6
+  ],
+  "stem_radius": 0.003,
+  "lean": 15,
+  "wander": 0.5,
+  "leaves_page": "rosette",
+  "rosette": {
+    "cards": [
+      2,
+      4
+    ],
+    "height": [
+      0.1,
+      0.18
+    ],
+    "width": 0.4,
+    "lean": [
+      40,
+      75
+    ],
+    "spread": 0.03,
+    "cells": [
+      2
+    ],
+    "ao": 0.2
+  },
+  "heads_page": "painted_discs",
+  "head": {
+    "mode": "both",
+    "size": [
+      0.06,
+      0.09
+    ],
+    "cells": [
+      0
+    ],
+    "tilt": [
+      15,
+      50
+    ]
+  },
+  "budget": [
+    40,
+    300
+  ]
+}

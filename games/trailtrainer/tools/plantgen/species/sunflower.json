@@ -1,0 +1,46 @@
+{
+  "name": "sunflower",
+  "kind": "plant",
+  "about": "sunflowers, one to four stems, heads facing one way, big leaves up the stem",
+  "form": "flower",
+  "stems": [
+    1,
+    4
+  ],
+  "spread": 0.35,
+  "height": [
+    1.2,
+    2.2
+  ],
+  "stem_radius": 0.016,
+  "lean": 8,
+  "wander": 0.15,
+  "leaves_page": "broadleaf",
+  "stem_leaves": [
+    3,
+    6
+  ],
+  "leaf_size": 0.38,
+  "leaf_cells": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "heads_page": "painted_flowers",
+  "head": {
+    "mode": "facing",
+    "size": [
+      0.35,
+      0.5
+    ],
+    "cells": [
+      0,
+      1
+    ]
+  },
+  "budget": [
+    60,
+    300
+  ]
+}

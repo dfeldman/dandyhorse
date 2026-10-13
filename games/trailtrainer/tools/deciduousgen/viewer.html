@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Tree viewer</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #1c2230; color: #dde; font: 13px system-ui, sans-serif; }
+    canvas { width: 100%; height: 100%; display: block; outline: none; }
+    #hud { position: fixed; top: 8px; left: 8px; background: rgba(0,0,0,.55); padding: 8px 10px; border-radius: 6px; }
+    #hud select, #hud button { margin: 2px 4px 2px 0; }
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div id="hud">
+    <select id="tree"></select>
+    <select id="lod"><option value="0">LOD0</option><option value="1">LOD1</option><option value="2">LOD2</option><option value="all">all, side by side</option></select>
+    <label><input type="checkbox" id="wire" /> wireframe</label>
+    <div id="info"></div>
+  </div>
+  <script type="module">
+    // The tree viewer: loads a GLB out of public/trees/ the way the game will, with the same Babylon and
+    // the same loader, and shows one LOD at a time. Open it from the dev server:
+    //     http://localhost:5196/tools/deciduousgen/viewer.html?tree=oak_01
+    import { Engine, Scene, ArcRotateCamera, DirectionalLight, HemisphericLight, Vector3, Color4, Color3,
+             MeshBuilder, StandardMaterial, ShadowGenerator, SceneLoader } from '@babylonjs/core'
+    import '@babylonjs/loaders/glTF'
+
+    const canvas = document.getElementById('c')
+    const engine = new Engine(canvas, true)
+    const scene = new Scene(engine)
+    scene.clearColor = new Color4(0.55, 0.65, 0.8, 1)
+    const camera = new ArcRotateCamera('cam', -Math.PI / 2, 1.25, 40, new Vector3(0, 8, 0), scene)
+    camera.attachControl(canvas, true)
+    camera.wheelPrecision = 8
+    const sun = new DirectionalLight('sun', new Vector3(-0.5, -1, 0.4), scene)
+    sun.intensity = 2.2
+    sun.position = new Vector3(20, 40, -16)
+    const sky = new HemisphericLight('sky', new Vector3(0, 1, 0), scene)
+    sky.intensity = 0.7
+    sky.groundColor = new Color3(0.2, 0.25, 0.15)
+    const ground = MeshBuilder.CreateGround('ground', { width: 200, height: 200 }, scene)
+    const gm = new StandardMaterial('gm', scene)
+    gm.diffuseColor = new Color3(0.28, 0.34, 0.18)
+    gm.specularColor = Color3.Black()
+    ground.material = gm
+    ground.receiveShadows = true
+    const shadows = new ShadowGenerator(2048, sun)
+    shadows.usePercentageCloserFiltering = true
+    shadows.transparencyShadow = true
+
+    // ?lib=rocks shows public/rocks instead of public/trees
+    const lib = new URLSearchParams(location.search).get('lib') || 'trees'
+    const index = await (await fetch(`/${lib}/index.json`)).json()
+    const sel = document.getElementById('tree')
+    for (const t of index.trees) {
+      const o = document.createElement('option')
+      o.value = t.file.replace(/\.glb$/, '')
+      o.textContent = `${o.value}  ${t.season && t.season !== 'any' ? t.season + '  ' : ''}${t.height ?? t.size} m  ${t.lods.map(l => l.bark + l.leaves).join('/')} tris`
+      sel.appendChild(o)
+    }
+    const params = new URLSearchParams(location.search)
+    sel.value = params.get('tree') || sel.options[0].value
+    const lodSel = document.getElementById('lod')
+    lodSel.value = params.get('lod') || '0'
+    const wire = document.getElementById('wire')
+    let current = null
+
+    async function load() {
+      if (current) current.dispose()
+      const name = sel.value
+      current = await SceneLoader.LoadAssetContainerAsync(`/${lib}/`, name + '.glb', scene)
+      current.addAllToScene()
+      window.__scene = scene
+      window.__meshes = current.meshes.map(m => [m.name, m.getTotalIndices() / 3])
+      // Babylon loads a two-primitive glTF mesh as a transform node "LOD0" with children
+      // "LOD0_primitive0" (bark) and "LOD0_primitive1" (leaves); the node is what to enable per distance.
+      const lods = current.transformNodes.filter(n => /^LOD\d$/.test(n.name))
+      const want = lodSel.value
+      let tris = 0
+      for (const n of lods) {
+        const k = n.name.slice(3)
+        n.setEnabled(want === 'all' || want === k)
+        if (want === 'all') n.position.x = (Number(k) - (lods.length - 1) / 2) * 18
+        for (const m of n.getChildMeshes()) {
+          if (n.isEnabled()) tris += m.getTotalIndices() / 3
+          shadows.addShadowCaster(m)
+          m.receiveShadows = true
+        }
+      }
+      for (const m of current.meshes) m.material && (m.material.wireframe = wire.checked)
+      const root = current.transformNodes.find(n => n.name === name) || current.meshes.find(m => m.name === name)
+      const meta = root?.metadata?.gltf?.extras ?? {}
+      document.getElementById('info').textContent = `${lods.length} LODs, ${tris} triangles shown, ${meta.height ?? '?'} m, crown r ${meta.crown_radius ?? '?'} m`
+      window.__tree = { name, tris, lods: lods.map(n => [n.name, n.getChildMeshes().reduce((a, m) => a + m.getTotalIndices() / 3, 0), n.isEnabled()]), materials: scene.materials.map(m => m.name) }
+      const h = Number(meta.height) || (meta.bounds ? JSON.parse(meta.bounds).top * 2 : 15)
+      camera.target.y = h * 0.5
+      camera.radius = h * 2.4
+    }
+    sel.onchange = lodSel.onchange = wire.onchange = load
+    await load()
+    engine.runRenderLoop(() => scene.render())
+    addEventListener('resize', () => engine.resize())
+  </script>
+</body>
+</html>

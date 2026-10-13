@@ -1,0 +1,56 @@
+{
+  "name": "mossy",
+  "kind": "rock",
+  "about": "forest-floor rock, moss on every upper face",
+  "surface": "mossy",
+  "tile": 1.5,
+  "shapes": [
+    "round",
+    "egg",
+    "flat",
+    "slab",
+    "tall",
+    "long",
+    "block",
+    "shard",
+    "wedge",
+    "dome",
+    "lumpy",
+    "split"
+  ],
+  "shape_weights": [
+    3,
+    2,
+    3,
+    1,
+    1,
+    2,
+    1,
+    0.5,
+    2,
+    3,
+    3,
+    1
+  ],
+  "roughness": 0.14,
+  "tint": [
+    0.9,
+    0.95,
+    0.85
+  ],
+  "moss": 0.85,
+  "lichen": 0.2,
+  "boulders": [
+    1,
+    1
+  ],
+  "size": [
+    0.5,
+    1.4
+  ],
+  "detail": 0.04,
+  "budget": [
+    800,
+    4500
+  ]
+}

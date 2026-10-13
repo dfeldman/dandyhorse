@@ -1,0 +1,53 @@
+{
+  "name": "dark",
+  "kind": "rock",
+  "about": "dark stratified rock, breaks into blocks and shards",
+  "surface": "dark",
+  "tile": 1.5,
+  "shapes": [
+    "round",
+    "egg",
+    "flat",
+    "slab",
+    "tall",
+    "long",
+    "block",
+    "shard",
+    "wedge",
+    "dome",
+    "lumpy",
+    "split"
+  ],
+  "shape_weights": [
+    1,
+    0.5,
+    2,
+    3,
+    2,
+    2,
+    4,
+    3,
+    3,
+    1,
+    0.5,
+    2
+  ],
+  "roughness": 0.09,
+  "cuts_offset": 2,
+  "facet_offset": 0.3,
+  "moss": 0.05,
+  "lichen": 0.2,
+  "boulders": [
+    1,
+    1
+  ],
+  "size": [
+    0.5,
+    1.4
+  ],
+  "detail": 0.04,
+  "budget": [
+    800,
+    4500
+  ]
+}

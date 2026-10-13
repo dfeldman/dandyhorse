@@ -1,0 +1,38 @@
+{
+  "name": "meadow_tussock",
+  "kind": "plant",
+  "about": "a green tussock of long blades, the wet meadow",
+  "form": "tuft",
+  "page": "grass_tall",
+  "cards": [
+    6,
+    9
+  ],
+  "height": [
+    0.45,
+    0.8
+  ],
+  "width": 0.85,
+  "lean": [
+    8,
+    30
+  ],
+  "spread": 0.15,
+  "cross": 0.3,
+  "clumps": [
+    1,
+    2
+  ],
+  "clump_spread": 0.5,
+  "light_var": 0.12,
+  "ao": 0.2,
+  "budget": [
+    30,
+    120
+  ],
+  "tint": [
+    0.75,
+    0.95,
+    0.6
+  ]
+}

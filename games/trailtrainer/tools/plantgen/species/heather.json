@@ -1,0 +1,26 @@
+{
+  "name": "heather",
+  "kind": "plant",
+  "about": "heather: a low purple-flowered mat on woody stems, moor and mountain",
+  "form": "bush",
+  "page": "painted_heather",
+  "cards": [
+    14,
+    24
+  ],
+  "height": [
+    0.25,
+    0.5
+  ],
+  "width": [
+    0.4,
+    0.9
+  ],
+  "card": 0.9,
+  "cross": 0.6,
+  "ao": 0.2,
+  "budget": [
+    30,
+    200
+  ]
+}

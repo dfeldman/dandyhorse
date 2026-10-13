@@ -1,0 +1,52 @@
+{
+  "name": "cracked",
+  "kind": "rock",
+  "about": "orange-brown cracked sandstone, rounded and lumpy",
+  "surface": "cracked",
+  "tile": 1.6,
+  "shapes": [
+    "round",
+    "egg",
+    "flat",
+    "slab",
+    "tall",
+    "long",
+    "block",
+    "shard",
+    "wedge",
+    "dome",
+    "lumpy",
+    "split"
+  ],
+  "shape_weights": [
+    3,
+    3,
+    2,
+    1,
+    2,
+    2,
+    0.5,
+    0.5,
+    2,
+    3,
+    3,
+    1
+  ],
+  "roughness": 0.16,
+  "facet_offset": -0.1,
+  "moss": 0.0,
+  "lichen": 0.25,
+  "boulders": [
+    1,
+    1
+  ],
+  "size": [
+    0.5,
+    1.4
+  ],
+  "detail": 0.04,
+  "budget": [
+    800,
+    4500
+  ]
+}

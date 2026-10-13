@@ -1,0 +1,223 @@
+{
+  "name": "willow",
+  "kind": "deciduous",
+  "about": "weeping willow: short thick leaning trunk, boughs that rise and arch over, everything below them hanging straight down",
+  "height": [
+    14,
+    3
+  ],
+  "bark": "willow",
+  "leaves_page": "light",
+  "bark_tile": 1.5,
+  "trunk": {
+    "radius": [
+      0.04,
+      0.005
+    ],
+    "tip": 0.03,
+    "flare": 1.0,
+    "taper": [
+      1.0,
+      0.85,
+      0.7,
+      0.5,
+      0.3
+    ],
+    "tropism": 0.15,
+    "wander": 0.18,
+    "gnarl": 0.3,
+    "lean": [
+      6,
+      6
+    ],
+    "segment": 0.8,
+    "splits": {
+      "count": [
+        2.8,
+        1.0
+      ],
+      "at": [
+        0.3,
+        0.08
+      ],
+      "angle": [
+        38,
+        10
+      ],
+      "length": [
+        0.9,
+        0.15
+      ],
+      "extend": false
+    }
+  },
+  "envelope": {
+    "base": 0.35,
+    "top": 1.1,
+    "width": 0.5,
+    "profile": [
+      0.6,
+      0.85,
+      1.0,
+      1.0,
+      0.85,
+      0.5
+    ]
+  },
+  "levels": [
+    {
+      "name": "boughs",
+      "distribution": "proportional",
+      "density": 1.5,
+      "first": 0.4,
+      "last": 0.97,
+      "min": 4,
+      "angle": {
+        "curve": [
+          60,
+          50,
+          40,
+          30
+        ],
+        "var": 12
+      },
+      "roll": {
+        "mode": "spiral",
+        "var": 25
+      },
+      "length": {
+        "curve": [
+          0.55,
+          0.7,
+          0.6,
+          0.35
+        ],
+        "var": 0.12
+      },
+      "radius": [
+        0.6,
+        0.08
+      ],
+      "tip": 0.012,
+      "tropism": {
+        "curve": [
+          0.8,
+          0.6,
+          0.1,
+          -0.5,
+          -1.2
+        ],
+        "var": 0.15
+      },
+      "wander": 0.3,
+      "gnarl": 0.3,
+      "segment": 1.0,
+      "knockout": 0.08,
+      "min_keep": 0.4,
+      "slack": 1.1
+    },
+    {
+      "name": "branches",
+      "distribution": "proportional",
+      "density": 1.6,
+      "first": 0.45,
+      "last": 1.0,
+      "min": 2,
+      "angle": [
+        55,
+        15
+      ],
+      "roll": {
+        "mode": "alternate",
+        "var": 30
+      },
+      "length": {
+        "curve": [
+          0.5,
+          0.65,
+          0.5
+        ],
+        "var": 0.12
+      },
+      "radius": [
+        0.5,
+        0.1
+      ],
+      "tip": 0.005,
+      "tropism": {
+        "curve": [
+          0.2,
+          -1.2,
+          -2.0
+        ],
+        "var": 0.2
+      },
+      "wander": 0.25,
+      "segment": 0.8,
+      "knockout": 0.1,
+      "slack": 1.15,
+      "min_keep": 0.3,
+      "prune": false
+    },
+    {
+      "name": "twigs",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 2.4,
+      "first": 0.3,
+      "last": 1.0,
+      "min": 2,
+      "angle": [
+        30,
+        12
+      ],
+      "roll": {
+        "mode": "alternate",
+        "var": 30
+      },
+      "length": {
+        "curve": [
+          0.6,
+          0.7,
+          0.6
+        ],
+        "var": 0.15
+      },
+      "radius": [
+        0.45,
+        0.1
+      ],
+      "tip": 0.003,
+      "tropism": [
+        -2.5,
+        0.4
+      ],
+      "wander": 0.2,
+      "segment": 0.5,
+      "min_keep": 0.3,
+      "slack": 1.2,
+      "prune": false
+    }
+  ],
+  "leaves": {
+    "size": [
+      0.08,
+      0.012
+    ],
+    "aspect": 1.7,
+    "spacing": 0.3,
+    "tip": 2,
+    "first": 0.2,
+    "outward": 0.15,
+    "up": 0.0,
+    "droop": 0.8,
+    "anchor": 0.0,
+    "ao": 0.3,
+    "hue_var": 0.06,
+    "cells": 2
+  },
+  "budget": [
+    2500,
+    4800
+  ]
+}

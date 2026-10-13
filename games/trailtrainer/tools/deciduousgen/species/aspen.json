@@ -1,0 +1,26 @@
+{
+  "name": "aspen",
+  "about": "quaking aspen: slim pale trunk, small rounded crown high up, light trembling foliage",
+  "extends": "birch",
+  "height": [13, 3],
+  "trunk": {"radius": [0.015, 0.002], "wander": 0.06, "lean": [0, 4],
+            "splits": {"count": [1.2, 0.6], "at": [0.65, 0.1], "angle": [16, 5]}},
+  "envelope": {"base": 0.45, "top": 1.05, "width": 0.22, "profile": [0.5, 0.85, 1.0, 0.95, 0.7, 0.3]},
+  "levels": [
+    {"name": "boughs", "distribution": "proportional", "density": 2.2, "first": 0.45, "last": 0.98, "min": 5,
+     "angle": {"curve": [55, 48, 38, 25], "var": 10}, "roll": {"mode": "spiral", "var": 25},
+     "length": {"curve": [0.3, 0.4, 0.35, 0.18], "var": 0.08}, "radius": [0.45, 0.08], "tip": 0.008,
+     "tropism": {"curve": [0.5, 0.3, 0.1], "var": 0.15}, "wander": 0.3, "segment": 0.8, "knockout": 0.1, "min_keep": 0.4},
+    {"name": "branches", "distribution": "proportional", "density": 2.2, "first": 0.2, "last": 0.95, "min": 2,
+     "angle": [50, 15], "roll": {"mode": "alternate", "var": 30},
+     "length": {"curve": [0.5, 0.6, 0.45], "var": 0.12}, "radius": [0.5, 0.1], "tip": 0.005,
+     "tropism": {"curve": [0.3, 0.1, 0.0], "var": 0.15}, "wander": 0.5, "segment": 0.6, "knockout": 0.1},
+    {"name": "twigs", "mesh": false, "distribution": "proportional", "density": 2.5, "first": 0.1, "last": 1.0, "min": 2,
+     "angle": [45, 15], "roll": {"mode": "alternate", "var": 30},
+     "length": {"curve": [0.5, 0.6, 0.5], "var": 0.12}, "radius": [0.45, 0.1], "tip": 0.003,
+     "tropism": [0.1, 0.3], "wander": 0.5, "segment": 0.4, "min_keep": 0.3, "slack": 1.1}
+  ],
+  "leaves": {"size": [0.08, 0.015], "aspect": 1.0, "spacing": 0.3, "tip": 2, "first": 0.2, "outward": 0.45, "up": 0.3,
+             "droop": 0.0, "ao": 0.3, "hue_var": 0.09, "cells": 2},
+  "budget": [2000, 3800]
+}

@@ -1,0 +1,77 @@
+{
+  "comment": "Reference spots for the screenshot harness. Each one is somewhere a change to the scenery has to be judged: a biome, a surface, a landform. Keep them stable \u2014 the whole point is that today's frame is comparable with the one taken before a change.",
+  "width": 1280,
+  "height": 800,
+  "spots": [
+    {
+      "route": "alpe-dhuez",
+      "s": 300,
+      "why": "valley floor at Bourg-d'Oisans: river biome, the climb ahead"
+    },
+    {
+      "route": "alpe-dhuez",
+      "s": 2450,
+      "why": "forest on a 8% slope: asphalt, painted line, shoulder"
+    },
+    {
+      "route": "alpe-dhuez",
+      "s": 3835,
+      "why": "hairpin apex: where the two ground rings disagree most"
+    },
+    {
+      "route": "alpe-dhuez",
+      "s": 6000,
+      "why": "Roche du Regardet: rock bands, scree, the valley below"
+    },
+    {
+      "route": "alpe-dhuez",
+      "s": 7570,
+      "why": "road cut with the hillside above it, the worst far-ring case measured"
+    },
+    {
+      "route": "alpe-dhuez",
+      "s": 9500,
+      "why": "mountain conifers thinning toward the tree line"
+    },
+    {
+      "route": "alpe-dhuez",
+      "s": 13200,
+      "why": "alpine plateau: turf, rock, and the snow line on the far ring"
+    },
+    {
+      "route": "alpe-dhuez",
+      "s": 13900,
+      "why": "the Grandes Rousses across the valley, above the snow line"
+    },
+    {
+      "route": "katy-trail",
+      "s": 5000,
+      "why": "open prairie: flat, big sky, limestone surface"
+    },
+    {
+      "route": "katy-trail",
+      "s": 112000,
+      "why": "dense forest either side, canopy over the trail"
+    },
+    {
+      "route": "katy-trail",
+      "s": 215000,
+      "why": "river bottom: big broadleaf, the Missouri's floodplain"
+    },
+    {
+      "route": "alpe-dhuez",
+      "s": 8700,
+      "why": "a mountain torrent beside the road"
+    },
+    {
+      "route": "katy-trail",
+      "s": 368400,
+      "why": "open water ahead: the Missouri across the view, reflections and the far bank"
+    },
+    {
+      "route": "katy-trail",
+      "s": 196800,
+      "why": "a lake beside the trail in the river bottom"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "bush_flowering",
+  "kind": "plant",
+  "about": "a shrub in flower, pink and yellow heads over the leaves",
+  "form": "bush",
+  "page": "tree:light",
+  "cards": [
+    12,
+    22
+  ],
+  "height": [
+    0.7,
+    1.5
+  ],
+  "width": [
+    0.6,
+    1.2
+  ],
+  "card": 0.7,
+  "cross": 0.6,
+  "ao": 0.35,
+  "heads_page": "wildflower",
+  "flowers": {
+    "count": [
+      6,
+      14
+    ],
+    "size": [
+      0.06,
+      0.1
+    ]
+  },
+  "budget": [
+    30,
+    250
+  ],
+  "cells": [
+    0,
+    1,
+    2,
+    3
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "name": "clover",
+  "kind": "plant",
+  "about": "a clover patch: a low mat of round leaves with a few pale heads",
+  "form": "bush",
+  "page": "broadleaf",
+  "cells": [
+    1,
+    3
+  ],
+  "cards": [
+    12,
+    22
+  ],
+  "height": [
+    0.12,
+    0.22
+  ],
+  "width": [
+    0.3,
+    0.6
+  ],
+  "card": 0.9,
+  "cross": 0.4,
+  "ao": 0.15,
+  "heads_page": "wildflower",
+  "flowers": {
+    "count": [
+      3,
+      7
+    ],
+    "size": [
+      0.03,
+      0.05
+    ],
+    "cells": [
+      2,
+      3
+    ]
+  },
+  "budget": [
+    20,
+    120
+  ]
+}

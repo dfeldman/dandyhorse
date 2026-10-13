@@ -1,0 +1,152 @@
+{
+  "name": "larch",
+  "kind": "conifer",
+  "about": "European larch: an open, airy cone, whorled branches that sweep down then up, fine light-green sprays; the one conifer that turns gold and drops",
+  "extends": "spruce",
+  "height": [
+    24,
+    5
+  ],
+  "bark": "pine",
+  "leaves_page": "larch",
+  "envelope": {
+    "base": 0.12,
+    "top": 1.0,
+    "width": 0.22,
+    "profile": [
+      0.9,
+      0.9,
+      0.78,
+      0.6,
+      0.42,
+      0.24,
+      0.05
+    ]
+  },
+  "levels": [
+    {
+      "name": "whorls",
+      "distribution": "whorls",
+      "step": [
+        0.8,
+        0.12
+      ],
+      "per_whorl": [
+        6,
+        1.5
+      ],
+      "first": 0.14,
+      "last": 0.97,
+      "angle": {
+        "curve": [
+          100,
+          95,
+          85,
+          70,
+          55
+        ],
+        "var": 10
+      },
+      "length_abs": {
+        "curve": [
+          0.2,
+          0.2,
+          0.16,
+          0.11,
+          0.06,
+          0.02
+        ],
+        "var": 0.03
+      },
+      "radius": [
+        0.3,
+        0.05
+      ],
+      "tip": 0.006,
+      "taper": [
+        1.0,
+        0.7,
+        0.4,
+        0.15
+      ],
+      "tropism": {
+        "curve": [
+          -0.6,
+          -0.3,
+          0.3,
+          0.7
+        ],
+        "var": 0.2
+      },
+      "wander": 0.2,
+      "segment": 1.4,
+      "min_segments": 2,
+      "knockout": 0.1,
+      "min_keep": 0.3,
+      "slack": 1.1
+    },
+    {
+      "name": "sprays",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 2.2,
+      "first": 0.2,
+      "last": 0.95,
+      "min": 1,
+      "angle": [
+        60,
+        15
+      ],
+      "roll": {
+        "mode": "alternate",
+        "var": 25
+      },
+      "length": {
+        "curve": [
+          0.3,
+          0.35,
+          0.25
+        ],
+        "var": 0.08
+      },
+      "radius": [
+        0.4,
+        0.1
+      ],
+      "tip": 0.003,
+      "tropism": [
+        -1.2,
+        0.4
+      ],
+      "wander": 0.3,
+      "segment": 0.4,
+      "min_keep": 0.3,
+      "slack": 1.15,
+      "prune": false
+    }
+  ],
+  "leaves": {
+    "mode": "frond",
+    "spacing": 0.95,
+    "overlap": 2.3,
+    "width": 0.75,
+    "first": 0.1,
+    "droop": 0.35,
+    "cross": 0.4,
+    "leader": 0.04,
+    "size": [
+      1.0,
+      0.15
+    ],
+    "size_min": 0.5,
+    "ao": 0.25,
+    "hue_var": 0.06,
+    "light_var": 0.15,
+    "cells": 2
+  },
+  "budget": [
+    2000,
+    4000
+  ],
+  "leaf_share": 0.68
+}

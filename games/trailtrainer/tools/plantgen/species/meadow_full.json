@@ -1,0 +1,33 @@
+{
+  "name": "meadow_full",
+  "kind": "plant",
+  "about": "a fuller meadow clump with long blades through it",
+  "form": "tuft",
+  "page": "grass_meadow",
+  "cards": [
+    6,
+    10
+  ],
+  "height": [
+    0.3,
+    0.6
+  ],
+  "width": 1.3,
+  "lean": [
+    10,
+    35
+  ],
+  "spread": 0.15,
+  "cross": 0.3,
+  "clumps": [
+    1,
+    3
+  ],
+  "clump_spread": 0.5,
+  "light_var": 0.12,
+  "ao": 0.2,
+  "budget": [
+    30,
+    120
+  ]
+}

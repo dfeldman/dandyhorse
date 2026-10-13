@@ -1,0 +1,44 @@
+{
+  "name": "trailtrainer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build && node tools/link-assets.js dist",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "bake": "node tools/bake.ts",
+    "profile": "node tools/profile.ts",
+    "shots": "node --experimental-strip-types tools/shots.ts",
+    "textures": "node --experimental-strip-types tools/textures.ts",
+    "canopies": "node --experimental-strip-types tools/canopies.ts",
+    "trees": "blender -b -P tools/deciduousgen/gen.py --",
+    "trees:textures": "python3 tools/deciduousgen/fetch.py && python3 tools/deciduousgen/pages.py",
+    "conifers": "blender -b -P tools/conifergen/gen.py --",
+    "conifers:textures": "python3 tools/conifergen/fetch.py && python3 tools/conifergen/pages.py",
+    "rocks": "blender -b -P tools/rockgen/gen.py --",
+    "rocks:textures": "python3 tools/rockgen/fetch.py",
+    "plants": "blender -b -P tools/plantgen/gen.py --",
+    "bushes": "blender -b -P tools/bushgen/gen.py --",
+    "plants:textures": "python3 tools/plantgen/fetch.py && python3 tools/plantgen/paint.py && python3 tools/plantgen/pages.py",
+    "water": "node --experimental-strip-types tools/water.ts",
+    "look": "node --experimental-strip-types tools/look.ts",
+    "bench": "node --experimental-strip-types tools/bench.ts",
+    "stutter": "node tools/stutter.mjs"
+  },
+  "dependencies": {
+    "@babylonjs/core": "9.26.0",
+    "@babylonjs/loaders": "^9.26.0",
+    "@dandyhorse/avatarkit": "file:../dandyhorse/libs/avatarkit"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "playwright": "^1.63.0",
+    "pngjs": "^7.0.0",
+    "typescript": "^5.8",
+    "vite": "^7",
+    "vitest": "^3.2"
+  }
+}

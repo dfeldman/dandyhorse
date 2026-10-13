@@ -1,0 +1,158 @@
+{
+  "name": "sapling",
+  "about": "a young broadleaf of no particular species, for hedgerows and roadside edges: whippy trunk, light open crown",
+  "extends": "maple",
+  "height": [
+    5,
+    1.2
+  ],
+  "bark": "brown",
+  "leaves_page": "broad",
+  "bark_tile": 0.8,
+  "trunk": {
+    "radius": [
+      0.018,
+      0.003
+    ],
+    "flare": 0.3,
+    "wander": 0.15,
+    "lean": [
+      0,
+      6
+    ],
+    "segment": 0.5,
+    "splits": {
+      "count": [
+        1.1,
+        0.5
+      ],
+      "at": [
+        0.5,
+        0.1
+      ],
+      "angle": [
+        26,
+        8
+      ]
+    }
+  },
+  "envelope": {
+    "base": 0.18,
+    "top": 1.08,
+    "width": 0.4,
+    "profile": [
+      0.45,
+      0.8,
+      1.0,
+      1.0,
+      0.8,
+      0.4
+    ]
+  },
+  "leaves": {
+    "size": [
+      0.14,
+      0.02
+    ],
+    "spacing": 0.18,
+    "tip": 3,
+    "first": 0.15,
+    "bough_first": 0.3,
+    "outward": 0.4,
+    "up": 0.3,
+    "ao": 0.25,
+    "hue_var": 0.08,
+    "cells": 2
+  },
+  "budget": [
+    300,
+    1600
+  ],
+  "levels": [
+    {
+      "name": "boughs",
+      "distribution": "proportional",
+      "density": 3.2,
+      "first": 0.2,
+      "last": 0.98,
+      "min": 6,
+      "angle": {
+        "curve": [
+          60,
+          52,
+          40,
+          28
+        ],
+        "var": 12
+      },
+      "roll": {
+        "mode": "spiral",
+        "var": 25
+      },
+      "length": {
+        "curve": [
+          0.45,
+          0.6,
+          0.55,
+          0.3
+        ],
+        "var": 0.1
+      },
+      "radius": [
+        0.5,
+        0.08
+      ],
+      "tip": 0.006,
+      "tropism": {
+        "curve": [
+          0.5,
+          0.3,
+          0.1
+        ],
+        "var": 0.15
+      },
+      "wander": 0.4,
+      "segment": 0.4,
+      "knockout": 0.05,
+      "min_keep": 0.35
+    },
+    {
+      "name": "twigs",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 4.0,
+      "first": 0.15,
+      "last": 1.0,
+      "min": 3,
+      "angle": [
+        48,
+        15
+      ],
+      "roll": {
+        "mode": "alternate",
+        "var": 30
+      },
+      "length": {
+        "curve": [
+          0.5,
+          0.6,
+          0.45
+        ],
+        "var": 0.15
+      },
+      "radius": [
+        0.45,
+        0.1
+      ],
+      "tip": 0.003,
+      "tropism": [
+        0.3,
+        0.2
+      ],
+      "wander": 0.6,
+      "segment": 0.25,
+      "min_keep": 0.3,
+      "slack": 1.15
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "lupine",
+  "kind": "plant",
+  "about": "lupines: purple flower spikes over palmate leaves",
+  "form": "flower",
+  "stems": [
+    3,
+    8
+  ],
+  "spread": 0.25,
+  "height": [
+    0.4,
+    0.8
+  ],
+  "stem_radius": 0.006,
+  "lean": 8,
+  "wander": 0.15,
+  "leaves_page": "broadleaf",
+  "stem_leaves": [
+    1,
+    3
+  ],
+  "leaf_size": 0.14,
+  "rosette": {
+    "cards": [
+      3,
+      6
+    ],
+    "height": [
+      0.15,
+      0.25
+    ],
+    "width": 0.9,
+    "lean": [
+      40,
+      70
+    ],
+    "spread": 0.04,
+    "ao": 0.2
+  },
+  "heads_page": "painted_spikes",
+  "head": {
+    "mode": "cross",
+    "size": [
+      0.22,
+      0.32
+    ],
+    "cells": [
+      0
+    ],
+    "aspect": 0.45
+  },
+  "budget": [
+    40,
+    300
+  ]
+}

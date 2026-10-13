@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trail Trainer</title>
+<style>
+  :root {
+    --ink: #10161d;
+    --paper: #f6f3ea;
+    --line: rgba(16, 22, 29, 0.14);
+    --accent: #c8482f;
+    --panel: rgba(246, 243, 234, 0.93);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #9fd3ff; color: var(--ink);
+    font: 15px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  #c { width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+
+  /* ---- heads-up display ---- */
+  #hud { position: fixed; inset: 0; pointer-events: none; display: none; }
+  #hud.on { display: block; }
+  /* the screenshot harness (tools/shots.ts) wants a frame of the world, not of the readouts over it */
+  body.shooting #hud, body.shooting #start, body.shooting #loading, body.shooting #banner { display: none !important; }
+  .card { position: absolute; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 14px; backdrop-filter: blur(6px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13); }
+  #readout { top: 16px; left: 16px; display: grid; grid-template-columns: repeat(5, auto); gap: 2px 22px; }
+  /* speed is what a rider actually watches, so it is read first and from further away than the rest */
+  #readout .k.lead { opacity: 0.75; }
+  #readout .v.lead { font-size: 42px; font-weight: 700; letter-spacing: -0.01em; }
+  #readout .k { font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase; opacity: 0.55; }
+  #readout .v { font-size: 26px; font-variant-numeric: tabular-nums; line-height: 1.1; font-weight: 600; }
+  #readout .u { font-size: 12px; opacity: 0.55; font-weight: 400; margin-left: 2px; }
+
+  #where { top: 16px; right: 16px; text-align: right; max-width: 280px; }
+  #where .name { font-weight: 650; }
+  #where .sub { font-size: 12px; opacity: 0.6; }
+  #where .next { font-size: 12.5px; margin-top: 6px; }
+
+  #machine { bottom: 16px; right: 16px; font-size: 12.5px; text-align: right; }
+  #machine b { font-variant-numeric: tabular-nums; }
+  #machine .note { opacity: 0.6; }
+
+  /* ---- the progress bar: the whole route, and where you are on it ---- */
+  #route { left: 50%; transform: translateX(-50%); bottom: 12px; width: min(560px, 70vw); padding: 7px 12px 8px; }
+  #route .head { display: flex; justify-content: space-between; font-size: 11px; opacity: 0.68; margin-bottom: 3px; }
+  #profile { display: block; width: 100%; height: 30px; }
+  #route .foot { display: flex; justify-content: space-between; font-size: 10.5px; opacity: 0.5; margin-top: 1px; }
+
+  /* ---- start screen ---- */
+  #start { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px;
+    background: linear-gradient(160deg, #cfe6f7, #eef1e4 55%, #e5dccb); overflow: auto; }
+  #start.off { display: none; }
+  .sheet { background: var(--paper); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(16,22,29,0.22); width: min(820px, 100%); overflow: hidden; }
+  .sheet header { padding: 26px 30px 18px; border-bottom: 1px solid var(--line); }
+  .sheet h1 { margin: 0; font-size: 30px; letter-spacing: -0.02em; }
+  .sheet header p { margin: 8px 0 0; opacity: 0.68; max-width: 56ch; font-size: 14px; }
+  .routes { display: grid; gap: 1px; background: var(--line); }
+  .route { background: var(--paper); border: 0; text-align: left; padding: 18px 30px; cursor: pointer;
+    display: grid; grid-template-columns: 1fr auto; gap: 4px 20px; font: inherit; color: inherit; }
+  .route:hover, .route:focus-visible { background: #fffdf7; outline: none; }
+  .route h2 { margin: 0; font-size: 18px; }
+  .route .where { font-size: 12.5px; opacity: 0.6; }
+  .route .blurb { grid-column: 1 / -1; font-size: 13px; opacity: 0.78; margin: 4px 0 0; max-width: 62ch; }
+  .route .nums { text-align: right; font-size: 12.5px; font-variant-numeric: tabular-nums; opacity: 0.75; white-space: nowrap; }
+  .route .bar { grid-column: 1 / -1; height: 5px; background: rgba(16,22,29,0.1); border-radius: 3px; margin-top: 10px; overflow: hidden; }
+  .route .bar i { display: block; height: 100%; background: var(--accent); }
+  .route .resume { grid-column: 1 / -1; font-size: 12.5px; margin-top: 7px; color: var(--accent); font-weight: 600; }
+  .sheet footer { padding: 16px 30px 22px; border-top: 1px solid var(--line); display: flex;
+    gap: 12px 26px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .seg button { font: inherit; border: 0; background: transparent; padding: 7px 14px; cursor: pointer; color: inherit; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .credit { font-size: 11px; opacity: 0.5; line-height: 1.5; padding: 0 30px 20px; }
+  .credit a { color: inherit; }
+
+  /* ---- resume / start-over choice ---- */
+  #choice { position: fixed; inset: 0; display: none; place-items: center; background: rgba(16,22,29,0.5); padding: 24px; }
+  #choice.on { display: grid; }
+  #choice .sheet { width: min(460px, 100%); }
+  #choice .body { padding: 24px 30px; }
+  #choice h2 { margin: 0 0 8px; font-size: 21px; }
+  #choice p { margin: 0 0 18px; opacity: 0.72; font-size: 14px; }
+  #choice .row { display: flex; gap: 10px; }
+  .btn { font: inherit; border: 1px solid var(--line); background: var(--paper); border-radius: 8px;
+    padding: 10px 16px; cursor: pointer; color: inherit; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+  #loading { position: fixed; inset: 0; display: none; place-items: center; background: #cfe6f7; font-size: 15px; }
+  #loading.on { display: grid; }
+  #banner { position: fixed; left: 50%; top: 34%; transform: translateX(-50%); display: none;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px 34px; text-align: center;
+    box-shadow: 0 18px 44px rgba(0,0,0,0.2); }
+  #banner.on { display: block; }
+  /* The map. Nothing in it is clickable: whoever is riding has both hands on the bars, so it shows everything
+     at once at two scales rather than asking to be panned. */
+  #map { position: fixed; right: 16px; top: 16px; display: none; padding: 10px 10px 4px;
+         background: rgba(16,22,29,0.82); border-radius: 12px; backdrop-filter: blur(8px);
+         box-shadow: 0 10px 40px rgba(0,0,0,0.35); }
+  #map.on { display: block; }
+  #map canvas { display: block; width: 400px; height: 520px; }
+  #map .hint { font-size: 10.5px; opacity: 0.5; text-align: right; padding: 4px 2px 2px; letter-spacing: 0.05em; }
+  body.shooting #map { display: none !important; }
+  /* Passing a place. Big, brief and central, and gone before it is in the way: this is a moment rather than a
+     readout, so it plays once, animates out of its own accord, and never has to be dismissed.
+
+     It sits on a card of its own. Set as bare text over the scene it was unreadable, and no amount of shadow
+     fixes that — the background behind it is a whole landscape, bright in some places and dark in others, and
+     text over a moving picture needs something solid behind it rather than a better outline. */
+  #passed { position: fixed; left: 50%; top: 20%; transform: translateX(-50%); text-align: center;
+            opacity: 0; pointer-events: none; padding: 18px 40px 16px; border-radius: 18px;
+            background: rgba(246,243,234,0.94); color: #10161d;
+            box-shadow: 0 16px 50px rgba(0,0,0,0.35); min-width: 260px; }
+  #passed.on { animation: passed 3.4s ease-out forwards; }
+  #passed .glyph { font-size: 60px; line-height: 1; }
+  #passed .name { font-size: 34px; font-weight: 700; margin-top: 2px; letter-spacing: -0.01em; }
+  #passed .sub { font-size: 12.5px; opacity: 0.6; margin-top: 6px; letter-spacing: 0.09em; text-transform: uppercase; }
+  @keyframes passed {
+    0%   { opacity: 0; transform: translateX(-50%) scale(0.86); }
+    12%  { opacity: 1; transform: translateX(-50%) scale(1.04); }
+    22%  { opacity: 1; transform: translateX(-50%) scale(1); }
+    78%  { opacity: 1; transform: translateX(-50%) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) scale(1.02) translateY(-14px); }
+  }
+  body.shooting #passed { display: none !important; }
+  #banner h2 { margin: 0 0 6px; font-size: 24px; }
+  #banner p { margin: 0; opacity: 0.7; font-size: 13.5px; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<!-- the screenshot harness (tools/shots.ts) sets this on <body> so a reference frame is of the world, not the readouts -->
+
+<div id="hud">
+  <div class="card" id="readout">
+    <div class="k lead">Speed</div><div class="k">Distance</div><div class="k">Elevation</div><div class="k">Grade</div><div class="k" id="effortK">Power</div>
+    <div class="v lead"><span id="vSpeed">0.0</span><span class="u" id="uSpeed">km/h</span></div>
+    <div class="v"><span id="vDist">0.0</span><span class="u" id="uDist">km</span></div>
+    <div class="v"><span id="vEle">0</span><span class="u">m</span></div>
+    <div class="v"><span id="vGrade">0.0</span><span class="u">%</span></div>
+    <div class="v"><span id="vEffort">0</span><span class="u" id="uEffort">W</span></div>
+  </div>
+
+  <div class="card" id="where">
+    <div class="name" id="wName">—</div>
+    <div class="sub" id="wSub">—</div>
+    <div class="next" id="wNext"></div>
+  </div>
+
+  <div class="card" id="machine">
+    <div>asking for <b id="mReq">0.0%</b></div>
+    <div class="note" id="mNote"></div>
+  </div>
+
+  <div class="card" id="route">
+    <div class="head"><span id="rName">—</span><span id="rDone">0%</span></div>
+    <canvas id="profile" width="1240" height="96"></canvas>
+    <div class="foot"><span id="rStart">0</span><span id="rEnd">—</span></div>
+  </div>
+</div>
+
+<div id="start">
+  <div class="sheet">
+    <header>
+      <h1>Trail Trainer</h1>
+      <p>Real routes, ridden as they are. The shape and the climbing come from open map and elevation data;
+         the scenery is drawn from it. Routes take hours, so stop whenever you like and pick up where you left off.</p>
+    </header>
+    <div class="routes" id="routeList"></div>
+    <footer>
+      <span>Machine</span>
+      <span class="seg" id="deviceSeg">
+        <button data-device="bike" aria-pressed="true">Bike</button>
+        <button data-device="treadmill" aria-pressed="false">Treadmill</button>
+      </span>
+      <span style="opacity:0.6">Arrows set the effort · Space coasts · P pauses</span>
+    </footer>
+    <div class="credit" id="credit"></div>
+  </div>
+</div>
+
+<div id="choice">
+  <div class="sheet">
+    <div class="body">
+      <h2 id="cTitle">Pick up where you left off?</h2>
+      <p id="cBody">—</p>
+      <div class="row">
+        <button class="btn primary" id="cResume">Resume</button>
+        <button class="btn" id="cRestart">Start from the beginning</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="loading"><div id="loadingText">Loading the route…</div></div>
+<!-- the whole route from above; M shows and hides it (src/ui/minimap.ts) -->
+<div id="map"><canvas id="mapCanvas" width="800" height="1040"></canvas><div class="hint">M closes the map</div></div>
+
+<div id="banner"><h2 id="bTitle">—</h2><p id="bBody">—</p></div>
+
+<!-- what a rider sees the moment they ride under a landmark's gate (render/markers.ts) -->
+<div id="passed"><div class="glyph" id="pGlyph">▲</div><div class="name" id="pName">—</div><div class="sub" id="pSub">—</div></div>
+
+<script type="module" src="./src/main.ts"></script>
+</body>
+</html>

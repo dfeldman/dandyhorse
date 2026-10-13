@@ -1,0 +1,52 @@
+{
+  "name": "tulip",
+  "kind": "plant",
+  "about": "tulips: upright cups on straight stems with a pair of long leaves",
+  "form": "flower",
+  "stems": [
+    3,
+    9
+  ],
+  "spread": 0.25,
+  "height": [
+    0.3,
+    0.5
+  ],
+  "stem_radius": 0.005,
+  "lean": 6,
+  "wander": 0.1,
+  "leaves_page": "rosette",
+  "rosette": {
+    "cards": [
+      2,
+      3
+    ],
+    "height": [
+      0.2,
+      0.3
+    ],
+    "width": 0.3,
+    "lean": [
+      15,
+      40
+    ],
+    "spread": 0.02,
+    "cells": [
+      3
+    ],
+    "ao": 0.15
+  },
+  "heads_page": "painted_tulips",
+  "head": {
+    "mode": "cross",
+    "size": [
+      0.05,
+      0.07
+    ],
+    "aspect": 0.7
+  },
+  "budget": [
+    60,
+    300
+  ]
+}

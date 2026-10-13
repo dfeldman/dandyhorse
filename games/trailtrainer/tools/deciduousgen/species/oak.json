@@ -1,0 +1,231 @@
+{
+  "name": "oak",
+  "kind": "deciduous",
+  "about": "English/white oak: short massive trunk that forks low, wide crown, heavy crooked boughs that reach out and level off",
+  "height": [
+    17,
+    3
+  ],
+  "bark": "oak",
+  "leaves_page": "broad",
+  "bark_tile": 1.6,
+  "trunk": {
+    "radius": [
+      0.036,
+      0.004
+    ],
+    "tip": 0.03,
+    "flare": 0.9,
+    "taper": [
+      1.0,
+      0.85,
+      0.72,
+      0.55,
+      0.3
+    ],
+    "tropism": 0.25,
+    "wander": 0.12,
+    "gnarl": 0.3,
+    "lean": [
+      0,
+      5
+    ],
+    "segment": 0.9,
+    "splits": {
+      "count": [
+        2.5,
+        1
+      ],
+      "at": [
+        0.4,
+        0.1
+      ],
+      "angle": [
+        32,
+        10
+      ],
+      "length": [
+        0.95,
+        0.15
+      ],
+      "extend": true
+    }
+  },
+  "envelope": {
+    "base": 0.28,
+    "top": 1.05,
+    "width": 0.52,
+    "profile": [
+      0.45,
+      0.8,
+      1.0,
+      0.95,
+      0.75,
+      0.35
+    ]
+  },
+  "levels": [
+    {
+      "name": "boughs",
+      "distribution": "proportional",
+      "density": 1.3,
+      "first": 0.3,
+      "last": 0.97,
+      "min": 3,
+      "angle": {
+        "curve": [
+          70,
+          62,
+          48,
+          30
+        ],
+        "var": 12
+      },
+      "roll": {
+        "mode": "spiral",
+        "var": 25
+      },
+      "length": {
+        "curve": [
+          0.55,
+          0.75,
+          0.6,
+          0.3
+        ],
+        "var": 0.12
+      },
+      "radius": [
+        0.62,
+        0.08
+      ],
+      "tip": 0.015,
+      "taper": [
+        1.0,
+        0.8,
+        0.6,
+        0.4,
+        0.15
+      ],
+      "tropism": {
+        "curve": [
+          0.35,
+          0.15,
+          -0.05
+        ],
+        "var": 0.15
+      },
+      "wander": 0.45,
+      "gnarl": 0.6,
+      "return": 0.05,
+      "segment": 1.1,
+      "knockout": 0.1,
+      "min_keep": 0.4,
+      "slack": 1.05
+    },
+    {
+      "name": "branches",
+      "distribution": "proportional",
+      "density": 1.4,
+      "first": 0.2,
+      "last": 0.95,
+      "min": 2,
+      "angle": {
+        "curve": [
+          58,
+          50,
+          40
+        ],
+        "var": 14
+      },
+      "roll": {
+        "mode": "alternate",
+        "var": 30
+      },
+      "length": {
+        "curve": [
+          0.45,
+          0.6,
+          0.45
+        ],
+        "var": 0.12
+      },
+      "radius": [
+        0.55,
+        0.1
+      ],
+      "tip": 0.008,
+      "tropism": {
+        "curve": [
+          0.3,
+          0.1,
+          0.0
+        ],
+        "var": 0.15
+      },
+      "wander": 0.6,
+      "gnarl": 0.4,
+      "segment": 0.9,
+      "knockout": 0.12,
+      "min_keep": 0.35
+    },
+    {
+      "name": "twigs",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 2.0,
+      "first": 0.15,
+      "last": 1.0,
+      "min": 2,
+      "angle": [
+        48,
+        15
+      ],
+      "roll": {
+        "mode": "alternate",
+        "var": 35
+      },
+      "length": {
+        "curve": [
+          0.45,
+          0.55,
+          0.4
+        ],
+        "var": 0.15
+      },
+      "radius": [
+        0.45,
+        0.1
+      ],
+      "tip": 0.004,
+      "tropism": [
+        0.25,
+        0.2
+      ],
+      "wander": 0.8,
+      "segment": 0.4,
+      "knockout": 0.1,
+      "min_keep": 0.3,
+      "slack": 1.1
+    }
+  ],
+  "leaves": {
+    "size": [
+      0.1,
+      0.02
+    ],
+    "aspect": 1.0,
+    "spacing": 0.4,
+    "tip": 2,
+    "first": 0.3,
+    "fold": 0,
+    "outward": 0.45,
+    "up": 0.35,
+    "ao": 0.3,
+    "hue_var": 0.07,
+    "cells": 2
+  },
+  "budget": [
+    2500,
+    4500
+  ]
+}

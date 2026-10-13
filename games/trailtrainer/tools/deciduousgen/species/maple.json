@@ -1,0 +1,217 @@
+{
+  "name": "maple",
+  "kind": "deciduous",
+  "about": "Norway/sugar maple: straight trunk into a dense, rounded, almost spherical crown; branches opposite, rising then spreading",
+  "height": [
+    16,
+    3
+  ],
+  "bark": "maple",
+  "leaves_page": "broad",
+  "bark_tile": 1.4,
+  "trunk": {
+    "radius": [
+      0.028,
+      0.003
+    ],
+    "tip": 0.025,
+    "flare": 0.6,
+    "taper": [
+      1.0,
+      0.88,
+      0.75,
+      0.6,
+      0.35
+    ],
+    "tropism": 0.4,
+    "wander": 0.08,
+    "gnarl": 0.1,
+    "lean": [
+      0,
+      3
+    ],
+    "segment": 0.9,
+    "splits": {
+      "count": [
+        1.8,
+        0.9
+      ],
+      "at": [
+        0.55,
+        0.08
+      ],
+      "angle": [
+        18,
+        6
+      ],
+      "length": [
+        0.9,
+        0.1
+      ],
+      "extend": true
+    }
+  },
+  "envelope": {
+    "base": 0.32,
+    "top": 1.06,
+    "width": 0.42,
+    "profile": [
+      0.35,
+      0.75,
+      1.0,
+      1.0,
+      0.8,
+      0.4
+    ]
+  },
+  "levels": [
+    {
+      "name": "boughs",
+      "distribution": "proportional",
+      "density": 1.5,
+      "first": 0.35,
+      "last": 0.97,
+      "min": 4,
+      "angle": {
+        "curve": [
+          62,
+          55,
+          42,
+          28
+        ],
+        "var": 10
+      },
+      "roll": {
+        "mode": "opposite",
+        "var": 15
+      },
+      "length": {
+        "curve": [
+          0.5,
+          0.65,
+          0.6,
+          0.4
+        ],
+        "var": 0.1
+      },
+      "radius": [
+        0.58,
+        0.08
+      ],
+      "tip": 0.012,
+      "tropism": {
+        "curve": [
+          0.5,
+          0.35,
+          0.2
+        ],
+        "var": 0.1
+      },
+      "wander": 0.3,
+      "gnarl": 0.2,
+      "segment": 1.0,
+      "knockout": 0.08,
+      "min_keep": 0.4
+    },
+    {
+      "name": "branches",
+      "distribution": "proportional",
+      "density": 1.6,
+      "first": 0.25,
+      "last": 0.95,
+      "min": 2,
+      "angle": {
+        "curve": [
+          55,
+          45,
+          35
+        ],
+        "var": 12
+      },
+      "roll": {
+        "mode": "opposite",
+        "var": 20
+      },
+      "length": {
+        "curve": [
+          0.45,
+          0.55,
+          0.4
+        ],
+        "var": 0.1
+      },
+      "radius": [
+        0.55,
+        0.1
+      ],
+      "tip": 0.007,
+      "tropism": {
+        "curve": [
+          0.4,
+          0.2,
+          0.1
+        ],
+        "var": 0.1
+      },
+      "wander": 0.4,
+      "segment": 0.9,
+      "knockout": 0.1
+    },
+    {
+      "name": "twigs",
+      "mesh": false,
+      "distribution": "proportional",
+      "density": 2.2,
+      "first": 0.15,
+      "last": 1.0,
+      "min": 2,
+      "angle": [
+        45,
+        12
+      ],
+      "roll": {
+        "mode": "opposite",
+        "var": 25
+      },
+      "length": {
+        "curve": [
+          0.4,
+          0.5,
+          0.35
+        ],
+        "var": 0.12
+      },
+      "radius": [
+        0.45,
+        0.1
+      ],
+      "tip": 0.004,
+      "tropism": [
+        0.3,
+        0.15
+      ],
+      "wander": 0.6,
+      "segment": 0.4,
+      "min_keep": 0.3,
+      "slack": 1.08
+    }
+  ],
+  "leaves": {
+    "size": [
+      0.1,
+      0.02
+    ],
+    "spacing": 0.35,
+    "tip": 2,
+    "first": 0.3,
+    "outward": 0.5,
+    "up": 0.3,
+    "ao": 0.3,
+    "hue_var": 0.06,
+    "cells": 2
+  },
+  "budget": [
+    2500,
+    4500
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "scree",
+  "kind": "rock",
+  "about": "sharp grey broken stone: scree slopes and cliff feet",
+  "surface": "scree",
+  "tile": 0.9,
+  "shapes": [
+    "round",
+    "egg",
+    "flat",
+    "slab",
+    "tall",
+    "long",
+    "block",
+    "shard",
+    "wedge",
+    "dome",
+    "lumpy",
+    "split"
+  ],
+  "shape_weights": [
+    0.5,
+    0,
+    2,
+    2,
+    1,
+    1,
+    4,
+    4,
+    3,
+    0.5,
+    0,
+    2
+  ],
+  "roughness": 0.08,
+  "cuts_offset": 3,
+  "facet_offset": 0.5,
+  "pebble_cuts": 3,
+  "moss": 0.0,
+  "lichen": 0.1,
+  "boulders": [
+    1,
+    1
+  ],
+  "size": [
+    0.5,
+    1.4
+  ],
+  "detail": 0.04,
+  "budget": [
+    800,
+    4500
+  ]
+}
