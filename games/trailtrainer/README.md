@@ -145,7 +145,8 @@ assetkit's and avatarkit's assetmgr indexes, read over public HTTPS with no key 
 A fresh clone therefore rides without regenerating any of them. `?assets=local` (or `Config.assetSource`) reads
 the old `public/trees|plants|rocks/`, `public/mh` and `public/env` instead, for working offline or on a library
 you have just regenerated; `npm run shots -- --assets=local` makes the matching before-and-after frames. After
-regenerating a library, re-import it into assetkit (`~/assetkit/tools/import-trailtrainer.ts`) and upload.
+regenerating a library (assetkit's generators: `npm run trees`, `rocks`, `plants` there), record it with assetkit's
+`npm run import:nature` and upload.
 
 `public/mh` and `public/env` are symlinks into `libs/avatarkit`'s 300 MB of MakeHuman assets, so the build
 skips `publicDir` and relinks them afterwards (only needed with `?assets=local`).
