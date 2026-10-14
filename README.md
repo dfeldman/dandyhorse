@@ -27,6 +27,7 @@ pace themselves by the player's own fitness rather than by raw watts.
 | `games/bikeplane/` | Flight Cycle: pedal a biplane through rings around an island city, bike only; the rings are sized for the lag between pedals and plane (see its `PLAYABILITY.md`) |
 | `games/nightracer/` | Night Racer: race three rivals through a neon city at night, on either machine; your pace is the throttle, and Turbo and Oil are buttons on the phone (see its `INTEGRATION.md`) |
 | `games/nightwatch/` | Night Watch: keep a lighthouse lamp bright through the night so ships make harbour, on either machine; an interval workout set by the ships' timetable (see its `INTEGRATION.md`) |
+| `games/laneone/` | Lane One: a plain console-style workout that drives every dial a machine has (belt speed, incline, grade, ERG watts) and shows requested against actual; standalone for now (see its `INTEGRATION.md`) |
 | `games/trailtrainer/` | Trail Trainer: real routes (Alpe d'Huez, the Katy Trail) from open map and elevation data, with coasting physics; standalone for now (see its README and `INTEGRATION.md`). Its trees, plants and rocks come from assetkit |
 | `data/` | Runtime data (SQLite DB, session logs), gitignored |
 

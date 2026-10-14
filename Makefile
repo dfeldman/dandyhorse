@@ -1,9 +1,9 @@
-.PHONY: install build test serve devicelib assets assets-upload avatar-assets dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek dev-bikeplane dev-nightracer dev-nightwatch dev-trailtrainer dev-avatar
+.PHONY: install build test serve devicelib assets assets-upload avatar-assets dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek dev-bikeplane dev-nightracer dev-nightwatch dev-trailtrainer dev-laneone dev-avatar
 
 LIBS := libs/gamekit devicelib
 FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch
 # standalone for now (no metadata.json, so the server does not list it); installed and tested with the rest
-STANDALONE := games/trailtrainer
+STANDALONE := games/trailtrainer games/laneone
 
 # avatarkit is its own repo (github.com/dfeldman/avatarkit), checked out beside this one. Its MakeHuman assets
 # (mh/ and env/, about 300 MB, not in git) come from the shared asset bucket: `make avatar-assets` runs its
@@ -81,6 +81,9 @@ dev-nightwatch:
 	cd games/nightwatch && npm run dev
 
 # the avatar designer on its own (the console embeds the same thing under Preferences)
+dev-laneone:
+	cd games/laneone && npm run dev
+
 dev-trailtrainer:
 	cd games/trailtrainer && npm run dev
 

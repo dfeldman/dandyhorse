@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "id": "laneone",
+  "name": "Lane One",
+  "version": "0.1.0",
+  "author": "Dandyhorse",
+  "description": "A treadmill and bike console, and a track to go round. Manual, hills, intervals, pyramid, random and heart-rate programmes, every number a machine's own console shows, and a lap of a real 400 m track for each one you run.",
+  "entry": "index.html",
+  "screenshot": "screenshot.png",
+  "minPlatformVersion": "1.0",
+  "capabilities": {
+    "seed": true,
+    "ghosts": false,
+    "input": true,
+    "saveState": true,
+    "routes": ["manual", "steady", "hills", "intervals", "pyramid", "random", "heartrate"]
+  },
+  "achievements": {
+    "first-lap": { "name": "Round the track", "description": "Ran a full 400 m lap." },
+    "programme-done": { "name": "Saw it through", "description": "Finished a whole programme without stopping early." },
+    "ten-k": { "name": "Ten kilometres", "description": "10 km in one workout." },
+    "the-hour": { "name": "The hour", "description": "A whole hour of exercise in one session." },
+    "hill-climber": { "name": "Hill climber", "description": "Climbed 100 m in one workout." },
+    "zone-four": { "name": "Up in zone four", "description": "Ten minutes at zone 4 or above." },
+    "even-splits": { "name": "Metronome", "description": "Five laps in a row within five seconds of each other." },
+    "good-recovery": { "name": "Settles fast", "description": "Heart rate fell 40 bpm in the recovery minute." }
+  },
+  "options": {
+    "programme": {
+      "label": "Programme",
+      "enum": ["manual", "steady", "hills", "intervals", "pyramid", "random", "heartrate"],
+      "default": "steady"
+    },
+    "level": {
+      "label": "Level",
+      "enum": ["easy", "normal", "hard", "very hard"],
+      "default": "normal"
+    },
+    "goal": {
+      "label": "Finish when",
+      "enum": ["the clock runs out", "a distance is done", "the calories are burnt"],
+      "default": "the clock runs out"
+    },
+    "drive": {
+      "label": "Who follows the programme",
+      "enum": ["you", "the machine"],
+      "default": "you",
+      "controls": {
+        "the machine": { "treadmill": "speed+incline", "bike": "power" }
+      }
+    }
+  },
+  "variants": [
+    {
+      "id": "treadmill",
+      "name": "Lane One (Treadmill)",
+      "description": "Walk or run a programme. The console drives the incline and shows you the pace to keep; hand it the belt as well and it runs the whole thing.",
+      "deviceTypes": ["treadmill"],
+      "defaultDuration": 1800,
+      "controls": { "treadmill": "incline" }
+    },
+    {
+      "id": "bike",
+      "name": "Lane One (Bike)",
+      "description": "Ride a programme. The trainer follows the hill and the watts are yours to hold; hand it the watts as well and it holds them for you in ERG.",
+      "deviceTypes": ["bike"],
+      "defaultDuration": 1800,
+      "controls": { "bike": "grade" }
+    }
+  ],
+  "preferencesSchema": {
+    "type": "object",
+    "properties": {
+      "sound": {
+        "type": "boolean",
+        "default": true,
+        "description": "Beep when a programme segment changes and at each lap."
+      },
+      "bigNumbers": {
+        "type": "boolean",
+        "default": false,
+        "description": "Start in the big-numbers view instead of the track."
+      },
+      "trackLane": {
+        "type": "integer",
+        "default": 1,
+        "description": "Which lane to run in. Lane 1 is 400 m; each lane out adds about 7 m a lap."
+      }
+    }
+  }
+}

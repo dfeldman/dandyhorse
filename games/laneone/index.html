@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <title>Lane One</title>
+  </head>
+  <body>
+    <div class="app" id="app">
+      <header class="bar">
+        <div class="brand">Lane<span>One</span></div>
+        <div class="bar-meta" id="bar-meta"></div>
+        <div class="bar-actions">
+          <button type="button" id="btn-view" class="ghost small" title="Big numbers (V)">Big numbers</button>
+          <button type="button" id="btn-sound" class="ghost small" title="Sound (S)">Sound on</button>
+          <button type="button" id="btn-pause" class="ghost">Pause</button>
+          <button type="button" id="btn-end" class="ghost danger">End</button>
+        </div>
+      </header>
+
+      <main class="run">
+        <section class="track-pane">
+          <canvas id="track"></canvas>
+          <div class="lap-badge"><b id="lap-n">0</b><span id="lap-word">laps</span></div>
+          <div class="lap-toast" id="lap-toast"></div>
+          <div class="track-legend">
+            <i class="key you"></i>you<i class="key pacer"></i><span id="legend-pacer">target pace</span>
+          </div>
+          <div class="callout" id="callout"><b id="callout-text"></b><span id="callout-sub"></span></div>
+        </section>
+
+        <section class="stats">
+          <div class="primary">
+            <div class="stat" id="p-time">
+              <span class="label" id="l-time">Time left</span>
+              <b id="m-time" class="value">30:00</b>
+              <span class="sub" id="m-elapsed">0:00 done</span>
+              <div class="bar-fill"><i id="f-time"></i></div>
+            </div>
+            <div class="stat" id="p-dist">
+              <span class="label" id="l-dist">Distance</span>
+              <b id="m-dist" class="value">0.00</b>
+              <span class="sub" id="m-dist-unit">km</span>
+              <div class="bar-fill"><i id="f-dist"></i></div>
+            </div>
+            <div class="stat" id="p-kcal">
+              <span class="label" id="l-kcal">Calories</span>
+              <b id="m-kcal" class="value">0</b>
+              <span class="sub" id="m-kcal-sub">kcal</span>
+              <div class="bar-fill"><i id="f-kcal"></i></div>
+            </div>
+          </div>
+          <div class="tiles" id="tiles"></div>
+          <div class="zones" id="zones">
+            <div class="zones-head">
+              <span class="label">Heart-rate zones</span>
+              <span class="zone-now" id="zone-now">—</span>
+            </div>
+            <div class="zone-bar" id="zone-bar"><i class="needle" id="zone-needle"></i></div>
+            <div class="zone-legend" id="zone-legend"></div>
+          </div>
+        </section>
+      </main>
+
+      <div class="big-view" id="big-view" hidden>
+        <div class="big-grid" id="big-grid"></div>
+      </div>
+
+      <section class="bottom">
+        <div class="programme">
+          <div class="prog-head">
+            <b id="seg-label">Warm up</b>
+            <span class="seg-left" id="seg-left">—</span>
+            <span class="next" id="seg-next"></span>
+          </div>
+          <canvas id="profile"></canvas>
+        </div>
+        <div class="trend">
+          <span class="label">Effort and heart rate</span>
+          <canvas id="trend"></canvas>
+        </div>
+      </section>
+
+      <section class="controls" id="controls"></section>
+
+      <div class="harness" id="harness" hidden>
+        <label for="harness-slider" id="harness-label">You</label>
+        <input type="range" id="harness-slider" min="0" max="100" step="0.1" value="0" />
+        <output id="harness-value"></output>
+        <button type="button" id="harness-auto" class="ghost small">Auto</button>
+      </div>
+
+      <div class="screen" id="setup" hidden></div>
+      <div class="screen" id="summary" hidden></div>
+      <div class="screen" id="recovery" hidden></div>
+      <div class="screen pause-screen" id="paused" hidden>
+        <div class="card">
+          <h2>Paused</h2>
+          <p id="pause-why" class="muted">The clock, the distance and the programme are all stopped.</p>
+          <div class="row">
+            <button type="button" id="btn-resume" class="primary big">Resume</button>
+            <button type="button" id="btn-end-2" class="ghost danger big">End workout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
