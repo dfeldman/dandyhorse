@@ -1,6 +1,6 @@
-.PHONY: install build test serve devicelib avatar-assets dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek dev-bikeplane dev-nightracer dev-nightwatch dev-avatar dev-carkit
+.PHONY: install build test serve devicelib avatar-assets dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek dev-bikeplane dev-nightracer dev-nightwatch dev-avatar
 
-LIBS := libs/gamekit libs/carkit devicelib
+LIBS := libs/gamekit devicelib
 FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch
 
 # avatarkit is its own repo (github.com/dfeldman/avatarkit), checked out beside this one. Its MakeHuman assets
@@ -35,7 +35,6 @@ test: devicelib
 	cd $(SERVER) && uv run pytest
 	for d in $(VUE_APPS) games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch; do (cd $$d && npm test) || exit 1; done
 	cd libs/gamekit && npm test
-	cd libs/carkit && npm test
 	cd devicelib && npm test
 	@if [ -d $(AVATAR_DIR)/mh ]; then (cd $(AVATARKIT) && npm test) || exit 1; \
 	else echo "skipping avatarkit tests: no MakeHuman assets (make avatar-assets)"; fi
@@ -71,6 +70,3 @@ dev-nightwatch:
 dev-avatar:
 	cd $(AVATARKIT) && npm run dev
 
-# the vehicle kit's demo: showroom, bench, drive and traffic
-dev-carkit:
-	cd libs/carkit && npm run dev
