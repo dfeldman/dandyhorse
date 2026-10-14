@@ -18,7 +18,8 @@ import { join, relative } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const ROOT = join(import.meta.dirname, '..')
-const ASSETMGR = process.env.ASSETMGR ?? join(ROOT, '..', 'assetmgr')
+// the assetmgr checkout: $ASSETMGR_DIR, or the one beside this repo
+const ASSETMGR = process.env.ASSETMGR_DIR || join(ROOT, '..', 'assetmgr')
 const { addFile, emptyIndex, indexFileName, loadRepo, saveIndex, serializeIndex, sha256Bytes, slugify } = await import(
   pathToFileURL(join(ASSETMGR, 'dist', 'node', 'index.js')).href
 )

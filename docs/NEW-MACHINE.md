@@ -7,7 +7,20 @@ asset restore and tests.
 
 ## The repos
 
-Clone them side by side; they find each other by relative path (`../avatarkit`, `../assetkit`, `../assetmgr`).
+Clone them side by side. They find each other through environment variables, each defaulting to the checkout
+beside it, so with the default layout nothing needs setting:
+
+| Variable | Default | Used by |
+|---|---|---|
+| `ASSETMGR_DIR` | `../assetmgr` | every repo's `npm run assets` / `make assets`, the import tools |
+| `ASSETKIT_DIR` | `../assetkit` | cityengine (SF tree generator, local-assets mode), Trail Trainer local mode |
+| `AVATARKIT_DIR` | `../avatarkit` | dandyhorse (Makefile, server's `/avatars/`, Vite), cityengine and Trail Trainer local mode |
+| `CITYENGINE_DIR` | `../cityengine` | assetkit's statue importer |
+| `ASSETMGR_ENV_FILE` | — | the bucket keys, only for uploading |
+
+Nothing is symlinked between repos and there are no submodules. The one fixed relative path is npm's own:
+`file:` dependencies in package.json (`avatarkit`, `carkit`, `assetmgr`, `@dandyhorse/gamekit`) assume siblings,
+because npm cannot read environment variables there.
 
 | Repo | What | Depends on |
 |---|---|---|
@@ -42,17 +55,19 @@ Assets come back from the bucket's **public** URL: no keys are needed for any of
 ```bash
 cd assetmgr && npm install && npm test && cd ..             # npm install builds dist/ (the CLI everyone uses)
 
-cd assetkit && npm install && npx assetmgr restore           # texture sources back into tools/cache/
+cd assetkit && npm install && npm run assets                # texture sources back into tools/cache/
 (cd carkit && npm install && npm test); cd ..
 
 cd avatarkit && npm install && npm run assets && npm test && cd ..   # ~250 MB of MakeHuman assets into public/
 
 cd dandyhorse && make install && make assets && make test && cd ..   # screenshots, Trail Trainer textures/routes
 
-cd cityengine && npm install && node ../assetmgr/dist/cli.js restore && npx vitest run && cd ..
+cd cityengine && npm install && npm run assets && npx vitest run && cd ..
 ```
 
-What `restore` / `npm run assets` bring back is everything a repo keeps out of git but needs at a fixed path:
+Every repo pulls its files with `npm run assets` (dandyhorse: `make assets`), which is `assetmgr restore`, and
+pushes changes with `npm run assets:upload` (dandyhorse: `make assets-upload`), which records them in the repo's
+indexes and uploads; uploading needs `ASSETMGR_ENV_FILE`. What they bring back is everything a repo keeps out of git but needs at a fixed path:
 the game screenshots, Trail Trainer's ground textures and baked routes, avatarkit's MakeHuman set, cityengine's
 facades, palms, roads and rock surfaces, and assetkit's Poly Haven sources. The shared libraries (trees, plants,
 rocks, statues, avatars) are read straight from the bucket by URL at run time.
@@ -64,7 +79,7 @@ These are large, public and re-fetchable, so they are in neither git nor the buc
 | Data | Repo | How to get it | Size |
 |---|---|---|---|
 | OpenStreetMap extracts (Geofabrik) | cityengine | `npm run osm:fetch` (docs/OSM-DATA.md) | ~2.6 GB |
-| Baked cities (`public/cities/`) | cityengine | `npm run bake san-francisco` after osm:fetch (docs/ASSETS.md); a bucket of their own, with bake numbers, is planned | GBs |
+| Baked cities (`public/cities/`) | cityengine | `npm run bake san-francisco` after osm:fetch (docs/ASSETS.md); published to their own bucket with `npm run city:upload -- <city> --yes` (bake numbers) | GBs |
 | Terrain tiles (AWS Terrain Tiles) | cityengine, trailtrainer | fetched by the bakes (`tools/terrarium.ts`) | small |
 | USGS lidar (Entwine Point Tiles) | cityengine | `tools/lidar` (docs/LIDAR.md) | ~2 GB |
 | Mapillary street photos | cityengine | `tools/photo.ts`, needs a free Mapillary token (below) | ~1.2 GB |

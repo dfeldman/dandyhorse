@@ -5,17 +5,18 @@ FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills games/ki
 # standalone for now (no metadata.json, so the server does not list it); installed and tested with the rest
 STANDALONE := games/trailtrainer games/laneone
 
-# avatarkit is its own repo (github.com/dfeldman/avatarkit), checked out beside this one. Its MakeHuman assets
+# Sibling repos come from environment variables, defaulting to the checkouts beside this one (no symlinks):
+# AVATARKIT_DIR and ASSETMGR_DIR. avatarkit is its own repo (github.com/dfeldman/avatarkit). Its MakeHuman assets
 # (mh/ and env/, about 300 MB, not in git) come from the shared asset bucket: `make avatar-assets` runs its
 # `npm run assets`. See ../avatarkit/ASSETS.md.
-AVATARKIT ?= $(abspath $(CURDIR)/../avatarkit)
-AVATAR_DIR := $(AVATARKIT)/public
+AVATARKIT_DIR ?= $(abspath $(CURDIR)/../avatarkit)
+AVATAR_DIR := $(AVATARKIT_DIR)/public
 VUE_APPS := consoles/web bridges/web
 SERVER := servers/api-flask
 
 install:
-	@test -d "$(AVATARKIT)" || { echo "avatarkit is missing: clone github.com/dfeldman/avatarkit beside this repo (or pass AVATARKIT=/path)"; exit 1; }
-	cd $(AVATARKIT) && npm install
+	@test -d "$(AVATARKIT_DIR)" || { echo "avatarkit is missing: clone github.com/dfeldman/avatarkit beside this repo (or set AVATARKIT_DIR=/path)"; exit 1; }
+	cd $(AVATARKIT_DIR) && npm install
 	for d in $(LIBS) $(FRONTENDS) $(STANDALONE); do (cd $$d && npm install) || exit 1; done
 	cd $(SERVER) && uv sync
 	cd devicelib && npm run build
@@ -27,20 +28,20 @@ devicelib:
 # The avatar designer needs its MakeHuman assets (bodies, garments, hair, textures) in place: rebuilt in
 # ../avatarkit/public from the shared asset bucket (public, no key; re-running skips what is there).
 avatar-assets:
-	cd $(AVATARKIT) && npm run assets
+	cd $(AVATARKIT_DIR) && npm run assets
 	@du -sh $(AVATAR_DIR)
 
 # Files this repo keeps out of git (game screenshots, Trail Trainer's textures and baked routes) are in the shared
 # asset bucket; `make assets` puts them back where the games expect them (public HTTPS, no key), and fetches
 # avatarkit's MakeHuman assets. Needs ../assetmgr built (`cd ../assetmgr && npm install`).
-ASSETMGR ?= $(abspath $(CURDIR)/../assetmgr)
+ASSETMGR_DIR ?= $(abspath $(CURDIR)/../assetmgr)
 assets: avatar-assets
-	node $(ASSETMGR)/dist/cli.js restore
+	node $(ASSETMGR_DIR)/dist/cli.js restore
 
 # After changing any of those files: record them (scripts/assets-import.mjs) and upload (needs the bucket's keys).
 assets-upload:
 	node scripts/assets-import.mjs
-	node $(ASSETMGR)/dist/cli.js upload
+	node $(ASSETMGR_DIR)/dist/cli.js upload
 
 build: devicelib
 	for d in $(FRONTENDS); do (cd $$d && npm run build) || exit 1; done
@@ -50,7 +51,7 @@ test: devicelib
 	for d in $(VUE_APPS) games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch $(STANDALONE); do (cd $$d && npm test) || exit 1; done
 	cd libs/gamekit && npm test
 	cd devicelib && npm test
-	@if [ -d $(AVATAR_DIR)/mh ]; then (cd $(AVATARKIT) && npm test) || exit 1; \
+	@if [ -d $(AVATAR_DIR)/mh ]; then (cd $(AVATARKIT_DIR) && npm test) || exit 1; \
 	else echo "skipping avatarkit tests: no MakeHuman assets (make avatar-assets)"; fi
 
 serve:
@@ -88,5 +89,5 @@ dev-trailtrainer:
 	cd games/trailtrainer && npm run dev
 
 dev-avatar:
-	cd $(AVATARKIT) && npm run dev
+	cd $(AVATARKIT_DIR) && npm run dev
 
