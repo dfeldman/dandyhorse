@@ -12,6 +12,8 @@ export interface RhStart {
   deviceType: DeviceType
   duration: number
   weightKg: number | null
+  /** Watts that one unit of effort pedals with: the platform's default steady watts. */
+  referenceWatts: number
   debug: boolean
 }
 
@@ -21,6 +23,11 @@ export interface Measured {
   heartRate: number | null
   /** What the machine reports it is doing: grade (bike) or incline (treadmill), percent. */
   machineGrade: number | null
+  /**
+   * How hard this rider is working against their own steady pace: 1.0 is the pace they could hold all day, on
+   * either machine. What turns the cranks (src/drive.ts). Null when the machine is not reading.
+   */
+  effort: number | null
 }
 
 export interface EndedInfo {

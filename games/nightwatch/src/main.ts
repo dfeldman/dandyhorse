@@ -106,7 +106,7 @@ async function boot(platform: Platform | null): Promise<void> {
       location.search = params.toString()
     },
     ...(platform
-      ? { onEnd: () => { night.finishNow(); for (const e of night.takeEvents()) onEvent(e) }, store: platform.store() }
+      ? { onEnd: () => { platform.finishEarly(); for (const e of night.takeEvents()) onEvent(e) }, store: platform.store() }
       : {}),
   })
   if (controls instanceof LocalControls) controls.onChange((v) => hud.setPedalSlider(v))
@@ -245,7 +245,7 @@ async function boot(platform: Platform | null): Promise<void> {
       hud.setPauseMessage(platform.pauseMessage())
       // the session ended from a bridge or the console: show the logbook as it stands and stop
       if (platform.ended() && night.phase !== 'done') {
-        night.finishNow()
+        platform.finishEarly()
         for (const e of night.takeEvents()) onEvent(e)
       }
       if (night.phase === 'done') platform.finish()

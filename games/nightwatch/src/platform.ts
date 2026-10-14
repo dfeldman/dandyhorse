@@ -75,6 +75,8 @@ export class Platform implements Controls {
   private latest: GameState | null = null
   private endedInfo: EndInfo | null = null
   private finishing = false
+  /** The night was ended before dawn (the pause menu, or a bridge). */
+  private cutShort = false
   /** Taps waiting for the game to take them. */
   private readonly queue: ButtonId[] = []
   private promptOpen = false
@@ -97,7 +99,9 @@ export class Platform implements Controls {
     this.difficulty = option(start.options, 'difficulty', DIFFICULTIES, 'normal')
     this.weather = option(start.options, 'weather', WEATHERS, 'mixed')
     this.save = parseSave(start.saveState)
-    for (const id of Object.keys(start.achievements ?? {})) this.earned.add(id.replace(`${GAME_ID}.`, ''))
+    // the server stores them as "<gameId>:<id>" (servers/.../sessions/lifecycle.py)
+    const mine = `${GAME_ID}:`
+    for (const id of Object.keys(start.achievements ?? {})) if (id.startsWith(mine)) this.earned.add(id.slice(mine.length))
 
     // Effort is the machine against the player's own steady pace, which is what a ship's "need" is measured in
     // (INTEGRATION.md §3). Default smoothing: the lamp's flywheel and the ships' drift add their own lag.
@@ -178,17 +182,27 @@ export class Platform implements Controls {
     if (this.stormed.has(e.ship.id)) this.achievement('storm-keeper')
   }
 
+  /**
+   * End the night now, before dawn: "End workout" in the pause menu, or the session ending from a bridge. The
+   * logbook shows as it stands, and the achievements that mean "a whole night" are not earned.
+   */
+  finishEarly(): void {
+    this.cutShort = true
+    this.hooks?.night.finishNow()
+  }
+
   /** Dawn: the logbook shows, then the session ends. */
   finish(): void {
     if (this.finishing) return
     this.finishing = true
     const night = this.hooks?.night
     if (night) {
-      // "until dawn" means the night ran its length, not that a bridge ended it early
-      if (night.time >= night.duration) this.achievement('full-watch')
+      // every one of these means "a whole night", so none is earned by ending early
+      const whole = !this.cutShort && night.time >= night.duration
+      if (whole) this.achievement('full-watch')
       if (night.ships.length && night.ships.every((s) => s.stars === 3)) this.achievement('perfect-night')
-      if (night.hailsSeen >= ALL_HANDS_MIN && night.hailsAnswered === night.hailsSeen) this.achievement('all-hands')
-      if (night.blasts === 0 && night.shipsAground === 0 && night.time >= night.duration) this.achievement('steady-hand')
+      if (whole && night.hailsSeen >= ALL_HANDS_MIN && night.hailsAnswered === night.hailsSeen) this.achievement('all-hands')
+      if (whole && night.blasts === 0 && night.shipsAground === 0) this.achievement('steady-hand')
       this.recordBest(night)
     }
     setTimeout(() => void this.client.requestTick().then(() => this.client.end('complete')), END_DELAY_MS)

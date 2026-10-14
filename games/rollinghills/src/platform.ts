@@ -2,8 +2,8 @@
  * The platform side of the game: owns the SessionClient and implements the RhPlatform contract the
  * classic scripts read every frame. One instance per page.
  */
-import { SessionClient, putSave, units, type EndInfo, type GameState, type StartPayload, type TickBody } from '@dandyhorse/gamekit'
-import { activeSeconds, guardTreadmill, measured, prefsWithDefaults, targets } from './drive.ts'
+import { DEFAULT_STEADY_WATTS, EffortMeter, SessionClient, putSave, units, type EndInfo, type GameState, type StartPayload, type TickBody } from '@dandyhorse/gamekit'
+import { activeSeconds, guardTreadmill, machineEffort, measured, prefsWithDefaults, targets } from './drive.ts'
 import type { EndedInfo, Measured, RhHandle, RhPlatform, RhStart } from './globals.d.ts'
 
 export const GAME_ID = 'rollinghills'
@@ -13,6 +13,7 @@ export class Platform implements RhPlatform {
   readonly bests: Record<string, number>
   readonly startInfo: RhStart
   private readonly client: SessionClient
+  private readonly meter: EffortMeter
   private handle: RhHandle | null = null
   private latest: GameState | null = null
   private receivedAt = 0
@@ -40,12 +41,22 @@ export class Platform implements RhPlatform {
       deviceType: start.deviceType,
       duration: start.requestedDuration ?? 1800,
       weightKg: typeof weight === 'number' && weight > 0 ? weight : null,
+      referenceWatts: DEFAULT_STEADY_WATTS,
       debug: start.debug,
     }
+    // The ride is pedalled by effort, not raw watts, so it fits the rider (docs/GAME_AUTHORING.md "Effort").
+    // No smoothing of our own on the bike: the trainer smooths, and the bike's own mass and drag are all the
+    // lag this ride wants — a rider whose steady pace is the default then rides exactly as they did before.
+    this.meter = new EffortMeter({
+      deviceType: start.deviceType,
+      bodyData: start.bodyData,
+      preferences: { global: start.preferences.global, device: start.preferences.device },
+      smoothing: { power: 0 },
+    })
     this.client = new SessionClient({
       sessionId: start.sessionId,
       buildTick: () => this.buildTick(),
-      onState: (s) => { this.latest = s; this.receivedAt = Date.now() },
+      onState: (s) => { this.latest = s; this.receivedAt = Date.now(); this.meter.update(s, Date.now() / 1000) },
       onPause: (p) => this.log(`paused: ${p.reason} — ${p.message}`),
       onResume: (secs) => this.log(`resumed after ${secs.toFixed(0)} s`),
       onEnded: (e) => { this.endedInfo = { status: e.status, reason: e.reason }; this.log(`ended: ${e.status} (${e.reason ?? 'no reason'})`); this.onEndedUi(e) },
@@ -62,7 +73,10 @@ export class Platform implements RhPlatform {
   }
 
   // --- RhPlatform (read by the game every frame) ---------------------------------------------
-  measured(): Measured { return measured(this.latest, this.start.deviceType) }
+  measured(): Measured {
+    const readout = this.meter.readout(Date.now() / 1000)
+    return measured(this.latest, this.start.deviceType, machineEffort(readout, this.start.deviceType))
+  }
   paused(): boolean { return this.client.paused }
   pauseMessage(): string | null { return this.latest?.pause?.message ?? null }
   activeSeconds(): number { return activeSeconds(this.latest, this.receivedAt, Date.now()) }

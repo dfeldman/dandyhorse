@@ -32,8 +32,10 @@ describe('targets', () => {
 
 describe('measured', () => {
   it('reads actual values and keeps null as null', () => {
-    expect(measured(null, 'bike')).toEqual({ power: null, speed: null, heartRate: null, machineGrade: null })
-    expect(measured(state(), 'bike')).toEqual({ power: 180, speed: 2.5, heartRate: 140, machineGrade: 4 })
+    expect(measured(null, 'bike')).toEqual({ power: null, speed: null, heartRate: null, machineGrade: null, effort: null })
+    expect(measured(state(), 'bike')).toEqual({ power: 180, speed: 2.5, heartRate: 140, machineGrade: 4, effort: null })
+    // effort is passed in by the adapter (it needs the meter's state), and carried through as given
+    expect(measured(state(), 'bike', 1.25).effort).toBe(1.25)
     expect(measured(state(), 'treadmill').machineGrade).toBe(3)
     expect(measured(state({ power: metric(null) }), 'bike').power).toBeNull()
   })

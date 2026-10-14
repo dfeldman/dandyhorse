@@ -5,18 +5,45 @@
  * The rule that must never break: on a treadmill the game NEVER commands belt speed. It asks for
  * incline only; the user picks the speed on the machine and the game reads it back.
  */
-import type { DeviceType, GameState, TickBody } from '@dandyhorse/gamekit'
+import type { DeviceType, EffortReadout, GameState, TickBody } from '@dandyhorse/gamekit'
 import type { Measured } from './globals.d.ts'
 
 /** What the machine measures. `null` stays `null`: unknown is never 0. */
-export function measured(state: GameState | null, deviceType: DeviceType): Measured {
-  if (!state) return { power: null, speed: null, heartRate: null, machineGrade: null }
+export function measured(state: GameState | null, deviceType: DeviceType, effort: number | null = null): Measured {
+  if (!state) return { power: null, speed: null, heartRate: null, machineGrade: null, effort: null }
   return {
     power: state.power.actual,
     speed: state.speed.actual,
     heartRate: state.heartRate.actual,
     machineGrade: deviceType === 'bike' ? state.grade.actual : state.incline.actual,
+    effort,
   }
+}
+
+/**
+ * The effort that turns the cranks, or null when nothing usable is reading.
+ *
+ * gamekit's EffortMeter falls back to heart rate and then cadence when the chosen source goes quiet. That is
+ * right for a game paced by how hard you are working (Kingdom Trek), but wrong for a bike with physics under
+ * it: a heart-rate strap reads high for a minute after you stop, so the bike would roll on your pulse, and
+ * cadence can't see the resistance. So only the machine's own reading pedals: power on a bike, speed and
+ * incline on a treadmill. Anything else means "not pedalling", exactly as a missing power reading did before.
+ */
+export function machineEffort(readout: EffortReadout, deviceType: DeviceType): number | null {
+  const want = deviceType === 'treadmill' ? 'treadmill' : 'power'
+  return readout.source === want ? readout.effort : null
+}
+
+/**
+ * The watts the virtual rider pedals with: their effort against their own steady pace, times the platform's
+ * default steady watts (gamekit's DEFAULT_STEADY_WATTS, passed in as `reference`).
+ *
+ * This is what makes the ride fit the rider. Effort is 1.0 at whatever pace that person can hold all day, on
+ * either machine, so everyone riding at their own steady pace pedals the same virtual watts and holds the same
+ * speed up the same hill. A rider whose steady pace IS the platform default rides exactly as they did before.
+ */
+export function virtualWatts(effort: number | null, reference: number): number {
+  return effort == null ? 0 : Math.max(0, effort * reference)
 }
 
 /**

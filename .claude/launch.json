@@ -34,6 +34,14 @@
       ],
       "port": 5192,
       "url": "http://localhost:5192"
+    },
+    {
+      "name": "carkit",
+      "runtimeExecutable": "make",
+      "runtimeArgs": [
+        "dev-carkit"
+      ],
+      "port": 5204
     }
   ]
 }

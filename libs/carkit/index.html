@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>carkit</title>
+  <style>
+    :root { --bg: #f4c55a; --panel: #fffdf7; --ink: #222; --muted: #777; --line: #e5dfd0; --accent: #1f6feb; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; font: 13px/1.35 system-ui, -apple-system, sans-serif; color: var(--ink); background: var(--bg); }
+    #app { display: grid; grid-template-columns: 1fr 330px; height: 100%; }
+    #view { position: relative; min-width: 0; }
+    canvas { width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+    #tabs { position: absolute; top: 10px; left: 10px; display: flex; gap: 4px; }
+    #tabs button { border: 0; border-radius: 6px; padding: 6px 12px; background: rgba(255,255,255,0.8); cursor: pointer; font: inherit; }
+    #tabs button.on { background: var(--ink); color: #fff; }
+    #stats { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.55); color: #fff; padding: 4px 8px; border-radius: 6px; font: 12px ui-monospace, monospace; white-space: pre; }
+    #hint { position: absolute; top: 48px; left: 12px; color: rgba(0,0,0,0.6); font-size: 12px; }
+    #panel { background: var(--panel); border-left: 1px solid var(--line); overflow-y: auto; padding: 12px 14px 40px; }
+    h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 16px 0 6px; }
+    h2:first-child { margin-top: 0; }
+    .row { display: grid; grid-template-columns: 108px 1fr 44px; align-items: center; gap: 6px; margin: 3px 0; }
+    .row label { color: #444; }
+    .row output { text-align: right; font: 11px ui-monospace, monospace; color: var(--muted); }
+    .row input[type=range] { width: 100%; }
+    select, input[type=number] { width: 100%; font: inherit; padding: 3px; }
+    .toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .toggles button, .btns button { border: 1px solid var(--line); background: #fff; border-radius: 6px; padding: 5px; font: inherit; cursor: pointer; }
+    .toggles button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    textarea { width: 100%; height: 90px; font: 11px ui-monospace, monospace; }
+    @media (max-width: 760px) {
+      #app { grid-template-columns: 1fr; grid-template-rows: 55vh 1fr; }
+      #panel { border-left: 0; border-top: 1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="view">
+      <canvas id="c"></canvas>
+      <div id="tabs"></div>
+      <div id="hint"></div>
+      <div id="stats"></div>
+    </div>
+    <div id="panel"></div>
+  </div>
+  <script type="module" src="./src/demo/main.ts"></script>
+</body>
+</html>

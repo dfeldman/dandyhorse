@@ -35,9 +35,9 @@ const Config = {
   DRAG: 0.32,                 // 0.5*rho*Cd*A (kg/m)
   MAX_SPEED: 22,              // m/s hard cap (~80 km/h downhill)
   PEDAL_POWER: 10,            // watts above which the cranks turn (bike)
+  REFERENCE_WATTS: 130,       // watts one unit of effort pedals with; the platform's default steady watts
   START_POWER: 10,            // watts that start the ride (bike)
   START_SPEED: 0.3,           // m/s belt speed that starts the ride (treadmill)
-  SPEED_TAU: 0.5,             // seconds, smoothing of the 1 Hz belt speed for the eye (treadmill)
   WHEEL_RADIUS: 0.34,         // meters
   GEAR_RATIO: 2.7,            // wheel revs per crank rev
 
@@ -89,6 +89,7 @@ const Config = {
   if (S.deviceType) Config.DEVICE_TYPE = S.deviceType;
   if (S.duration > 0) Config.WORKOUT_SECONDS = S.duration;
   if (S.weightKg > 0) Config.MASS = S.weightKg + 10;   // rider + a 10 kg bike
+  if (S.referenceWatts > 0) Config.REFERENCE_WATTS = S.referenceWatts;
   Config.DEBUG = !!S.debug;
 }
 

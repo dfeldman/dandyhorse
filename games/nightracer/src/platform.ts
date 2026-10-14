@@ -90,6 +90,8 @@ export class Platform implements Controls {
   private receivedAt = 0
   private endedInfo: EndInfo | null = null
   private finishing = false
+  /** The workout was ended before the clock ran out (the pause menu, or a bridge). */
+  private cutShort = false
   /** Taps waiting for the game to take them. */
   private readonly queue: ButtonId[] = []
   private promptOpen = false
@@ -114,7 +116,9 @@ export class Platform implements Controls {
     this.difficulty = option(start.options, 'difficulty', DIFFICULTIES, 'normal')
     this.hills = option(start.options, 'hills', HILLS, 'feel') === 'feel'
     this.save = parseSave(start.saveState)
-    for (const id of Object.keys(start.achievements ?? {})) this.earned.add(id.replace(`${GAME_ID}.`, ''))
+    // the server stores them as "<gameId>:<id>" (servers/.../sessions/lifecycle.py)
+    const mine = `${GAME_ID}:`
+    for (const id of Object.keys(start.achievements ?? {})) if (id.startsWith(mine)) this.earned.add(id.slice(mine.length))
 
     // Effort is the machine against the player's own steady pace, so a walker and a runner both reach 50 at
     // their comfortable pace. Default smoothing: the car has its own inertia and nothing here punishes lag.
@@ -218,14 +222,25 @@ export class Platform implements Controls {
     }
   }
 
+  /**
+   * End the workout now, before the clock ran out: "End workout" in the pause menu, or the session ending from
+   * a bridge. The standings show as they stand, and the achievements for a whole workout are not earned.
+   */
+  finishEarly(): void {
+    this.cutShort = true
+    this.hooks?.series.finishNow()
+  }
+
   /** The workout is over: show the standings, send the last tick, then end the session. */
   finish(): void {
     if (this.finishing) return
     this.finishing = true
     const series = this.hooks?.series
     if (series) {
-      this.achievement('full-workout')
-      if (series.table()[0]?.id === PLAYER_ID) this.achievement('champion')
+      if (!this.cutShort) {
+        this.achievement('full-workout')
+        if (series.table()[0]?.id === PLAYER_ID) this.achievement('champion')
+      }
       this.recordResult(series)
     }
     setTimeout(() => void this.client.requestTick().then(() => this.client.end('complete')), END_DELAY_MS)
@@ -240,7 +255,8 @@ export class Platform implements Controls {
     const points = series.playerPoints
     const key = String(Math.round(this.duration / 60))
     this.save.wins += series.table().find((s) => s.id === PLAYER_ID)?.wins ?? 0
-    if (points > (this.save.best[key] ?? 0)) this.save.best[key] = points
+    // a best is only comparable against other workouts of the same length that ran their course
+    if (!this.cutShort && points > (this.save.best[key] ?? 0)) this.save.best[key] = points
     this.saveDirty = true
     this.writeSave()
   }
@@ -278,9 +294,10 @@ export class Platform implements Controls {
     const p = race.player
     const pos = race.track.pointAt(p.dist, p.x, 0)
     const body: TickBody = {
-      grade: this.gradeFor(race.track.poseAt(p.dist).grade),
-      // No speed: the car's 150 km/h is not a distance anyone rode. The server integrates the machine's own
-      // speed instead (INTEGRATION.md §7).
+      // The treadmill variant drives nothing, so it sends no targets at all. No speed either, on either
+      // machine: the car's 150 km/h is not a distance anyone rode, and the server integrates the machine's
+      // own speed instead (INTEGRATION.md §7).
+      ...(this.start.deviceType === 'bike' ? { grade: this.gradeFor(race.track.poseAt(p.dist).grade) } : {}),
       x: pos.x, y: pos.y, z: pos.z,
       score: series.playerPoints,
       route: `${GAME_ID}-${this.seed}`,
@@ -300,9 +317,7 @@ export class Platform implements Controls {
    * a device that reconnects should start still (docs/GAME_AUTHORING.md "Paused").
    */
   private gradeFor(roadGrade: number): number {
-    const target = this.paused() || !this.hills || this.start.deviceType !== 'bike'
-      ? 0
-      : clamp(roadGrade * GRADE_SCALE, 0, GRADE_MAX)
+    const target = this.paused() || !this.hills ? 0 : clamp(roadGrade * GRADE_SCALE, 0, GRADE_MAX)
     this.smoothGrade += (target - this.smoothGrade) * (1 - Math.exp(-1 / GRADE_TAU))
     return Math.round(this.smoothGrade * 100) / 100
   }

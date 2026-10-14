@@ -9,7 +9,8 @@ preferences, achievements and leaderboards, and serves every frontend.
 Read [PLAN.md](PLAN.md) for the full design. Game developers: start with
 [docs/GAME_DEVELOPER_GUIDE.md](docs/GAME_DEVELOPER_GUIDE.md) (tutorial, uses the
 `@dandyhorse/gamekit` library in `libs/gamekit`); the wire contract is in
-[docs/GAME_AUTHORING.md](docs/GAME_AUTHORING.md).
+[docs/GAME_AUTHORING.md](docs/GAME_AUTHORING.md), and [docs/EFFORT.md](docs/EFFORT.md) explains how games
+pace themselves by the player's own fitness rather than by raw watts.
 
 ## Layout
 

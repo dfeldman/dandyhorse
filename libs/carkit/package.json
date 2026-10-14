@@ -1,0 +1,32 @@
+{
+  "name": "@dandyhorse/carkit",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Procedural low-poly cars, vans, trucks and buses for Dandyhorse games: a parametric spec, a pure geometry builder, and a thin-instanced Babylon fleet with steering wheels, working lights and ground-following poses.",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./geometry": "./src/geometry/index.ts"
+  },
+  "types": "./src/index.ts",
+  "files": ["src"],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "shots": "node tools/shots.ts"
+  },
+  "peerDependencies": {
+    "@babylonjs/core": "9.26.0"
+  },
+  "devDependencies": {
+    "@babylonjs/core": "9.26.0",
+    "@types/node": "^24",
+    "playwright": "^1.63.0",
+    "typescript": "^5.8",
+    "vite": "^7",
+    "vitest": "^3.2"
+  }
+}

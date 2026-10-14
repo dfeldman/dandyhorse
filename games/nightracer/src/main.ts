@@ -97,7 +97,7 @@ async function boot(platform: Platform | null): Promise<void> {
     onPedal: (v) => (controls as LocalControls).set(v),
     ...(platform
       ? {
-          onEnd: () => { series.finishNow(); platform.finish() },
+          onEnd: () => platform.finishEarly(),
           // the car's speed isn't a real speed, but an mph reader still expects mph (INTEGRATION.md §8)
           speed: (ms: number) => {
             const q = units.speed(ms, platform.start.unitSystem, 0)
@@ -257,7 +257,7 @@ async function boot(platform: Platform | null): Promise<void> {
     if (platform) {
       platform.sync()
       // the session ended from a bridge or the console: show the standings as they stand and stop
-      if (platform.ended() && series.phase !== 'over') series.finishNow()
+      if (platform.ended() && series.phase !== 'over') platform.finishEarly()
       if (series.phase === 'over') platform.finish()
     }
   }

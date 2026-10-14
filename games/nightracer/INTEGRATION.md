@@ -4,9 +4,10 @@ What it takes to run Night Racer on the exercise platform (Dandyhorse, `~/dandyh
 points where the two meet. The game's own rules are in [README.md](README.md), and the platform's contract for
 games is `dandyhorse/docs/GAME_AUTHORING.md` (the tutorial is `docs/GAME_DEVELOPER_GUIDE.md`).
 
-Nothing here is built yet. The game was written so this is one new file: every input goes through the `Controls`
-interface in `src/controls.ts`, and everything the platform would want to read is in `__game.snapshot()`
-(`src/main.ts`).
+This is built. The game lives at `dandyhorse/games/nightracer`, and the platform side is `src/platform.ts`: it
+implements the `Controls` interface from `src/controls.ts` on top of gamekit's `SessionClient`, and everything it
+sends comes from `__game.snapshot()` (`src/main.ts`). What follows describes what was built; §4's treadmill
+choice and §9's suggestions are still open.
 
 ## 1. The shape of it
 

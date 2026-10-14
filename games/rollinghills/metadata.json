@@ -4,7 +4,7 @@
   "name": "Rolling Hills",
   "version": "0.1.0",
   "author": "Dandyhorse",
-  "description": "A cartoon bike rolls around a generated loop of hills, forests, villages and lakes. The game sets the hill; you set the pace.",
+  "description": "A cartoon bike rolls around a generated loop of hills, forests, villages and lakes. The game sets the hill; you set the pace, measured against your own.",
   "entry": "index.html",
   "screenshot": "screenshot.jpg",
   "minPlatformVersion": "1.0",
@@ -25,7 +25,7 @@
     {
       "id": "bike",
       "name": "Rolling Hills (Bike)",
-      "description": "Your measured power moves the bike; the trainer feels every hill.",
+      "description": "Your power against your own steady pace moves the bike; the trainer feels every hill.",
       "deviceTypes": ["bike"],
       "defaultDuration": 1800,
       "controls": { "bike": "grade" }
@@ -33,7 +33,7 @@
     {
       "id": "treadmill",
       "name": "Rolling Hills (Treadmill)",
-      "description": "The belt speed you choose moves the bike; the game sets the incline.",
+      "description": "Your pace against your own steady pace moves the bike; the game sets the incline.",
       "deviceTypes": ["treadmill"],
       "defaultDuration": 1800,
       "controls": { "treadmill": "incline" }

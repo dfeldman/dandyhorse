@@ -4,33 +4,33 @@ import { Track } from './track.js'
 import { Util } from './util.js'
 
 // The riding model, fed by what the machine MEASURES (never what the game asked for).
-//   bike:      measured power against gravity (grade), rolling resistance and drag -> virtual speed
-//   treadmill: the belt speed the user chose IS the speed (smoothed a little for the eye);
-//              the game never commands belt speed.
+//
+// Both machines pedal the same virtual bike, and they pedal it with EFFORT, not raw watts: how hard this
+// rider is working against the steady pace they could hold all day (src/drive.ts, gamekit's EffortMeter).
+// One unit of effort is REFERENCE_WATTS at the cranks, so everyone riding at their own steady pace holds
+// the same speed up the same hill — the ride fits the rider instead of rewarding the fittest.
+//   bike:      power / their steady watts
+//   treadmill: belt speed and incline as watts (ACSM) / their steady watts. The game never commands belt
+//              speed; it asks for incline, and because effort counts incline, a climb both costs the rider
+//              more and pushes the bike up the hill.
 // Either way the trail grade is what the game asks the machine for (as incline or grade); the
 // platform scales it by the user's difficulty / incline scale and clamps it to the machine.
 const Ride = (() => {
   let s = 0, v = 0, dist = 0, laps = 0, gradeOut = 0;
   let pose = Track.poseAt(0);
-  const isBike = () => Config.DEVICE_TYPE === 'bike';
 
-  // m: {power, speed} measured, null = unknown (never treated as a number)
+  // m: {effort, power, speed} measured, null = unknown (never treated as a number)
   // active=false holds the bike still (before the ride starts, while paused, after the workout)
   function update(m, dt, active = true) {
     const from = Track.poseAt(s);   // where this step begins: the slope the rider is on for its duration
     let power = null, pedaling = false;
     if (active) {
-      if (isBike()) {
-        power = m.power == null ? 0 : m.power;
-        v += bikeAccel(v, from.grade, power, Config.MASS) * dt;
-        if (power < 1 && v < 0.3 && from.grade >= -0.005) v = 0;   // not pedaling on the flat: stop, never creep
-        pedaling = power > Config.PEDAL_POWER;
-      } else {
-        const belt = m.speed == null ? 0 : m.speed;
-        v += (belt - v) * (1 - Math.exp(-dt / Config.SPEED_TAU));
-        if (belt <= 0 && v < 0.05) v = 0;
-        pedaling = v > 0.2;
-      }
+      // effort -> watts at the cranks. Nothing reading means nobody is pedalling, exactly as a missing
+      // power reading did before.
+      power = m.effort == null ? 0 : Math.max(0, m.effort) * Config.REFERENCE_WATTS;
+      v += bikeAccel(v, from.grade, power, Config.MASS) * dt;
+      if (power < 1 && v < 0.3 && from.grade >= -0.005) v = 0;   // not pedaling on the flat: stop, never creep
+      pedaling = power > Config.PEDAL_POWER;
       v = Util.clamp(v, 0, Config.MAX_SPEED);
       const ds = v * dt;
       s += ds; dist += ds;

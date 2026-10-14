@@ -4,10 +4,12 @@ This is what it takes to run Night Watch on the exercise platform (Dandyhorse, `
 the points where the two meet. The game's own rules are in [README.md](README.md). The platform's contract for
 games is `dandyhorse/docs/GAME_AUTHORING.md`, and the tutorial is `docs/GAME_DEVELOPER_GUIDE.md`.
 
-Nothing here is built yet. As with Night Racer, the platform work comes down to one new file:
-- every input goes through the `Controls` interface in `src/controls.ts`;
-- everything the platform would want to read is in `Night.snapshot()` (`src/sim/night.ts`), exposed as
-  `__game.snapshot()`.
+This is built. The game lives at `dandyhorse/games/nightwatch`, and the platform side is `src/platform.ts`:
+- it implements the `Controls` interface from `src/controls.ts` on top of gamekit's `SessionClient`;
+- everything it sends comes from `Night.snapshot()` (`src/sim/night.ts`), exposed as `__game.snapshot()`.
+
+What follows describes what was built. Both variants stayed read-only (§4), so the incline and grade options
+there, and §9's suggestions, are still open.
 
 ## 1. The shape of it
 

@@ -195,6 +195,10 @@ Some games pace their world by how hard the player works against their own fitne
 belt speed. Kingdom Trek does. gamekit's `effort.ts` gives every such game the same numbers:
 `effort = live ÷ steady`, which is 1.0 at the player's comfortable steady pace on any machine.
 
+What follows is the reference. **[EFFORT.md](EFFORT.md) is the long version**: what the numbers mean, how to
+map effort onto your own game, what every game on the platform does with it, and the fallback that will drive
+your game from a heart-rate strap if you let it.
+
 **What it reads:**
 - measured power, on any machine but a treadmill;
 - on a treadmill, speed and incline as bike-equivalent watts (`treadmillWatts()`): the ACSM oxygen cost × 20.9 J/ml
