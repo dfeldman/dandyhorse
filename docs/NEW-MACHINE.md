@@ -16,10 +16,11 @@ beside it, so with the default layout nothing needs setting:
 | `ASSETKIT_DIR` | `../assetkit` | cityengine (SF tree generator, local-assets mode), Trail Trainer local mode |
 | `AVATARKIT_DIR` | `../avatarkit` | dandyhorse (Makefile, server's `/avatars/`, Vite), cityengine and Trail Trainer local mode |
 | `CITYENGINE_DIR` | `../cityengine` | assetkit's statue importer |
+| `DANDYHORSE_DIR` | `../dandyhorse` | cityengine, only to run as a Dandyhorse game (gamekit); optional |
 | `ASSETMGR_ENV_FILE` | — | the bucket keys, only for uploading |
 
 Nothing is symlinked between repos and there are no submodules. The one fixed relative path is npm's own:
-`file:` dependencies in package.json (`avatarkit`, `carkit`, `assetmgr`, `@dandyhorse/gamekit`) assume siblings,
+`file:` dependencies in package.json (`avatarkit`, `carkit`, `assetmgr`) assume siblings,
 because npm cannot read environment variables there.
 
 | Repo | What | Depends on |
