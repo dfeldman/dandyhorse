@@ -8,12 +8,12 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "vue-tsc --noEmit"
+    "typecheck": "vue-tsc --noEmit",
+    "postinstall": "node ../../scripts/link-siblings.mjs avatarkit=AVATARKIT_DIR:../../../avatarkit"
   },
   "dependencies": {
     "vue": "^3.5",
     "vue-router": "^4.5",
-    "avatarkit": "file:../../../avatarkit",
     "@babylonjs/core": "9.26.0"
   },
   "devDependencies": {

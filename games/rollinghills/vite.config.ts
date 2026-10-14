@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     port: 5176,
     strictPort: true,
-    // avatarkit is a file: dependency in a sibling repo (AVATARKIT_DIR, default ../avatarkit beside dandyhorse), and its worker is fetched by path
+    // avatarkit is linked from a sibling repo by scripts/link-siblings.mjs (AVATARKIT_DIR, default ../avatarkit beside dandyhorse), and its worker is fetched by path
     fs: { allow: [resolve(import.meta.dirname, '../..'), resolve(process.env.AVATARKIT_DIR || resolve(import.meta.dirname, '../../../avatarkit'))] },
     proxy: Object.fromEntries(proxyPaths.map((p) => [p, { target: API, changeOrigin: false }])),
   },

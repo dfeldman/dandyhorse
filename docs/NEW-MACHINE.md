@@ -20,8 +20,9 @@ beside it, so with the default layout nothing needs setting:
 | `ASSETMGR_ENV_FILE` | — | the bucket keys, only for uploading |
 
 Nothing is symlinked between repos and there are no submodules. The one fixed relative path is npm's own:
-`file:` dependencies in package.json (`avatarkit`, `carkit`, `assetmgr`) assume siblings,
-because npm cannot read environment variables there.
+package.json files name no sibling paths either: npm cannot read environment variables there, so each package
+that uses a sibling (avatarkit, carkit, assetmgr) links it in `postinstall` with a small `link-siblings.mjs`, which
+points `node_modules/<name>` at the variable's directory. Set the variables before `npm install`.
 
 | Repo | What | Depends on |
 |---|---|---|

@@ -17,12 +17,12 @@
     "water": "node --experimental-strip-types tools/water.ts",
     "look": "node --experimental-strip-types tools/look.ts",
     "bench": "node --experimental-strip-types tools/bench.ts",
-    "stutter": "node tools/stutter.mjs"
+    "stutter": "node tools/stutter.mjs",
+    "postinstall": "node ../../scripts/link-siblings.mjs avatarkit=AVATARKIT_DIR:../../../avatarkit"
   },
   "dependencies": {
     "@babylonjs/core": "9.26.0",
-    "@babylonjs/loaders": "^9.26.0",
-    "avatarkit": "file:../../../avatarkit"
+    "@babylonjs/loaders": "^9.26.0"
   },
   "devDependencies": {
     "@types/node": "^24",

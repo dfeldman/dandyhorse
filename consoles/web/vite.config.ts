@@ -16,7 +16,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
-    // avatarkit is a file: dependency in a sibling repo (AVATARKIT_DIR, default ../avatarkit beside dandyhorse). Its modules come through
+    // avatarkit is linked from a sibling repo by scripts/link-siblings.mjs (AVATARKIT_DIR, default ../avatarkit beside dandyhorse). Its modules come through
     // node_modules, but its geometry worker is fetched by path (/@fs/…), which the dev server refuses unless allowed.
     fs: { allow: [resolve(import.meta.dirname, '../..'), resolve(process.env.AVATARKIT_DIR || resolve(import.meta.dirname, '../../../avatarkit'))] },
     proxy: Object.fromEntries(proxyPaths.map((p) => [p, { target: API, changeOrigin: false }])),
