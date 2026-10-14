@@ -1,0 +1,13 @@
+node_modules/
+dist/
+tools/cache/
+public/mh
+public/env
+*.log
+public/trees
+public/rocks
+public/plants
+# screenshots from npm run shots: regenerated on demand
+docs/shots/
+.DS_Store
+.assetmgr/
