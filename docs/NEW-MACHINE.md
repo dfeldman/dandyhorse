@@ -46,7 +46,7 @@ for r in assetmgr assetkit avatarkit dandyhorse cityengine; do git clone https:/
 | Python 3 with Pillow and numpy | texture painting, facade generator, generator helpers | `pip3 install pillow numpy` |
 | osmium-tool | cityengine's local OpenStreetMap queries (public Overpass is too easily overloaded) | `brew install osmium-tool` |
 | Playwright's Chromium | screenshot tools (`npm run shots`, cityengine views) | `npx playwright install chromium` |
-| PDAL + tools/lidar/requirements.txt | cityengine's lidar research pipeline only | see cityengine docs/LIDAR.md |
+| a Python venv with tools/lidar/requirements.txt | cityengine: the San Francisco lidar ground model before an SF bake | see cityengine docs/ASSETS.md |
 | git-filter-repo | only for history surgery | `brew install git-filter-repo` |
 
 ## Bringing each repo up
@@ -82,7 +82,7 @@ These are large, public and re-fetchable, so they are in neither git nor the buc
 | OpenStreetMap extracts (Geofabrik) | cityengine | `npm run osm:fetch` (docs/OSM-DATA.md) | ~2.6 GB |
 | Baked cities (`public/cities/`) | cityengine | `npm run bake san-francisco` after osm:fetch (docs/ASSETS.md); published to their own bucket with `npm run city:upload -- <city> --yes` (bake numbers) | GBs |
 | Terrain tiles (AWS Terrain Tiles) | cityengine, trailtrainer | fetched by the bakes (`tools/terrarium.ts`) | small |
-| USGS lidar (Entwine Point Tiles) | cityengine | `tools/lidar` (docs/LIDAR.md) | ~2 GB |
+| USGS lidar (Entwine Point Tiles) | cityengine | `tools/lidar/dtm.py san-francisco` before an SF bake (docs/ASSETS.md); the research pipeline in docs/LIDAR.md | small for the bake, ~2 GB for research |
 | Mapillary street photos | cityengine | `tools/photo.ts`, needs a free Mapillary token (below) | ~1.2 GB |
 | Wikimedia Commons photos | cityengine | `tools/commons.ts` | ~160 MB |
 | SF assessor rolls | cityengine | `tools/sf-parcels.ts` (data.sf.gov) | small |
