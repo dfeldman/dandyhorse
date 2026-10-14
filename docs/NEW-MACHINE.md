@@ -81,7 +81,7 @@ These are large, public and re-fetchable, so they are in neither git nor the buc
 | Data | Repo | How to get it | Size |
 |---|---|---|---|
 | OpenStreetMap extracts (Geofabrik) | cityengine | `npm run osm:fetch` (docs/OSM-DATA.md) | ~2.6 GB |
-| Baked cities (`public/cities/`) | cityengine | `npm run bake san-francisco` after osm:fetch (docs/ASSETS.md); published to their own bucket with `npm run city:upload -- <city> --yes` (bake numbers) | GBs |
+| Baked cities: shipped `public/cities/<id>/v3/`, bake-private `tools/cache/bake/<id>/` | cityengine | `npm run bake san-francisco` after osm:fetch (docs/ASSETS.md, "What a bake writes"); only San Francisco is live (`src/cities.json`) | GBs |
 | Terrain tiles (AWS Terrain Tiles) | cityengine, trailtrainer | fetched by the bakes (`tools/terrarium.ts`) | small |
 | USGS lidar (Entwine Point Tiles) | cityengine | `tools/lidar/dtm.py san-francisco` before an SF bake (docs/ASSETS.md); the research pipeline in docs/LIDAR.md | small for the bake, ~2 GB for research |
 | Mapillary street photos | cityengine | `tools/photo.ts`, needs a free Mapillary token (below) | ~1.2 GB |
