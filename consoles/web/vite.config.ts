@@ -11,14 +11,14 @@ const proxyPaths = ['/api', '/gameapi', '/bridgeapi', '/login', '/oidc', '/auth'
 export default defineConfig({
   plugins: [vue()],
   base: '/consoles/web/',
-  // the avatar designer builds bodies in a module worker (libs/avatarkit), which rules out the default iife workers
+  // the avatar designer builds bodies in a module worker (avatarkit), which rules out the default iife workers
   worker: { format: 'es' },
   server: {
     port: 5173,
     strictPort: true,
-    // libs/avatarkit is a file: dependency outside this app's folder. Its modules come through node_modules, but
-    // its geometry worker is fetched by path (/@fs/…), which the dev server refuses unless the repo is allowed.
-    fs: { allow: [resolve(import.meta.dirname, '../..')] },
+    // avatarkit is a file: dependency in a sibling repo (../avatarkit beside dandyhorse). Its modules come through
+    // node_modules, but its geometry worker is fetched by path (/@fs/…), which the dev server refuses unless allowed.
+    fs: { allow: [resolve(import.meta.dirname, '../..'), resolve(import.meta.dirname, '../../../avatarkit')] },
     proxy: Object.fromEntries(proxyPaths.map((p) => [p, { target: API, changeOrigin: false }])),
   },
 })

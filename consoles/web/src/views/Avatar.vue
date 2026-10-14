@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// The avatar designer (libs/avatarkit) on its own console page, reached from Preferences. The kit renders into a
+// The avatar designer (avatarkit, the sibling repo) on its own console page, reached from Preferences. The kit renders into a
 // shadow root on the host element, so its styles and the console's stay apart. It is a heavy page (Babylon and the
 // MakeHuman assets), so it loads on demand: nothing here is in the console's main bundle.
 import { onMounted, onUnmounted, ref } from 'vue'
@@ -21,7 +21,7 @@ onMounted(async () => {
       import('@dandyhorse/avatarkit/designer'),
       import('@dandyhorse/avatarkit'),
     ])
-    // the server serves libs/avatarkit/public/ here (see servers/api-flask/dandyhorse/static.py)
+    // the server serves ../avatarkit/public/ here (see servers/api-flask/dandyhorse/static.py)
     setAssetBase('/avatars/mh/')
     setStudioHdri(`/avatars/${STUDIO_HDRI}`)
     if (!host.value) return

@@ -20,7 +20,6 @@ pace themselves by the player's own fitness rather than by raw watts.
 | `consoles/web/` | Web console (Vue 3 + TypeScript) |
 | `bridges/web/` | Web bridge (Vue 3 + TypeScript, Web Bluetooth through `devicelib`) |
 | `libs/gamekit/` | Game client library (`@dandyhorse/gamekit`): API, SessionClient, units, prompts |
-| `libs/avatarkit/` | Avatar library (`@dandyhorse/avatarkit`): MakeHuman bodies, clothes and faces, procedural walk/run/cycle, and the designer the console embeds under Preferences. Its assets are not in git: see [libs/avatarkit/ASSETS.md](libs/avatarkit/ASSETS.md) |
 | `devicelib/` | Bluetooth device library (`@bikebike/devicelib`): model registry and quirks, FTMS and sensor drivers, simulators; the bridge's device layer |
 | `games/mockgame/` | Reference game exercising every API |
 | `games/rollinghills/` | Rolling Hills: a 3D bike ride over generated hills, for bike trainers and treadmills (ported from bikebike) |
@@ -36,16 +35,24 @@ the server discovers them by name and serves them under
 
 ## Quick start
 
+Dandyhorse expects its sibling repos checked out beside it:
+
+```
+~/dandyhorse   this repo
+~/avatarkit    the avatar library and designer (@dandyhorse/avatarkit), github.com/dfeldman/avatarkit
+~/assetmgr     the asset manager (only for uploading assets), github.com/dfeldman/assetmgr
+```
+
 ```bash
-make install     # npm install in each frontend, uv sync for the server
+make install     # npm install in avatarkit and each frontend, uv sync for the server
 make avatar-assets  # the avatar designer's assets (~300 MB, not in git)
 make build       # build console, bridge and every game into their dist/ folders
 make serve       # Flask on http://localhost:8080
 ```
 
-`make avatar-assets` copies a prepared asset set (default `~/avatarkit/public`, override with
-`AVATAR_ASSETS=/path/to/public`). Without it the console's avatar designer has nothing to draw; everything else
-runs. [libs/avatarkit/ASSETS.md](libs/avatarkit/ASSETS.md) explains what the assets are and how to rebuild them.
+`make avatar-assets` downloads avatarkit's MakeHuman assets from the shared asset bucket into
+`../avatarkit/public` (public, no key). Without it the console's avatar designer has nothing to draw; everything
+else runs. avatarkit's own ASSETS.md explains what the assets are and how to rebuild them from MakeHuman's data.
 
 Then open <http://localhost:8080/login?uid=1>. The stub login stores a
 token cookie for user 1 (any positive integer works; user 1 is admin).

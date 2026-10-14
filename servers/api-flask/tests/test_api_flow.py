@@ -33,14 +33,14 @@ def test_static_dist_first(client):
 
 
 def test_avatar_assets(client):
-    # the designer's MakeHuman assets, served for the console page (libs/avatarkit/README.md)
+    # the designer's MakeHuman assets, served for the console page (avatarkit's ASSETS.md)
     assert client.get("/avatars/mh/index.json").status_code == 200
     assert client.get("/avatars/mh/nope.json").status_code == 404
     assert client.get("/avatars/../../etc/passwd").status_code == 404
 
 
 def test_avatar_on_the_profile(client):
-    # the designer stores the player's avatar in users.profile.avatar (libs/avatarkit/INTEGRATION.md)
+    # the designer stores the player's avatar in users.profile.avatar (avatarkit's INTEGRATION.md)
     client.put("/api/me", json={"profile": {"bio": "hi"}})
     avatar = {"v": 2, "macros": {"Gender": 0.7}, "clothes": [{"id": "shirt"}]}
     me = client.put("/api/me", json={"profile": {"bio": "hi", "avatar": avatar}}).get_json()

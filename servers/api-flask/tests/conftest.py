@@ -49,8 +49,8 @@ def root(tmp_path: Path) -> Path:
                                                      "entry": "index.html", "default": True}))
         (d / "dist").mkdir()
         (d / "dist" / "index.html").write_text(f"<html>{kind} dist</html>")
-    # the avatar designer's assets (libs/avatarkit/public: mh/ and env/)
-    mh = tmp_path / "libs" / "avatarkit" / "public" / "mh"
+    # the avatar designer's assets (../avatarkit/public in a real checkout: mh/ and env/)
+    mh = tmp_path / "avatarkit-public" / "mh"
     mh.mkdir(parents=True)
     (mh / "index.json").write_text(json.dumps({"assets": []}))
     return tmp_path
@@ -58,7 +58,7 @@ def root(tmp_path: Path) -> Path:
 
 def make_app(root: Path, **over):
     # AUTH pinned so Google credentials in the developer's environment cannot switch the tests' login
-    return create_app({"ROOT": str(root), "REAPER": False, "AUTH": "stub", **over})
+    return create_app({"ROOT": str(root), "REAPER": False, "AUTH": "stub", "AVATARS_DIR": str(root / "avatarkit-public"), **over})
 
 
 @pytest.fixture()

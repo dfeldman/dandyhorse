@@ -1,4 +1,4 @@
-// The player's avatar: an AvatarSpec (libs/avatarkit) kept in their profile, as `users.profile.avatar`
+// The player's avatar: an AvatarSpec (avatarkit, the sibling repo) kept in their profile, as `users.profile.avatar`
 // (PLAN.md §8.1 lists "avatar" among the profile JSON's contents). It travels with the account, so the same
 // person appears in every game on any device.
 //

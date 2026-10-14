@@ -15,8 +15,8 @@ export default defineConfig({
   server: {
     port: 5176,
     strictPort: true,
-    // libs/avatarkit is a file: dependency outside this app's folder, and its worker is fetched by path
-    fs: { allow: [resolve(import.meta.dirname, '../..')] },
+    // avatarkit is a file: dependency in a sibling repo (../avatarkit beside dandyhorse), and its worker is fetched by path
+    fs: { allow: [resolve(import.meta.dirname, '../..'), resolve(import.meta.dirname, '../../../avatarkit')] },
     proxy: Object.fromEntries(proxyPaths.map((p) => [p, { target: API, changeOrigin: false }])),
   },
 })
