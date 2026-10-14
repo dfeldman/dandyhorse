@@ -37,6 +37,8 @@ the server discovers them by name and serves them under
 
 ## Quick start
 
+Setting up a whole new machine (all five repos, tools, what to copy by hand): [docs/NEW-MACHINE.md](docs/NEW-MACHINE.md).
+
 Dandyhorse expects its sibling repos checked out beside it:
 
 ```
