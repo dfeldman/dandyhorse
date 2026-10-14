@@ -1,5 +1,5 @@
 // Puts the avatar kit's assets and the baked routes next to a build. public/mh and public/env are
-// symlinks into libs/avatarkit/public (300 MB of MakeHuman data); copying them per build is not worth
+// symlinks into the avatarkit repo's public/ (300 MB of MakeHuman data); copying them per build is not worth
 // it, so vite skips publicDir entirely and this relinks. On Dandyhorse the platform serves the kit's
 // assets itself at /avatars/mh/ and this script is not used.
 import { cpSync, existsSync, mkdirSync, rmSync, symlinkSync } from 'node:fs'
@@ -16,5 +16,11 @@ for (const name of ['mh', 'env']) {
   rmSync(dst, { force: true, recursive: true })
   symlinkSync(src, dst)
 }
-cpSync(resolve(root, 'public', 'routes'), resolve(out, 'routes'), { recursive: true })
+// the baked routes and the ground textures: not in git, restored from the asset bucket (`make assets` at the
+// dandyhorse root, or `npx assetmgr restore`)
+for (const name of ['routes', 'textures']) {
+  const src = resolve(root, 'public', name)
+  if (!existsSync(src)) { console.warn(`link-assets: public/${name} is missing — run \`make assets\` in the dandyhorse root`); continue }
+  cpSync(src, resolve(out, name), { recursive: true })
+}
 console.log(`link-assets: ${out} ready`)

@@ -31,3 +31,9 @@ secret.key
 *~
 
 .assetmgr/
+
+# assetmgr: downloaded asset files (indexes/ ARE committed)
+/assets/
+
+# each game's screenshot: in the asset bucket (index dandyhorse-games), put back by `make assets`
+games/*/screenshot.*

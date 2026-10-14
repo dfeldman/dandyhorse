@@ -1,0 +1,913 @@
+{
+  "format": "assetmgr-index/1",
+  "name": "trailtrainer",
+  "description": "Trail Trainer's ground textures (Poly Haven, CC0) and baked route packages",
+  "defaults": {
+    "project": "trailtrainer",
+    "projectName": "Trail Trainer",
+    "repo": "https://github.com/dfeldman/dandyhorse",
+    "license": "CC0-1.0"
+  },
+  "assets": [
+    {
+      "id": "texture-bark-diff",
+      "name": "bark diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/pine_tree_01",
+      "clickUrl": "https://polyhaven.com/a/pine_tree_01",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "bark"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-5c76836b01-ground-bark.jpg",
+          "hash": "5c76836b01c3536fa0e24207b67bf4f3315b53ebe2b4ecc6f08dfcf3f8d74929",
+          "size": 725265,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/bark_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-broadleaf-alpha",
+      "name": "broadleaf alpha",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/island_tree_01",
+      "clickUrl": "https://polyhaven.com/a/island_tree_01",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "broadleaf"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-554272801b-ground-broadleaf.jpg",
+          "hash": "554272801b722756a02a32530ea12bae1a2a46fb72c1d294cd2751817ae5ea95",
+          "size": 84228,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/broadleaf_alpha.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-broadleaf-diff",
+      "name": "broadleaf diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/island_tree_01",
+      "clickUrl": "https://polyhaven.com/a/island_tree_01",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "broadleaf"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-f56d762a15-ground-broadleaf.jpg",
+          "hash": "f56d762a1507754752abf164cc12acbc1e87ce87fa609ac44b98a1b0037c89d8",
+          "size": 191886,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/broadleaf_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-canopy-broadleaf",
+      "name": "canopy broadleaf",
+      "folder": "trailtrainer/textures",
+      "notes": "Leaf-card page composited by tools/canopies.ts from Poly Haven CC0 tree models.",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/canopies.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "broadleaf"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-bf3e6dd734-ground-broadleaf.png",
+          "hash": "bf3e6dd734b68c1d2c2fc869634aa4a8cb4cc8132e570515037a8e518e6f27c7",
+          "size": 303816,
+          "fileFormat": "png",
+          "extension": "png",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/canopy_broadleaf.png"
+        }
+      ]
+    },
+    {
+      "id": "texture-canopy-conifer",
+      "name": "canopy conifer",
+      "folder": "trailtrainer/textures",
+      "notes": "Leaf-card page composited by tools/canopies.ts from Poly Haven CC0 tree models.",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/canopies.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "conifer"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-d1f3616d2d-ground-conifer.png",
+          "hash": "d1f3616d2d7348fe85efb342be7dcd67f0941c22a61898b960876ded49b576a7",
+          "size": 377339,
+          "fileFormat": "png",
+          "extension": "png",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/canopy_conifer.png"
+        }
+      ]
+    },
+    {
+      "id": "texture-canopy-grass",
+      "name": "canopy grass",
+      "folder": "trailtrainer/textures",
+      "notes": "Leaf-card page composited by tools/canopies.ts from Poly Haven CC0 tree models.",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/canopies.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "grass"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-e030a1aad5-ground-grass.png",
+          "hash": "e030a1aad599e2c94a7f759dee52358aabfb81a8702450798f11dfa1fd53b051",
+          "size": 217611,
+          "fileFormat": "png",
+          "extension": "png",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/canopy_grass.png"
+        }
+      ]
+    },
+    {
+      "id": "texture-conifer-alpha",
+      "name": "conifer alpha",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/pine_tree_01",
+      "clickUrl": "https://polyhaven.com/a/pine_tree_01",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "conifer"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-bee10734c5-ground-conifer.jpg",
+          "hash": "bee10734c529a874570da6e4091758de5cc7dee17a359eeacd9c67fde1cb0947",
+          "size": 195206,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/conifer_alpha.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-conifer-diff",
+      "name": "conifer diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/pine_tree_01",
+      "clickUrl": "https://polyhaven.com/a/pine_tree_01",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "conifer"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-e649f0f9bc-ground-conifer.jpg",
+          "hash": "e649f0f9bc74d1af5f1a45eaf2fe7a29adaaddfab251f746b983da301e4b80e1",
+          "size": 510932,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/conifer_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-dirt-diff",
+      "name": "dirt diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/dirt_floor",
+      "clickUrl": "https://polyhaven.com/a/dirt_floor",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "dirt"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-6c2e7f1c5e-ground-dirt.jpg",
+          "hash": "6c2e7f1c5eab8239fec561f255c607d0e3a86046925ba3a8b9340805efc1ab62",
+          "size": 903417,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/dirt_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-dirt-nor-gl",
+      "name": "dirt nor gl",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/dirt_floor",
+      "clickUrl": "https://polyhaven.com/a/dirt_floor",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "dirt"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-9481dc2cee-ground-dirt.jpg",
+          "hash": "9481dc2cee97b240ca10dc1cd60fec834a85e455aaa7d2a584396ea10210c2c0",
+          "size": 1167485,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/dirt_nor_gl.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-dry-diff",
+      "name": "dry diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/brown_mud_leaves_01",
+      "clickUrl": "https://polyhaven.com/a/brown_mud_leaves_01",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "dry"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-c598c555f1-ground-dry.jpg",
+          "hash": "c598c555f13cd5328409fd5e2a45496a26e319e52299e3959042f1449c2f1b06",
+          "size": 1206953,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/dry_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-dry-nor-gl",
+      "name": "dry nor gl",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/brown_mud_leaves_01",
+      "clickUrl": "https://polyhaven.com/a/brown_mud_leaves_01",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "dry"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-8dd5166ddc-ground-dry.jpg",
+          "hash": "8dd5166ddcc293cefd331d491ce6b9162bc9202ddd999ac1e4141697560d38e0",
+          "size": 1486072,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/dry_nor_gl.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-grass-diff",
+      "name": "grass diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/aerial_grass_rock",
+      "clickUrl": "https://polyhaven.com/a/aerial_grass_rock",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "grass"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-57b8041bfe-ground-grass.jpg",
+          "hash": "57b8041bfe0d0f01430e4dbaad45e7ddddf0a9fc97317f90dbc51f7b0d9e1b5d",
+          "size": 666655,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/grass_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-grass-nor-gl",
+      "name": "grass nor gl",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/aerial_grass_rock",
+      "clickUrl": "https://polyhaven.com/a/aerial_grass_rock",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "grass"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-1aa3e23bff-ground-grass.jpg",
+          "hash": "1aa3e23bff453f152e089b9f83aa36b4901651e019f7e2ca01d5331a9bbbda78",
+          "size": 904956,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/grass_nor_gl.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-gravel-diff",
+      "name": "gravel diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/gravel_floor",
+      "clickUrl": "https://polyhaven.com/a/gravel_floor",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "gravel"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-4e6ff82988-ground-gravel.jpg",
+          "hash": "4e6ff82988506676cfd8a79ac3e2964af239764c0064d4566040167704c4838d",
+          "size": 1327302,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/gravel_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-gravel-nor-gl",
+      "name": "gravel nor gl",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/gravel_floor",
+      "clickUrl": "https://polyhaven.com/a/gravel_floor",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "gravel"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-a3544e4aa7-ground-gravel.jpg",
+          "hash": "a3544e4aa7612a0bf0ea4890093b60c9f360234855d389bb9d408d29b90a7131",
+          "size": 1538430,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/gravel_nor_gl.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-paved-diff",
+      "name": "paved diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/asphalt_02",
+      "clickUrl": "https://polyhaven.com/a/asphalt_02",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "paved"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-1aa5ce99f5-ground-paved.jpg",
+          "hash": "1aa5ce99f58a625c71d48cfc3e68b65ca85ccb00f39e045c0a928608a0ea25ed",
+          "size": 731707,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/paved_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-paved-nor-gl",
+      "name": "paved nor gl",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/asphalt_02",
+      "clickUrl": "https://polyhaven.com/a/asphalt_02",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "paved"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-42a1c381b5-ground-paved.jpg",
+          "hash": "42a1c381b53204e83a982db2864479a30bc127bbdeebb1006f8ee51bff099df3",
+          "size": 1240122,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/paved_nor_gl.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-rock-diff",
+      "name": "rock diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/rocky_terrain_02",
+      "clickUrl": "https://polyhaven.com/a/rocky_terrain_02",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "rock"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-d570c10b1d-ground-rock.jpg",
+          "hash": "d570c10b1d5302f4fde9e0e94f4cbab0d5e112fc3fe2b3b91c38a98bd3ddaf4b",
+          "size": 843188,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/rock_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-rock-nor-gl",
+      "name": "rock nor gl",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/rocky_terrain_02",
+      "clickUrl": "https://polyhaven.com/a/rocky_terrain_02",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "rock"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-f4f9d9671c-ground-rock.jpg",
+          "hash": "f4f9d9671c660f4e509e96d5da3091887dfd557e1353e313fa2d1dc789499ffd",
+          "size": 993692,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/rock_nor_gl.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-snow-diff",
+      "name": "snow diff",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/snow_02",
+      "clickUrl": "https://polyhaven.com/a/snow_02",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "snow"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-523a4e69c9-ground-snow.jpg",
+          "hash": "523a4e69c90b96d787dd69b897f29a2b3761a017024405c60aa630d1e8e9009a",
+          "size": 325497,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/snow_diff.jpg"
+        }
+      ]
+    },
+    {
+      "id": "texture-snow-nor-gl",
+      "name": "snow nor gl",
+      "folder": "trailtrainer/textures",
+      "downloadDate": "2026-10-14",
+      "attribution": "Poly Haven (polyhaven.com), CC0",
+      "sourceUrl": "https://polyhaven.com/a/snow_02",
+      "clickUrl": "https://polyhaven.com/a/snow_02",
+      "notes": "Fetched from Poly Haven by tools/textures.ts (npm run textures).",
+      "type": "2d",
+      "subtype": "texture",
+      "generator": {
+        "script": "trailtrainer/tools/textures.ts"
+      },
+      "assetKeywords": [
+        "ground",
+        "snow"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-9495ec6806-ground-snow.jpg",
+          "hash": "9495ec680616b8340e2cbecbd151bff84c690cfad4209e90cc98d2d0ba81f810",
+          "size": 1081858,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/textures/snow_nor_gl.jpg"
+        }
+      ]
+    },
+    {
+      "id": "route-alpe-dhuez-dem-bin",
+      "name": "alpe-dhuez dem.bin",
+      "folder": "trailtrainer/routes",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors (ODbL); elevation from IGN RGE ALTI, USGS 3DEP and AWS Terrain Tiles (see Trail Trainer CREDITS.md)",
+      "notes": "A derived database under the ODbL: rebuilt from its open sources by `npm run bake` (tools/bake.ts).",
+      "type": "3d",
+      "subtype": "route",
+      "generator": {
+        "script": "trailtrainer/tools/bake.ts"
+      },
+      "assetKeywords": [
+        "route",
+        "alpe-dhuez"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-fc980d82f4-route-alpe-dhuez.bin",
+          "hash": "fc980d82f499eca18240fe2de0dc7aa79d3e30542763f6b55aae3f6f8963dde0",
+          "size": 540672,
+          "fileFormat": "bin",
+          "extension": "bin",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/routes/alpe-dhuez.dem.bin"
+        }
+      ]
+    },
+    {
+      "id": "route-alpe-dhuez-json",
+      "name": "alpe-dhuez json",
+      "folder": "trailtrainer/routes",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors (ODbL); elevation from IGN RGE ALTI, USGS 3DEP and AWS Terrain Tiles (see Trail Trainer CREDITS.md)",
+      "notes": "A derived database under the ODbL: rebuilt from its open sources by `npm run bake` (tools/bake.ts).",
+      "type": "3d",
+      "subtype": "route",
+      "generator": {
+        "script": "trailtrainer/tools/bake.ts"
+      },
+      "assetKeywords": [
+        "route",
+        "alpe-dhuez"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-52e2f171b2-route-alpe-dhuez.json",
+          "hash": "52e2f171b224990b7970ca9ab0ba1f6accf8d1ca37a77ce98875c2027aa25e71",
+          "size": 6593,
+          "fileFormat": "json",
+          "extension": "json",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/routes/alpe-dhuez.json"
+        }
+      ]
+    },
+    {
+      "id": "route-alpe-dhuez-track-bin",
+      "name": "alpe-dhuez track.bin",
+      "folder": "trailtrainer/routes",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors (ODbL); elevation from IGN RGE ALTI, USGS 3DEP and AWS Terrain Tiles (see Trail Trainer CREDITS.md)",
+      "notes": "A derived database under the ODbL: rebuilt from its open sources by `npm run bake` (tools/bake.ts).",
+      "type": "3d",
+      "subtype": "route",
+      "generator": {
+        "script": "trailtrainer/tools/bake.ts"
+      },
+      "assetKeywords": [
+        "route",
+        "alpe-dhuez"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-4a08006554-route-alpe-dhuez.bin",
+          "hash": "4a0800655432adbb24343c964c2b6e00495710c57437100a906a55961558736a",
+          "size": 17652,
+          "fileFormat": "bin",
+          "extension": "bin",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/routes/alpe-dhuez.track.bin"
+        }
+      ]
+    },
+    {
+      "id": "route-alpe-dhuez-water-json",
+      "name": "alpe-dhuez water.json",
+      "folder": "trailtrainer/routes",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors (ODbL); elevation from IGN RGE ALTI, USGS 3DEP and AWS Terrain Tiles (see Trail Trainer CREDITS.md)",
+      "notes": "A derived database under the ODbL: rebuilt from its open sources by `npm run bake` (tools/bake.ts).",
+      "type": "3d",
+      "subtype": "route",
+      "generator": {
+        "script": "trailtrainer/tools/bake.ts"
+      },
+      "assetKeywords": [
+        "route",
+        "alpe-dhuez"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-d777fa13a3-route-alpe-dhuez.json",
+          "hash": "d777fa13a371c2226935a2eeae76f923393fa835ac666f02a466f1af9a48e856",
+          "size": 98573,
+          "fileFormat": "json",
+          "extension": "json",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/routes/alpe-dhuez.water.json"
+        }
+      ]
+    },
+    {
+      "id": "route-index-json",
+      "name": "index json",
+      "folder": "trailtrainer/routes",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors (ODbL); elevation from IGN RGE ALTI, USGS 3DEP and AWS Terrain Tiles (see Trail Trainer CREDITS.md)",
+      "notes": "A derived database under the ODbL: rebuilt from its open sources by `npm run bake` (tools/bake.ts).",
+      "type": "3d",
+      "subtype": "route",
+      "generator": {
+        "script": "trailtrainer/tools/bake.ts"
+      },
+      "assetKeywords": [
+        "route",
+        "index"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-48c5dbe7b7-route-index.json",
+          "hash": "48c5dbe7b7fa2d424a03874aa7a32706f903d3ce66871ad7292d24c643b01405",
+          "size": 28,
+          "fileFormat": "json",
+          "extension": "json",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/routes/index.json"
+        }
+      ]
+    },
+    {
+      "id": "route-katy-trail-dem-bin",
+      "name": "katy-trail dem.bin",
+      "folder": "trailtrainer/routes",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors (ODbL); elevation from IGN RGE ALTI, USGS 3DEP and AWS Terrain Tiles (see Trail Trainer CREDITS.md)",
+      "notes": "A derived database under the ODbL: rebuilt from its open sources by `npm run bake` (tools/bake.ts).",
+      "type": "3d",
+      "subtype": "route",
+      "generator": {
+        "script": "trailtrainer/tools/bake.ts"
+      },
+      "assetKeywords": [
+        "route",
+        "katy-trail"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-012841b370-route-katy-trail.bin",
+          "hash": "012841b37046a71682f5df5988a03cb49d0a4c217ad9bf0885f2de80a70f1497",
+          "size": 1654784,
+          "fileFormat": "bin",
+          "extension": "bin",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/routes/katy-trail.dem.bin"
+        }
+      ]
+    },
+    {
+      "id": "route-katy-trail-json",
+      "name": "katy-trail json",
+      "folder": "trailtrainer/routes",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors (ODbL); elevation from IGN RGE ALTI, USGS 3DEP and AWS Terrain Tiles (see Trail Trainer CREDITS.md)",
+      "notes": "A derived database under the ODbL: rebuilt from its open sources by `npm run bake` (tools/bake.ts).",
+      "type": "3d",
+      "subtype": "route",
+      "generator": {
+        "script": "trailtrainer/tools/bake.ts"
+      },
+      "assetKeywords": [
+        "route",
+        "katy-trail"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-0ce3c4307e-route-katy-trail.json",
+          "hash": "0ce3c4307ec46981c352fd5b1797f46b28844da295049217a04b6dcad8b8d549",
+          "size": 19341,
+          "fileFormat": "json",
+          "extension": "json",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/routes/katy-trail.json"
+        }
+      ]
+    },
+    {
+      "id": "route-katy-trail-track-bin",
+      "name": "katy-trail track.bin",
+      "folder": "trailtrainer/routes",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors (ODbL); elevation from IGN RGE ALTI, USGS 3DEP and AWS Terrain Tiles (see Trail Trainer CREDITS.md)",
+      "notes": "A derived database under the ODbL: rebuilt from its open sources by `npm run bake` (tools/bake.ts).",
+      "type": "3d",
+      "subtype": "route",
+      "generator": {
+        "script": "trailtrainer/tools/bake.ts"
+      },
+      "assetKeywords": [
+        "route",
+        "katy-trail"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-7b79cea2cf-route-katy-trail.bin",
+          "hash": "7b79cea2cf2bc33172599f59910f9c152a5079e587c5fb7edc7764f372b27489",
+          "size": 231348,
+          "fileFormat": "bin",
+          "extension": "bin",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/routes/katy-trail.track.bin"
+        }
+      ]
+    },
+    {
+      "id": "route-katy-trail-water-json",
+      "name": "katy-trail water.json",
+      "folder": "trailtrainer/routes",
+      "license": "ODbL-1.0",
+      "attribution": "© OpenStreetMap contributors (ODbL); elevation from IGN RGE ALTI, USGS 3DEP and AWS Terrain Tiles (see Trail Trainer CREDITS.md)",
+      "notes": "A derived database under the ODbL: rebuilt from its open sources by `npm run bake` (tools/bake.ts).",
+      "type": "3d",
+      "subtype": "route",
+      "generator": {
+        "script": "trailtrainer/tools/bake.ts"
+      },
+      "assetKeywords": [
+        "route",
+        "katy-trail"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-96906ff484-route-katy-trail.json",
+          "hash": "96906ff4842fa5f592309d4b5c5639cff2181062626020fb63c65f37526a067c",
+          "size": 726424,
+          "fileFormat": "json",
+          "extension": "json",
+          "isProd": true,
+          "localPath": "games/trailtrainer/public/routes/katy-trail.water.json"
+        }
+      ]
+    }
+  ]
+}

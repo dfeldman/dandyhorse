@@ -27,6 +27,7 @@ pace themselves by the player's own fitness rather than by raw watts.
 | `games/bikeplane/` | Flight Cycle: pedal a biplane through rings around an island city, bike only; the rings are sized for the lag between pedals and plane (see its `PLAYABILITY.md`) |
 | `games/nightracer/` | Night Racer: race three rivals through a neon city at night, on either machine; your pace is the throttle, and Turbo and Oil are buttons on the phone (see its `INTEGRATION.md`) |
 | `games/nightwatch/` | Night Watch: keep a lighthouse lamp bright through the night so ships make harbour, on either machine; an interval workout set by the ships' timetable (see its `INTEGRATION.md`) |
+| `games/trailtrainer/` | Trail Trainer: real routes (Alpe d'Huez, the Katy Trail) from open map and elevation data, with coasting physics; standalone for now (see its README and `INTEGRATION.md`). Its trees, plants and rocks come from assetkit |
 | `data/` | Runtime data (SQLite DB, session logs), gitignored |
 
 Every console, bridge and game is a peer folder with a `metadata.json`;
@@ -45,7 +46,8 @@ Dandyhorse expects its sibling repos checked out beside it:
 
 ```bash
 make install     # npm install in avatarkit and each frontend, uv sync for the server
-make avatar-assets  # the avatar designer's assets (~300 MB, not in git)
+make assets      # files kept out of git (screenshots, Trail Trainer textures and routes) and the avatar
+                 # designer's assets (~300 MB), from the shared asset bucket; no key needed
 make build       # build console, bridge and every game into their dist/ folders
 make serve       # Flask on http://localhost:8080
 ```

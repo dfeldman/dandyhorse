@@ -1,0 +1,130 @@
+{
+  "format": "assetmgr-index/1",
+  "name": "dandyhorse-games",
+  "description": "Each Dandyhorse game's screenshot (shown by the console)",
+  "defaults": {
+    "project": "dandyhorse",
+    "projectName": "Dandyhorse",
+    "repo": "https://github.com/dfeldman/dandyhorse",
+    "folder": "dandyhorse/games",
+    "license": "CC0-1.0",
+    "type": "2d",
+    "subtype": "screenshot"
+  },
+  "assets": [
+    {
+      "id": "bikeplane-screenshot",
+      "name": "bikeplane screenshot",
+      "assetKeywords": [
+        "bikeplane",
+        "screenshot"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-df64e17501-bikeplane-screenshot.jpg",
+          "hash": "df64e17501493b2ba2c57b5a7c53b78f3e7a15fad191b4c1c3d424283a596b44",
+          "size": 155800,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/bikeplane/screenshot.jpg"
+        }
+      ]
+    },
+    {
+      "id": "kingdomtrek-screenshot",
+      "name": "kingdomtrek screenshot",
+      "assetKeywords": [
+        "kingdomtrek",
+        "screenshot"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-1e0c96a747-kingdomtrek-screenshot.png",
+          "hash": "1e0c96a7474622eeb2fefe83626585994c3526fa93b718734dcbb1bae5e59d30",
+          "size": 334209,
+          "fileFormat": "png",
+          "extension": "png",
+          "isProd": true,
+          "localPath": "games/kingdomtrek/screenshot.png"
+        }
+      ]
+    },
+    {
+      "id": "mockgame-screenshot",
+      "name": "mockgame screenshot",
+      "assetKeywords": [
+        "mockgame",
+        "screenshot"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-526775e96c-mockgame-screenshot.png",
+          "hash": "526775e96cb80244bc372766cc9a247d564250298763e59fcea6e53fe1d10302",
+          "size": 3128,
+          "fileFormat": "png",
+          "extension": "png",
+          "isProd": true,
+          "localPath": "games/mockgame/screenshot.png"
+        }
+      ]
+    },
+    {
+      "id": "nightracer-screenshot",
+      "name": "nightracer screenshot",
+      "assetKeywords": [
+        "nightracer",
+        "screenshot"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-5281fa9745-nightracer-screenshot.jpg",
+          "hash": "5281fa9745af0407f191b8185278682b6d3b2eeaeadde7ae2bd662240e9b728d",
+          "size": 170639,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/nightracer/screenshot.jpg"
+        }
+      ]
+    },
+    {
+      "id": "nightwatch-screenshot",
+      "name": "nightwatch screenshot",
+      "assetKeywords": [
+        "nightwatch",
+        "screenshot"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-e6de4c2b7f-nightwatch-screenshot.jpg",
+          "hash": "e6de4c2b7f30a268b6afb346bfb4b000fce796246ac996345f74cfeb49aa92cf",
+          "size": 197894,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/nightwatch/screenshot.jpg"
+        }
+      ]
+    },
+    {
+      "id": "rollinghills-screenshot",
+      "name": "rollinghills screenshot",
+      "assetKeywords": [
+        "rollinghills",
+        "screenshot"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-989f14b22b-rollinghills-screenshot.jpg",
+          "hash": "989f14b22bbe0bc8080066747f5c6fa7ae85b59d2f67ff200b68d869b35ce9fe",
+          "size": 86718,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/rollinghills/screenshot.jpg"
+        }
+      ]
+    }
+  ]
+}

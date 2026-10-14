@@ -11,3 +11,7 @@ public/plants
 docs/shots/
 .DS_Store
 .assetmgr/
+# the baked routes and the ground textures: in the asset bucket (index trailtrainer), put back by
+# `make assets` in the dandyhorse root (assetmgr restore); rebuilt from their sources by `npm run bake` / `npm run textures`
+public/routes/
+public/textures/
