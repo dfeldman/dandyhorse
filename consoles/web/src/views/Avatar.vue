@@ -18,8 +18,8 @@ let release: (() => void) | null = null
 onMounted(async () => {
   try {
     const [{ mountDesigner }, { setAssetBase, setStudioHdri, STUDIO_HDRI }] = await Promise.all([
-      import('@dandyhorse/avatarkit/designer'),
-      import('@dandyhorse/avatarkit'),
+      import('avatarkit/designer'),
+      import('avatarkit'),
     ])
     // the server serves ../avatarkit/public/ here (see servers/api-flask/dandyhorse/static.py)
     setAssetBase('/avatars/mh/')

@@ -43,7 +43,7 @@ Dandyhorse expects its sibling repos checked out beside it:
 
 ```
 ~/dandyhorse   this repo
-~/avatarkit    the avatar library and designer (@dandyhorse/avatarkit), github.com/dfeldman/avatarkit
+~/avatarkit    the avatar library and designer (avatarkit), github.com/dfeldman/avatarkit
 ~/assetmgr     the asset manager (only for uploading assets), github.com/dfeldman/assetmgr
 ```
 

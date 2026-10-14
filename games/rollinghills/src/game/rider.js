@@ -7,7 +7,7 @@
 // The body is built off the main thread and takes a moment, so create() returns at once and the rider appears when
 // it is ready. Until then the ride runs with nothing drawn where the rider will be.
 import * as BABYLON from '@babylonjs/core'
-import { Avatar, Bike as KitBike, GeometryService, setAssetBase, setStudioHdri, STUDIO_HDRI, suggestQuality } from '@dandyhorse/avatarkit'
+import { Avatar, Bike as KitBike, GeometryService, setAssetBase, setStudioHdri, STUDIO_HDRI, suggestQuality } from 'avatarkit'
 import { Config } from './config.js'
 import { Util } from './util.js'
 

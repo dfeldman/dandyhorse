@@ -102,7 +102,7 @@ The studio environment map the avatar kit lights bodies with is also Poly Haven'
 
 ## Avatars
 
-The people on the road are built by [`@dandyhorse/avatarkit`](../dandyhorse/libs/avatarkit), which carries its
+The people on the road are built by [`avatarkit`](../dandyhorse/libs/avatarkit), which carries its
 own credits for the MakeHuman assets, garments, hair and motion clips it uses — see that project's
 `CREDITS.md`. Nothing avatar-related is licensed here.
 

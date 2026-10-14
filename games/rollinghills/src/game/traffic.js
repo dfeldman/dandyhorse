@@ -1,4 +1,4 @@
-import { GeometryService, randomSpec, suggestQuality } from '@dandyhorse/avatarkit'
+import { GeometryService, randomSpec, suggestQuality } from 'avatarkit'
 import { Config } from './config.js'
 import { bikeAccel, cruiseSpeed, freewheeling, runSpeed } from './physics.js'
 import { Rider } from './rider.js'

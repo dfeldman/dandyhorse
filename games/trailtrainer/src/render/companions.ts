@@ -8,7 +8,7 @@
  * the whole of what "riding the other way down the same road" means.
  */
 import type { Scene } from '@babylonjs/core'
-import { randomSpec } from '@dandyhorse/avatarkit'
+import { randomSpec } from 'avatarkit'
 import { Config } from '../config.ts'
 import type { Route } from '../route/route.ts'
 import type { Companions } from '../sim/companions.ts'

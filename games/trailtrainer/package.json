@@ -22,7 +22,7 @@
   "dependencies": {
     "@babylonjs/core": "9.26.0",
     "@babylonjs/loaders": "^9.26.0",
-    "@dandyhorse/avatarkit": "file:../../../avatarkit"
+    "avatarkit": "file:../../../avatarkit"
   },
   "devDependencies": {
     "@types/node": "^24",

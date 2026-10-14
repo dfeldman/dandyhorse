@@ -10,7 +10,7 @@
  * see INTEGRATION.md.
  */
 import { Color3, Scene } from '@babylonjs/core'
-import { createEngine } from '@dandyhorse/avatarkit'
+import { createEngine } from 'avatarkit'
 import { applyQuery, Config } from './config.ts'
 import { LocalControls } from './controls.ts'
 import type { RouteManifest } from './route/package.ts'

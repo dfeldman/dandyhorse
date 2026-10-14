@@ -15,7 +15,7 @@ export default defineConfig({
   server: {
     port: 5196,
     strictPort: true,
-    // @dandyhorse/avatarkit is a file: dependency in the sibling avatarkit repo, and its worker is fetched by path
+    // avatarkit is a file: dependency in the sibling avatarkit repo, and its worker is fetched by path
     fs: { allow: [resolve(import.meta.dirname, '../..'), resolve(import.meta.dirname, '../../../avatarkit')] },
   },
   preview: { port: 5197, strictPort: true },

@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@babylonjs/core": "9.26.0",
-    "@dandyhorse/avatarkit": "file:../../../avatarkit",
+    "avatarkit": "file:../../../avatarkit",
     "@dandyhorse/gamekit": "file:../../libs/gamekit"
   }
 }

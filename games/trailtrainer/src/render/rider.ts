@@ -23,7 +23,7 @@ import {
   normalizeSpec,
   type Preset,
   type AvatarSpec,
-} from '@dandyhorse/avatarkit'
+} from 'avatarkit'
 import { Config } from '../config.ts'
 import { assetSource } from './assetsource.ts'
 import type { Pose } from '../route/route.ts'
