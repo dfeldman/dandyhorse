@@ -25,7 +25,7 @@ import {
   type AvatarSpec,
 } from 'avatarkit'
 import { Config } from '../config.ts'
-import { assetSource } from './assetsource.ts'
+import { assetSource, siblingUrl } from './assetsource.ts'
 import type { Pose } from '../route/route.ts'
 import type { SurfaceName } from '../route/package.ts'
 import type { Frame } from './frame.ts'
@@ -39,8 +39,9 @@ import { Layer } from './layers.ts'
 // By default the kit's assets now come from the shared asset bucket (avatarkit's assetmgr indexes, see
 // render/assetsource.ts); the local folders are the fallback, and what ?assets=local asks for.
 function useLocalAvatarAssets(): void {
-  setAssetBase(new URL('mh/', document.baseURI).href)
-  setStudioHdri(new URL(STUDIO_HDRI, document.baseURI).href)
+  // avatarkit's public/ through the dev server (AVATARKIT_DIR, see vite.config.ts)
+  setAssetBase(siblingUrl('avatarkit', 'public/mh/'))
+  setStudioHdri(siblingUrl('avatarkit', `public/${STUDIO_HDRI}`))
 }
 const avatarAssets: Promise<void> = assetSource() === 'bucket'
   ? loadFromBucket(Config.assetBucket).then(() => undefined, (e: unknown) => {

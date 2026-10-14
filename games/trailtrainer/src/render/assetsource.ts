@@ -8,8 +8,8 @@
  * season it always did; only the URL it is fetched from changes. The GLBs' textures sit beside them in the
  * bucket under their own content-hashed names, which the import rewrote into each file.
  *
- * `?assets=local` (or `Config.assetSource = 'local'`) reads the old `public/trees|plants|rocks/` folders instead,
- * for working offline with a library regenerated locally.
+ * `?assets=local` (or `Config.assetSource = 'local'`) reads assetkit's generated `public/trees|plants|rocks/` instead
+ * (through the dev server, at ASSETKIT_DIR), for working offline with a library regenerated locally.
  */
 import { Config } from '../config.ts'
 import type { Library } from './ecology.ts'
@@ -68,11 +68,21 @@ export function libraryIndex(lib: Library): Promise<LibraryIndex | null> {
   return p
 }
 
+/**
+ * A sibling repo's file through the dev server's /@fs/ route (vite.config.ts takes the repo paths from
+ * AVATARKIT_DIR / ASSETKIT_DIR). Nothing is symlinked into this repo.
+ */
+export function siblingUrl(repo: 'avatarkit' | 'assetkit', rel: string): string {
+  const dir = repo === 'avatarkit' ? (typeof __AVATARKIT_DIR__ === 'string' ? __AVATARKIT_DIR__ : '') : (typeof __ASSETKIT_DIR__ === 'string' ? __ASSETKIT_DIR__ : '')
+  return new URL(`/@fs${dir}/${rel}`, location.origin).href
+}
+
 async function localIndex(lib: Library): Promise<LibraryIndex | null> {
-  const res = await fetch(`${lib}/index.json`)
+  const base = siblingUrl('assetkit', `public/${lib}/`)
+  const res = await fetch(`${base}index.json`)
   if (!res.ok) return null
   const body = (await res.json()) as { trees: LibraryEntry[] }
-  return { entries: body.trees, url: (file) => `${lib}/${file}` }
+  return { entries: body.trees, url: (file) => `${base}${file}` }
 }
 
 async function bucketIndex(lib: Library): Promise<LibraryIndex> {

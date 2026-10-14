@@ -143,13 +143,14 @@ npm run build
 The tree, plant and rock libraries and the rider's avatar assets load from the shared asset bucket by default:
 assetkit's and avatarkit's assetmgr indexes, read over public HTTPS with no key ([src/render/assetsource.ts](src/render/assetsource.ts)).
 A fresh clone therefore rides without regenerating any of them. `?assets=local` (or `Config.assetSource`) reads
-the old `public/trees|plants|rocks/`, `public/mh` and `public/env` instead, for working offline or on a library
-you have just regenerated; `npm run shots -- --assets=local` makes the matching before-and-after frames. After
+them from the sibling repos instead, through the dev server: assetkit's generated `public/trees|plants|rocks/` and
+avatarkit's `public/mh`, found at `ASSETKIT_DIR` and `AVATARKIT_DIR` (default: the checkouts beside dandyhorse) —
+for working offline or on a library you have just regenerated; `npm run shots -- --assets=local` makes the matching before-and-after frames. After
 regenerating a library (assetkit's generators: `npm run trees`, `rocks`, `plants` there), record it with assetkit's
 `npm run import:nature` and upload.
 
-`public/mh` and `public/env` are symlinks into `libs/avatarkit`'s 300 MB of MakeHuman assets, so the build
-skips `publicDir` and relinks them afterwards (only needed with `?assets=local`).
+The baked routes and ground textures are not in git either: `make assets` in the dandyhorse root restores them
+from the bucket, and the build copies them into `dist/` (tools/link-assets.js). Nothing is symlinked.
 
 Putting this on Dandyhorse is [INTEGRATION.md](INTEGRATION.md) — one new file, and a different place to keep
 the one number that matters.

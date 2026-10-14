@@ -26,12 +26,13 @@ game ─► putsave: { routes: { <id>: { s, elapsed, sessions, completed } } }  
 
 ## 2. Assets
 
-Two symlinks in `public/` stand in for what the platform already serves:
+The avatar assets come from the shared asset bucket (`loadFromBucket`, src/render/rider.ts); the platform can
+instead serve its own copy, which is the only change there:
 
 ```ts
-// src/render/rider.ts, the only two lines that change
-setAssetBase(new URL('mh/', document.baseURI).href)        // platform: '/avatars/mh/'
-setStudioHdri(new URL(`env/${STUDIO_HDRI}`, document.baseURI).href)
+// src/render/rider.ts, local mode
+setAssetBase(siblingUrl('avatarkit', 'public/mh/'))        // platform: '/avatars/mh/'
+setStudioHdri(siblingUrl('avatarkit', `public/${STUDIO_HDRI}`))
 ```
 
 The base must stay an **absolute** URL. The kit builds bodies in a worker, and a relative `./mh/` there
