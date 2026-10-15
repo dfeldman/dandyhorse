@@ -20,6 +20,11 @@
 <style>
   html, body { margin: 0; height: 100%; background: #0d1018; overflow: hidden }
   iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block }
+  .note { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); max-width: 520px; padding: 18px 22px;
+    border-radius: 14px; background: #1b2033; color: #e8ecf6; font: 500 16px/1.45 system-ui, sans-serif; text-align: center }
+  .note code { color: #9fd3ff }
+  .dev { position: fixed; left: 8px; bottom: 8px; padding: 3px 8px; border-radius: 6px; background: #b8441e; color: #fff;
+    font: 600 12px/1.4 system-ui, sans-serif; pointer-events: none; opacity: .85 }
 </style>
 </head>
 <body>
@@ -45,9 +50,30 @@
   const frame = document.getElementById('game')
   frame.src = `${origin}/index.html?${q}`
 
+  // a development copy says so; and a game that never calls (the dev server not running, the site down) is not left
+  // as a silent black page
+  if (origin !== ORIGINS[0]) {
+    const tag = document.createElement('div')
+    tag.className = 'dev'
+    tag.textContent = `City Dash from ${origin}`
+    document.body.appendChild(tag)
+  }
+  let heard = false
+  setTimeout(() => {
+    if (heard) return
+    const note = document.createElement('div')
+    note.className = 'note'
+    note.innerHTML = `City Dash has not started from <code></code>.<br>Is it running?`
+      + (origin !== ORIGINS[0] ? ' Add <code>?citydash=default</code> to this page\'s address to use the published game.' : '')
+    note.querySelector('code').textContent = origin
+    document.body.appendChild(note)
+  }, 25000)
+
   const live = new Map()
   addEventListener('message', async (ev) => {
     if (ev.source !== frame.contentWindow || ev.origin !== origin) return
+    heard = true
+    document.querySelector('.note')?.remove()
     const m = ev.data
     if (!m || typeof m !== 'object' || typeof m.id !== 'number') return
     if (m.dh === 'abort') { live.get(m.id)?.abort(); live.delete(m.id); return }
