@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "citydash",
+  "name": "City Dash",
+  "version": "0.2.0",
+  "author": "Dandyhorse",
+  "description": "Deliver parcels across a real San Francisco, hills and all. Your power moves the bike, the trainer feels every grade, and you pick the turns from your phone — or let the route guide you.",
+  "entry": "index.html",
+  "screenshot": "screenshot.jpg",
+  "minPlatformVersion": "1.0",
+  "capabilities": {
+    "seed": false,
+    "input": true,
+    "saveState": true,
+    "ghosts": false
+  },
+  "achievements": {
+    "first-turn": { "name": "Your own way", "description": "Took a turn you chose." },
+    "ten-km": { "name": "Ten kilometres", "description": "Rode 10 km through a real city." },
+    "every-street": { "name": "Knows the neighbourhood", "description": "Rode every street of one city." }
+  },
+  "variants": [
+    {
+      "id": "bike",
+      "name": "City Dash (Bike)",
+      "deviceTypes": ["bike"],
+      "defaultDuration": 1800,
+      "controls": { "bike": "grade" },
+      "description": "Your power moves you; the trainer feels the grade of the street."
+    }
+  ],
+  "options": {
+    "traffic": {
+      "label": "Other people",
+      "enum": ["none", "some", "busy"],
+      "default": "some",
+      "labels": ["Empty streets", "Some", "Busy"]
+    },
+    "time": {
+      "label": "Time of day",
+      "enum": ["day", "dawn", "dusk", "night"],
+      "default": "day",
+      "labels": ["Day", "Dawn", "Dusk", "Night"]
+    },
+    "weather": {
+      "label": "Weather",
+      "enum": ["clear", "overcast", "rain"],
+      "default": "clear",
+      "labels": ["Clear", "Overcast", "Rain"]
+    }
+  }
+}

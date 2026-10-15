@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>City Dash</title>
+<!--
+  CITY DASH IS NOT SERVED FROM HERE. The game lives in its own repo (cityengine) and on its own site
+  (https://dash.dfeldman.org); this page is the whole of it on the platform: it frames the game, passing on the
+  session's parameters, and carries the game's /gameapi/* calls — the game cannot make them itself from its own
+  origin, since the session cookie does not cross to it. cityengine's src/relay.ts is the other half:
+
+    game ── postMessage {dh:'fetch', id, method, path, body} ──► this page ── fetch /gameapi/… ──► server
+    game ◄─ postMessage {dh:'reply', id, status, text} ────────── this page
+
+  It answers only the origins listed in ORIGINS, only for /gameapi/ on this server, only GET/POST/PUT.
+  A development copy of the game: ?citydash=http://localhost:5200 on this page's URL (remembered in this browser;
+  ?citydash=default forgets it). Only the listed origins can be chosen.
+-->
+<style>
+  html, body { margin: 0; height: 100%; background: #0d1018; overflow: hidden }
+  iframe { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; display: block }
+</style>
+</head>
+<body>
+<iframe id="game" allow="fullscreen; gamepad; autoplay" title="City Dash"></iframe>
+<script>
+(() => {
+  // where City Dash is served: the first is the default
+  const ORIGINS = ['https://dash.dfeldman.org', 'http://localhost:5200', 'http://127.0.0.1:5200']
+  const here = new URLSearchParams(location.search)
+  let origin = ORIGINS[0]
+  try {
+    const asked = here.get('citydash')
+    if (asked === 'default') localStorage.removeItem('citydash.origin')
+    else if (asked && ORIGINS.includes(asked)) localStorage.setItem('citydash.origin', asked)
+    const kept = localStorage.getItem('citydash.origin')
+    if (kept && ORIGINS.includes(kept)) origin = kept
+  } catch { /* storage blocked: the default */ }
+
+  // the game's URL: the session's own parameters, and who is framing it (src/relay.ts `relayHost`)
+  const q = new URLSearchParams()
+  for (const k of ['session', 'variant', 'seed', 'debug']) if (here.has(k)) q.set(k, here.get(k))
+  q.set('host', location.origin)
+  const frame = document.getElementById('game')
+  frame.src = `${origin}/index.html?${q}`
+
+  const live = new Map()
+  addEventListener('message', async (ev) => {
+    if (ev.source !== frame.contentWindow || ev.origin !== origin) return
+    const m = ev.data
+    if (!m || typeof m !== 'object' || typeof m.id !== 'number') return
+    if (m.dh === 'abort') { live.get(m.id)?.abort(); live.delete(m.id); return }
+    if (m.dh !== 'fetch' || typeof m.path !== 'string') return
+    const reply = (r) => frame.contentWindow?.postMessage({ dh: 'reply', id: m.id, ...r }, origin)
+    let url
+    try { url = new URL(m.path, location.origin) } catch { reply({ error: 'bad path' }); return }
+    if (url.origin !== location.origin || !url.pathname.startsWith('/gameapi/')) { reply({ error: 'not a game API path' }); return }
+    if (!['GET', 'POST', 'PUT'].includes(m.method)) { reply({ error: 'bad method' }); return }
+    const ctl = new AbortController()
+    live.set(m.id, ctl)
+    try {
+      const init = { method: m.method, credentials: 'same-origin', signal: ctl.signal }
+      if (typeof m.body === 'string') { init.headers = { 'Content-Type': 'application/json' }; init.body = m.body }
+      const res = await fetch(url.pathname + url.search, init)
+      reply({ status: res.status, text: await res.text() })
+    } catch (e) {
+      if (!ctl.signal.aborted) reply({ error: String((e && e.message) || e) })
+    } finally {
+      live.delete(m.id)
+    }
+  })
+
+  // the bridge focuses this page when it shows the game: the keys belong to the game
+  const focus = () => { try { frame.focus(); frame.contentWindow?.focus() } catch { /* not loaded yet */ } }
+  frame.addEventListener('load', focus)
+  addEventListener('focus', focus)
+})()
+</script>
+</body>
+</html>

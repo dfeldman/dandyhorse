@@ -125,6 +125,25 @@
           "localPath": "games/rollinghills/screenshot.jpg"
         }
       ]
+    },
+    {
+      "id": "citydash-screenshot",
+      "name": "citydash screenshot",
+      "assetKeywords": [
+        "citydash",
+        "screenshot"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-d2ec8f912a-citydash-screenshot.jpg",
+          "hash": "d2ec8f912a151983719c66d96675e840847132875f1c5ed61653680d4683c8dd",
+          "size": 191164,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/citydash/screenshot.jpg"
+        }
+      ]
     }
   ]
 }
