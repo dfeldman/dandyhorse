@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>City Dash</title>
+<title>Cycle Dash</title>
 <!--
   CITY DASH IS NOT SERVED FROM HERE. The game lives in its own repo (cityengine) and on its own site
   (https://dash.dfeldman.org); this page is the whole of it on the platform: it frames the game, passing on the
@@ -28,7 +28,7 @@
 </style>
 </head>
 <body>
-<iframe id="game" allow="fullscreen; gamepad; autoplay" title="City Dash"></iframe>
+<iframe id="game" allow="fullscreen; gamepad; autoplay" title="Cycle Dash"></iframe>
 <script>
 (() => {
   // where City Dash is served: the first is the default
@@ -55,7 +55,7 @@
   if (origin !== ORIGINS[0]) {
     const tag = document.createElement('div')
     tag.className = 'dev'
-    tag.textContent = `City Dash from ${origin}`
+    tag.textContent = `Cycle Dash from ${origin}`
     document.body.appendChild(tag)
   }
   let heard = false
@@ -63,7 +63,7 @@
     if (heard) return
     const note = document.createElement('div')
     note.className = 'note'
-    note.innerHTML = `City Dash has not started from <code></code>.<br>Is it running?`
+    note.innerHTML = `Cycle Dash has not started from <code></code>.<br>Is it running?`
       + (origin !== ORIGINS[0] ? ' Add <code>?citydash=default</code> to this page\'s address to use the published game.' : '')
     note.querySelector('code').textContent = origin
     document.body.appendChild(note)

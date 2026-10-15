@@ -1,4 +1,4 @@
-# City Dash
+# Cycle Dash
 
 A delivery game in a real San Francisco: your power moves the bike, the trainer feels every grade, and you steer at
 the junctions from the bridge's d-pad (or let the route guide you).
