@@ -159,6 +159,46 @@ export class SessionClient {
     }
   }
 
+  // --- the end screen (PLAN.md §6.4.1) --------------------------------------------------------
+
+  /**
+   * For a game with `capabilities.endScreen`: once the session has ended `complete`, show your summary and call this.
+   * It watches the platform's end screen (about once a second) and calls `onClosed` once, when it closes: Done pressed
+   * on a bridge, the player dismissing it in your game (`close()`), or the platform's timeout. Hide your summary then;
+   * the bridge takes the screen back. `stop()` stops watching without closing it.
+   */
+  watchEndScreen(onClosed: () => void, everyMs = 1000): { close: () => Promise<void>; stop: () => void } {
+    let done = false
+    let timer: ReturnType<typeof setTimeout> | null = null
+    const finish = (): void => {
+      if (done) return
+      done = true
+      if (timer !== null) clearTimeout(timer)
+      onClosed()
+    }
+    const poll = async (): Promise<void> => {
+      if (done) return
+      try {
+        const s = await api.endScreenState(this.sessionId)
+        if (!s.open) { finish(); return }
+      } catch (e) {
+        // a platform without end screens (an older server): nothing is holding the screen, so it is closed
+        if (e instanceof api.ApiError && e.status === 404) { finish(); return }
+        this.opts.onError?.('endscreen', e)
+      }
+      if (!done) timer = setTimeout(() => void poll(), everyMs)
+    }
+    timer = setTimeout(() => void poll(), everyMs)
+    return {
+      close: async () => {
+        if (done) return
+        try { await api.closeEndScreen(this.sessionId) } catch (e) { this.opts.onError?.('endscreen', e) }
+        finish()
+      },
+      stop: () => { done = true; if (timer !== null) clearTimeout(timer) },
+    }
+  }
+
   private imageSent = false
 
   private finish(status: SessionStatus, reason: string | null, summary: SessionSummary | null): void {

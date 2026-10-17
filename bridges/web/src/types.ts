@@ -77,6 +77,8 @@ export interface SessionBrief {
   pausedSeconds?: number
   /** false: the game plays without a machine (a heart rate monitor alone, or nothing, is fine); only the user pauses */
   autoPause?: boolean
+  /** the game shows its own summary when the session completes (capabilities.endScreen, PLAN.md §6.4.1) */
+  endScreen?: boolean
 }
 
 export interface PauseInfo {
@@ -180,7 +182,10 @@ export interface GetState {
   work: number | null
   owner: { fitness: string | null; hrm: string | null }
   otherBridges: OtherBridge[]
+  /** a completed game showing its own summary (PLAN.md §6.4.1): keep it on screen and offer Done; null when none */
+  endScreen?: EndScreen | null
 }
+export interface EndScreen { sessionId: string; until: number; seconds: number }
 export interface GetState extends Standing {}
 
 export interface ReportedDevice {

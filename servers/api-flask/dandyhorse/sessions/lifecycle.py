@@ -77,6 +77,7 @@ def launch(dh: "Platform", conn: sqlite3.Connection, user: dict[str, Any], *, ga
     if duration is None:
         duration = var.get("defaultDuration")
     supersede(dh, conn, user["uid"])
+    dh.store.close_end_screen(user["uid"])  # a new session (Play again): the last one's summary is done with (§6.4.1)
     t = _now()
     live = LiveSession(
         session_id=ulid(t), uid=user["uid"], game_id=game_id, variant=variant,
@@ -85,6 +86,7 @@ def launch(dh: "Platform", conn: sqlite3.Connection, user: dict[str, Any], *, ga
         options=dict(options or {}), created_at=t, allow_sim=_allow_sim(user, bool(debug)),
         integrator=Integrator(device_type, user.get("body_data") or {}, dh.config.efficiency, dh.config.default_weight),
         auto_pause=(game.get("capabilities") or {}).get("autoPause") is not False,
+        end_screen=(game.get("capabilities") or {}).get("endScreen") is True,
     )
     _insert_row(conn, live)
     dh.store.add(live)
@@ -378,6 +380,8 @@ def session_brief(dh: "Platform", live: LiveSession) -> dict[str, Any]:
         "seed": live.seed, "debug": live.debug, "seq": live.seq, "controls": controls,
         # False: the game plays on without a machine (a heart-rate strap alone is fine) and only the user pauses.
         "autoPause": live.auto_pause,
+        # True: when the session completes, the game shows its own summary and bridges keep it on screen (§6.4.1)
+        "endScreen": live.end_screen,
         "elapsed": (t - live.started_at) if live.started_at else 0.0,
         "requestedDuration": live.requested_duration, "route": live.route,
         # seconds since the game last called setstate; bridges hold, then ramp a treadmill down, when it grows
@@ -389,6 +393,10 @@ def session_brief(dh: "Platform", live: LiveSession) -> dict[str, Any]:
     }
 
 
+# How long a game's end screen may hold the screen after the session completes, if nobody dismisses it (§6.4.1).
+END_SCREEN_SECONDS = 120.0
+
+
 def end(dh: "Platform", conn: sqlite3.Connection, live: LiveSession, status: str, reason: str) -> dict[str, Any]:
     """Finalize a live session. Idempotent."""
     if live.terminal:
@@ -396,6 +404,11 @@ def end(dh: "Platform", conn: sqlite3.Connection, live: LiveSession, status: str
     t = _now()
     if live.status == "pending":
         status = "discarded"
+    # A completed game that shows its own summary keeps the screen until the player dismisses it (§6.4.1). Opened
+    # before the session turns terminal: a bridge that reads its state at any moment after must see the end and the
+    # end screen together, or it takes the screen back from the game.
+    if status == "complete" and live.end_screen:
+        dh.store.open_end_screen(live.uid, live.session_id, t + END_SCREEN_SECONDS)
     live.status = status
     live.end_reason = reason
     live.ended_at = t

@@ -12,7 +12,8 @@
     "seed": false,
     "input": true,
     "saveState": true,
-    "ghosts": false
+    "ghosts": false,
+    "endScreen": true
   },
   "achievements": {
     "first-turn": { "name": "Your own way", "description": "Took a turn you chose." },

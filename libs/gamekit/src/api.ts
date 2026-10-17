@@ -75,6 +75,17 @@ export const pauseSession = (sessionId: string, paused: boolean) =>
 export const endSession = (sessionId: string, status: 'complete' | 'discarded', reason?: string) =>
   request<SessionSummary>('POST', '/gameapi/endsession', { sessionId, status, reason })
 
+/**
+ * `GET /gameapi/endscreen?session=` — is this completed session's end screen still on (PLAN.md §6.4.1)? Only for a game
+ * with `capabilities.endScreen`; `seconds` is how long the bridges will still wait for it.
+ */
+export const endScreenState = (sessionId: string) =>
+  request<{ open: boolean; seconds: number }>('GET', `/gameapi/endscreen?${query({ session: sessionId })}`)
+
+/** `POST /gameapi/endscreen` — the player dismissed the game's end screen: the bridges let the screen go. */
+export const closeEndScreen = (sessionId: string) =>
+  request<{ ok: boolean; closed: boolean }>('POST', '/gameapi/endscreen', { sessionId })
+
 /** `PUT /gameapi/sessions/<id>/image` — the picture History shows (PNG/JPEG data URL, ≤ 1 MB). PLAN.md §6.7. */
 export const putSessionImage = (sessionId: string, dataUrl: string) =>
   request<{ ok: boolean; imageUrl: string; bytes: number }>('PUT', `/gameapi/sessions/${encodeURIComponent(sessionId)}/image`, { image: dataUrl })

@@ -140,6 +140,8 @@ export const store = reactive({
   hosting: false,
   expanded: false,
   gameUrl: null as string | null,
+  /** the session whose end screen the hosted game is showing (PLAN.md §6.4.1): the game keeps the screen meanwhile */
+  endHold: null as string | null,
 
   // debug
   lastGetState: null as unknown,
@@ -338,10 +340,17 @@ function applyGetState(gs: GetState): void {
     if (store.session) {
       const ended = store.session
       store.session = null
-      store.expanded = true // the game is over; bring the bridge UI back
+      // the game is over; bring the bridge UI back — unless the game is showing its end screen (PLAN.md §6.4.1):
+      // then the game keeps the screen until the player is done with it (Done here, or in the game, or the timeout)
+      if (store.hosting && gs.endScreen?.sessionId === ended.sessionId) store.endHold = ended.sessionId
+      else store.expanded = true
       void fetchEnded(ended.sessionId)
     }
     store.lastSeq = 0
+  }
+  if (store.endHold && (!gs.endScreen || gs.endScreen.sessionId !== store.endHold || store.session)) {
+    store.endHold = null
+    if (!store.session) store.expanded = true
   }
   store.requested = gs.requested
   store.limits = { ...DEFAULT_LIMITS, ...gs.limits }
@@ -641,6 +650,18 @@ export async function resumeSession(): Promise<void> {
     noteError(e, 'session', t0)
   }
 }
+/** Done with the game's end screen (PLAN.md §6.4.1): closes it on every bridge and in the game. */
+export async function dismissEndScreen(): Promise<void> {
+  const sid = store.state?.endScreen?.sessionId
+  const t0 = performance.now()
+  try {
+    await api('/bridgeapi/endscreen', { method: 'POST', body: sid ? { sessionId: sid } : {} })
+    logRT('session', t0, true, 200, 'end screen done')
+  } catch (e) {
+    noteError(e, 'session', t0)
+  }
+}
+
 /** What the Pause/Play control should offer right now. */
 export function pausePlay(): 'pause' | 'play' | null {
   const s = store.session
@@ -896,6 +917,7 @@ export function focusGame(): void {
   try { frame.contentWindow?.focus() } catch { /* ignored: not loaded yet */ }
 }
 export function stopHosting(): void {
+  store.endHold = null
   store.hosting = false
   store.expanded = false
   store.gameUrl = null

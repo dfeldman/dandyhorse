@@ -138,6 +138,10 @@ buttons ("Upshift", "Downshift"); never text or continuous input.
   bridge draws a cross. Because taps can arrive faster than you poll, read
   `getstate.inputs` (the last 32 answers, each with a rising `n`) and
   handle every entry with `n` greater than the last one you processed.
+  Other `choices` beside the buttons' names (up to 10 choices in all, each
+  ≤ 40 characters) are drawn as big buttons under the cross, and answer
+  with their text: Cycle Dash offers its optional actions this way
+  ("🚋 Board the cable car", "🗺️ Map"), changing the list as they come and go.
 - **Menu:** `"layout": "menu"` sends your whole choice list, so a phone can show it as big buttons. Menus are
   always persistent. The fields:
   - `items`: 1–100 of `{id, label (≤ 40 chars), hint?, disabled?}`;
@@ -157,6 +161,23 @@ buttons ("Upshift", "Downshift"); never text or continuous input.
   gamekit's `menuPrompt()` builds a menu (sending an id like `back` as `item:back`), and `readMenuAnswer()` and
   `isStaleAnswer()` read the answers. When the highlight moves, push a tick (`client.requestTick()`, bursts up to
   10 Hz) so the phone follows.
+
+## End screen
+
+A game that shows its own summary when the session completes declares
+`"capabilities": {"endScreen": true}`. Then, when the session ends
+`complete` (its time up, your `endsession`, or ■ End on a bridge), the
+bridges keep your game on screen instead of taking it back, until the
+player is done: **✓ Done** on any bridge, your own Done, or 120 s.
+
+- Show your summary when gamekit's `onEnded` reports `status: "complete"`
+  (never for `discarded`: the bridge closes the game then).
+- Call `client.watchEndScreen(onClosed)`: it polls `GET /gameapi/endscreen?session=`
+  (`{open, seconds}`) and calls `onClosed` once when the summary should go.
+- Your own Done button or key: `watchEndScreen(...).close()`
+  (`POST /gameapi/endscreen {"sessionId"}`).
+
+PLAN.md §6.4.1 has the whole contract.
 
 ## Paused
 

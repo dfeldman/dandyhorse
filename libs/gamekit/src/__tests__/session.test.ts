@@ -118,3 +118,46 @@ describe('SessionClient', () => {
     expect((srv.sets[0] as { sessionId: string; incline: number }).incline).toBe(1)
   })
 })
+
+describe('watchEndScreen (PLAN.md §6.4.1)', () => {
+  beforeEach(() => vi.useFakeTimers())
+  afterEach(() => vi.useRealTimers())
+
+  function endScreenServer() {
+    const st = { open: true, closes: 0 }
+    setFetch(async (input, init) => {
+      const url = String(input)
+      const json = (data: unknown) => new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } })
+      if (url === '/gameapi/endscreen?session=s1' && (init?.method ?? 'GET') === 'GET') return json({ open: st.open, seconds: st.open ? 100 : 0 })
+      if (url === '/gameapi/endscreen') { st.closes++; st.open = false; return json({ ok: true, closed: true }) }
+      return json({})
+    })
+    return st
+  }
+
+  test('closed on a bridge: onClosed once, then no more polling', async () => {
+    const st = endScreenServer()
+    const c = new SessionClient({ sessionId: 's1', buildTick: () => null })
+    let closed = 0
+    c.watchEndScreen(() => closed++)
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(closed).toBe(0)
+    st.open = false
+    await vi.advanceTimersByTimeAsync(1500)
+    expect(closed).toBe(1)
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(closed).toBe(1)
+  })
+
+  test('closed in the game: tells the server, onClosed once', async () => {
+    const st = endScreenServer()
+    const c = new SessionClient({ sessionId: 's1', buildTick: () => null })
+    let closed = 0
+    const w = c.watchEndScreen(() => closed++)
+    await w.close()
+    await w.close()
+    await vi.advanceTimersByTimeAsync(3000)
+    expect(st.closes).toBe(1)
+    expect(closed).toBe(1)
+  })
+})

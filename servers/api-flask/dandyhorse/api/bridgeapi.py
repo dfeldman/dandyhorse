@@ -106,6 +106,16 @@ def resume():
     return jsonify({"ok": True, "session": lifecycle.session_brief(dh(), live)})
 
 
+@bp.post("/endscreen")
+@require_auth
+def endscreen():
+    """Done: close the game's end screen (PLAN.md §6.4.1). `sessionId` optional (any open one)."""
+    b = body()
+    sid = b.get("sessionId")
+    closed = dh().store.close_end_screen(g.user["uid"], str(sid) if sid else None)
+    return jsonify({"ok": True, "closed": closed})
+
+
 @bp.post("/sendinput")
 @require_auth
 def sendinput():

@@ -75,6 +75,9 @@
     heard = true
     document.querySelector('.note')?.remove()
     const m = ev.data
+    // the game has not got the keys although this page has the focus (a frame focused while it was still loading
+    // keeps the focus on the element, not in the game's document): hand them on (src/relay.ts `keepFocus`)
+    if (m && m.dh === 'focus') { if (document.hasFocus()) { focus(); try { frame.contentWindow?.focus() } catch { /* gone */ } } return }
     if (!m || typeof m !== 'object' || typeof m.id !== 'number') return
     if (m.dh === 'abort') { live.get(m.id)?.abort(); live.delete(m.id); return }
     if (m.dh !== 'fetch' || typeof m.path !== 'string') return
@@ -97,10 +100,15 @@
     }
   })
 
-  // the bridge focuses this page when it shows the game: the keys belong to the game
-  const focus = () => { try { frame.focus(); frame.contentWindow?.focus() } catch { /* not loaded yet */ } }
+  // The bridge focuses this page when it shows the game: the keys belong to the game, so the focus is handed on to
+  // it. Doing that once was not enough (2026-10-17, #302: keys never reached the game on Dandyhorse): the bridge
+  // focuses this page when IT loads, the game's frame is focused while it is still loading, and the focus was found
+  // left on this page's body. So: whenever this page has the focus and the game's frame does not, it is handed on.
+  const focus = () => { try { if (document.activeElement !== frame) frame.focus({ preventScroll: true }) } catch { /* not loaded yet */ } }
   frame.addEventListener('load', focus)
-  addEventListener('focus', focus)
+  addEventListener('focus', () => setTimeout(focus, 0))
+  addEventListener('pointerdown', focus)
+  setInterval(() => { if (document.hasFocus() && document.activeElement !== frame) focus() }, 400)
 })()
 </script>
 </body>

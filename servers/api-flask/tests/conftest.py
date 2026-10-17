@@ -42,6 +42,11 @@ def root(tmp_path: Path) -> Path:
     kt.mkdir(parents=True)
     shutil.copy(REPO / "games" / "kingdomtrek" / "metadata.json", kt / "metadata.json")
     (kt / "index.html").write_text("<html>kt</html>")
+    # a game that shows its own end screen (capabilities.endScreen, PLAN.md §6.4.1): Cycle Dash's own metadata
+    cd = tmp_path / "games" / "citydash"
+    cd.mkdir(parents=True)
+    shutil.copy(REPO / "games" / "citydash" / "metadata.json", cd / "metadata.json")
+    (cd / "index.html").write_text("<html>cd</html>")
     for kind in ("consoles", "bridges"):
         d = tmp_path / kind / "web"
         d.mkdir(parents=True)

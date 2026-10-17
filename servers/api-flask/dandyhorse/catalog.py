@@ -33,6 +33,8 @@ def _validate_game(folder: Path, meta: Any) -> list[str]:
         errs.append("capabilities must be an object")
     elif "autoPause" in caps and not isinstance(caps["autoPause"], bool):
         errs.append("capabilities.autoPause must be true or false")
+    if isinstance(caps, dict) and "endScreen" in caps and not isinstance(caps["endScreen"], bool):
+        errs.append("capabilities.endScreen must be true or false")
     opts = meta.get("options", {})
     if not isinstance(opts, dict):
         errs.append("options must be an object of {key: {enum, default?, label?, labels?}}")

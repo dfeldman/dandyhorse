@@ -60,6 +60,9 @@ class LiveSession:
     user_pause: dict[str, Any] | None = None    # {bridgeId, label, t, by} while the user pressed Pause (bridge or game)
     # capabilities.autoPause (PLAN.md §5.3): False = missing device data never pauses; only the user does.
     auto_pause: bool = True
+    # capabilities.endScreen (PLAN.md §6.4.1): the game shows its own summary when the session completes, and bridges
+    # keep it on screen until the player dismisses it (or END_SCREEN_SECONDS pass)
+    end_screen: bool = False
     # (promptId, rev) of the menu prompt last written to the log in full (PLAN.md §6.3)
     logged_prompt: tuple[str, Any] | None = None
     records: list[dict[str, Any]] = field(default_factory=list)
@@ -127,6 +130,37 @@ class Store:
         self.owner: dict[int, dict[str, str | None]] = {}
         # Per-user remote-control channel (PLAN.md §9.7): bridge d-pad presses for the console.
         self.remote: dict[int, RemoteChannel] = {}
+        # Per-user end screen (PLAN.md §6.4.1): {sessionId, until} while a completed game shows its summary.
+        self.end_screens: dict[int, dict[str, Any]] = {}
+
+    # --- end screens (PLAN.md §6.4.1) ---------------------------------------
+    def open_end_screen(self, uid: int, session_id: str, until: float) -> None:
+        with self.lock:
+            self.end_screens[uid] = {"sessionId": session_id, "until": until}
+        with self.presence_cond:
+            self.presence_cond.notify_all()
+
+    def end_screen_for(self, uid: int, now: float) -> dict[str, Any] | None:
+        """The open end screen, with the seconds it has left; None once closed or timed out."""
+        with self.lock:
+            es = self.end_screens.get(uid)
+            if es is None:
+                return None
+            if now >= es["until"]:
+                del self.end_screens[uid]
+                return None
+            return {**es, "seconds": es["until"] - now}
+
+    def close_end_screen(self, uid: int, session_id: str | None = None) -> bool:
+        """Close it (any, or only this session's). Wakes the bridges' long-polls."""
+        with self.lock:
+            es = self.end_screens.get(uid)
+            if es is None or (session_id and es["sessionId"] != session_id):
+                return False
+            del self.end_screens[uid]
+        with self.presence_cond:
+            self.presence_cond.notify_all()
+        return True
 
     def remote_for(self, uid: int) -> "RemoteChannel":
         with self.lock:

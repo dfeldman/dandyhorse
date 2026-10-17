@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { controlsWords, decideScreen, endReasonWords, estopRelevant, menuPadButtons, pickBanner, scrollToShow, type BannerInput, type ScreenInput } from '../ui'
+import { controlsWords, decideScreen, endReasonWords, estopRelevant, liveReadout, menuPadButtons, percentWords, pickBanner, scrollToShow, type BannerInput, type ScreenInput } from '../ui'
 
 const base: ScreenInput = {
   needLogin: false, hosting: false, expanded: false, hasSession: true, hasEnded: false,
@@ -90,11 +90,17 @@ describe('pickBanner priority', () => {
     expect(pickBanner({ ...quiet, sessionStatus: 'paused', pause: p, wizardShown: true })).toBeNull()
     expect(pickBanner({ ...quiet, sessionStatus: 'paused', pause: p, wizardShown: false })?.kind).toBe('devicePause')
   })
-  test('standby beats machine stopped, unreachable, silent game, ignored', () => {
-    const b = pickBanner({ ...quiet, conflict, userStoppedName: 'Sim', unreachable: true, gameSilentS: 30, ignoredReason: 'wrong_device_type' })
+  test('another bridge driving the machine is a quiet note, last, and never over the game (#305)', () => {
+    expect(pickBanner({ ...quiet, conflict, userStoppedName: 'Sim' })?.kind).toBe('userStopped')
+    expect(pickBanner({ ...quiet, conflict, unreachable: true })?.kind).toBe('unreachable')
+    expect(pickBanner({ ...quiet, conflict, gameSilentS: 30 })?.kind).toBe('silentGame')
+    const b = pickBanner({ ...quiet, conflict })
     expect(b?.kind).toBe('standby')
+    expect(b?.level).toBe('info')
     expect(b?.text).toContain('Phone')
     expect(b?.action?.id).toBe('claim')
+    expect(pickBanner({ ...quiet, conflict, hosting: true, expanded: false })).toBeNull()
+    expect(pickBanner({ ...quiet, conflict, hosting: true, expanded: true })?.kind).toBe('standby')
   })
   test('machine stopped > unreachable > silent game > ignored > muted', () => {
     expect(pickBanner({ ...quiet, userStoppedName: 'Sim', unreachable: true, gameSilentS: 30, ignoredReason: 'wrong_device_type', muteReports: true })?.kind).toBe('userStopped')
@@ -160,5 +166,26 @@ describe('controlsWords', () => {
     expect(controlsWords('speed+incline', 'treadmill', true)).toBeNull()
     expect(controlsWords('incline', 'treadmill', false)).toBe('Speed is yours; the game sets the incline')
     expect(controlsWords('speed+incline', 'bike', false)).toBeNull()
+  })
+})
+
+describe('live readout (#305, #306)', () => {
+  const merged = { power: { requested: null, commanded: null, actual: 240 }, cadence: { requested: null, commanded: null, actual: 88 } }
+  test('a bridge that does not own the machine shows the owner\'s numbers', () => {
+    const r = liveReadout({ local: null, owner: false, merged, requested: { grade: 3.24 }, commanded: null })
+    expect(r).toMatchObject({ power: 240, cadence: 88, source: 'remote', target: { kind: 'grade', value: 3.24 }, applied: null })
+    // its own device standing by does not stand in for the session's
+    expect(liveReadout({ local: { power: 150 }, owner: false, merged, requested: {}, commanded: null }).power).toBe(240)
+  })
+  test('the owner shows its own machine, and what it set it to', () => {
+    const r = liveReadout({ local: { power: 199, cadence: 80 }, owner: true, merged, requested: { grade: 4 }, commanded: { grade: 3.5 } })
+    expect(r).toMatchObject({ power: 199, source: 'here', applied: 3.5 })
+    expect(liveReadout({ local: null, owner: false, merged: null, requested: { incline: 2 }, commanded: null }).target).toEqual({ kind: 'incline', value: 2 })
+    expect(liveReadout({ local: null, owner: false, merged: null, requested: {}, commanded: null })).toMatchObject({ power: null, source: null, target: null })
+  })
+  test('percent words', () => {
+    expect(percentWords(3.24)).toBe('+3.2 %')
+    expect(percentWords(-10.86)).toBe('−10.9 %')
+    expect(percentWords(0.01)).toBe('0.0 %')
   })
 })

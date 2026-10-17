@@ -20,3 +20,14 @@ To try a development copy of the game (cityengine's `npm run dev`, port 5200), o
 Run end to end on 2026-10-15 against a local server with a simulated bike: 200 W moved the rider, the street's
 grade (−10.9 % to +10.3 %) reached the bridge, a d-pad turn was accepted and taken, a 0 W stretch brought the
 bike to rest, and History got its picture.
+
+**2026-10-17 (the owner's "clunky connection" report):**
+- Keys reach the game through the bridge and this shim: the shim hands the focus on to the game's frame whenever it
+  has it, and the game asks for it (`{dh: 'focus'}`, cityengine `src/relay.ts` `keepFocus`) while it has none — a frame
+  focused while still loading kept the focus on the element, so no key ever arrived. The arrows steer on the platform
+  too (cityengine `src/platform.ts`).
+- `metadata.json` declares `capabilities.endScreen`: when a session completes the game shows its summary (distance,
+  every delivery's stars and dollars) and the bridges keep it on screen until Done (PLAN.md §6.4.1).
+- The phone's d-pad carries the game's optional actions as buttons (board / leave a cable car, observe from a tower,
+  eat the order, the map); while paused the game shows its map.
+

@@ -155,6 +155,31 @@ def endsession():
     return jsonify(lifecycle.end(dh(), conn, live, status, reason))
 
 
+# --- end screen (PLAN.md §6.4.1) -----------------------------------------------
+
+@bp.get("/endscreen")
+@require_auth
+def endscreen_state():
+    """Is this session's end screen still open? `{open, seconds}`; the game polls it while showing its summary."""
+    sid = request.args.get("session")
+    if not sid:
+        raise ApiError(400, "session_required", "session query parameter required")
+    es = dh().store.end_screen_for(g.user["uid"], _now())
+    mine = es is not None and es["sessionId"] == sid
+    return jsonify({"open": mine, "seconds": es["seconds"] if mine else 0})
+
+
+@bp.post("/endscreen")
+@require_auth
+def endscreen_close():
+    """The player dismissed the summary in the game: the bridges let the screen go."""
+    b = body()
+    sid = b.get("sessionId")
+    if not isinstance(sid, str) or not sid:
+        raise ApiError(400, "session_required", "sessionId required")
+    return jsonify({"ok": True, "closed": dh().store.close_end_screen(g.user["uid"], sid)})
+
+
 # --- session image (PLAN.md §6.7) --------------------------------------------
 
 IMAGE_MAX_BYTES = 1_000_000

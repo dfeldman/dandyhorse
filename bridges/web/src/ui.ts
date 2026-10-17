@@ -4,7 +4,7 @@
 import { ref, watch } from 'vue'
 import { store } from './bridge'
 import type { FitnessDevice } from './devices/FitnessDevice'
-import { REMOTE_BUTTONS, type DeviceStatus, type DeviceType, type OtherBridge, type PauseInfo, type RemoteButton, type RoleStanding } from './types'
+import { REMOTE_BUTTONS, type Commanded, type DeviceStatus, type DeviceType, type MergedMetric, type MetricName, type Metrics, type OtherBridge, type PauseInfo, type RemoteButton, type RoleStanding } from './types'
 
 // ---------------------------------------------------------------------------
 // screen state
@@ -92,11 +92,6 @@ export function pickBanner(i: BannerInput): Banner | null {
   if (i.sessionStatus === 'paused' && !(i.wizardShown && i.pause?.reason !== 'user')) {
     return { kind: 'devicePause', level: 'warn', text: `Paused: ${i.pause?.message ?? `waiting for the ${machine}.`} The game continues by itself once data flows again.` }
   }
-  if (i.conflict) {
-    const who = i.conflict.ownerLabel ?? 'another device'
-    const same = i.conflict.sameBrowser ? ' (another tab in this browser)' : ''
-    return { kind: 'standby', level: 'bad', text: `Another device is controlling your ${machine}: ${who}${same}.`, action: { label: 'Take control here', id: 'claim' } }
-  }
   if (i.userStoppedName) {
     return { kind: 'userStopped', level: 'bad', text: `${i.userStoppedName} was stopped on the machine. The game will not restart it.`, action: { label: 'Resume control', id: 'resumeControl' } }
   }
@@ -126,7 +121,73 @@ export function pickBanner(i: BannerInput): Banner | null {
   if (i.muteReports) {
     return { kind: 'muted', level: 'warn', text: 'Developer: this bridge is not reporting to the server.' }
   }
+  /*
+   * Another bridge drives the session with its own machine while this one has a device too (#305, 2026-10-17). That is
+   * a normal set-up (a phone on the bike with the trainer, a laptop showing the game), not an error: the owner (PLAN.md
+   * §16 Q6, "the user can figure that one out"). So: nothing at all over the game — the strip says where the machine
+   * is — and a quiet note on the bridge's own screens, with the switch for whoever wants it. It was a red banner over
+   * the game that nothing could dismiss.
+   */
+  if (i.conflict && !(i.hosting && !i.expanded)) {
+    const who = i.conflict.ownerLabel ?? 'another device'
+    const same = i.conflict.sameBrowser ? ' (another tab in this browser)' : ''
+    return { kind: 'standby', level: 'info', text: `Your ${machine} is driven from ${who}${same}; this one is standing by.`, action: { label: 'Use this one instead', id: 'claim' } }
+  }
   return null
+}
+
+// ---------------------------------------------------------------------------
+// the session's live numbers, wherever the machine is (#305, #306)
+
+export interface LiveInput {
+  /** this bridge's own exercise device's readings, if it has one */
+  local: Partial<Metrics> | null
+  /** this bridge owns the session's machine */
+  owner: boolean
+  /** the server's merged view (getstate `merged`): the owning bridge's machine, whichever bridge that is */
+  merged: Partial<Record<MetricName, MergedMetric>> | null | undefined
+  /** what the game asks of the machine (getstate `requested`) */
+  requested: Partial<Metrics> | null | undefined
+  /** what this bridge is commanding its machine right now (after limits and difficulty) */
+  commanded: Partial<Commanded> | null
+}
+
+export interface LiveReadout {
+  power: number | null
+  speed: number | null
+  cadence: number | null
+  /** where the numbers come from: this bridge's machine, another bridge's, or nowhere yet */
+  source: 'here' | 'remote' | null
+  /** the game's request: grade on a bike, incline on a treadmill (percent), null when it asks for neither */
+  target: { kind: 'grade' | 'incline'; value: number } | null
+  /** what this bridge set its machine to for that request, when it is the one driving it */
+  applied: number | null
+}
+
+/**
+ * The numbers to show for the session. The machine's readings are the OWNER's: a bridge that does not own the machine
+ * (a phone used as the remote, a big screen while the phone has the trainer) shows the session's merged readings, so
+ * every bridge shows the same watts. It showed its own device's (or nothing) before (#305).
+ */
+export function liveReadout(i: LiveInput): LiveReadout {
+  const m = i.merged ?? null
+  const fromMerged = !i.owner && !!m && (m.power?.actual != null || m.speed?.actual != null || m.cadence?.actual != null)
+  const pick = (k: 'power' | 'speed' | 'cadence'): number | null => (i.owner || !fromMerged ? i.local?.[k] ?? null : m?.[k]?.actual ?? null)
+  const g = i.requested?.grade
+  const inc = i.requested?.incline
+  const target = g != null ? { kind: 'grade' as const, value: g } : inc != null ? { kind: 'incline' as const, value: inc } : null
+  const applied = !i.owner || !target ? null : (target.kind === 'grade' ? i.commanded?.grade : i.commanded?.incline) ?? null
+  return {
+    power: pick('power'), speed: pick('speed'), cadence: pick('cadence'),
+    source: i.owner && i.local ? 'here' : fromMerged ? 'remote' : i.local ? 'here' : null,
+    target, applied,
+  }
+}
+
+/** "+3.2 %", "−1.0 %": a grade or an incline, signed. */
+export function percentWords(v: number): string {
+  const r = Math.round(v * 10) / 10
+  return `${r > 0 ? '+' : r < 0 ? '−' : ''}${Math.abs(r).toFixed(1)} %`
 }
 
 // ---------------------------------------------------------------------------
@@ -272,6 +333,17 @@ export function currentBanner(): Banner | null {
     localDeviceName: store.fitness?.name ?? null,
     muteReports: store.muteReports,
     wizardShown: currentScreen() === 'wizard',
+  })
+}
+
+export function currentReadout(): LiveReadout {
+  const dev = localExerciseDevice()
+  return liveReadout({
+    local: dev ? dev.actual : null,
+    owner: store.roles.fitness === 'owner' && !!dev,
+    merged: store.state?.merged,
+    requested: store.state?.requested ?? store.requested,
+    commanded: store.commanded,
   })
 }
 

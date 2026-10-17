@@ -389,6 +389,9 @@ label.field span { display: block; font-size: 0.8em; color: var(--muted); margin
 .strip .metric span { font-size: 12px; color: var(--muted); font-weight: 800; text-transform: uppercase; }
 .strip .metric.hr b { font-size: 20px; }
 .strip .metric.hr::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--c-red); box-shadow: 0 0 8px var(--c-red); align-self: center; }
+.strip .metric.grade b { font-size: 20px; }
+.strip .via { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 22vw; }
+@media (max-width: 520px) { .strip .via { display: none; } .strip .metric.grade span { display: none; } }
 .strip .spacer { flex: 1; }
 .strip button { min-height: 44px; padding: 0 14px; white-space: nowrap; font-size: 0.95em; border-width: 2px; }
 .strip .prompt-btn { background: var(--c-magenta); color: var(--on-magenta); font-weight: 900; max-width: 40vw; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 40px; box-shadow: 0 4px 14px color-mix(in srgb, var(--c-magenta) 45%, transparent); }
@@ -437,3 +440,4 @@ body[data-remote] button:focus, body[data-remote] .card:focus { transform: scale
 :root[data-theme='light'] body[data-remote] :focus:not(iframe) { outline-color: var(--text) !important; }
 @media (prefers-color-scheme: light) { :root:not([data-theme='dark']) body[data-remote] :focus:not(iframe) { outline-color: var(--text) !important; } }
 body:not([data-remote]) :focus-visible { outline: 4px solid var(--page, var(--c-blue)); outline-offset: 3px; }
+.actions.pause-top { margin-top: 0; margin-bottom: 14px; }

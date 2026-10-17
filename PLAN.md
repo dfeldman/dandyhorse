@@ -665,6 +665,31 @@ Rules **(decisions)**:
 Idempotent. Response: session summary (§8.4). Discarded = user wandered off
 or a fatal error occurred.
 
+### 6.4.1 The game's end screen (`capabilities.endScreen`, 2026-10-17)
+
+A game may show its own summary when a session **completes** (its time up, its own `endsession`, or ■ End on a
+bridge) instead of the bridge taking the screen back at once. Cycle Dash's is the first: the distance, every
+delivery with its stars and dollars, the totals (owner, 2026-10-17: "Dandyhorse should support showing that screen
+at the end rather than immediately killing the game").
+
+- **Declared** in `metadata.json`: `"capabilities": {"endScreen": true}`. The session brief carries `endScreen`.
+- **Opened by the server** when such a session ends `complete` (never on a discard, nor for a pending session):
+  it holds `{sessionId, until}` per user, `until` = the end + `END_SCREEN_SECONDS` (120 s). It is opened before the
+  session turns terminal, so a bridge sees the end and the end screen in the same `getstate`.
+- **Bridges** get it as `endScreen: {sessionId, until, seconds} | null` on `GET /bridgeapi/getstate` (top level,
+  also when `session` is null). A hosting bridge keeps the game on screen while it is open (it does not expand,
+  and a console-launched bridge does not go back to the console), with **✓ Done** in its strip; every bridge's
+  ended card offers **✓ Done with the summary**. `POST /bridgeapi/endscreen {sessionId?}` closes it.
+- **The game** shows its summary when gamekit's `onEnded` says `complete`, and watches it with
+  `SessionClient.watchEndScreen(onClosed)` (polls `GET /gameapi/endscreen?session=` → `{open, seconds}` about once a
+  second; a 404 — an older server — counts as closed). The player's own Done in the game:
+  `POST /gameapi/endscreen {sessionId}` (`watchEndScreen(...).close()`).
+- **Closed** by whichever comes first: Done on any bridge, Done in the game, the timeout, or a new launch (Play
+  again). A game that ends before it has anything to show closes it at once. The bridges then take
+  the screen back as before (the ended card, the console after 10 s); the game hides its summary when `onClosed`
+  fires.
+- The end screen is in memory only (a server restart forgets it, and the bridges simply take the screen back).
+
 ### 6.5 Preferences and save state
 
 | Endpoint | Purpose |
@@ -779,6 +804,8 @@ Each game is a folder under `games/<gameId>/`. `gameId` is
   `POST /api/admin/rescan`; invalid games are listed with errors in the
   console's admin view and hidden from users.
 - `capabilities.autoPause: false` (2026-09-13): no automatic pauses (§5.3).
+- `capabilities.endScreen: true` (2026-10-17): the game shows its own summary when the session completes, and
+  bridges keep it on screen until the player is done with it (§6.4.1).
 - An option may carry `controls` (2026-09-13): `{"on": {"treadmill": "incline", "bike": "grade"}}`. Choosing that
   value changes what the game drives on those machines, and the session brief's `controls` follow.
 - `achievements` (2026-09-14, optional): `{"kom": {"name": "King of the mountain", "description": "…"}}`, keyed by
@@ -1162,6 +1189,9 @@ device row including preferences. `PUT /bridgeapi/devices/<id>/preferences`
 replaces preferences (same handler as the console's).
 
 
+**`POST /bridgeapi/endscreen`** (2026-10-17) `{sessionId?}`: Done with a game's end screen (§6.4.1); `getstate`
+carries `endScreen` while one is open.
+
 **`POST /bridgeapi/end`** (2026-09-11) `{bridgeId, status: "complete"|"discarded"}`.
 The user ends the session from any bridge. `complete` finalizes it like the
 game's own `endsession` (saved to History, `endReason: bridge:<id>`), and
@@ -1457,6 +1487,22 @@ the LAN opening `http://<host>:8080` gets no Bluetooth; Phase 4 adds the
 HTTPS dev setup (mkcert). Chrome's `getDevices()` permission persistence
 could let the mounted phone reconnect after a reload without the picker;
 to be evaluated with real hardware.
+
+**Two bridges, one session (owner, 2026-10-17: "a clunky connection").** The usual set-up is a phone on the bike
+with the trainer and a big screen hosting the game; neither is an error:
+- A bridge whose own device stands by while another bridge drives the session gets a quiet `info` note on its own
+  screens ("Your bike trainer is driven from …; this one is standing by", with *Use this one instead*), last in the
+  banner order, and **nothing over the game** (it was a red banner over the game that nothing dismissed).
+- Every bridge shows the session's numbers from `getstate.merged` when it does not own the machine (the strip says
+  "via <bridge>"), so the watts agree everywhere; it showed its own device's, or nothing.
+- The strip and the session cards show the grade (bike) or incline (treadmill) the game asks for, and what this
+  bridge set its machine to (`requested` vs `commanded`), for debugging the feel.
+- **⏸ Pause / ▶ Play** lead the session screens of a bridge that is not hosting (a phone is the main control); the
+  strip's ⏸ has a label. A strip button gives the keyboard back to the game after a click.
+- A d-pad prompt's `choices` that are not d-pad buttons are drawn as big buttons under the cross; Cycle Dash offers
+  its optional actions this way (board / leave the transit, observe, eat the order, the map).
+- Keys reach a game framed by a shim on another origin (Cycle Dash): the shim hands the focus on whenever it has it,
+  and the game asks for it (`{dh: 'focus'}`) while it has none.
 
 **Ending a ride from the bridge** (owner, 2026-09-11): every bridge that
 shows a running session (hosting, ready, or connected through another

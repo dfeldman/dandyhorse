@@ -123,6 +123,8 @@ def bridge_view(dh, conn: sqlite3.Connection, uid: int, bridge_id: str | None) -
                            "otherBridges": [b for b in bridges_view(reports, own, dtype, allow_sim, t, dh.config.fresh_seconds)
                                             if b["bridgeId"] != bridge_id]}
     out.update(bridge_standing(dh, uid, bridge_id or "", reports, own, dtype, allow_sim, t))
+    # a completed game showing its summary (PLAN.md §6.4.1): bridges keep it on screen and offer Done
+    out["endScreen"] = dh.store.end_screen_for(uid, t)
     if address:
         out["devicePreferences"][address] = device_prefs(conn, uid, address)
     if live is not None:

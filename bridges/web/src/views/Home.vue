@@ -2,11 +2,12 @@
 // Home: exactly one screen per situation (see decideScreen in ui.ts).
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { collapseBridge, disconnectFitness, disconnectHrm, fetchEnded, openWizard, pausePlay, pauseSession, playAgain, resumeSession, sendRemote, startGame, stopHosting, store } from '../bridge'
+import { collapseBridge, dismissEndScreen, disconnectFitness, disconnectHrm, fetchEnded, openWizard, pausePlay, pauseSession, playAgain, resumeSession, sendRemote, startGame, stopHosting, store } from '../bridge'
 import type { SessionSummary } from '../types'
 import DeviceCard from '../components/DeviceCard.vue'
 import DPad from '../components/DPad.vue'
 import EndButtons from '../components/EndButtons.vue'
+import LiveCard from '../components/LiveCard.vue'
 import PromptPanel from '../components/PromptPanel.vue'
 import SetupWizard from '../components/SetupWizard.vue'
 import { currentScreen, deviceWord, endReasonWords, localExerciseDevice, ownerBridge } from '../ui'
@@ -65,8 +66,11 @@ function again(summary: SessionSummary): void {
   stopReturn()
   void playAgain(summary)
 }
+/** the game is showing its end screen for the session that just ended (PLAN.md §6.4.1) */
+const endScreen = computed(() => (ended.value && store.state?.endScreen?.sessionId === ended.value.sessionId ? store.state.endScreen : null))
 watch(
-  () => props.launching && screen.value === 'ended' && !!ended.value,
+  // (not while the game shows its end screen: going back to the console would take it away)
+  () => props.launching && screen.value === 'ended' && !!ended.value && !endScreen.value,
   (on) => {
     stopReturn()
     if (!on) return
@@ -91,13 +95,16 @@ onUnmounted(stopReturn)
         <span>Ended</span><span>{{ endReasonWords(ended.endReason, ended.status, store.bridgeId) }}</span>
       </div>
       <div class="actions">
-        <button class="primary big block" data-test="play-again" @click="again(ended)">▶ Play again</button>
+        <!-- the game is showing its summary on the big screen: Done closes it there (PLAN.md §6.4.1) -->
+        <button v-if="endScreen" class="primary big block" data-test="end-screen-done" @click="dismissEndScreen">✓ Done with the summary ({{ Math.ceil(endScreen.seconds) }} s)</button>
+        <button v-if="endScreen && store.hosting" class="block" @click="collapseBridge">Show the summary</button>
+        <button class="big block" :class="{ primary: !endScreen }" data-test="play-again" @click="again(ended)">▶ Play again</button>
         <!-- the big screen the console opened: back to the console (and there by itself after a few seconds) -->
         <button v-if="launching" class="block" data-test="back-to-console" @click="backToConsole">Back to console{{ returnIn !== null ? ` (${returnIn})` : '' }}</button>
         <!-- a phone joined as a remote: stay a remote -->
         <template v-else>
           <a :href="consoleUrl(ended.sessionId)"><button class="block">Open console</button></a>
-          <button class="ghost block" data-test="ended-done" @click="dismissEnded">Done</button>
+          <button v-if="!endScreen" class="ghost block" data-test="ended-done" @click="dismissEnded">Done</button>
         </template>
       </div>
       <p class="muted small" style="margin-top: 12px">{{ launching && returnIn !== null ? `Back to the console in ${returnIn} s.` : 'Start another game from the console; this page will follow it.' }}</p>
@@ -127,18 +134,24 @@ onUnmounted(stopReturn)
 
     <!-- 6: another bridge supplies the device -->
     <template v-else-if="screen === 'remote' && s">
+      <!-- Pause / Play first: on a phone that is the main control (#304), it must not be a scroll away -->
+      <div v-if="!store.hosting && pausePlay()" class="actions pause-top">
+        <button v-if="pausePlay() === 'pause'" class="primary big block" data-test="pause" @click="pauseSession">⏸ Pause</button>
+        <button v-if="pausePlay() === 'play'" class="primary big block" data-test="play" @click="resumeSession">▶ Play</button>
+      </div>
       <PromptPanel />
       <div class="card" data-test="remote">
         <h3>{{ deviceWord(s.deviceType, true) }}</h3>
         <h2>Connected through {{ remote.label }}</h2>
         <p class="muted">{{ remote.device ? remote.device.name : 'Its ' + deviceWord(s.deviceType) }} is driving this game. You can play from here.</p>
       </div>
+      <LiveCard values />
       <DeviceCard v-if="store.hrm" :device="store.hrm" />
       <div class="actions">
         <button v-if="canStart && !store.hosting" class="primary big block" data-test="start" @click="startGame">{{ startLabel }}</button>
         <button v-if="store.hosting" class="primary big block" @click="collapseBridge">Back to game</button>
-        <button v-if="pausePlay() === 'pause'" class="big block" @click="pauseSession">⏸ Pause</button>
-        <button v-if="pausePlay() === 'play'" class="primary big block" @click="resumeSession">▶ Play</button>
+        <button v-if="store.hosting && pausePlay() === 'pause'" class="big block" data-test="pause" @click="pauseSession">⏸ Pause</button>
+        <button v-if="store.hosting && pausePlay() === 'play'" class="primary big block" data-test="play" @click="resumeSession">▶ Play</button>
         <EndButtons v-if="s.status !== 'pending'" />
         <button class="ghost block" @click="openWizard">Connect a device here instead</button>
       </div>
@@ -146,6 +159,11 @@ onUnmounted(stopReturn)
 
     <!-- 7: ready / running (with no local machine only for a game that needs none, session.autoPause false) -->
     <template v-else-if="screen === 'ready' && s">
+      <!-- Pause / Play first: on a phone that is the main control (#304), it must not be a scroll away -->
+      <div v-if="!store.hosting && pausePlay()" class="actions pause-top">
+        <button v-if="pausePlay() === 'pause'" class="primary big block" data-test="pause" @click="pauseSession">⏸ Pause</button>
+        <button v-if="pausePlay() === 'play'" class="primary big block" data-test="play" @click="resumeSession">▶ Play</button>
+      </div>
       <PromptPanel />
       <DeviceCard v-if="dev" :device="dev" />
       <div v-else class="card" data-test="no-machine">
@@ -154,13 +172,14 @@ onUnmounted(stopReturn)
         <p v-else>This game works without a machine. Effort can come from a heart rate monitor, or connect your {{ deviceWord(s.deviceType) }}.</p>
         <div class="actions" style="margin-top: 12px"><button class="block" data-test="connect-device" @click="openWizard">Connect a device</button></div>
       </div>
+      <LiveCard values />
       <DeviceCard v-if="store.hrm" :device="store.hrm" />
       <div class="actions">
         <!-- remote mode (the game runs elsewhere): Pause/Play leads; showing the game here is a secondary action -->
         <button v-if="canStart && !store.hosting && !remoteMode" class="primary big block" data-test="start" @click="startGame">{{ startLabel }}</button>
         <button v-if="store.hosting" class="primary big block" @click="collapseBridge">Back to game</button>
-        <button v-if="pausePlay() === 'pause'" class="big block" :class="{ primary: remoteMode }" data-test="pause" @click="pauseSession">⏸ Pause</button>
-        <button v-if="pausePlay() === 'play'" class="primary big block" data-test="play" @click="resumeSession">▶ Play</button>
+        <button v-if="store.hosting && pausePlay() === 'pause'" class="big block" data-test="pause" @click="pauseSession">⏸ Pause</button>
+        <button v-if="store.hosting && pausePlay() === 'play'" class="primary big block" data-test="play" @click="resumeSession">▶ Play</button>
         <button v-if="canStart && !store.hosting && remoteMode" class="ghost block" data-test="start" @click="startGame">{{ startLabel }}</button>
         <EndButtons v-if="s.status !== 'pending'" />
       </div>
