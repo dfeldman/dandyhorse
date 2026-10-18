@@ -7,7 +7,8 @@
  *
  * The field names in `Readings` and `Dials` are the platform's metric names, so reading and commanding are copies.
  * What goes on the wire is exactly `targetsFor()`'s `command` (src/drive.ts): never a belt speed unless the
- * player chose "the machine" at launch, never a grade beside a power.
+ * player chose "the machine" at launch, never a grade beside a power. A bike adds its virtual speed, as the
+ * contract asks, so History's distance matches the console's.
  */
 import {
   SessionClient, persistentPrompt, putSave, steadyHeartRate, steadyWatts as platformSteady,
@@ -235,6 +236,9 @@ export class DandyhorseMachine implements Machine {
     const at = pointAt(s.distance, Config.PLAYER_LANE)
     const body: TickBody = {
       ...commandMetrics(this.asked),
+      // a bike also reports its computed virtual speed so the server integrates the same distance (GAME_AUTHORING.md);
+      // a trainer cannot be told a speed. A treadmill's speed is only ever what targetsFor() commanded.
+      ...(this.device === 'bike' && s.speed !== null ? { speed: Math.max(0, Math.round(s.speed * 100) / 100) } : {}),
       route: s.plan.program,
       score: Math.round(s.distance),
       // the track's 2-D y is the platform's z, and the platform's y is up: metres climbed (INTEGRATION.md §7)

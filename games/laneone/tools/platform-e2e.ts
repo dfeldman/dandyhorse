@@ -145,6 +145,9 @@ await run('bike', { programme: 'steady', drive: 'the machine' }, 600, async (pag
   check(end.status === 'complete', 'the bridge ended it complete', end.status)
   await sleep(3000)
   check((await fetch(`${DH}/api/sessions/${sid}/image`, { headers: { Cookie: cookie } })).status === 200, 'History has the session picture')
+  const rec = await api('GET', `/api/sessions/${sid}`)
+  const r = rec.session ?? rec
+  check(r.distance > 0 && Math.abs(r.distance - s.distance) < Math.max(20, s.distance * 0.3), 'History\'s distance follows the console\'s virtual speed', { history: Math.round(r.distance), console: Math.round(s.distance) })
 })
 
 // the clock runs out: the game itself ends the session complete (the server never ends one on time)
