@@ -18,9 +18,11 @@
     "look": "node --experimental-strip-types tools/look.ts",
     "bench": "node --experimental-strip-types tools/bench.ts",
     "stutter": "node tools/stutter.mjs",
-    "postinstall": "node ../../scripts/link-siblings.mjs avatarkit=AVATARKIT_DIR:../../../avatarkit"
+    "postinstall": "node ../../scripts/link-siblings.mjs avatarkit=AVATARKIT_DIR:../../../avatarkit",
+    "e2e": "node --experimental-strip-types tools/platform-e2e.ts"
   },
   "dependencies": {
+    "@dandyhorse/gamekit": "file:../../libs/gamekit",
     "@babylonjs/core": "9.26.0",
     "@babylonjs/loaders": "^9.26.0"
   },

@@ -4,7 +4,9 @@ What it takes to run Trail Trainer on the exercise platform (`~/dandyhorse`). It
 the two meet; the game's own rules are in [README.md](README.md). The platform's contract for games is
 `dandyhorse/docs/GAME_AUTHORING.md` and the tutorial is `docs/GAME_DEVELOPER_GUIDE.md`.
 
-Nothing here is built yet. As with Night Watch and Night Racer, the work comes down to one new file — plus one
+The adapter is built (`src/platform.ts`, wired in `src/main.ts`, 2026-10-17); `npm run e2e`
+([tools/platform-e2e.ts](tools/platform-e2e.ts)) is the end-to-end check against a local `make serve`. A bike also
+reports its virtual `speed` in each tick, as GAME_AUTHORING.md asks, so History's distance matches the ride. As with Night Watch and Night Racer, the work came down to one new file — plus one
 genuinely new idea the platform has not had to carry before, which is §5.
 
 ## 1. The shape of it
@@ -96,6 +98,8 @@ for half an hour, the game ends. A real route does not work that way. The Katy T
   `StartScreen` already does — or `metadata.json` gains a launch option, which would mean the platform
   understanding per-route progress. The first is better: the platform stays generic and the game keeps the
   one concept only it has.
+  *As built:* the platform path does not ask at all — trainer mode must never need hands on controls — and
+  resumes automatically (the picker's rule: more than 50 m in and more than 50 m to go), saying so in the banner.
 - **Completion is worth an achievement and then a reset.** Crossing the end marks `completed` and parks the
   marker back at 0, so the next session starts a fresh lap rather than sitting on the finish line.
 
@@ -104,7 +108,7 @@ keyed by route inside it.
 
 ## 6. metadata.json
 
-A draft is in [platform/metadata.json](platform/metadata.json).
+It is [metadata.json](metadata.json) at the game folder root.
 
 - **Variants:** a bike variant and a treadmill variant, both writing grade.
 - **Launch options:** `route` (the enum grows as routes are added) and `others` (how many people are on the
@@ -137,5 +141,5 @@ WebGPU. A good frame is the rider with the profile bar in it, which is what is o
 2. `main.ts`: use them when `?session=` is present; take route and resume point from `startsession`.
 3. `vite.config.ts`: `base: '/games/trailtrainer/'`, the API proxy, `fs.allow` for the kit.
 4. `setAssetBase('/avatars/mh/')`, `setStudioHdri('/avatars/' + STUDIO_HDRI)`.
-5. Copy `platform/metadata.json` into place and add a `screenshot.jpg`.
+5. `metadata.json` is in place; `screenshot.jpg` (gitignored) is in the asset bucket with the other games'.
 6. Confirm with the platform team that a `complete` session part-way along a route is recorded as a success.

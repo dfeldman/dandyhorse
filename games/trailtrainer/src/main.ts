@@ -9,10 +9,12 @@
  * platform's save state instead, and `Controls` and `ProgressStore` are the only two things that change —
  * see INTEGRATION.md.
  */
-import { Color3, Scene } from '@babylonjs/core'
+import { Color3, Scene, Tools } from '@babylonjs/core'
+import { ApiError, startSession, type StartPayload, type StartSessionAdHoc, type StartSessionBySession } from '@dandyhorse/gamekit'
 import { createEngine } from 'avatarkit'
 import { applyQuery, Config } from './config.ts'
-import { LocalControls } from './controls.ts'
+import { LocalControls, type Controls } from './controls.ts'
+import { GAME_ID, OTHERS, PlatformControls, PlatformProgress, option, putSaveWriter } from './platform.ts'
 import type { RouteManifest } from './route/package.ts'
 import { Route } from './route/route.ts'
 import { unproject } from './route/geo.ts'
@@ -38,31 +40,145 @@ import { Water } from './render/water.ts'
 import { CompanionRiders, companionPlan } from './render/companions.ts'
 import { Companions } from './sim/companions.ts'
 import { Ride } from './sim/ride.ts'
-import { LocalProgress, ProgressTracker } from './sim/progress.ts'
+import { LocalProgress, ProgressTracker, type ProgressStore } from './sim/progress.ts'
 import { Hud, km } from './ui/hud.ts'
 import { Minimap } from './ui/minimap.ts'
-import { StartScreen } from './ui/start.ts'
+import { StartScreen, type Chosen } from './ui/start.ts'
 
 const el = (id: string): HTMLElement => document.getElementById(id) as HTMLElement
+const log = (line: string): void => console.log('trailtrainer:', line)
+
+/** The loading overlay, used for the platform's own messages before there is a world to put them over. */
+function say(text: string, extra?: HTMLElement): void {
+  el('loading').classList.add('on')
+  el('loadingText').textContent = text
+  if (extra) el('loadingText').append(document.createElement('br'), extra)
+}
+
+/**
+ * startsession, with the two failures worth explaining: not logged in (a link back through the login page), and
+ * anything else (the server's own words). Resolves null when the session could not start.
+ */
+async function begin(body: StartSessionBySession | StartSessionAdHoc): Promise<StartPayload | null> {
+  el('start').classList.add('off')
+  say('Starting your session…')
+  try {
+    const start = await startSession(body)
+    log(`session ${start.sessionId} · ${start.variant} · ${start.deviceType} · ${start.unitSystem}${start.debug ? ' · debug' : ''}`)
+    return start
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 401) {
+      const a = document.createElement('a')
+      a.href = `/login?uid=1&next=${encodeURIComponent(`${location.pathname}${location.search}`)}`
+      a.textContent = 'Log in and come back'
+      say('You are not logged in.', a)
+      return null
+    }
+    const detail = e instanceof ApiError ? `${e.status} ${e.code}: ${e.message}` : String(e)
+    console.error('trailtrainer: the session could not start', e)
+    say(`The session could not start. ${detail}`)
+    return null
+  }
+}
+
+/**
+ * A "Debug session" button in the picker's footer, for trying the platform path without a console: an ad-hoc
+ * debug session for whichever machine the picker is set to. Resolves when it is pressed; the picker is unchanged.
+ */
+function debugSessionButton(): Promise<StartSessionAdHoc> {
+  return new Promise((resolve) => {
+    const b = document.createElement('button')
+    b.className = 'btn'
+    b.id = 'debugSession'
+    b.textContent = 'Debug session'
+    b.title = 'Start an ad-hoc Dandyhorse debug session (needs the server)'
+    b.style.marginLeft = 'auto'
+    b.onclick = () => {
+      const device = el('deviceSeg').querySelector('button[aria-pressed="true"]') as HTMLButtonElement | null
+      const variant = device?.dataset.device === 'treadmill' ? 'treadmill' : 'bike'
+      resolve({ gameId: GAME_ID, variant, debug: true, options: {} })
+    }
+    document.querySelector('#start footer')?.appendChild(b)
+  })
+}
+
+/** What a platform session decides before the world is built: the route, where on it, and the rider. */
+function fromSession(start: StartPayload, manifests: RouteManifest[]): { chosen: Chosen; progress: PlatformProgress; manifest: RouteManifest } {
+  const ids = manifests.map((m) => m.id)
+  const routeId = option(start.options, 'route', ids, ids[0])
+  const manifest = manifests.find((m) => m.id === routeId) as RouteManifest
+  const deviceType = start.deviceType === 'treadmill' ? 'treadmill' : 'bike'
+  // debug sessions do not write save state (as Night Watch); they still read it, so they resume like a real one
+  const progress = new PlatformProgress(start.saveState, start.debug ? null : putSaveWriter(start.variant, log))
+  const previous = progress.get(routeId)
+  // the picker's resume rule, answered "resume" without asking: trainer mode must never need hands on controls
+  const partway = previous !== null && previous.s > 50 && previous.s < manifest.length - 50
+  const weight = start.bodyData?.weight
+  if (typeof weight === 'number' && Number.isFinite(weight) && weight >= 25 && weight <= 250) Config.riderMassKg = weight
+  Config.companions = OTHERS[option(start.options, 'others', Object.keys(OTHERS), 'few')]
+  return { chosen: { routeId, deviceType, startAt: partway && previous ? previous.s : 0, previous }, progress, manifest }
+}
 
 async function main(): Promise<void> {
   applyQuery(location.search)
-  const progress = new LocalProgress()
+  const query = new URLSearchParams(location.search)
 
   // the baker writes the index, so adding a route is one entry in tools/routes.ts and nothing here
-  const ids = await fetch('./routes/index.json').then((r) => r.json() as Promise<string[]>)
-  // the manifests are small, and the picker needs all of them to show how far through each route you are
-  const manifests = await Promise.all(
-    ids.map((id) => fetch(`./routes/${id}.json`).then((r) => r.json() as Promise<RouteManifest>)),
-  )
+  const ids = await fetch('./routes/index.json').then((r) => {
+    if (!r.ok) throw new Error(`routes/index.json: HTTP ${r.status} — run \`make assets\` in the dandyhorse root`)
+    return r.json() as Promise<string[]>
+  })
+  // the manifests are small, and the picker needs all of them to show how far through each route you are. A
+  // route in the index whose files are missing (not restored yet) is left out rather than stopping the game.
+  const manifests = (await Promise.all(
+    ids.map((id) => fetch(`./routes/${id}.json`)
+      .then((r) => (r.ok ? (r.json() as Promise<RouteManifest>) : null))
+      .catch(() => null)
+      .then((m) => {
+        if (!m || m.id !== id) console.warn(`trailtrainer: route ${id} is in the index but its manifest is missing`)
+        return m && m.id === id ? m : null
+      })),
+  )).filter((m): m is RouteManifest => m !== null)
+  if (!manifests.length) throw new Error('no routes — run `make assets` in the dandyhorse root')
 
+  // On Dandyhorse the session starts first (?session= from a bridge, or the picker's debug button), and the
+  // route, the machine and the resume point come from it; the picker and the resume question are skipped.
+  let platform: PlatformControls | null = null
+  let progress: ProgressStore
+  let chosen: Chosen
   // ?s= or ?go skips the picker: the way to look at one spot on a route while building it
-  const query = new URLSearchParams(location.search)
-  const skip = query.has('s') || query.has('go')
-  const chosen = skip
-    ? { routeId: Config.routeId, deviceType: Config.deviceType, startAt: Config.startS, previous: progress.get(Config.routeId) }
-    : await new StartScreen(manifests, progress).choose(Config.deviceType)
-  if (skip) el('start').classList.add('off')
+  const skip = !query.has('session') && (query.has('s') || query.has('go'))
+  const sessionParam = query.get('session')
+  let session: StartPayload | null = null
+  if (sessionParam) {
+    session = await begin({ sessionId: sessionParam })
+    if (!session) return
+  }
+  if (!session) {
+    const local = new LocalProgress()
+    progress = local
+    if (skip) {
+      chosen = { routeId: Config.routeId, deviceType: Config.deviceType, startAt: Config.startS, previous: local.get(Config.routeId) }
+      el('start').classList.add('off')
+    } else {
+      const picked = await Promise.race([new StartScreen(manifests, local).choose(Config.deviceType), debugSessionButton()])
+      if ('gameId' in picked) {
+        session = await begin(picked)
+        if (!session) return
+      } else {
+        chosen = picked
+      }
+    }
+  }
+  if (session) {
+    const s = fromSession(session, manifests)
+    chosen = s.chosen
+    progress = s.progress
+    platform = new PlatformControls(session, { routeId: s.chosen.routeId, routeLength: s.manifest.length, startAt: s.chosen.startAt, log })
+  }
+  // (definitely assigned on every path above; TypeScript cannot follow the race)
+  chosen = chosen!
+  progress = progress!
 
   Config.routeId = chosen.routeId
   Config.deviceType = chosen.deviceType
@@ -75,7 +191,7 @@ async function main(): Promise<void> {
   // ?s= is for looking at one spot while building. It must not count as a session or move the rider's real
   // place on the route — losing where you got to because someone debugged a hairpin is exactly the kind of
   // thing that makes a resume feature untrustworthy.
-  const tracker = skip ? null : new ProgressTracker(progress, route.manifest.id, route.length)
+  const tracker = skip && !platform ? null : new ProgressTracker(progress, route.manifest.id, route.length)
   const startAt = Math.min(chosen.startAt, route.length)
 
   // --- the scene ------------------------------------------------------------------------------------
@@ -215,21 +331,72 @@ async function main(): Promise<void> {
   await scatter.prewarm()
   await sky.prewarmShadows()
 
-  const controls = new LocalControls(() => Config.deviceType)
+  const controls: Controls = platform ?? new LocalControls(() => Config.deviceType)
   const ride = new Ride(route, startAt)
   const hud = new Hud(route, Config.deviceType, chosen.previous)
   const minimap = new Minimap(route)
   el('loading').classList.remove('on')
+  const how = platform
+    ? 'Picking up where you left off.'
+    : Config.deviceType === 'bike' ? 'Arrows set the power, space coasts.' : 'Arrows set the belt speed.'
   hud.say(
     startAt > 50 ? `Back on ${route.manifest.name}` : route.manifest.name,
     startAt > 50
-      ? `${km(startAt)} in, ${km(route.length - startAt)} to go. ${Config.deviceType === 'bike' ? 'Arrows set the power, space coasts.' : 'Arrows set the belt speed.'}`
+      ? `${km(startAt)} in, ${km(route.length - startAt)} to go. ${how}`
       : `${route.manifest.direction}. ${km(route.length)}, ${route.manifest.stats.gain} m of climbing.`,
     5000,
   )
 
+  // --- the session --------------------------------------------------------------------------------
+  /**
+   * The picture History shows. SessionClient asks for it synchronously, so a frame is read back every so often
+   * and kept, and once more just before the session ends. `CreateScreenshotAsync` rather than the canvas: under
+   * WebGPU a raw toDataURL is blank. It is the rendered scene only — the HUD is DOM and is not in it.
+   */
+  let imageBusy = false
+  const refreshImage = async (): Promise<void> => {
+    if (!platform || imageBusy || document.visibilityState === 'hidden' || document.body.classList.contains('shooting')) return
+    imageBusy = true
+    try {
+      // a hidden or throttled page may never draw the frame the screenshot waits for, so it gets a ceiling
+      const url = await Promise.race([
+        Tools.CreateScreenshotAsync(engine, chase.camera, { width: 640, height: 360 }, 'image/jpeg', 0.85),
+        new Promise<null>((r) => setTimeout(() => r(null), 4000)),
+      ])
+      platform.setImage(url)
+    } catch (e) {
+      log(`session image: ${e instanceof Error ? e.message : String(e)}`)
+    } finally {
+      imageBusy = false
+    }
+  }
+  /** The session ends `complete`: the time is up, or the route is finished. Save, picture, then endsession. */
+  let ending = false
+  const endComplete = async (why: 'time' | 'finished'): Promise<void> => {
+    if (!platform || ending || platform.ended()) return
+    ending = true
+    tracker?.save(ride.position, sessionSeconds)
+    if (why === 'time') {
+      hud.say('Session complete', `${km(ride.position)} in, ${km(route.length - ride.position)} to go. The next session picks up here.`, 0)
+    }
+    await refreshImage()
+    await platform.complete(why === 'time' ? 'duration' : 'route finished')
+  }
+  if (platform) {
+    // ended from a bridge or the console (or by endComplete): write down where the rider got to, and stop
+    platform.onEnded = (info) => {
+      tracker?.save(ride.position, sessionSeconds)
+      if (!ending) hud.say('Session over', `${km(ride.position)} in. ${info.status === 'complete' ? 'The next session picks up here.' : ''}`.trim(), 0)
+    }
+    platform.attach()
+    setTimeout(() => void refreshImage(), 3000)
+    setInterval(() => { if (!controls.paused() && !controls.ended()) void refreshImage() }, 15_000)
+  }
+
   // --- the loop -------------------------------------------------------------------------------------
   let castersAttached = 0
+  let gameReady = false
+  let wasPaused = false
   let sessionSeconds = 0
   let finished = false
   // where the rider was last frame, to notice a jump (see below)
@@ -253,13 +420,28 @@ async function main(): Promise<void> {
   scene.onBeforeRenderObservable.add(() => {
     resolution.tick(engine.getDeltaTime())
     const dt = Math.min(0.1, engine.getDeltaTime() / 1000)
-    const active = !controls.paused() && !finished && !document.body.classList.contains('shooting')
+    const active = !controls.paused() && !controls.ended() && !finished && !document.body.classList.contains('shooting')
     if (active) sessionSeconds += dt
 
     const state = ride.update(controls.measured(), dt, active)
     controls.request(state.request)
 
     const pose = route.poseAt(state.s)
+    if (platform) {
+      platform.report({ s: state.s, speed: state.speed, grade: state.grade, elevation: pose.y, x: pose.x, y: pose.y, z: pose.z, finished: state.finished }, dt, active)
+      if (platform.timeUp()) void endComplete('time')
+      // the server pauses by itself after a few seconds without data, or a bridge's Pause; say why, as it words it
+      const pausedNow = platform.paused()
+      if (pausedNow !== wasPaused && !platform.ended()) {
+        wasPaused = pausedNow
+        if (pausedNow) hud.say('Paused', platform.pauseMessage() ?? 'The session is paused.', 0)
+        else hud.hideBanner()
+      }
+    }
+    if (!gameReady) {
+      gameReady = true
+      Object.assign(window, { gameReady: true })
+    }
     frame.follow(pose.x, pose.z)
 
     // A jump — [ and ] while building, or a resumed session landing mid-route — moves further in one frame
@@ -341,16 +523,17 @@ async function main(): Promise<void> {
 
     hud.update(state, sessionSeconds)
     minimap.update(state.s)
-    tracker?.update(state.s, sessionSeconds, performance.now(), Config.saveEvery)
+    if (!controls.ended()) tracker?.update(state.s, sessionSeconds, performance.now(), Config.saveEvery)
 
     if (state.finished && !finished) {
       finished = true
       tracker?.save(state.s, sessionSeconds)
       hud.say(
         `${route.manifest.name}, all of it`,
-        `${km(route.length)} and ${route.manifest.stats.gain} m of climbing, finished. Reload to ride it again.`,
+        `${km(route.length)} and ${route.manifest.stats.gain} m of climbing, finished. ${platform ? 'The next session starts a fresh lap.' : 'Reload to ride it again.'}`,
         0,
       )
+      void endComplete('finished')
     }
   })
 
@@ -486,7 +669,7 @@ async function main(): Promise<void> {
   }
 
   Object.assign(window, {
-    __game: { route, ride, frame, engine, scene, others, scatter, chase, water, resolution, terrain, distance, trail, markers, bridges, sky, at: () => ride.position },
+    __game: { route, ride, frame, engine, scene, others, scatter, chase, water, resolution, terrain, distance, trail, markers, bridges, sky, platform, at: () => ride.position },
     __shot: shot,
     __ready: true,
   })

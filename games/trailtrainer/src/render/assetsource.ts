@@ -74,7 +74,8 @@ export function libraryIndex(lib: Library): Promise<LibraryIndex | null> {
  */
 export function siblingUrl(repo: 'avatarkit' | 'assetkit', rel: string): string {
   const dir = repo === 'avatarkit' ? (typeof __AVATARKIT_DIR__ === 'string' ? __AVATARKIT_DIR__ : '') : (typeof __ASSETKIT_DIR__ === 'string' ? __ASSETKIT_DIR__ : '')
-  return new URL(`/@fs${dir}/${rel}`, location.origin).href
+  // under the dev server's base (/games/trailtrainer/): Vite answers /@fs/ only below it
+  return new URL(`${import.meta.env.BASE_URL}@fs${dir}/${rel}`, location.origin).href
 }
 
 async function localIndex(lib: Library): Promise<LibraryIndex | null> {

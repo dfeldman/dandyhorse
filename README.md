@@ -28,7 +28,7 @@ pace themselves by the player's own fitness rather than by raw watts.
 | `games/nightracer/` | Night Racer: race three rivals through a neon city at night, on either machine; your pace is the throttle, and Turbo and Oil are buttons on the phone (see its `INTEGRATION.md`) |
 | `games/nightwatch/` | Night Watch: keep a lighthouse lamp bright through the night so ships make harbour, on either machine; an interval workout set by the ships' timetable (see its `INTEGRATION.md`) |
 | `games/laneone/` | Lane One: a plain console-style workout that drives every dial a machine has (belt speed, incline, grade, ERG watts) and shows requested against actual; seven programmes, the phone is the console's ± buttons (see its `INTEGRATION.md`; `npm run e2e` is its end-to-end check) |
-| `games/trailtrainer/` | Trail Trainer: real routes (Alpe d'Huez, the Katy Trail) from open map and elevation data, with coasting physics; standalone for now (see its README and `INTEGRATION.md`). Its trees, plants and rocks come from assetkit |
+| `games/trailtrainer/` | Trail Trainer: real routes (Alpe d'Huez, the Katy Trail) from open map and elevation data, with coasting physics; your place on each route is kept between sessions (see its README and `INTEGRATION.md`; `npm run e2e` is its end-to-end check). Its trees, plants and rocks come from assetkit |
 | `data/` | Runtime data (SQLite DB, session logs), gitignored |
 
 Every console, bridge and game is a peer folder with a `metadata.json`;
@@ -78,6 +78,8 @@ sign-in, see [Put it online](#put-it-online).
   launch it from the console to keep watch with a machine
 - Lane One (standalone with a simulated machine; `?dh=treadmill` or `?dh=bike` for a debug session):
   <http://localhost:8080/games/laneone/>; launch it from the console to work out on a machine
+- Trail Trainer (standalone with the keyboard, or "Debug session" in the picker):
+  <http://localhost:8080/games/trailtrainer/>; launch it from the console to ride a real route
 
 Try a session without hardware: in the console pick Mock Game (Bike) with
 debug on, which opens the bridge; on the Devices tab enable the bike
@@ -96,6 +98,7 @@ make dev-bikeplane     # :5177 (http://localhost:5177/games/bikeplane/)
 make dev-nightracer    # :5190 (http://localhost:5190/games/nightracer/)
 make dev-nightwatch    # :5192 (http://localhost:5192/games/nightwatch/)
 make dev-laneone       # :5198 (http://localhost:5198/games/laneone/)
+make dev-trailtrainer  # :5196 (http://localhost:5196/games/trailtrainer/)
 make dev-avatar        # :5194, the avatar designer on its own (the console embeds the same thing)
 ```
 

@@ -39,9 +39,15 @@ import { Layer } from './layers.ts'
 // By default the kit's assets now come from the shared asset bucket (avatarkit's assetmgr indexes, see
 // render/assetsource.ts); the local folders are the fallback, and what ?assets=local asks for.
 function useLocalAvatarAssets(): void {
-  // avatarkit's public/ through the dev server (AVATARKIT_DIR, see vite.config.ts)
-  setAssetBase(siblingUrl('avatarkit', 'public/mh/'))
-  setStudioHdri(siblingUrl('avatarkit', `public/${STUDIO_HDRI}`))
+  if (import.meta.env.DEV) {
+    // avatarkit's public/ through the dev server (AVATARKIT_DIR, see vite.config.ts)
+    setAssetBase(siblingUrl('avatarkit', 'public/mh/'))
+    setStudioHdri(siblingUrl('avatarkit', `public/${STUDIO_HDRI}`))
+  } else {
+    // a build has no dev server to read the sibling repo through: the Dandyhorse server's own copy (/avatars/)
+    setAssetBase(new URL('/avatars/mh/', location.origin).href)
+    setStudioHdri(new URL(`/avatars/${STUDIO_HDRI}`, location.origin).href)
+  }
 }
 const avatarAssets: Promise<void> = assetSource() === 'bucket'
   ? loadFromBucket(Config.assetBucket).then(() => undefined, (e: unknown) => {
