@@ -9,10 +9,15 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "programs": "node --experimental-strip-types tools/programs.ts"
+    "programs": "node --experimental-strip-types tools/programs.ts",
+    "e2e": "node --experimental-strip-types tools/platform-e2e.ts"
+  },
+  "dependencies": {
+    "@dandyhorse/gamekit": "file:../../libs/gamekit"
   },
   "devDependencies": {
     "@types/node": "^24",
+    "playwright": "^1.63.0",
     "typescript": "^5.8",
     "vite": "^7",
     "vitest": "^3.2"

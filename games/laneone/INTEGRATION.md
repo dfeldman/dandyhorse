@@ -4,8 +4,17 @@ What it takes to run Lane One on the exercise platform (Dandyhorse, `~/dandyhors
 points where the two meet; the console's own rules are in [README.md](README.md). The platform's contract for
 games is `dandyhorse/docs/GAME_AUTHORING.md` and the tutorial is `docs/GAME_DEVELOPER_GUIDE.md`.
 
-Nothing here is built yet. As with Night Racer and Night Watch, the platform work comes down to **one new
-file**, because everything that touches a machine already goes through one interface:
+**Built 2026-10-17.** The platform side is [src/platform.ts](src/platform.ts) (`DandyhorseMachine`), used by
+[src/main.ts](src/main.ts) when `?session=` is in the URL (or `?dh=treadmill|bike` for an ad-hoc debug session);
+without either the simulator runs as before. `npm run e2e` ([tools/platform-e2e.ts](tools/platform-e2e.ts)) is the
+end-to-end check against a local `make serve`: launch, a simulated bridge, the phone's ± buttons, the bridge's
+Pause/Play/End, the History picture, and "never a belt speed in `you` mode". Where the build differs from the
+plan below: a distance or calorie goal takes the setup screen's middle chip (5 km or 5 mi, or the middle calorie
+figure) instead of asking, since a launched session starts hands-free; bests are `{bests: {<device>: …}}` in the
+save state; the duplicated `units.ts` and `treadmillWatts` were left in place.
+
+As with Night Racer and Night Watch, the platform work came down to **one new file**, because everything that
+touches a machine already goes through one interface:
 
 - every reading and every command goes through `Machine` in [src/machine.ts](src/machine.ts);
 - everything the platform would want to send is in `Workout.state()` and `Workout.summary()`
@@ -27,8 +36,8 @@ phone taps ─► server ─► getstate.inputs ─► the ± buttons
 - **Location:** the game becomes `games/laneone`, a static Vite build with `base: '/games/laneone/'` and the
   dev proxy from `games/mockgame/vite.config.ts`. There is nothing to bundle but the game itself: no engine,
   no assets, no fonts. The built site is about 60 kB.
-- **Still to do before it ships:** a `screenshot.png` for the console's game list (the metadata names one;
-  the track view at 1280×720 with a hills programme under way is the obvious shot).
+- **Screenshot:** `screenshot.png` (gitignored, in the asset bucket like the other games') is the track view at
+  1280×720 with a hills programme under way.
 - **The adapter:** one new file, `src/platform.ts`, implements `Machine` on top of gamekit's `SessionClient`.
   `main.ts` uses it when `?session=` is in the URL and keeps `SimMachine` otherwise, so the simulator stays
   as the way to develop without hardware.
@@ -103,7 +112,7 @@ button still opens it with `showMachine: false, showLength: false`.
 This is the part worth reading twice, because Lane One asks for more than any other game on the platform.
 
 **The variant declares the safe thing; a launch option upgrades it.** `metadata.json`
-([platform/metadata.json](platform/metadata.json)) uses the feature in GAME_AUTHORING.md where an option
+([metadata.json](metadata.json)) uses the feature in GAME_AUTHORING.md where an option
 value overrides the variant's `controls`:
 
 ```json

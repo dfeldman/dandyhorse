@@ -1,6 +1,6 @@
 /**
  * The eight things worth telling somebody they did. The ids and words are the same as
- * `platform/metadata.json`, so the console's Achievements page and this screen agree; on Dandyhorse the
+ * `metadata.json`, so the console's Achievements page and this screen agree; on Dandyhorse the
  * game sends the ids in a tick's `achievements` and the server keeps the first time each was earned.
  *
  * They are deliberately about doing the work, not about beating anybody: a console has no score.

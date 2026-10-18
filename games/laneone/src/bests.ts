@@ -30,23 +30,43 @@ export interface Beaten {
 
 const key = (device: DeviceType): string => `laneone.bests.${device}`
 
+/** Where bests are kept: localStorage standalone, the session's save state on Dandyhorse (src/platform.ts). */
+export interface BestsStore {
+  load(device: DeviceType): Partial<Bests> | null
+  save(device: DeviceType, b: Bests): void
+}
+
+const browserStore: BestsStore = {
+  load: (device) => {
+    try {
+      const raw = localStorage.getItem(key(device))
+      return raw ? (JSON.parse(raw) as Partial<Bests>) : null
+    } catch {
+      return null // a private window, or storage turned off: bests just don't stick
+    }
+  },
+  save: (device, b) => {
+    try {
+      localStorage.setItem(key(device), JSON.stringify(b))
+    } catch {
+      /* nothing to do: the workout still happened */
+    }
+  },
+}
+
+let store: BestsStore = browserStore
+
+/** Keep bests somewhere else from now on (the platform's save state). */
+export function useStore(s: BestsStore): void {
+  store = s
+}
+
 export function load(device: DeviceType): Bests {
-  try {
-    const raw = localStorage.getItem(key(device))
-    if (!raw) return { ...EMPTY }
-    const v = JSON.parse(raw) as Partial<Bests>
-    return { ...EMPTY, ...v }
-  } catch {
-    return { ...EMPTY } // a private window, or storage turned off: bests just don't stick
-  }
+  return { ...EMPTY, ...(store.load(device) ?? {}) }
 }
 
 export function save(device: DeviceType, b: Bests): void {
-  try {
-    localStorage.setItem(key(device), JSON.stringify(b))
-  } catch {
-    /* nothing to do: the workout still happened */
-  }
+  store.save(device, b)
 }
 
 /**

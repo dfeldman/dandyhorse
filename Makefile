@@ -1,9 +1,9 @@
 .PHONY: install build test serve devicelib assets assets-upload avatar-assets dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek dev-bikeplane dev-nightracer dev-nightwatch dev-trailtrainer dev-laneone dev-avatar
 
 LIBS := libs/gamekit devicelib
-FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch
+FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch games/laneone
 # standalone for now (no metadata.json, so the server does not list it); installed and tested with the rest
-STANDALONE := games/trailtrainer games/laneone
+STANDALONE := games/trailtrainer
 
 # Sibling repos come from environment variables, defaulting to the checkouts beside this one (no symlinks):
 # AVATARKIT_DIR and ASSETMGR_DIR. avatarkit is its own repo (github.com/dfeldman/avatarkit). Its MakeHuman assets
@@ -48,7 +48,7 @@ build: devicelib
 
 test: devicelib
 	cd $(SERVER) && uv run pytest
-	for d in $(VUE_APPS) games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch $(STANDALONE); do (cd $$d && npm test) || exit 1; done
+	for d in $(VUE_APPS) games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch games/laneone $(STANDALONE); do (cd $$d && npm test) || exit 1; done
 	cd libs/gamekit && npm test
 	cd devicelib && npm test
 	@if [ -d $(AVATAR_DIR)/mh ]; then (cd $(AVATARKIT_DIR) && npm test) || exit 1; \

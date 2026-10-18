@@ -30,8 +30,11 @@ export interface SummaryOptions {
   recovery: RecoveryResult | null
   bests: Bests
   beaten: Beaten
-  onAgain(): void
-  onChange(): void
+  /** Left out on Dandyhorse, where the bridge offers "Play again" and the session is already over. */
+  onAgain?: () => void
+  onChange?: () => void
+  /** The line shown in place of those buttons. */
+  note?: string
 }
 
 export function showSummary(host: HTMLElement, s: Summary, opts: SummaryOptions): void {
@@ -69,7 +72,9 @@ export function showSummary(host: HTMLElement, s: Summary, opts: SummaryOptions)
     ...(s.achievements.length ? [achievementBlock(s.achievements)] : []),
     s.splits.length ? splitsTable(s, sys) : el('p', { class: 'muted' }, 'No full lap this time — a lap of the track is 400 m.'),
     el('p', { class: 'bests-line' }, bestsSummary(opts.bests, sys)),
-    el('div', { class: 'row end' }, ghost('Change programme', opts.onChange), primary('Again', opts.onAgain)),
+    opts.onAgain && opts.onChange
+      ? el('div', { class: 'row end' }, ghost('Change programme', opts.onChange), primary('Again', opts.onAgain))
+      : el('p', { class: 'muted' }, opts.note ?? ''),
   )
   host.replaceChildren(card)
   host.hidden = false

@@ -42,6 +42,24 @@
         "dev-carkit"
       ],
       "port": 5204
+    },
+    {
+      "name": "laneone",
+      "runtimeExecutable": "make",
+      "runtimeArgs": [
+        "dev-laneone"
+      ],
+      "port": 5198,
+      "url": "http://localhost:5198/games/laneone/"
+    },
+    {
+      "name": "trailtrainer",
+      "runtimeExecutable": "make",
+      "runtimeArgs": [
+        "dev-trailtrainer"
+      ],
+      "port": 5196,
+      "url": "http://localhost:5196/games/trailtrainer/"
     }
   ]
 }

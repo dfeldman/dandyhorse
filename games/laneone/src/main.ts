@@ -6,11 +6,14 @@
  * — the workout, the console, the track — is the same code either way.
  */
 import './ui/style.css'
-import { record as recordBests } from './bests.ts'
+import { ApiError, startSession, type StartPayload, type StartSessionAdHoc, type StartSessionBySession } from '@dandyhorse/gamekit'
+import { record as recordBests, useStore as useBestsStore } from './bests.ts'
 import { Config } from './config.ts'
 import type { DriveWho } from './drive.ts'
+import type { Machine } from './machine.ts'
 import type { DeviceType } from './physics.ts'
 import { PROGRAM_IDS, PROGRAMS, type ProgramId } from './program.ts'
+import { DandyhorseMachine, GAME_ID } from './platform.ts'
 import { RecoveryTest } from './recovery.ts'
 import { createTrackView } from './render/track.ts'
 import { SimMachine } from './sim/machine.ts'
@@ -19,7 +22,7 @@ import type { UnitSystem } from './units.ts'
 import { Hud, type HudOptions } from './ui/hud.ts'
 import { GOALS, showSetup, type Choice } from './ui/setup.ts'
 import { showRecovery } from './ui/recoveryScreen.ts'
-import { showSummary } from './ui/summary.ts'
+import { sessionImage, showSummary } from './ui/summary.ts'
 import { Workout, type GoalKind } from './workout.ts'
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string): T => document.getElementById(id) as T
@@ -58,20 +61,25 @@ const track = createTrackView($<HTMLCanvasElement>('track'))
 
 let workout: Workout | null = null
 let hud: Hud | null = null
-let machine: SimMachine | null = null
+let machine: Machine | null = null
+/** On Dandyhorse: the session (src/platform.ts). Standalone: null, and `machine` is the simulator. */
+let platform: DandyhorseMachine | null = null
 let recovery: RecoveryTest | null = null
 
 // --- starting and stopping -----------------------------------------------------------------------------
 
 function begin(c: Choice): void {
-  machine = new SimMachine({
-    device: c.device,
-    steadyWatts,
-    unitSystem,
-    auto: params.get('auto') !== '0',
-    fixed: fixedInput,
-    noHeartRate: params.get('nohr') === '1',
-  })
+  const sim = platform
+    ? null
+    : new SimMachine({
+        device: c.device,
+        steadyWatts,
+        unitSystem,
+        auto: params.get('auto') !== '0',
+        fixed: fixedInput,
+        noHeartRate: params.get('nohr') === '1',
+      })
+  machine = platform ?? sim!
   workout = new Workout({
     machine,
     program: c.program,
@@ -82,7 +90,8 @@ function begin(c: Choice): void {
     goal: c.goal,
   })
   hud = new Hud(workout, hudOptions())
-  wireHarness(machine)
+  if (sim) wireHarness(sim)
+  else $('harness').hidden = true
   workout.start()
   if (startAt > 0) fastForward(startAt)
   layout()
@@ -139,7 +148,7 @@ function finish(early: boolean): void {
   workout.stop()
   $('paused').hidden = true
   hud?.sound.play('done')
-  if (RecoveryTest.available(machine) && !early) {
+  if (RecoveryTest.available(machine) && !early && !platform?.ended()) {
     recovery = new RecoveryTest(machine)
     showRecovery($('recovery'), recovery, {
       onDone: () => {
@@ -165,20 +174,27 @@ function summarise(early: boolean): void {
   })
   const test = recovery
   recovery = null
+  // An End pressed in the first minute with nothing done throws the session away rather than filing an empty one.
+  const discard = early && s.duration < 60 && s.distance < 50
   showSummary($('summary'), s, {
     device: machine.device,
-    sys: unitSystem,
+    sys: platform ? platform.unitSystem() : unitSystem,
     early,
     maxHr: machine.heartRateRange().max,
     recovery: test?.result() ?? null,
     bests,
     beaten,
-    onAgain: () => location.reload(),
-    onChange: () => {
-      $('summary').hidden = true
-      askAndStart()
-    },
+    ...(platform
+      ? { note: discard ? 'Nothing to save this time.' : 'Saved to your history. Play again from the bridge.' }
+      : {
+          onAgain: () => location.reload(),
+          onChange: () => {
+            $('summary').hidden = true
+            askAndStart()
+          },
+        }),
   })
+  platform?.finish(discard)
 }
 
 function askAndStart(): void {
@@ -306,6 +322,8 @@ function frame(now: number): void {
       hud?.profile.draw(s.plan, s.elapsed)
       hud?.trend.draw(workout.trend(), s.elapsed)
     }
+    // ended from a bridge or the console: the summary as it stands, no recovery minute (the session is closed)
+    if (platform?.ended() && s.phase !== 'done') workout.stop()
     if (s.phase === 'done' && $('summary').hidden && $('recovery').hidden && !recovery) finish(s.progress.done < 1)
   }
   requestAnimationFrame(frame)
@@ -319,7 +337,53 @@ function layout(): void {
 window.addEventListener('resize', layout)
 requestAnimationFrame(frame)
 
-if (params.get('start') === '1' || startAt > 0) begin(choice)
+// --- Dandyhorse ------------------------------------------------------------------------------------------
+
+/**
+ * On the platform the session starts before anything is built: the console's launch dialog has already asked
+ * everything the setup screen would (INTEGRATION.md §2), so the workout starts as the page loads, hands-free.
+ */
+async function beginSession(body: StartSessionBySession | StartSessionAdHoc): Promise<void> {
+  let start: StartPayload
+  try {
+    start = await startSession(body)
+  } catch (e) {
+    const msg = e instanceof ApiError ? `${e.status} ${e.code}: ${e.message}` : String(e)
+    console.error(`${GAME_ID}: the session could not start: ${msg}`)
+    document.body.append(Object.assign(document.createElement('p'), { className: 'boot-error', textContent: `The session could not start. ${msg}` }))
+    return
+  }
+  const log = (line: string): void => console.info(`${GAME_ID}: ${line}`)
+  log(`session ${start.sessionId} · ${start.variant} · ${start.deviceType} · ${start.unitSystem}${start.debug ? ' · debug' : ''}`)
+  platform = new DandyhorseMachine(start, log)
+  useBestsStore(platform.bestsStore())
+  const g = (start.preferences.game ?? {}) as Record<string, unknown>
+  const lane = Number(g.trackLane)
+  if (Number.isInteger(lane) && lane >= 1 && lane <= 8) (Config as { PLAYER_LANE: number }).PLAYER_LANE = lane
+  const c = platform.choice
+  Object.assign(choice, {
+    program: c.program, level: c.level, who: c.who, goal: c.goal,
+    minutes: Math.round(c.duration / 60), device: start.deviceType, seed: start.seed >>> 0,
+  })
+  begin(choice)
+  if (g.bigNumbers === true) hud?.toggleBig()
+  if (g.sound === false && hud?.sound.on) hud.toggleSound()
+  const w = workout!
+  platform.attach({
+    workout: w,
+    sessionImage: () => sessionImage(w.summary(), { device: start.deviceType, sys: start.unitSystem, programme: w.summary().program }),
+    onStep: (dial, delta) => w.adjustTarget(dial, delta),
+  })
+  window.gameReady = true
+}
+
+const sessionParam = params.get('session')
+if (sessionParam) void beginSession({ sessionId: sessionParam })
+else if (params.get('dh') === 'treadmill' || params.get('dh') === 'bike') {
+  // ?dh=treadmill|bike: an ad-hoc debug session against the local server, for developing the platform side
+  const variant = params.get('dh')!
+  void beginSession({ gameId: GAME_ID, variant, deviceType: variant as DeviceType, debug: true, options: {} })
+} else if (params.get('start') === '1' || startAt > 0) begin(choice)
 else askAndStart()
 
 /**
@@ -328,7 +392,8 @@ else askAndStart()
  */
 declare global {
   interface Window {
-    __lane?: { state: () => unknown; trend: () => unknown; machine: () => unknown; workout: () => Workout | null }
+    __lane?: { state: () => unknown; trend: () => unknown; machine: () => unknown; workout: () => Workout | null; platform: () => DandyhorseMachine | null }
+    gameReady?: boolean
   }
 }
 window.__lane = {
@@ -336,6 +401,7 @@ window.__lane = {
   trend: () => workout?.trend() ?? null,
   machine: () => machine?.read() ?? null,
   workout: () => workout,
+  platform: () => platform,
 }
 
 console.info(`Lane One · ${lapLength(1).toFixed(2)} m to the lap · programmes: ${PROGRAM_IDS.map((p) => PROGRAMS[p].name).join(', ')}`)
