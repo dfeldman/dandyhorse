@@ -144,6 +144,44 @@
           "localPath": "games/citydash/screenshot.jpg"
         }
       ]
+    },
+    {
+      "id": "laneone-screenshot",
+      "name": "laneone screenshot",
+      "assetKeywords": [
+        "laneone",
+        "screenshot"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-bac7fc9af7-laneone-screenshot.png",
+          "hash": "bac7fc9af73d11c131b0418e63bbb15798debcb8d7e43d232bf674c794cae49f",
+          "size": 156605,
+          "fileFormat": "png",
+          "extension": "png",
+          "isProd": true,
+          "localPath": "games/laneone/screenshot.png"
+        }
+      ]
+    },
+    {
+      "id": "trailtrainer-screenshot",
+      "name": "trailtrainer screenshot",
+      "assetKeywords": [
+        "trailtrainer",
+        "screenshot"
+      ],
+      "assetFiles": [
+        {
+          "filename": "asset-1b5bd2cc92-trailtrainer-screenshot.jpg",
+          "hash": "1b5bd2cc92fad5ec5cf70a593ae7adcad29fdf6ae02af5e263b4af20adcf1153",
+          "size": 289884,
+          "fileFormat": "jpg",
+          "extension": "jpg",
+          "isProd": true,
+          "localPath": "games/trailtrainer/screenshot.jpg"
+        }
+      ]
     }
   ]
 }
