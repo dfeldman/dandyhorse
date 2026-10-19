@@ -37,3 +37,7 @@ secret.key
 
 # each game's screenshot: in the asset bucket (index dandyhorse-games), put back by `make assets`
 games/*/screenshot.*
+
+# API tokens and keys: never committed
+.mapillary_token
+*.token
