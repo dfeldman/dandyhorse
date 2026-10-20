@@ -17,6 +17,12 @@ export interface Car {
   wobblePhase: number
   /** Extra pace a rival finds on the run to the flag (share). */
   finale: number
+  /**
+   * A real player's recorded speed at a moment of their own workout, in m/s, or null once their ride
+   * ended. Where this is set the rival rides THEIR effort rather than a constant share of cruise speed:
+   * they surge where that person surged and ease where they eased (src/ghosts.ts).
+   */
+  speedAt?: ((sessionElapsed: number) => number | null) | undefined
 
   /** Race distance from the start line (m); negative on the grid. */
   dist: number
@@ -62,7 +68,7 @@ export interface Car {
   stats: { overtakes: number; oilHits: number; turbos: number; spins: number; rocket: boolean }
 }
 
-export function newCar(init: Pick<Car, 'id' | 'name' | 'color' | 'isPlayer' | 'pace' | 'dodge' | 'wobblePeriod' | 'wobblePhase' | 'finale'>): Car {
+export function newCar(init: Pick<Car, 'id' | 'name' | 'color' | 'isPlayer' | 'pace' | 'dodge' | 'wobblePeriod' | 'wobblePhase' | 'finale'> & Partial<Pick<Car, 'speedAt'>>): Car {
   return {
     ...init,
     dist: 0, prevDist: 0, x: 0, vx: 0, lane: 0, homeLane: 0, laneHold: 0, speed: 0, freeSpeed: 0,

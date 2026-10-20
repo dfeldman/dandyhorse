@@ -49,6 +49,16 @@ export const Config = {
     { id: 'green', name: 'Lime Rocket', pace: 0.93, dodge: 0.3, color: '#38d45a' },
   ] as Array<{ id: string; name: string; pace: number; dodge: number; color: string; ghost?: boolean }>,
   DIFFICULTY: { easy: 0.9, normal: 1.0, hard: 1.08 } as Record<string, number>,
+  /**
+   * A cyclist's steady speed, in m/s, against which a real player's recorded speed is read as effort.
+   *
+   * A rival driven by somebody's actual ride (src/ghosts.ts) cannot use their speed directly: theirs is
+   * a bicycle's and these are cars. So their recorded speed is divided by this to get "how hard were
+   * they going", which then drives the car the same way `pace` does.
+   */
+  GHOST_STEADY_SPEED: 8.5,
+  /** And clamped: a rival out of reach is not a race, and nor is one far behind. */
+  GHOST_PACE: [0.86, 1.14] as [number, number],
   /** Rivals' pace wobbles by this share, each on its own slow cycle, so positions change at a steady pace. */
   WOBBLE: 0.05,
   WOBBLE_PERIOD: [20, 38],

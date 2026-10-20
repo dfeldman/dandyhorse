@@ -25,7 +25,7 @@ import { Config } from './config.ts'
 /** How far a real player's pace may move a rival from its designed one. */
 const PACE_RANGE = [0.86, 1.14] as const
 
-/** A rival keeps its slot and behaviour; only who it is changes. */
+/** A rival keeps its slot and behaviour; only who it is — and how hard they ride — changes. */
 export interface GhostRival {
   id: string
   name: string
@@ -33,6 +33,8 @@ export interface GhostRival {
   dodge: number
   color: string
   ghost: true
+  /** Their recorded speed at a moment of their own workout, m/s, or null once their ride ended. */
+  speedAt: (sessionElapsed: number) => number | null
 }
 
 const clamp = (v: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, v))
@@ -71,6 +73,14 @@ export async function realRivals(sessionId: string, myFitness: number): Promise<
     const pace = myFitness > 0 && theirs > 0
       ? clamp(rival.pace * (theirs / myFitness), PACE_RANGE[0], PACE_RANGE[1])
       : rival.pace
-    return { ...rival, name: g.name, pace, ghost: true as const }
+    return {
+      ...rival,
+      name: g.name,
+      pace,
+      ghost: true as const,
+      // What they were actually doing at that second of their own ride. Null once it ended, and the
+      // rival falls back to its designed pace rather than stopping dead.
+      speedAt: (t: number) => (g.done(t) ? null : g.at(t).speed),
+    }
   })
 }

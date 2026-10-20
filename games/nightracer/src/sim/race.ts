@@ -118,6 +118,7 @@ export class Race {
       return newCar({
         id: d.id, name: d.name, color: d.color, isPlayer: d.isPlayer, dodge: d.dodge,
         pace: d.isPlayer ? 1 : d.pace * (1 + this.rng.range(-Config.FORM, Config.FORM)),
+        speedAt: (d as { speedAt?: (t: number) => number | null }).speedAt,
         wobblePeriod: this.rng.range(Config.WOBBLE_PERIOD[0], Config.WOBBLE_PERIOD[1]),
         wobblePhase: this.rng.range(0, Math.PI * 2),
         finale: d.isPlayer ? 0 : this.rng.range(0, Config.FINALE_PUSH),
@@ -322,7 +323,22 @@ export class Race {
         }
       }
       const cool = c.finished || this.player.finished ? 0.9 : 1
-      v = Config.CRUISE_SPEED * c.pace * this.difficulty * wobble * band * cool
+      /*
+       * A rival who is a real person rides THEIR ride: the speed they were actually doing at this point
+       * in their own workout, rather than a constant share of cruise speed. They surge where that person
+       * surged and ease where they eased, which is the difference between racing somebody's name and
+       * racing somebody.
+       *
+       * Their recorded speed is a cyclist's — ten to fifteen metres a second — and this is an arcade
+       * racer whose cars cruise far faster, so it is a SHARE, not a speed: how hard they were going
+       * against their own steady effort. The band, the wobble and the finale still apply on top, because
+       * a recording cannot react to traffic and the race still has to be a race.
+       */
+      const recorded = c.speedAt ? c.speedAt(this.time + this.clockOffset) : null
+      const theirs = recorded !== null && recorded !== undefined && Config.GHOST_STEADY_SPEED > 0
+        ? clamp(recorded / Config.GHOST_STEADY_SPEED, Config.GHOST_PACE[0], Config.GHOST_PACE[1])
+        : null
+      v = Config.CRUISE_SPEED * (theirs ?? c.pace) * this.difficulty * wobble * band * cool
     }
     v *= terrainFactor(pose.grade, pose.k)
     if (c.drafting) v *= 1 + Config.DRAFT_BOOST

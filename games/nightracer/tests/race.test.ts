@@ -249,3 +249,48 @@ describe('the series', () => {
     expect(series.race.cars[series.race.cars.length - 1]!.id).toBe(leader)
   })
 })
+
+describe('a rival who is a real person', () => {
+  /** A recorded ride that is deliberately uneven: easy, then a hard effort, then easy again. */
+  const recorded = (t: number): number | null => (t > 600 ? null : t < 40 ? 6.5 : t < 80 ? 11.5 : 7.0)
+
+  it('rides their own effort rather than a flat share of cruise speed', () => {
+    const race = new Race({ seed: 4, laps: 3, difficulty: 1, grid: GRID })
+    const ghost = race.cars.find((c) => !c.isPlayer)!
+    ghost.speedAt = recorded
+
+    // Sample the speed it wants on an empty road, across the easy and the hard stretch.
+    const freeAt = (seconds: number): number => {
+      const r = new Race({ seed: 4, laps: 3, difficulty: 1, grid: GRID, clockOffset: seconds })
+      const c = r.cars.find((x) => x.id === ghost.id)!
+      c.speedAt = recorded
+      run(r, 14, 50)          // past the intro and the countdown, into actual racing
+      return c.freeSpeed
+    }
+    const easy = freeAt(10)
+    const hard = freeAt(55)
+    expect(hard).toBeGreaterThan(easy)
+  })
+
+  it('falls back to its designed pace once their ride has ended', () => {
+    const plain = new Race({ seed: 4, laps: 3, difficulty: 1, grid: GRID, clockOffset: 900 })
+    const withGhost = new Race({ seed: 4, laps: 3, difficulty: 1, grid: GRID, clockOffset: 900 })
+    const id = plain.cars.find((c) => !c.isPlayer)!.id
+    withGhost.cars.find((c) => c.id === id)!.speedAt = recorded   // null past 600 s
+
+    run(plain, 14, 50)
+    run(withGhost, 14, 50)
+    expect(withGhost.cars.find((c) => c.id === id)!.freeSpeed)
+      .toBeCloseTo(plain.cars.find((c) => c.id === id)!.freeSpeed, 5)
+  })
+
+  it('is kept inside the band the race was designed around', () => {
+    // Somebody who was flying: still catchable, because a rival out of reach is not a race.
+    const race = new Race({ seed: 4, laps: 3, difficulty: 1, grid: GRID, clockOffset: 10 })
+    const ghost = race.cars.find((c) => !c.isPlayer)!
+    ghost.speedAt = () => 99
+    run(race, 14, 50)
+    expect(ghost.freeSpeed).toBeLessThanOrEqual(
+      Config.CRUISE_SPEED * Config.GHOST_PACE[1] * (1 + Config.WOBBLE + Config.FORM) * 1.3)
+  })
+})
