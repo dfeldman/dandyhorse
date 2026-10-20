@@ -329,8 +329,9 @@ onMounted(async () => {
         </button>
         <button type="button" class="choice" :class="{ on: !form.public }" @click="form.public = false">
           <b>Private</b>
-          <span>Nobody can open your profile. You are still ranked on the leaderboards, under the name
-            below and nothing else — no photo, no country, no link.</span>
+          <span>Nobody can open your profile, and nothing of yours appears in Activity. You are still
+            ranked on the leaderboards, under the name below and nothing else — no photo, no country,
+            no link.</span>
         </button>
       </div>
 
@@ -526,7 +527,7 @@ onMounted(async () => {
   border: 0; border-radius: 12px; background: var(--panel-2); color: inherit; font: inherit; cursor: pointer; }
 .goal b { font-size: 1.3em; font-weight: 900; }
 .goal span { font-size: 0.76em; color: var(--muted); }
-.goal.on { background: var(--page); color: #fff; }
+.goal.on { background: var(--page); color: var(--on-page); }
 .goal.on span { color: rgba(255, 255, 255, 0.82); }
 .hint.lit { font-weight: 700; }
 .privacy .choices { display: flex; gap: 10px; flex-wrap: wrap; }

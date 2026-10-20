@@ -68,6 +68,8 @@ export interface Me {
   fitness: Fitness
   imageUrl: string | null
   thumbnailUrl: string | null
+  /** The avatar on its bike, rendered alongside the thumbnail: a profile card without a Babylon scene. */
+  actionUrl: string | null
   /** What you are called where other people can see you while your profile is private. */
   pseudonym: string
 }
@@ -392,6 +394,8 @@ export interface PlayerCard {
   public: boolean
   imageUrl: string | null
   thumbnailUrl: string | null
+  /** The avatar on its bike, rendered alongside the thumbnail: a profile card without a Babylon scene. */
+  actionUrl: string | null
   streak: Streak
   fitness: Fitness
   me: boolean
@@ -496,4 +500,75 @@ export interface AdminUser extends PlayerCard {
   createdAt: string
   bio: string
   hasAvatar: boolean
+}
+
+/** One line of the platform's activity feed (PLAN.md §18.2). */
+export interface FeedEntry {
+  id: string
+  kind: ProfileUpdate['kind']
+  text: string
+  gameId: string | null
+  /** The game's title, put on by the server: the catalogue is not in the database. */
+  gameName: string | null
+  sessionId: string | null
+  data: Record<string, unknown>
+  createdAt: string
+  cheers: number
+  cheered: boolean
+  /** Always a public player (or you): private players are not in the feed at all. */
+  player: {
+    uid: number
+    username: string
+    displayName: string | null
+    firstName: string
+    lastName: string
+    country: string
+    thumbnailUrl: string | null
+    me: boolean
+  }
+}
+
+/** One cheer somebody gave you. */
+export interface CheerReceived {
+  /** Page marker for the next page, not an id worth showing. */
+  mark: number
+  at: string
+  /** A private player stays private even while being kind: `anonymous` is true and nothing names them. */
+  from: {
+    uid: number | null
+    username: string | null
+    displayName: string | null
+    firstName: string
+    lastName: string
+    country: string
+    thumbnailUrl: string | null
+    anonymous: boolean
+  }
+  updateId: string
+  text: string
+  kind: ProfileUpdate['kind']
+  gameId: string | null
+}
+
+/** One personal best (PLAN.md §18.4). */
+export interface PersonalBest {
+  key: 'distance' | 'duration' | 'elevation_gain' | 'energy'
+  title: string
+  value: number
+  sessionId: string
+  gameId: string | null
+  at: string
+}
+
+/** The strip at the top of the Games page: where you are this week, and one thing to do about it. */
+export interface HomeSummary {
+  week: { sessions: number; distance: number; duration: number; energy: number; climb: number }
+  weekKey: string
+  goal: number
+  streak: number
+  fitness: number
+  best: { board: string; title: string; periodKey: string; rank: number; value: number } | null
+  bests: PersonalBest[]
+  unseenCheers: number
+  nudge: { text: string; action: 'ride' | 'goal'; tone: 'good' | 'normal' | 'urgent' }
 }

@@ -4,6 +4,7 @@ import { api } from '../api'
 import type { Game, GamesResponse, Variant } from '../types'
 import { deviceTypeName, initialOf } from '../status'
 import LaunchDialog from '../components/LaunchDialog.vue'
+import HomeStrip from '../components/HomeStrip.vue'
 
 const games = ref<Game[]>([])
 const error = ref<string | null>(null)
@@ -23,6 +24,7 @@ onMounted(async () => {
 
 <template>
   <section class="page page-games">
+    <HomeStrip />
     <div class="page-head">
       <h1>Games</h1>
       <span class="lead">Pick a game to play</span>

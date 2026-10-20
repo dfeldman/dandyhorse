@@ -650,3 +650,111 @@ def test_board_period_keys():
     assert boards.REGISTRY["sessions-all"].period_key() == "all"
     s, e = boards.REGISTRY["longest-session-month"].bounds("2026-12")
     assert e > s
+
+
+# --- the feed, cheers, personal bests and the home strip (PLAN.md §18.2, §18.4, §18.5) ------------
+
+def test_a_ride_reaches_everybody_elses_feed(app, clock):
+    mine, theirs = other_client(app, 1), other_client(app, 2)
+    ride(mine, clock, game="mockgame", message="Six cars found the hard way.")
+    entries = theirs.get("/api/feed").get_json()["entries"]
+    assert [e["text"] for e in entries if e["player"]["username"] == "user1"] == \
+        ["Six cars found the hard way."]
+
+
+def test_a_private_player_is_not_in_the_feed_at_all(app, clock):
+    """Unlike a leaderboard, where they are ranked under a pseudonym. A feed ranks nothing, so leaving
+    somebody out of it says nothing untrue — and its timestamps would say when they rode."""
+    quiet, nosy = other_client(app, 1), other_client(app, 2)
+    ride(quiet, clock, game="mockgame", message="A ride nobody else should see.")
+    assert quiet.put("/api/me", json={"public": False, "pseudonym": "Night Owl"}).status_code == 200
+
+    entries = nosy.get("/api/feed").get_json()["entries"]
+    assert all(e["player"]["uid"] != 1 for e in entries)
+    assert not any("nobody else should see" in e["text"] for e in entries)
+    # ...but they still see their own.
+    assert any("nobody else should see" in e["text"] for e in quiet.get("/api/feed").get_json()["entries"])
+
+
+def test_a_private_player_is_still_ranked_under_their_pseudonym(app, clock):
+    quiet, nosy = other_client(app, 1), other_client(app, 2)
+    ride(quiet, clock, game="mockgame")
+    quiet.put("/api/me", json={"public": False, "pseudonym": "Night Owl"})
+
+    rows = nosy.get("/api/leaderboards/sessions-all").get_json()["rows"]
+    anon = [r for r in rows if r["anonymous"]]
+    assert anon, "a private player should still be ranked"
+    row = anon[0]
+    assert row["displayName"] == "Night Owl"
+    # Everything that would say who they are is absent. This list is the point of the test.
+    assert row["username"] is None and row["uid"] is None
+    assert row["country"] == "" and row["thumbnailUrl"] is None and row["sessionId"] is None
+
+
+def test_cheering_somebody_shows_up_for_them(app, clock):
+    rider, fan = other_client(app, 1), other_client(app, 2)
+    ride(rider, clock, game="mockgame", message="Up the long hill without stopping.")
+    entry = next(e for e in fan.get("/api/feed").get_json()["entries"]
+                 if e["player"]["username"] == "user1")
+    assert fan.post(f"/api/updates/{entry['id']}/cheer").get_json()["cheers"] == 1
+
+    got = rider.get("/api/feed/cheers").get_json()
+    assert got["unseen"] == 1
+    assert got["cheers"][0]["from"]["username"] == "user2"
+    assert got["cheers"][0]["text"] == "Up the long hill without stopping."
+    # Looking at them is what clears the badge, not fetching them.
+    assert rider.get("/api/feed/cheers").get_json()["unseen"] == 1
+    rider.post("/api/feed/cheers/seen")
+    assert rider.get("/api/feed/cheers").get_json()["unseen"] == 0
+
+
+def test_a_cheer_from_a_private_player_does_not_name_them(app, clock):
+    rider, shy = other_client(app, 1), other_client(app, 2)
+    ride(rider, clock, game="mockgame", message="A good one.")
+    shy.put("/api/me", json={"public": False, "pseudonym": "Quiet One"})
+    entry = next(e for e in rider.get("/api/feed").get_json()["entries"] if e["player"]["me"])
+    shy.post(f"/api/updates/{entry['id']}/cheer")
+
+    who = rider.get("/api/feed/cheers").get_json()["cheers"][0]["from"]
+    assert who["anonymous"] is True and who["displayName"] == "Quiet One"
+    assert who["username"] is None and who["uid"] is None
+
+
+def test_your_first_session_is_not_a_personal_best(app, clock):
+    """Otherwise everybody's first ride announces four records at once, which means nothing."""
+    c = other_client(app, 1)
+    out = ride(c, clock, game="mockgame", minutes=30)
+    assert out["social"]["bests"] == []
+
+
+def test_beating_yourself_is_a_personal_best(app, clock):
+    c = other_client(app, 1)
+    ride(c, clock, game="mockgame", minutes=20, power=150)
+    out = ride(c, clock, game="mockgame", minutes=45, power=250)
+    keys = {b["key"] for b in out["social"]["bests"]}
+    assert "duration" in keys
+    assert out["social"]["bestUpdate"]["kind"] == "achievement"
+    assert "personal best" in out["social"]["bestUpdate"]["text"].lower()
+
+    listed = c.get("/api/profiles/user1/bests").get_json()["bests"]
+    assert {b["key"] for b in listed} >= {"duration", "distance"}
+
+
+def test_the_home_strip_counts_this_week_and_says_something_useful(app, clock):
+    c = other_client(app, 1)
+    c.put("/api/me", json={"streakGoal": 3})
+    ride(c, clock, game="mockgame", minutes=20)
+
+    home = c.get("/api/home").get_json()
+    assert home["week"]["sessions"] == 1
+    assert home["goal"] == 3
+    assert "2 to go" in home["nudge"]["text"]
+
+    ride(c, clock, game="mockgame", minutes=20)
+    assert "One more session" in c.get("/api/home").get_json()["nudge"]["text"]
+
+    ride(c, clock, game="mockgame", minutes=20)
+    done = c.get("/api/home").get_json()["nudge"]
+    assert done["tone"] == "good"
+    # Past the goal it should never read "4 of 3".
+    assert " of 3 sessions" not in done["text"]

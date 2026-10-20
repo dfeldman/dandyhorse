@@ -2,7 +2,8 @@
 // small bits of presentation they share. Pure helpers are unit-tested.
 import { api, query } from './api'
 import type {
-  Board, BoardResponse, BoardsResponse, PlayerCard, PlayersResponse, Profile, ProfileUpdate, Streak,
+  Board, BoardResponse, BoardsResponse, CheerReceived, FeedEntry, HomeSummary, PersonalBest, PlayerCard,
+  PlayersResponse, Profile, ProfileUpdate, Streak,
 } from './types'
 
 export const players = () => api<PlayersResponse>('/api/profiles').then((r) => r.players)
@@ -19,10 +20,16 @@ export const deleteUpdate = (id: string) => api(`/api/profile/updates/${encodeUR
 export const cheer = (id: string) =>
   api<{ cheers: number; cheered: boolean }>(`/api/updates/${encodeURIComponent(id)}/cheer`, 'POST')
 
-/** The name to show for a player: their real name if they gave one, else the display name, else the handle. */
-export function playerName(p: Pick<PlayerCard, 'firstName' | 'lastName' | 'displayName' | 'username'>): string {
+/**
+ * The name to show for a player: their real name if they gave one, else the display name, else the handle.
+ *
+ * A private player has no handle at all — the server sends their pseudonym as `displayName` and nulls
+ * everything else — so the handle is the last resort rather than a guarantee.
+ */
+export function playerName(p: Pick<PlayerCard, 'firstName' | 'lastName' | 'displayName'>
+  & { username?: string | null }): string {
   const full = [p.firstName, p.lastName].filter(Boolean).join(' ').trim()
-  return full || (p.displayName || '').trim() || p.username
+  return full || (p.displayName || '').trim() || p.username || 'Somebody'
 }
 
 /** 🔥 for a streak going, an unlit one for a goal not yet met. '' when no goal is set. */
@@ -64,3 +71,22 @@ export function groupBoards(list: Board[]): { title: string; boards: Board[] }[]
 export function updateIcon(kind: ProfileUpdate['kind']): string {
   return { session: '🚴', streak: '🔥', achievement: '🏅', manual: '💬' }[kind] ?? '•'
 }
+
+// --- the feed (PLAN.md §18.2) ---------------------------------------------------------------
+
+export const feed = (before?: string) =>
+  api<{ entries: FeedEntry[]; more: boolean }>(
+    `/api/feed${before ? `?before=${encodeURIComponent(before)}` : ''}`)
+
+export const cheersForMe = (before?: number) =>
+  api<{ cheers: CheerReceived[]; more: boolean; unseen: number }>(
+    `/api/feed/cheers${before ? `?before=${before}` : ''}`)
+
+/** Clear the badge. Deliberately not done by merely fetching them — see the server's route. */
+export const markCheersSeen = () => api<{ unseen: number }>('/api/feed/cheers/seen', 'POST')
+
+export const homeSummary = () => api<HomeSummary>('/api/home')
+
+export const personalBests = (username: string) =>
+  api<{ bests: PersonalBest[] }>(`/api/profiles/${encodeURIComponent(username)}/bests`)
+    .then((r) => r.bests)

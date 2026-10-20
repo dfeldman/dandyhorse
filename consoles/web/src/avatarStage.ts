@@ -12,25 +12,31 @@
 
 export type Framing = 'full' | 'headshot'
 
-/** How much of a picture is transparent, 0 to 1. A blank render is 1. */
-async function emptiness(dataUrl: string): Promise<number> {
+/**
+ * How much of a rendered picture is actually a person, 0 to 1.
+ *
+ * Measured at full size. Measuring a shrunken copy smears a half-built figure's few pixels across the
+ * sample and reports a healthy number for a picture with almost nothing in it — which is how several
+ * versions of this came to save a near-empty square believing all was well.
+ */
+async function drawnFraction(dataUrl: string): Promise<number> {
   const img = new Image()
   await new Promise((resolve) => { img.onload = resolve; img.onerror = resolve; img.src = dataUrl })
-  if (!img.width || !img.height) return 1
-  // A small sample is plenty to tell a person from an empty square.
-  const w = Math.min(img.width, 96)
-  const h = Math.max(1, Math.round((img.height / img.width) * w))
+  if (!img.width || !img.height) return 0
   const c = document.createElement('canvas')
-  c.width = w
-  c.height = h
+  c.width = img.width
+  c.height = img.height
   const ctx = c.getContext('2d', { willReadFrequently: true })
-  if (!ctx) return 1
-  ctx.drawImage(img, 0, 0, w, h)
-  const { data } = ctx.getImageData(0, 0, w, h)
-  let clear = 0
-  for (let i = 3; i < data.length; i += 4) if (data[i] <= 24) clear++
-  return clear / (w * h)
+  if (!ctx) return 0
+  ctx.drawImage(img, 0, 0)
+  const { data } = ctx.getImageData(0, 0, c.width, c.height)
+  let drawn = 0
+  for (let i = 3; i < data.length; i += 4) if (data[i] > 24) drawn++
+  return drawn / (c.width * c.height)
 }
+
+/** A cycling figure covers about 4% of this canvas and a close portrait far more; a blank one, 0.1%. */
+const ENOUGH_DRAWN = 0.02
 
 /**
  * Cut a headshot out of a picture of a whole person.
@@ -40,6 +46,24 @@ async function emptiness(dataUrl: string): Promise<number> {
  * camera where you think it is, and when either is not true you get a square of empty background with
  * nothing to say why. Transparent pixels cannot lie.
  */
+/** The middle square of a picture, scaled to `size`. */
+async function centreSquare(dataUrl: string, size: number): Promise<string> {
+  const img = new Image()
+  await new Promise((resolve, reject) => {
+    img.onload = resolve
+    img.onerror = () => reject(new Error('could not read the rendered picture'))
+    img.src = dataUrl
+  })
+  const side = Math.min(img.width, img.height)
+  const out = document.createElement('canvas')
+  out.width = out.height = size
+  const ctx = out.getContext('2d')
+  if (!ctx) return dataUrl
+  ctx.drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size)
+  return out.toDataURL('image/png')
+}
+
+
 async function cropToHeadshot(dataUrl: string, size: number): Promise<string> {
   const img = new Image()
   await new Promise((resolve, reject) => {
@@ -119,8 +143,13 @@ export interface StageOptions {
 }
 
 export interface Stage {
-  /** One frame as a PNG data URL, `size` pixels square. */
-  snapshot: (size?: number) => Promise<string>
+  /**
+   * One frame as a PNG data URL, `size` pixels square.
+   *
+   * `framing` overrides the stage's own. A profile page shows the whole person but wants a face for the
+   * small picture, and building a second scene to get one costs seconds for no gain.
+   */
+  snapshot: (size?: number, framing?: Framing) => Promise<string>
   /** Put a different person in the same scene — far quicker than building another one. */
   replace: (avatar: unknown) => Promise<void>
   dispose: () => void
@@ -128,6 +157,14 @@ export interface Stage {
 
 /** Where the camera sits: three-quarters on, from a little above. */
 const SHOT = { alpha: -1.15, beta: 1.26, radius: 3.4 }
+
+/**
+ * How far from the head the portrait camera sits, in metres.
+ *
+ * At Babylon's default vertical field of view this frames a head and the top of the shoulders, which is
+ * what a 40-pixel picture wants: any more and the face is a smudge in the middle of a jersey.
+ */
+const PORTRAIT_RADIUS = 0.62
 
 /**
  * Mount an avatar on `canvas`. Resolves once it is on screen; throws if avatarkit or its assets are
@@ -147,9 +184,10 @@ export async function mountAvatar(canvas: HTMLCanvasElement, opts: StageOptions 
   const framing = opts.framing ?? 'full'
   const shot = SHOT
   const transparent = opts.transparent ?? true
-  const engine = opts.renderer === 'webgl'
-    ? new babylon.Engine(canvas, true, { alpha: transparent, preserveDrawingBuffer: true, stencil: true, antialias: true })
-    : await createEngine(canvas, { alpha: transparent })
+  // `readable` asks avatarkit for WebGL2, which keeps what it drew so the canvas can be read back. A
+  // WebGPU canvas is configured to be presented, not copied from, and reading one gives a transparent
+  // square with no error to say why.
+  const engine = await createEngine(canvas, { alpha: transparent, readable: opts.renderer === 'webgl' })
   const scene = new Scene(engine)
   scene.clearColor = new Color4(0, 0, 0, transparent ? 0 : 1)
   const camera = new ArcRotateCamera('cam', shot.alpha, shot.beta, shot.radius, new Vector3(0, 0.95, 0), scene)
@@ -165,6 +203,44 @@ export async function mountAvatar(canvas: HTMLCanvasElement, opts: StageOptions 
   let bike: InstanceType<typeof Bike> | null = null
 
   const frame = (): void => camera.setTarget(new Vector3(0, 0.95, 0))
+
+  /**
+   * Point the camera at this person's face, close enough for a head-and-shoulders picture.
+   *
+   * Where the face is cannot be assumed, because it moves: an avatar faces +Z standing still, but riding a
+   * bike it is turned along the frame with its chin down to watch the road, and photographing it from the
+   * stage's own angle gives the back of its head. So the head bone is asked where it is and which way it
+   * is looking, and the camera is put on that line in front of it. `nodes` holds a node per bone, posed by
+   * the last `update()`, and the bones' own frames are axis-aligned with the avatar's root — so the head's
+   * world matrix turns +Z into the direction of its gaze.
+   *
+   * Returns false when there is no head bone to go by, and the caller falls back to the stage's angle.
+   */
+  function faceOn(): boolean {
+    const head = (avatar as { nodes?: Map<string, { computeWorldMatrix: (f: boolean) => unknown;
+      getWorldMatrix: () => unknown; getAbsolutePosition: () => InstanceType<typeof Vector3> }> })
+      .nodes?.get('head')
+    if (!head) return false
+    head.computeWorldMatrix(true)
+    const at = head.getAbsolutePosition().clone()
+    const gaze = Vector3.TransformNormal(new Vector3(0, 0, 1), head.getWorldMatrix() as never)
+    if (!Number.isFinite(gaze.x) || gaze.lengthSquared() < 1e-6) return false
+    gaze.normalize()
+    // The spherical angles of the gaze, which is where the camera goes to meet it. Beta is kept off the
+    // poles: a rider looking hard down would otherwise put the camera on the floor pointing straight up.
+    camera.lowerRadiusLimit = 0.1
+    // And bring the near plane in with it. Babylon's default is 1 metre, so a camera this close to a face
+    // clips the whole person away and photographs an empty square — which is exactly what it did.
+    camera.minZ = 0.05
+    camera.setTarget(at)
+    camera.alpha = Math.atan2(gaze.z, gaze.x)
+    camera.beta = Math.min(Math.max(Math.acos(Math.min(Math.max(gaze.y, -1), 1)), 1.0), 1.95)
+    camera.radius = PORTRAIT_RADIUS
+    console.debug('avatar portrait: head at', at.x.toFixed(2), at.y.toFixed(2), at.z.toFixed(2),
+      'gaze', gaze.x.toFixed(2), gaze.y.toFixed(2), gaze.z.toFixed(2),
+      'camera', camera.alpha.toFixed(2), camera.beta.toFixed(2))
+    return true
+  }
 
   const dress = (): void => {
     bike?.dispose()
@@ -198,29 +274,38 @@ export async function mountAvatar(canvas: HTMLCanvasElement, opts: StageOptions 
   window.addEventListener('resize', onResize)
 
   return {
-    async snapshot(size = 256) {
+    async snapshot(size = 256, want?: Framing) {
+      const wanted = want ?? framing
       // Through a render target, so it works the same on WebGPU as on WebGL and does not depend on the
       // drawing buffer still being there.
       const wasTurning = turning
       turning = false
       // The read below happens inside the render loop, so it has to be going.
       if (!engine.activeRenderLoops.length) engine.runRenderLoop(() => scene.render())
-      camera.alpha = shot.alpha
-      camera.beta = shot.beta
-      camera.radius = shot.radius
-      frame()
+      const was = { alpha: camera.alpha, beta: camera.beta, radius: camera.radius,
+                    near: camera.lowerRadiusLimit, minZ: camera.minZ, target: camera.target.clone() }
+      let aimed = false
+      if (wanted === 'headshot') aimed = faceOn()
+      if (!aimed) {
+        camera.alpha = shot.alpha
+        camera.beta = shot.beta
+        camera.radius = shot.radius
+        frame()
+      }
       // Wait for a body to actually exist. `Avatar.create` resolves before its geometry is finished — the
       // live avatar on a profile appears a second or so after the page settles — so capturing straight
       // afterwards gives a transparent square, the same one for everybody, which looks like it worked.
       await scene.whenReadyAsync()
-      const drawn = (): boolean => scene.meshes.some(
+      const meshesReady = (): boolean => scene.meshes.some(
         (m) => m.isEnabled() && m.isVisible && m.getTotalVertices() > 0 && m.isReady(true))
       const until = Date.now() + 8000
-      while (!drawn() && Date.now() < until) {
+      while (!meshesReady() && Date.now() < until) {
         scene.render()
         await new Promise((r) => setTimeout(r, 80))
       }
-      if (!drawn()) console.warn('avatar picture: nothing to draw after 8 s', scene.meshes.length, 'meshes')
+      if (!meshesReady()) {
+        console.warn('avatar picture: nothing to draw after 8 s', scene.meshes.length, 'meshes')
+      }
       // Read the canvas from inside the engine's own render, on the frame after next.
       //
       // Two things make this fiddly. Babylon's `CreateScreenshotUsingRenderTargetAsync` throws outright on
@@ -239,19 +324,46 @@ export async function mountAvatar(canvas: HTMLCanvasElement, opts: StageOptions 
       })
       // Keep looking until there is actually somebody in the picture. `Avatar.create` resolves well before
       // its body is built — the avatar on a profile page appears a second or two after the page settles —
-      // and a capture taken before that is a transparent square. Counting the pixels is the only check
-      // that cannot be fooled: every cleverer one here passed while the picture was empty.
+      // and a capture taken before that has a sliver of a figure in it, or nothing. Counting the pixels is
+      // the only check that cannot be fooled: every cleverer one here passed while the picture was empty.
       let full = await grabFrame()
-      const deadline = Date.now() + 25_000
-      while (await emptiness(full) > 0.985 && Date.now() < deadline) {
-        await new Promise((r) => setTimeout(r, 300))
+      const deadline = Date.now() + 40_000
+      // Give the aimed camera a few seconds to show a face. If it is looking at nothing — the head bone
+      // not where this expects, or inside the geometry — go back to the angle the stage itself uses and
+      // find the head in the picture instead. A worse picture beats no picture.
+      const giveUpAiming = Date.now() + 6000
+      while (await drawnFraction(full) < ENOUGH_DRAWN && Date.now() < deadline) {
+        if (aimed && Date.now() > giveUpAiming) {
+          console.warn('avatar portrait: aimed at the head and saw nothing; using the stage angle')
+          aimed = false
+          camera.lowerRadiusLimit = was.near
+          camera.minZ = was.minZ
+          camera.alpha = shot.alpha
+          camera.beta = shot.beta
+          camera.radius = shot.radius
+          frame()
+        }
+        await new Promise((r) => setTimeout(r, 400))
         full = await grabFrame()
       }
+      camera.lowerRadiusLimit = was.near
+      camera.minZ = was.minZ
+      camera.setTarget(was.target)
+      camera.alpha = was.alpha
+      camera.beta = was.beta
+      camera.radius = was.radius
       turning = wasTurning
       // Still nothing after all that: say so rather than hand back a square of nothing. A stored blank is
       // worse than no picture, because initials at least tell you who somebody is.
-      if (await emptiness(full) > 0.985) throw new Error('the avatar did not draw anything to make a picture from')
-      return framing === 'headshot' ? cropToHeadshot(full, size) : full
+      const drawn = await drawnFraction(full)
+      if (drawn < ENOUGH_DRAWN) {
+        throw new Error(`the avatar had only ${(drawn * 100).toFixed(1)}% of the canvas drawn, too little `
+          + 'to make a picture from')
+      }
+      if (wanted !== 'headshot') return full
+      // Aimed at the head, the head is in the middle: a centre square is the picture. Only when there was
+      // no head to aim at does this have to go looking for one in the pixels.
+      return aimed ? centreSquare(full, size) : cropToHeadshot(full, size)
     },
     async replace(spec: unknown) {
       const next = await Avatar.create(scene, spec, { quality })

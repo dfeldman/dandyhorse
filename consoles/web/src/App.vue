@@ -47,6 +47,7 @@ const statusOpen = ref(false)
 const TABS = [
   { to: '/', key: 'games', label: 'Games' },
   { to: '/sessions', key: 'history', label: 'History' },
+  { to: '/feed', key: 'feed', label: 'Activity' },
   { to: '/leaderboards', key: 'leaderboards', label: 'Leaderboards' },
   { to: '/players', key: 'players', label: 'Players' },
   { to: '/achievements', key: 'achievements', label: 'Achievements' },

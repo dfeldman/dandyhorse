@@ -60,13 +60,12 @@ export class HeadshotStudio {
   private stage: Stage | null = null
   private readonly size: number
 
-  /**
-   * `canvas` is one the page is showing. Give it one.
+/**
+   * `canvas` is one the page is showing. Give it one — and show it.
    *
-   * A canvas the page is not showing does not work: parked off the side of the page, or sitting at an
-   * opacity of a hundredth, WebGPU refuses it a drawing context outright and WebGL draws nothing into it —
-   * every capture came back a transparent square, with no error to say why. So the page that wants
-   * pictures shows the avatar while it makes them, which is honest anyway: you can watch it work.
+   * A page that renders people should let you watch it happen: it takes a few seconds each, and a progress
+   * number with nothing moving behind it looks like a hang. Without one, this parks a small canvas in the
+   * corner, which works but tells nobody anything.
    */
   constructor(size = 256, canvas?: HTMLCanvasElement) {
     this.size = size
@@ -81,19 +80,33 @@ export class HeadshotStudio {
     this.canvas = c
   }
 
-  /** One person as a PNG data URL. The first call builds the scene; the rest reuse it. */
-  async shoot(avatar: unknown): Promise<string> {
+  private async staged(avatar: unknown): Promise<Stage> {
     if (!this.stage) {
       this.stage = await mountAvatar(this.canvas, {
-        // Everything exactly as a profile page does it, which is the one combination known to draw a
-        // person: avatarkit shades skin through a pre-pass that wants WebGPU, and forcing plain WebGL
-        // here produced a transparent square every time.
-        avatar, framing: 'headshot', transparent: true, turntable: false, quality: 'medium',
+        avatar, framing: 'headshot', motion: 'cycle', transparent: true, turntable: false,
+        quality: 'medium',
+        // WebGL2, because every picture here is read back off the canvas. A WebGPU canvas is configured to
+        // be presented rather than copied from, and reading one gives a transparent square with no error.
+        renderer: 'webgl',
       })
     } else {
       await this.stage.replace(avatar)
     }
-    return this.stage.snapshot(this.size)
+    return this.stage
+  }
+
+  /** One person's face as a PNG data URL. The first call builds the scene; the rest reuse it. */
+  async shoot(avatar: unknown): Promise<string> {
+    return (await this.staged(avatar)).snapshot(this.size, 'headshot')
+  }
+
+  /** The same person on their bike, from the same scene: a second frame costs nothing to take. */
+  async shootBoth(avatar: unknown): Promise<{ thumbnail: string; action: string }> {
+    const stage = await this.staged(avatar)
+    return {
+      thumbnail: await stage.snapshot(this.size, 'headshot'),
+      action: await stage.snapshot(512, 'full'),
+    }
   }
 
   close(): void {
@@ -136,6 +149,9 @@ export interface NeedsPicture {
   avatar?: Record<string, unknown> | null
   avatarSeed?: number | null
   thumbnailUrl?: string | null
+  actionUrl?: string | null
+  /** The admin list says whether somebody has an avatar without sending the whole spec. */
+  hasAvatar?: boolean
 }
 
 export interface PictureResult {
@@ -155,7 +171,8 @@ export async function makeMissingPictures(
   onProgress?: (done: number, total: number, who: string) => void,
   canvas?: HTMLCanvasElement,
 ): Promise<PictureResult> {
-  const todo = players.filter((p) => !p.thumbnailUrl && (p.avatar || typeof p.avatarSeed === 'number'))
+  const todo = players.filter((p) => (!p.thumbnailUrl || !p.actionUrl)
+    && (p.avatar || typeof p.avatarSeed === 'number' || p.hasAvatar))
   const out: PictureResult = { made: 0, failed: [] }
   if (todo.length === 0) return out
   // One scene for all of them: building it is the slow part, drawing a face into it is not.
@@ -165,12 +182,20 @@ export async function makeMissingPictures(
       onProgress?.(i, todo.length, p.username)
       try {
         let avatar = p.avatar
+        if (!avatar && p.hasAvatar) {
+          // The admin list says who has an avatar but not what it looks like, because a page of specs is
+          // a great deal of JSON for a list that mostly shows names. Ask for this one.
+          avatar = (await api<{ avatar: Record<string, unknown> | null }>(
+            `/api/profiles/${p.username}`)).avatar ?? undefined
+        }
         if (!avatar && typeof p.avatarSeed === 'number') {
           avatar = await specFromSeed(p.avatarSeed)
           await api(`/api/admin/users/${p.uid}`, 'PUT', { avatar })
         }
-        const image = await studio.shoot(avatar)
-        await api(`/api/admin/users/${p.uid}/thumbnail`, 'PUT', { image })
+        if (!avatar) throw new Error('no avatar to draw')
+        const { thumbnail, action } = await studio.shootBoth(avatar)
+        if (!p.thumbnailUrl) await api(`/api/admin/users/${p.uid}/thumbnail`, 'PUT', { image: thumbnail })
+        if (!p.actionUrl) await api(`/api/admin/users/${p.uid}/action`, 'PUT', { image: action })
         out.made += 1
       } catch (e) {
         out.failed.push({ username: p.username, why: (e as Error).message })

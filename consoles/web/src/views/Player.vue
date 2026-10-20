@@ -9,6 +9,7 @@ import { loadMe, store, timeZone, unitSystem } from '../session'
 import * as u from '../units'
 import CountUp from '../components/CountUp.vue'
 import PlayerChip from '../components/PlayerChip.vue'
+import PersonalBests from '../components/PersonalBests.vue'
 import type { Profile, ProfileUpdate } from '../types'
 
 const props = defineProps<{ username: string }>()
@@ -63,10 +64,11 @@ async function mountAvatar(avatar: unknown): Promise<void> {
     const { mountAvatar: mount } = await import('../avatarStage')
     stage = await mount(canvas.value, {
       avatar, motion: 'cycle', transparent: true,
-      // WebGL2 rather than avatarkit's preferred WebGPU, because this avatar is also where the player's
-      // small picture comes from: a WebGPU canvas is not configured to be copied out of, so reading one
-      // gives a transparent square — silently, which is the worst way to get it wrong.
-      renderer: 'webgl',
+      // Only a profile that still owes us a picture gives up WebGPU. This avatar is where the player's
+      // small picture comes from, and a WebGPU canvas is not configured to be copied out of — reading one
+      // gives a transparent square, silently. Once they have a picture there is nothing to read back, so
+      // the avatar on screen gets the better renderer.
+      renderer: needsPicture() ? 'webgl' : 'auto',
     })
     live.value = true
     void makePictureIfMissing()
@@ -82,31 +84,43 @@ onMounted(load)
 watch(() => props.username, load)
 onUnmounted(() => stage?.dispose())
 
+/** Whether this page still owes this player their pictures. */
+function needsPicture(): boolean {
+  const who = p.value
+  if (!who || (who.thumbnailUrl && who.actionUrl)) return false
+  // Your own you may always make. Somebody else's only an admin can — which is how the bots get theirs:
+  // open a bot's profile once.
+  return who.me === true || store.me?.isAdmin === true
+}
+
 /**
- * Make this player's small picture, if they have not got one, from the avatar now turning on this page.
+ * Make this player's pictures, if they have not got them, from the avatar now turning on this page.
  *
- * It is made here because this is the canvas that works. A canvas the page is not showing — off the side,
- * or at a hundredth of an opacity, or even visible but freshly inserted — is refused a drawing context by
- * WebGPU, and draws nothing under WebGL; every attempt came back a transparent square. The avatar somebody
- * is looking at has no such trouble, so the picture is a crop of it.
+ * They are made here because this is the canvas that works. A canvas the page is not showing — off the
+ * side, or at a hundredth of an opacity, or even visible but freshly inserted — is refused a drawing
+ * context by WebGPU, and draws nothing under WebGL; every attempt came back a transparent square. The
+ * avatar somebody is looking at has no such trouble, so the pictures are taken from it.
  *
- * Your own picture you may always make. Somebody else's only an admin can, and only for a player who has
- * none — which is how the bots get theirs: open a bot's profile once.
+ * Two come out of the one mount, because building the scene is all the cost and taking a second frame is
+ * none: a head for the lists and leaderboards, where a face has to read at forty pixels, and the whole
+ * person on their bike for a profile card.
  */
 async function makePictureIfMissing(): Promise<void> {
   const who = p.value
-  if (!who || who.thumbnailUrl || !stage) return
-  const admin = store.me?.isAdmin === true
-  if (!who.me && !admin) return
+  if (!who || !stage || !needsPicture()) return
+  const mine = who.me === true
+  const put = async (what: 'thumbnail' | 'action', image: string): Promise<void> => {
+    await api(mine ? `/api/profile/${what}` : `/api/admin/users/${who.uid}/${what}`, 'PUT', { image })
+  }
   try {
-    const image = await stage.snapshot(256)
-    await api(who.me ? '/api/profile/thumbnail' : `/api/admin/users/${who.uid}/thumbnail`, 'PUT', { image })
-    // Show it straight away: the page asked for it, so the page should see it.
+    if (!who.thumbnailUrl) await put('thumbnail', await stage.snapshot(256, 'headshot'))
+    if (!who.actionUrl) await put('action', await stage.snapshot(512, 'full'))
+    // Show them straight away: the page asked for them, so the page should see them.
     const fresh = await profile(props.username)
     p.value = { ...fresh, updates: updates.value }
-    if (who.me) await loadMe()
+    if (mine) await loadMe()
   } catch (e) {
-    console.warn('could not make a picture of this avatar', e)
+    console.warn('could not make pictures of this avatar', e)
   }
 }
 
@@ -223,6 +237,8 @@ const goalRing = computed(() => {
           <span v-for="g in p.totals.byGame" :key="g.gameId" class="gamepill">{{ g.gameId }} · {{ g.sessions }}</span>
         </div>
       </section>
+
+      <PersonalBests :username="props.username" />
 
       <section class="panel feed">
         <h2>Timeline</h2>

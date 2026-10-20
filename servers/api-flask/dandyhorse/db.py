@@ -30,6 +30,8 @@ CREATE TABLE IF NOT EXISTS users (
   anon_id       INTEGER,                     -- their number, when they have chosen no pseudonym
   image_file    TEXT,                        -- profile picture, data/profiles/<uid>.<ext>
   thumb_file    TEXT,                        -- avatar thumbnail rendered by the console (§18.6)
+  action_file   TEXT,                        -- the same avatar on its bike, rendered alongside it
+  cheers_seen_at TEXT,                       -- when they last looked at who had cheered them
   unit_system   TEXT NOT NULL DEFAULT 'metric',
   time_zone     TEXT NOT NULL DEFAULT 'UTC',
   preferences   TEXT NOT NULL DEFAULT '{}',
@@ -183,6 +185,8 @@ ADDED_COLUMNS: dict[str, dict[str, str]] = {
         "pseudonym": "TEXT NOT NULL DEFAULT ''",
         "image_file": "TEXT",
         "thumb_file": "TEXT",
+        "action_file": "TEXT",
+        "cheers_seen_at": "TEXT",
     },
 }
 

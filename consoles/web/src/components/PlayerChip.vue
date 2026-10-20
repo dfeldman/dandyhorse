@@ -8,7 +8,9 @@ import { playerName, streakIcon, streakText } from '../profiles'
 import type { PlayerCard, Streak } from '../types'
 
 const props = withDefaults(defineProps<{
-  player: Pick<PlayerCard, 'username' | 'displayName' | 'firstName' | 'lastName' | 'country'> & {
+  player: Pick<PlayerCard, 'displayName' | 'firstName' | 'lastName' | 'country'> & {
+    /** Null for a private player: they have no profile to link to, and `anonymous` says so. */
+    username?: string | null
     thumbnailUrl?: string | null
     streak?: Streak
     me?: boolean
@@ -75,7 +77,7 @@ const where = computed(() => countryName(props.player.country))
 .chip-lg .name { font-size: 1.25em; white-space: normal; overflow: visible; flex-wrap: wrap; }
 .flag { font-size: 1.05em; line-height: 1; }
 .you { font-size: 0.62em; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 1px 6px; border-radius: 999px; background: var(--page); color: #fff; }
+  padding: 1px 6px; border-radius: 999px; background: var(--page); color: var(--on-page); }
 .handle, .streak { font-size: 0.8em; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 4px; }
 .fire { filter: grayscale(1); opacity: 0.55; }
 .fire.lit { filter: none; opacity: 1; animation: flicker 2.4s ease-in-out infinite; }

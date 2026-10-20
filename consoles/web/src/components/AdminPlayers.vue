@@ -3,7 +3,7 @@
 //
 // The avatar is edited as pasted JSON on purpose: nobody types an AvatarSpec, so the admin copies one out of
 // the avatar designer. Bot performance curves and schedules are not here — they live in bots/bots.json.
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import { api, ApiError } from '../api'
 import { countryOptions, flagOrCode } from '../flags'
 import { playerName } from '../profiles'
@@ -126,8 +126,43 @@ async function recompute(uid: number): Promise<void> {
   await load()
 }
 
-/** Who still shows as initials rather than a face. */
-const needPictures = computed(() => users.value.filter((u) => !u.thumbnailUrl))
+/** Who is still missing a face, an action shot, or both. */
+const needPictures = computed(() => users.value.filter((u) => !u.thumbnailUrl || !u.actionUrl))
+
+// The avatar is drawn on this canvas while the pictures are made, so there is something to watch: each
+// person takes a few seconds, and a counter with nothing moving behind it looks like a hang.
+const easel = ref<HTMLCanvasElement | null>(null)
+const pictures = ref<{ done: number; total: number; who: string } | null>(null)
+
+/**
+ * Draw everybody who is missing a picture, one scene for the lot of them.
+ *
+ * Two pictures come out of each person: a face for the lists and leaderboards, and the whole person on a
+ * bike for their profile card. Bots have nobody at a keyboard to make their own, which is the main reason
+ * this is here.
+ */
+async function makePictures(): Promise<void> {
+  const todo = needPictures.value
+  if (!todo.length || pictures.value) return
+  error.value = null
+  notice.value = null
+  pictures.value = { done: 0, total: todo.length, who: '' }
+  await nextTick()   // the easel below only exists while this is running
+  try {
+    const { makeMissingPictures } = await import('../avatarPictures')
+    const res = await makeMissingPictures(todo, (done, total, who) => {
+      pictures.value = { done, total, who }
+    }, easel.value ?? undefined)
+    notice.value = res.failed.length
+      ? `Drew ${res.made}; ${res.failed.length} would not render (${res.failed[0].why})`
+      : `Drew ${res.made} ${res.made === 1 ? 'player' : 'players'}`
+    await load()
+  } catch (e) {
+    error.value = e instanceof ApiError ? e.message : (e as Error).message
+  } finally {
+    pictures.value = null
+  }
+}
 
 async function recomputeBoards(): Promise<void> {
   const res = await api<{ boards: Record<string, number> }>('/api/admin/leaderboards/recompute', 'POST')
@@ -143,16 +178,22 @@ async function recomputeBoards(): Promise<void> {
     <div class="bar">
       <input v-model="search" class="search" type="search" placeholder="Find a player" aria-label="Find a player" />
       <button type="button" class="btn" @click="recomputeBoards">Rebuild leaderboards</button>
+      <button type="button" class="btn" :disabled="!needPictures.length || !!pictures" @click="makePictures">
+        <template v-if="pictures">Drawing {{ pictures.done }}/{{ pictures.total }}…</template>
+        <template v-else-if="needPictures.length">Draw {{ needPictures.length }} missing pictures</template>
+        <template v-else>Everyone has a picture</template>
+      </button>
     </div>
-    <p v-if="needPictures.length" class="muted small needs">
+    <div v-if="pictures" class="easel">
+      <canvas ref="easel" width="320" height="400"></canvas>
+      <p class="muted small">
+        Drawing <b>{{ pictures.who || '…' }}</b> — {{ pictures.done }} of {{ pictures.total }} done.
+        Each person gets a face and a shot on the bike.
+      </p>
+    </div>
+    <p v-else-if="needPictures.length" class="muted small needs">
       <b>{{ needPictures.length }}</b>
-      {{ needPictures.length === 1 ? 'player has' : 'players have' }} no picture and show as initials.
-      Opening a profile draws one: the avatar has to be on screen to be drawn at all.
-      <span class="who">
-        <RouterLink v-for="u in needPictures.slice(0, 8)" :key="u.uid" :to="`/players/${u.username}`">
-          {{ u.username }}
-        </RouterLink>
-      </span>
+      {{ needPictures.length === 1 ? 'player is' : 'players are' }} missing a picture and show as initials.
     </p>
 
     <div class="rows">
@@ -248,6 +289,8 @@ async function recomputeBoards(): Promise<void> {
 .actions.say input { flex: 1 1 220px; min-width: 0; font: inherit; padding: 8px 11px; border-radius: var(--radius-sm);
   border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); background: var(--panel); color: inherit; }
 textarea.mono { font-family: ui-monospace, monospace; font-size: 0.86em; }
+.easel { display: flex; align-items: center; gap: 14px; margin: 10px 0; }
+.easel canvas { width: 120px; height: 150px; border-radius: 14px; background: var(--panel-2); flex: none; }
+.easel p { margin: 0; }
 .needs { margin: 0; }
-.needs .who { display: inline-flex; flex-wrap: wrap; gap: 8px; margin-left: 4px; }
 </style>

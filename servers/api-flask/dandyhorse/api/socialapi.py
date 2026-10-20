@@ -9,7 +9,7 @@ from flask import Blueprint, g, jsonify, request, send_file
 
 from ..auth import require_auth
 from ..db import get_db
-from ..social import anon, boards, competitors, finalize, streaks, updates
+from ..social import anon, bests, boards, competitors, feed, finalize, home, streaks, updates
 from ..util import ApiError, dumps, iso, loads
 from . import body, dh, read_image
 
@@ -65,6 +65,7 @@ def card(row: sqlite3.Row, viewer_uid: int) -> dict[str, Any]:
             "public": bool(d["public"]),
             "imageUrl": f"/api/profiles/{u}/image" if d.get("image_file") else None,
             "thumbnailUrl": f"/api/profiles/{u}/thumbnail" if d.get("thumb_file") else None,
+            "actionUrl": f"/api/profiles/{u}/action" if d.get("action_file") else None,
             "streak": {"length": d.get("streak_length") or 0, "goal": d.get("streak_goal") or 0},
             "fitness": loads(d.get("fitness")),
             "me": d["uid"] == viewer_uid}
@@ -155,6 +156,14 @@ def profile_thumbnail(username: str):
     return _send(row["thumb_file"], "thumbnail")
 
 
+@bp.get("/api/profiles/<username>/action")
+@require_auth
+def profile_action(username: str):
+    """The player's avatar on its bike, as the profile page shows it. Same picture, no Babylon."""
+    row = _visible(_by_username(get_db(), username), g.user["uid"])
+    return _send(row["action_file"], "action shot")
+
+
 # --- your own profile ----------------------------------------------------------------------------
 
 @bp.post("/api/profile/updates")
@@ -221,6 +230,17 @@ def put_profile_thumbnail():
     return jsonify({"ok": True, "thumbnailUrl": f"/api/profiles/{g.user['username']}/thumbnail"})
 
 
+@bp.put("/api/profile/action")
+@bp.post("/api/profile/action")
+@require_auth
+def put_profile_action():
+    """The avatar on its bike. Rendered by the same console page that renders the thumbnail, from the same
+    mount, so a profile card can show somebody riding without building a scene to do it."""
+    data, ext = read_image(IMAGE_MAX_BYTES)
+    _store_image(g.user["uid"], data, ext, "action_file")
+    return jsonify({"ok": True, "actionUrl": f"/api/profiles/{g.user['username']}/action"})
+
+
 @bp.delete("/api/profile/image")
 @require_auth
 def delete_profile_image():
@@ -248,6 +268,72 @@ def session_standing(sid: str):
 
 
 # --- leaderboards --------------------------------------------------------------------------------
+
+@bp.get("/api/home")
+@require_auth
+def get_home():
+    """The strip at the top of the Games page: this week, the streak, the proudest rank, one nudge."""
+    conn = get_db()
+    out = home.summary(conn, g.user["uid"])
+    # The board's title lives in the registry, not the database.
+    standing = out.get("best")
+    if standing:
+        b = boards.get(standing["board"], dh().catalog)
+        standing["title"] = b.title if b else standing["board"]
+    return jsonify(out)
+
+
+@bp.get("/api/profiles/<username>/bests")
+@require_auth
+def get_bests(username: str):
+    """One player's personal bests. Public, like the rest of a public profile."""
+    conn = get_db()
+    row = _visible(_by_username(conn, username), g.user["uid"])
+    return jsonify({"bests": bests.for_player(conn, int(row["uid"]))})
+
+
+# --- the feed: what everybody has been doing --------------------------------------------------
+
+@bp.get("/api/feed")
+@require_auth
+def get_feed():
+    """The platform's activity, newest first. Private players are not in it — see `social/feed.py`."""
+    conn = get_db()
+    before = request.args.get("before") or None
+    who = request.args.get("uid")
+    entries = feed.recent(conn, g.user["uid"], before=before,
+                          uid=int(who) if who and who.isdigit() else None)
+    # The catalogue lives in the app, not the database, so the game's title is put on here rather than in
+    # the query — the same way a session's `gameName` is.
+    cat = dh().catalog
+    for e in entries:
+        game = cat.game(e["gameId"]) if e["gameId"] else None
+        e["gameName"] = game["name"] if game else e["gameId"]
+    return jsonify({"entries": entries, "more": len(entries) >= feed.PAGE})
+
+
+@bp.get("/api/feed/cheers")
+@require_auth
+def get_cheers_received():
+    """Who has cheered your updates. Reading this does not mark them seen; POSTing /seen does, so that
+    glancing at the page and leaving does not silently clear the badge."""
+    conn = get_db()
+    row = conn.execute("SELECT cheers_seen_at FROM users WHERE uid=?", (g.user["uid"],)).fetchone()
+    before = request.args.get("before") or None
+    got = feed.cheers_received(conn, g.user["uid"], before=before)
+    return jsonify({"cheers": got, "more": len(got) >= feed.PAGE,
+                    "unseen": feed.unseen_cheers(conn, g.user["uid"], row["cheers_seen_at"] if row else None)})
+
+
+@bp.post("/api/feed/cheers/seen")
+@require_auth
+def mark_cheers_seen():
+    conn = get_db()
+    conn.execute("UPDATE users SET cheers_seen_at=?, updated_at=? WHERE uid=?",
+                 (iso(), iso(), g.user["uid"]))
+    conn.commit()
+    return jsonify({"ok": True, "unseen": 0})
+
 
 @bp.get("/api/leaderboards")
 @require_auth
@@ -452,6 +538,20 @@ def admin_put_thumbnail(uid: int):
         raise ApiError(404, "user_not_found", "no such player")
     data, ext = read_image(THUMB_MAX_BYTES)
     _store_image(uid, data, ext, "thumb_file")
+    return jsonify({"ok": True, "uid": uid})
+
+
+@bp.put("/api/admin/users/<int:uid>/action")
+@bp.post("/api/admin/users/<int:uid>/action")
+@require_auth
+def admin_put_action(uid: int):
+    """Any player's avatar on its bike — the bots' included, which is why an admin can send one."""
+    _admin()
+    conn = get_db()
+    if conn.execute("SELECT 1 FROM users WHERE uid=?", (uid,)).fetchone() is None:
+        raise ApiError(404, "user_not_found", "no such player")
+    data, ext = read_image(IMAGE_MAX_BYTES)
+    _store_image(uid, data, ext, "action_file")
     return jsonify({"ok": True, "uid": uid})
 
 

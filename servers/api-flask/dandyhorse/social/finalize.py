@@ -10,7 +10,7 @@ import logging
 import sqlite3
 from typing import Any
 
-from . import boards, fitness, streaks, updates
+from . import bests, boards, fitness, streaks, updates
 
 log = logging.getLogger("dandyhorse")
 
@@ -22,6 +22,17 @@ def after_session(dh, conn: sqlite3.Connection, uid: int, summary: dict[str, Any
     stats = summary.get("stats") or {}
 
     update = updates.for_session(conn, uid, summary, name, message, stats, t=t)
+
+    # Anything they have just done better than ever before. Checked before the timeline line for the
+    # streak so that, on a day somebody does both, the best is the one nearer their session.
+    records = bests.check(conn, uid, summary)
+    best_update = None
+    line = bests.line(records)
+    if line:
+        best_update = updates.post(conn, uid, "achievement", line,
+                                   game_id=summary.get("gameId"), session_id=summary.get("sessionId"),
+                                   data={"bests": records}, t=t)
+
     f = fitness.store(conn, uid)
 
     row = conn.execute("SELECT streak_goal FROM users WHERE uid=?", (uid,)).fetchone()
@@ -42,7 +53,8 @@ def after_session(dh, conn: sqlite3.Connection, uid: int, summary: dict[str, Any
     except Exception:  # noqa: BLE001 -- a board with bad SQL must not cost anybody their session
         log.exception("leaderboard recompute failed")
 
-    return {"update": update, "streakUpdate": streak_update, "streak": length, "fitness": f}
+    return {"update": update, "streakUpdate": streak_update, "bestUpdate": best_update,
+            "bests": records, "streak": length, "fitness": f}
 
 
 def recompute_player(conn: sqlite3.Connection, uid: int) -> dict[str, Any]:

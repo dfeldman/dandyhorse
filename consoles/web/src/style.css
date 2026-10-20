@@ -108,6 +108,10 @@
 .page-preferences, .tab-preferences { --page: var(--c-cyan); --on-page: var(--on-cyan); }
 .page-admin, .tab-admin { --page: var(--c-red); --on-page: var(--on-red); }
 .page-status { --page: var(--c-violet); --on-page: var(--on-violet); }
+/* Activity and Players had no accent of their own, so --page and --on-page were whatever the last rule
+   left behind: on Activity the selected sub-tab came out white on near-white and could not be read. */
+.page-feed, .tab-feed { --page: var(--c-violet); --on-page: var(--on-violet); }
+.page-players, .tab-players { --page: var(--c-green); --on-page: var(--on-green); }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -141,8 +145,15 @@ button { cursor: pointer; }
 }
 .brand { grid-area: brand; font-weight: 900; font-size: calc(var(--fs) * 1.25); letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
 .brand .mark { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--c-blue), var(--c-magenta)); box-shadow: 0 0 18px var(--glow); }
-/* the tab row scrolls sideways when it does not fit; the padding keeps the active tab's glow from being clipped */
-.tabs { grid-area: tabs; display: flex; gap: 8px; min-width: 0; overflow-x: auto; scrollbar-width: none; padding: 14px 12px; margin: -14px -12px; }
+/* The tab row scrolls sideways when it does not fit, and the padding keeps the active tab's glow from
+   being clipped. Only the left margin is pulled back: a negative one on the right let the last tab slide
+   under the Devices button, which read as a broken layout rather than as something to scroll. */
+.tabs { grid-area: tabs; display: flex; gap: 8px; min-width: 0; overflow-x: auto; scrollbar-width: none;
+  padding: 14px 14px 14px 12px; margin: -14px 0 -14px -12px;
+  /* Fade the right edge so a row that does not fit reads as "there is more, scroll" rather than as a tab
+     chopped in half by the Devices button. */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
   flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-height: var(--tap); padding: 0 22px;

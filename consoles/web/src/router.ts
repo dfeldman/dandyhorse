@@ -8,6 +8,7 @@ import Status from './views/Status.vue'
 import Leaderboards from './views/Leaderboards.vue'
 import Achievements from './views/Achievements.vue'
 import Players from './views/Players.vue'
+import Feed from './views/Feed.vue'
 import Admin from './views/Admin.vue'
 // the designer and Babylon load only when the page is opened (see views/Avatar.vue)
 const Avatar = () => import('./views/Avatar.vue')
@@ -24,6 +25,7 @@ export const router = createRouter({
     { path: '/preferences', name: 'preferences', component: Preferences },
     { path: '/avatar', name: 'avatar', component: Avatar }, // reached from Preferences, not a tab
     { path: '/status', name: 'status', component: Status }, // developer route, not linked
+    { path: '/feed', name: 'feed', component: Feed },
     { path: '/leaderboards', name: 'leaderboards', component: Leaderboards },
     { path: '/players', name: 'players', component: Players },
     { path: '/players/:username', name: 'player', component: Player, props: true },

@@ -176,7 +176,7 @@ const periodLabel = computed(() => {
   border-radius: 10px; background: none; color: inherit; font: inherit; cursor: pointer; text-align: left;
   transition: background 0.12s ease; }
 .board-item:hover { background: var(--panel-2); }
-.board-item.on { background: var(--page); color: #fff; }
+.board-item.on { background: var(--page); color: var(--on-page); }
 .board-item.empty:not(.on) { opacity: 0.5; }
 .bi-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
 .bi-title { font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
