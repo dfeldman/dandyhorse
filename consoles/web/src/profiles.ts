@@ -2,8 +2,8 @@
 // small bits of presentation they share. Pure helpers are unit-tested.
 import { api, query } from './api'
 import type {
-  Board, BoardResponse, BoardsResponse, CheerReceived, FeedEntry, HomeSummary, PersonalBest, PlayerCard,
-  PlayersResponse, Profile, ProfileUpdate, Streak,
+  Board, BoardResponse, BoardsResponse, CheerReceived, FeedEntry, HomeSummary, Notice, PersonalBest,
+  PlayerCard, PlayersResponse, Profile, ProfileUpdate, Streak,
 } from './types'
 
 export const players = () => api<PlayersResponse>('/api/profiles').then((r) => r.players)
@@ -74,9 +74,10 @@ export function updateIcon(kind: ProfileUpdate['kind']): string {
 
 // --- the feed (PLAN.md §18.2) ---------------------------------------------------------------
 
-export const feed = (before?: string) =>
-  api<{ entries: FeedEntry[]; more: boolean }>(
-    `/api/feed${before ? `?before=${encodeURIComponent(before)}` : ''}`)
+export const feed = (before?: string, from?: 'following') => {
+  const q = [before ? `before=${encodeURIComponent(before)}` : '', from ? `from=${from}` : ''].filter(Boolean)
+  return api<{ entries: FeedEntry[]; more: boolean }>(`/api/feed${q.length ? `?${q.join('&')}` : ''}`)
+}
 
 export const cheersForMe = (before?: number) =>
   api<{ cheers: CheerReceived[]; more: boolean; unseen: number }>(
@@ -90,3 +91,23 @@ export const homeSummary = () => api<HomeSummary>('/api/home')
 export const personalBests = (username: string) =>
   api<{ bests: PersonalBest[] }>(`/api/profiles/${encodeURIComponent(username)}/bests`)
     .then((r) => r.bests)
+
+// --- following (PLAN.md §18.2) ----------------------------------------------------------------
+
+export const follow = (username: string) =>
+  api<{ following: boolean; followers: number }>(
+    `/api/profiles/${encodeURIComponent(username)}/follow`, 'POST')
+
+export const unfollow = (username: string) =>
+  api<{ following: boolean; followers: number }>(
+    `/api/profiles/${encodeURIComponent(username)}/follow`, 'DELETE')
+
+/** The people you follow. Yours alone: nobody may read whom somebody else is watching. */
+export const followingList = () =>
+  api<{ players: PlayerCard[]; following: number; followers: number }>('/api/following')
+
+export const noticesForMe = (before?: string) =>
+  api<{ notices: Notice[]; more: boolean; unseen: number }>(
+    `/api/feed/notices${before ? `?before=${encodeURIComponent(before)}` : ''}`)
+
+export const markNoticesSeen = () => api<{ unseen: number }>('/api/feed/notices/seen', 'POST')

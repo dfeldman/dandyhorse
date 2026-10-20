@@ -4,7 +4,9 @@
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { api, ApiError } from '../api'
 import { countryName, flagOrCode } from '../flags'
-import { cheer, deleteUpdate, playerName, postUpdate, profile, streakText, timeline, updateIcon } from '../profiles'
+import {
+  cheer, deleteUpdate, follow, playerName, postUpdate, profile, streakText, timeline, unfollow, updateIcon,
+} from '../profiles'
 import { loadMe, store, timeZone, unitSystem } from '../session'
 import * as u from '../units'
 import CountUp from '../components/CountUp.vue'
@@ -84,6 +86,28 @@ async function mountAvatar(avatar: unknown): Promise<void> {
 onMounted(load)
 watch(() => props.username, load)
 onUnmounted(() => stage?.dispose())
+
+const followBusy = ref(false)
+
+/**
+ * Follow or stop following. One-directional and needing no permission — you are choosing what you want
+ * to read, not asking anything of them (see the server's social/follows.py).
+ */
+async function toggleFollow(): Promise<void> {
+  const who = p.value
+  if (!who || followBusy.value) return
+  followBusy.value = true
+  const was = who.following
+  who.following = !was          // move the button at once; a slow toggle feels broken
+  try {
+    const r = was ? await unfollow(who.username) : await follow(who.username)
+    who.following = r.following
+  } catch {
+    who.following = was
+  } finally {
+    followBusy.value = false
+  }
+}
 
 /** Whether this page still owes this player their pictures. */
 function needsPicture(): boolean {
@@ -198,7 +222,13 @@ const goalRing = computed(() => {
           <img v-if="p.imageUrl" class="photo" :src="p.imageUrl" :alt="`${name}'s picture`" />
         </div>
         <div class="who">
-          <h1>{{ name }} <span v-if="flag" class="flag" :title="where">{{ flag }}</span></h1>
+          <h1>
+            {{ name }} <span v-if="flag" class="flag" :title="where">{{ flag }}</span>
+            <button
+              v-if="!mine" type="button" class="follow" :class="{ on: p.following }"
+              :disabled="followBusy" @click="toggleFollow"
+            >{{ p.following ? 'Following' : 'Follow' }}</button>
+          </h1>
           <p class="handle">@{{ p.username }}<template v-if="where"> · {{ where }}</template>
             · joined {{ day(p.joinedAt) }}</p>
           <p v-if="p.bio" class="bio">{{ p.bio }}</p>
@@ -365,4 +395,10 @@ const goalRing = computed(() => {
   .avatar-slot { width: 100%; height: 260px; }
   .stats { margin-left: 0; }
 }
+.follow { margin-left: 12px; vertical-align: middle; border: 2px solid var(--page); background: none;
+  color: var(--page); font: inherit; font-size: 0.5em; font-weight: 800; padding: 5px 16px;
+  border-radius: 999px; cursor: pointer; }
+.follow:hover { background: color-mix(in srgb, var(--page) 14%, transparent); }
+.follow.on { background: var(--page); color: var(--on-page); }
+.follow:disabled { opacity: 0.6; cursor: default; }
 </style>

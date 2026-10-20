@@ -357,6 +357,8 @@ export interface LeaderboardRow {
   me: boolean
   /** A private player: `displayName` is their pseudonym or number, and nothing else on the row names them. */
   anonymous: boolean
+  /** Places gained since about a day ago; negative is down, null when there is nothing to compare to. */
+  movement: number | null
 }
 
 /** What a value means, so the console can format a board it has never heard of. */
@@ -443,6 +445,8 @@ export interface ProfileSession {
 }
 
 export interface Profile extends PlayerCard {
+  /** Whether you follow them. Their own follower count is deliberately not here — see social/follows.py. */
+  following: boolean
   bio: string
   /** The AvatarSpec the designer saved; the page animates it. */
   avatar: Record<string, unknown> | null
@@ -592,4 +596,24 @@ export interface Versus {
   }[]
   ahead: number
   behind: number
+}
+
+/** Something that happened to you that was not a cheer (PLAN.md §18.2). */
+export interface Notice {
+  id: string
+  kind: 'passed'
+  text: string
+  data: Record<string, unknown>
+  at: string
+  /** Who did it, where that makes sense. Never a private player — see the server's social/notices.py. */
+  from: {
+    uid: number
+    username: string
+    displayName: string | null
+    firstName: string
+    lastName: string
+    country: string
+    thumbnailUrl: string | null
+    anonymous: boolean
+  } | null
 }

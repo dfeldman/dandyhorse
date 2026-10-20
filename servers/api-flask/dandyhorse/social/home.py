@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from ..util import now as _now
-from . import bests, feed, fitness, weeks
+from . import bests, feed, fitness, notices, weeks
 
 # How far back the SQL scan reaches before Python picks out the local week. Comfortably more than one
 # week in any time zone, and small enough that the scan stays cheap.
@@ -44,7 +44,9 @@ def summary(conn: sqlite3.Connection, uid: int) -> dict[str, Any]:
         "fitness": fitness.watts_of(row),
         "best": standing,
         "bests": bests.for_player(conn, uid),
-        "unseenCheers": feed.unseen_cheers(conn, uid, d.get("cheers_seen_at")),
+        # One badge for everything waiting: a cheer and being passed both mean "somebody look".
+        "unseenCheers": (feed.unseen_cheers(conn, uid, d.get("cheers_seen_at"))
+                         + notices.unseen(conn, uid, d.get("notices_seen_at"))),
         "nudge": _nudge(week, goal, streak, standing),
     }
 

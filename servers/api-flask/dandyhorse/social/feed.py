@@ -18,6 +18,7 @@ import sqlite3
 from typing import Any
 
 from ..util import loads
+from . import follows
 
 # A feed page. Enough to fill a screen and scroll a little, not enough to be a bandwidth decision.
 PAGE = 25
@@ -31,14 +32,19 @@ def visible_uids(conn: sqlite3.Connection, viewer_uid: int) -> list[int]:
 
 
 def recent(conn: sqlite3.Connection, viewer_uid: int, limit: int = PAGE,
-           before: str | None = None, uid: int | None = None) -> list[dict[str, Any]]:
+           before: str | None = None, uid: int | None = None,
+           only_following: bool = False) -> list[dict[str, Any]]:
     """The latest updates across the platform, newest first.
 
     `before` is the id of the oldest row you already have, for the next page — ids are ULIDs, so ordering
-    by id is ordering by time and a page boundary needs no second column. `uid` narrows it to one player,
-    which is how "just the people I am chasing" would be built later.
+    by id is ordering by time and a page boundary needs no second column. `uid` narrows it to one player;
+    `only_following` narrows it to the people the viewer follows, and to the viewer, so their own ride
+    still appears the moment they finish it.
     """
     allowed = visible_uids(conn, viewer_uid)
+    if only_following:
+        mine = set(follows.following(conn, viewer_uid)) | {int(viewer_uid)}
+        allowed = [u for u in allowed if u in mine]
     if uid is not None:
         allowed = [u for u in allowed if u == uid]
     if not allowed:

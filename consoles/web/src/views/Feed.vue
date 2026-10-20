@@ -8,29 +8,46 @@
 // Private players are not here at all — that rule lives on the server, in social/feed.py, which explains
 // why it differs from the leaderboards (where they are ranked under a pseudonym).
 import { computed, onMounted, ref } from 'vue'
-import { cheer, cheersForMe, feed, markCheersSeen, updateIcon } from '../profiles'
+import {
+  cheer, cheersForMe, feed, markCheersSeen, markNoticesSeen, noticesForMe, updateIcon,
+} from '../profiles'
 import { loadMe, store } from '../session'
 import { ago } from '../units'
 import PlayerChip from '../components/PlayerChip.vue'
-import type { CheerReceived, FeedEntry } from '../types'
+import type { CheerReceived, FeedEntry, Notice } from '../types'
 
-const tab = ref<'everyone' | 'cheers'>('everyone')
+const tab = ref<'everyone' | 'following' | 'cheers'>('everyone')
 const entries = ref<FeedEntry[]>([])
 const more = ref(false)
 const cheers = ref<CheerReceived[]>([])
 const cheersMore = ref(false)
+const notices = ref<Notice[]>([])
 const unseen = ref(0)
 const loading = ref(true)
 const error = ref<string | null>(null)
 
+/**
+ * Which fetch is the current one.
+ *
+ * Everyone and the people you follow are two different lists behind one view, and the slower request
+ * wins if nothing stops it: opening the page and immediately picking a tab left the tab's filtered
+ * entries on screen for a moment and then replaced them with everybody, because the page's own fetch
+ * landed second. Each fetch takes a number and only the newest one is allowed to write.
+ */
+let fetchSeq = 0
+
 onMounted(async () => {
+  const mine = ++fetchSeq
   try {
-    const [f, c] = await Promise.all([feed(), cheersForMe()])
+    const [f, c, n] = await Promise.all([feed(), cheersForMe(), noticesForMe()])
+    if (mine !== fetchSeq) return                 // a tab was picked while this was in flight
     entries.value = f.entries
     more.value = f.more
     cheers.value = c.cheers
     cheersMore.value = c.more
-    unseen.value = c.unseen
+    notices.value = n.notices
+    // One badge for everything waiting: a cheer and being passed both mean "somebody look".
+    unseen.value = c.unseen + n.unseen
   } catch (e) {
     error.value = (e as Error).message
   } finally {
@@ -45,18 +62,43 @@ async function myPictures(): Promise<void> {
   if (!me || (me.thumbnailUrl && me.actionUrl)) return
   const avatar = (me.profile as { avatar?: unknown } | undefined)?.avatar
   const { ensureMyPictures } = await import('../avatarPictures')
-  if (await ensureMyPictures(avatar, { thumbnail: !me.thumbnailUrl, action: !me.actionUrl })) {
-    await loadMe()
-    entries.value = (await feed()).entries
-  }
+  if (!await ensureMyPictures(avatar, { thumbnail: !me.thumbnailUrl, action: !me.actionUrl })) return
+  await loadMe()
+  // Refetch so your new face appears beside your own entries — but for the tab that is open, and only
+  // if it is still the newest request. Reloading the unfiltered feed here quietly replaced the people
+  // you follow with everybody, seconds after the tab had already drawn the right list.
+  const mine = ++fetchSeq
+  const f = await feed(undefined, from())
+  if (mine === fetchSeq) entries.value = f.entries
 }
+
+/** The feed the chosen tab wants: everybody, or only the people you follow. */
+const from = (): 'following' | undefined => (tab.value === 'following' ? 'following' : undefined)
 
 async function older(): Promise<void> {
   const last = entries.value[entries.value.length - 1]
   if (!last) return
-  const next = await feed(last.id)
+  const next = await feed(last.id, from())
   entries.value = [...entries.value, ...next.entries]
   more.value = next.more
+}
+
+/** Switching between Everyone and the people you follow refetches: they are different lists. */
+async function show(which: 'everyone' | 'following'): Promise<void> {
+  if (tab.value === which) return
+  tab.value = which
+  loading.value = true
+  const mine = ++fetchSeq
+  try {
+    const f = await feed(undefined, from())
+    if (mine !== fetchSeq) return
+    entries.value = f.entries
+    more.value = f.more
+  } catch (e) {
+    if (mine === fetchSeq) error.value = (e as Error).message
+  } finally {
+    if (mine === fetchSeq) loading.value = false
+  }
 }
 
 async function olderCheers(): Promise<void> {
@@ -67,15 +109,29 @@ async function olderCheers(): Promise<void> {
   cheersMore.value = next.more
 }
 
-/** Opening the cheers tab is what counts as having looked at them. */
+/** Opening the tab is what counts as having looked: fetching them in the background does not. */
 async function openCheers(): Promise<void> {
   tab.value = 'cheers'
   if (unseen.value === 0) return
   try {
-    await markCheersSeen()
+    await Promise.all([markCheersSeen(), markNoticesSeen()])
     unseen.value = 0
   } catch { /* the badge is not worth an error message */ }
 }
+
+/**
+ * Everything that has happened to you, newest first: cheers and notices in one list.
+ *
+ * They are one list because from the reader's side they are one thing — somebody did something to me —
+ * and two columns of it would make you check both.
+ */
+interface ForYou { key: string; at: string; who: CheerReceived['from'] | Notice['from']; text: string
+  quote?: string; icon: string }
+const forYou = computed<ForYou[]>(() => [
+  ...cheers.value.map((c) => ({ key: `c${c.mark}`, at: c.at, who: c.from, icon: '👍',
+    text: 'cheered your update', quote: c.text })),
+  ...notices.value.map((n) => ({ key: n.id, at: n.at, who: n.from, icon: '📉', text: n.text })),
+].sort((a, b) => (a.at < b.at ? 1 : -1)))
 
 async function rideOn(e: FeedEntry): Promise<void> {
   const was = { cheers: e.cheers, cheered: e.cheered }
@@ -108,9 +164,10 @@ const nobody = computed(() => !loading.value && entries.value.length === 0)
     <div class="page-head">
       <h1>Activity</h1>
       <nav class="tabs" aria-label="Activity">
-        <button type="button" :class="{ on: tab === 'everyone' }" @click="tab = 'everyone'">Everyone</button>
+        <button type="button" :class="{ on: tab === 'everyone' }" @click="show('everyone')">Everyone</button>
+        <button type="button" :class="{ on: tab === 'following' }" @click="show('following')">People you follow</button>
         <button type="button" :class="{ on: tab === 'cheers' }" @click="openCheers">
-          Cheers for you
+          For you
           <span v-if="unseen" class="badge">{{ unseen }}</span>
         </button>
       </nav>
@@ -119,8 +176,12 @@ const nobody = computed(() => !loading.value && entries.value.length === 0)
     <p v-if="error" class="notice error">{{ error }}</p>
     <p v-if="loading" class="muted">Loading…</p>
 
-    <template v-else-if="tab === 'everyone'">
-      <p v-if="nobody" class="muted">
+    <template v-else-if="tab !== 'cheers'">
+      <p v-if="nobody && tab === 'following'" class="muted">
+        You are not following anybody who has been out lately. Open somebody's profile and follow them,
+        and their rides turn up here.
+      </p>
+      <p v-else-if="nobody" class="muted">
         Nothing yet. Finish a session and you will be the first thing on here.
       </p>
       <ul v-else class="feed">
@@ -148,16 +209,18 @@ const nobody = computed(() => !loading.value && entries.value.length === 0)
     </template>
 
     <template v-else>
-      <p v-if="cheers.length === 0" class="muted">
-        Nobody has cheered you yet. Post something, or finish a ride — the games write a line for you.
+      <p v-if="forYou.length === 0" class="muted">
+        Nothing yet. Post something or finish a ride, and when somebody cheers you — or goes past you on
+        a board — it turns up here.
       </p>
       <ul v-else class="feed">
-        <li v-for="c in cheers" :key="c.mark" class="entry">
-          <PlayerChip :player="c.from" size="sm" class="who" />
+        <li v-for="f in forYou" :key="f.key" class="entry">
+          <PlayerChip v-if="f.who" :player="f.who" size="sm" class="who" />
+          <span v-else class="who muted">The platform</span>
           <div class="body">
-            <p class="text"><span class="icon" aria-hidden="true">👍</span>cheered your update</p>
-            <p class="quote">“{{ c.text }}”</p>
-            <p class="meta"><span>{{ ago(c.at) }}</span></p>
+            <p class="text"><span class="icon" aria-hidden="true">{{ f.icon }}</span>{{ f.text }}</p>
+            <p v-if="f.quote" class="quote">“{{ f.quote }}”</p>
+            <p class="meta"><span>{{ ago(f.at) }}</span></p>
           </div>
         </li>
       </ul>

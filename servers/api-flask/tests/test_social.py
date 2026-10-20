@@ -1,4 +1,6 @@
 """Profiles, session stats, streaks, measured fitness, leaderboards, competitors and bots (PLAN.md §18)."""
+from collections import Counter
+
 import pytest
 
 from conftest import make_app, other_client
@@ -815,3 +817,102 @@ def test_versus_will_not_open_a_private_player(app, clock):
     ride(quiet, clock, game="mockgame", minutes=30)
     quiet.put("/api/me", json={"public": False, "pseudonym": "Night Owl"})
     assert nosy.get("/api/profiles/user1/versus").status_code == 404
+
+
+# --- following, movement and notices (PLAN.md §18.2, §18.7) -----------------------------------
+
+def test_following_narrows_the_feed_to_your_people(app, clock):
+    me, friend, stranger = other_client(app, 1), other_client(app, 2), other_client(app, 3)
+    ride(friend, clock, game="mockgame", message="A ride by somebody I follow.")
+    ride(stranger, clock, game="mockgame", message="A ride by somebody I do not.")
+
+    everyone = me.get("/api/feed").get_json()["entries"]
+    assert {e["player"]["username"] for e in everyone} >= {"user2", "user3"}
+
+    assert me.post("/api/profiles/user2/follow").get_json()["following"] == 1
+    mine = me.get("/api/feed?from=following").get_json()["entries"]
+    assert {e["player"]["username"] for e in mine} == {"user2"}
+    # Your own rides are in it too, so finishing one does not look like nothing happened.
+    ride(me, clock, game="mockgame", message="My own.")
+    assert {e["player"]["username"] for e in me.get("/api/feed?from=following").get_json()["entries"]} \
+        == {"user1", "user2"}
+
+
+def test_you_cannot_follow_a_private_player(app, clock):
+    """Following them would be a way to keep a handle on somebody who has opted out."""
+    me, quiet, admin = other_client(app, 3), other_client(app, 2), other_client(app, 1)
+    ride(quiet, clock, game="mockgame")
+    quiet.put("/api/me", json={"public": False, "pseudonym": "Night Owl"})
+    # To anybody else they simply are not there.
+    assert me.post("/api/profiles/user2/follow").status_code == 404
+    # An admin can open them (that is what admin means) and still cannot follow them.
+    assert admin.post("/api/profiles/user2/follow").status_code == 400
+
+
+def test_somebody_who_goes_private_leaves_your_feed(app, clock):
+    me, friend = other_client(app, 1), other_client(app, 2)
+    ride(friend, clock, game="mockgame", message="While still public.")
+    me.post("/api/profiles/user2/follow")
+    assert me.get("/api/feed?from=following").get_json()["entries"]
+
+    friend.put("/api/me", json={"public": False})
+    assert me.get("/api/feed?from=following").get_json()["entries"] == []
+    # ...and they are gone from the list of who you follow, without anybody tidying up.
+    assert me.get("/api/following").get_json()["players"] == []
+
+
+def test_nobody_can_read_who_someone_else_follows(app, clock):
+    """`/api/following` is yours alone; a profile carries whether YOU follow them and no count."""
+    me, them = other_client(app, 1), other_client(app, 2)
+    ride(them, clock, game="mockgame")
+    me.post("/api/profiles/user2/follow")
+
+    mine = me.get("/api/profiles/user2").get_json()
+    assert mine["following"] is True
+    assert "followers" not in mine
+    # Their view of me shows no trace of it.
+    assert them.get("/api/profiles/user1").get_json()["following"] is False
+    assert them.get("/api/following").get_json()["players"] == []
+
+
+def test_being_passed_on_a_board_tells_the_person_passed(app, clock):
+    slower, faster = other_client(app, 1), other_client(app, 2)
+    ride(slower, clock, game="mockgame", minutes=30, power=200)
+    assert slower.get("/api/feed/notices").get_json()["notices"] == []
+
+    ride(faster, clock, game="mockgame", minutes=60, power=260)      # straight past them
+    got = slower.get("/api/feed/notices").get_json()
+    assert got["unseen"] >= 1
+    passed = got["notices"][0]
+    assert passed["kind"] == "passed"
+    assert "passed you on" in passed["text"]
+    assert passed["from"]["username"] == "user2"
+    assert passed["data"]["board"] and passed["data"]["title"]
+    # Looking at them is what clears the badge.
+    slower.post("/api/feed/notices/seen")
+    assert slower.get("/api/feed/notices").get_json()["unseen"] == 0
+
+
+def test_the_same_pass_is_not_announced_twice_in_a_day(app, clock):
+    """The boards recompute every time anybody finishes, so without this one busy board would shout."""
+    slower, faster = other_client(app, 1), other_client(app, 2)
+    ride(slower, clock, game="mockgame", minutes=30, power=200)
+    ride(faster, clock, game="mockgame", minutes=60, power=260)
+    first = slower.get("/api/feed/notices").get_json()["notices"]
+    assert len(first) >= 1
+    ride(faster, clock, game="mockgame", minutes=60, power=260)      # further ahead, same person
+
+    # A second pass on a board they already passed you on is not news. (Passing you on a board they had
+    # not yet reached is, which is why this counts per board rather than in total.)
+    after = slower.get("/api/feed/notices").get_json()["notices"]
+    per_board = Counter((n["from"]["uid"], n["data"]["board"]) for n in after)
+    assert per_board and max(per_board.values()) == 1
+
+
+def test_a_board_shows_which_way_somebody_is_moving(app, clock):
+    conn_ranks = lambda c, b: {r["username"]: r for r in c.get(f"/api/leaderboards/{b}").get_json()["rows"]}
+    a, b = other_client(app, 1), other_client(app, 2)
+    ride(a, clock, game="mockgame", minutes=60, power=260)
+    ride(b, clock, game="mockgame", minutes=30, power=200)
+    # Nothing to compare against on a board somebody has only just joined.
+    assert conn_ranks(a, "sessions-all")["user1"]["movement"] in (None, 0)

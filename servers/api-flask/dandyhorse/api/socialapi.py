@@ -9,7 +9,8 @@ from flask import Blueprint, g, jsonify, request, send_file
 
 from ..auth import require_auth
 from ..db import get_db
-from ..social import anon, bests, boards, competitors, feed, finalize, home, streaks, updates, versus
+from ..social import (anon, bests, boards, competitors, feed, finalize, follows, home, notices,
+                      streaks, updates, versus)
 from ..util import ApiError, dumps, iso, loads
 from . import body, dh, read_image
 
@@ -86,6 +87,9 @@ def profile_view(conn: sqlite3.Connection, row: sqlite3.Row, viewer_uid: int) ->
         "achievements": loads(d.get("achievements")),
         "totals": _totals(conn, d["uid"]),
         "updates": updates.timeline(conn, d["uid"], 30, viewer_uid=viewer_uid),
+        # Whether the viewer follows them. Their own follower count is not here on purpose: being
+        # followed is not something anybody consents to, so it is not something others may inspect.
+        "following": follows.is_following(conn, viewer_uid, int(d["uid"])),
     })
     rows = conn.execute(
         "SELECT session_id, game_id, variant, device_type, started_at, duration, distance, energy, "
@@ -283,6 +287,42 @@ def get_home():
     return jsonify(out)
 
 
+@bp.post("/api/profiles/<username>/follow")
+@require_auth
+def post_follow(username: str):
+    """Start following somebody. One-directional and needing no permission — see social/follows.py."""
+    conn = get_db()
+    row = _visible(_by_username(conn, username), g.user["uid"])
+    if not follows.follow(conn, g.user["uid"], int(row["uid"])):
+        raise ApiError(400, "cannot_follow", "that player cannot be followed")
+    return jsonify({"following": True, **follows.counts(conn, g.user["uid"])})
+
+
+@bp.delete("/api/profiles/<username>/follow")
+@require_auth
+def delete_follow(username: str):
+    conn = get_db()
+    row = _by_username(conn, username)
+    if row is None:
+        raise ApiError(404, "user_not_found", "no such player")
+    follows.unfollow(conn, g.user["uid"], int(row["uid"]))
+    return jsonify({"following": False, **follows.counts(conn, g.user["uid"])})
+
+
+@bp.get("/api/following")
+@require_auth
+def get_following():
+    """The people you follow, as cards. Yours alone: nobody else may read who you are watching."""
+    conn = get_db()
+    ids = follows.following(conn, g.user["uid"])
+    if not ids:
+        return jsonify({"players": [], **follows.counts(conn, g.user["uid"])})
+    marks = ",".join("?" * len(ids))
+    rows = conn.execute(f"SELECT * FROM users WHERE uid IN ({marks}) ORDER BY username", ids).fetchall()
+    return jsonify({"players": [card(r, g.user["uid"]) for r in rows],
+                    **follows.counts(conn, g.user["uid"])})
+
+
 @bp.get("/api/profiles/<username>/versus")
 @require_auth
 def get_versus(username: str):
@@ -311,7 +351,8 @@ def get_feed():
     before = request.args.get("before") or None
     who = request.args.get("uid")
     entries = feed.recent(conn, g.user["uid"], before=before,
-                          uid=int(who) if who and who.isdigit() else None)
+                          uid=int(who) if who and who.isdigit() else None,
+                          only_following=request.args.get("from") == "following")
     # The catalogue lives in the app, not the database, so the game's title is put on here rather than in
     # the query — the same way a session's `gameName` is.
     cat = dh().catalog
@@ -332,6 +373,29 @@ def get_cheers_received():
     got = feed.cheers_received(conn, g.user["uid"], before=before)
     return jsonify({"cheers": got, "more": len(got) >= feed.PAGE,
                     "unseen": feed.unseen_cheers(conn, g.user["uid"], row["cheers_seen_at"] if row else None)})
+
+
+@bp.get("/api/feed/notices")
+@require_auth
+def get_notices():
+    """What has happened to you lately that was not a cheer: being passed on a board, for now."""
+    conn = get_db()
+    row = conn.execute("SELECT notices_seen_at FROM users WHERE uid=?", (g.user["uid"],)).fetchone()
+    before = request.args.get("before") or None
+    got = notices.recent(conn, g.user["uid"], before=before)
+    return jsonify({"notices": got, "more": len(got) >= notices.PAGE,
+                    "unseen": notices.unseen(conn, g.user["uid"],
+                                             row["notices_seen_at"] if row else None)})
+
+
+@bp.post("/api/feed/notices/seen")
+@require_auth
+def mark_notices_seen():
+    conn = get_db()
+    conn.execute("UPDATE users SET notices_seen_at=?, updated_at=? WHERE uid=?",
+                 (iso(), iso(), g.user["uid"]))
+    conn.commit()
+    return jsonify({"ok": True, "unseen": 0})
 
 
 @bp.post("/api/feed/cheers/seen")

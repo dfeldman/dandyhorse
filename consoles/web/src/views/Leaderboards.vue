@@ -151,6 +151,12 @@ const periodLabel = computed(() => {
             :class="{ me: r.me, podium: r.rank !== null && r.rank <= 3, unranked: r.rank === null }"
           >
             <span class="rank" :class="`r${r.rank ?? 0}`">{{ rankBadge(r.rank) }}</span>
+            <span
+              v-if="r.movement" class="move" :class="r.movement > 0 ? 'up' : 'down'"
+              :title="`${Math.abs(r.movement)} ${Math.abs(r.movement) === 1 ? 'place' : 'places'} `
+                + `${r.movement > 0 ? 'up' : 'down'} since yesterday`"
+            >{{ r.movement > 0 ? '▲' : '▼' }}{{ Math.abs(r.movement) }}</span>
+            <span v-else class="move" aria-hidden="true"></span>
             <PlayerChip :player="r" size="sm" class="chipcol" />
             <span class="bar" aria-hidden="true"><span class="fill" :style="{ width: bar(r.value) }"></span></span>
             <span class="value"><CountUp :value="r.value" :format="value" /></span>
@@ -194,12 +200,16 @@ const periodLabel = computed(() => {
 .small { font-size: 0.86em; }
 .empty-note { margin: 0; }
 .rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
-.row { display: grid; grid-template-columns: 40px minmax(120px, 1.3fr) minmax(60px, 2fr) auto;
+.row { display: grid; grid-template-columns: 40px 34px minmax(120px, 1.3fr) minmax(60px, 2fr) auto;
   gap: 12px; align-items: center; padding: 7px 10px; border-radius: 10px; animation: in 0.25s ease both; }
 .row:nth-child(odd) { background: color-mix(in srgb, var(--text) 3%, transparent); }
 .row.me { background: color-mix(in srgb, var(--page) 18%, transparent); box-shadow: inset 0 0 0 1px var(--page); }
 .row.unranked { opacity: 0.8; }
 .rank { font-weight: 900; text-align: center; font-variant-numeric: tabular-nums; }
+/* Movement since about a day ago. The column is always there, so a board does not jiggle as people move. */
+.move { font-size: 0.74em; font-weight: 800; text-align: center; font-variant-numeric: tabular-nums; }
+.move.up { color: #12a874; }
+.move.down { color: #e5157f; opacity: 0.8; }
 .rank.r1, .rank.r2, .rank.r3 { font-size: 1.3em; }
 .bar { display: block; height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--text) 9%, transparent); overflow: hidden; }
 .fill { display: block; height: 100%; border-radius: 999px;
@@ -217,7 +227,7 @@ const periodLabel = computed(() => {
   .picker { max-height: 240px; }
 }
 @media (max-width: 620px) {
-  .row { grid-template-columns: 34px 1fr auto; }
+  .row { grid-template-columns: 34px 30px 1fr auto; }
   .bar { display: none; }
 }
 </style>

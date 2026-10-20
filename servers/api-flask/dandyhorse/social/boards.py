@@ -12,6 +12,7 @@ a private account neither appears on a board nor leaves a hole in it.
 """
 from __future__ import annotations
 
+import logging
 import re
 import sqlite3
 from dataclasses import dataclass, field
@@ -19,8 +20,10 @@ from typing import Any, Callable
 
 from datetime import datetime
 
-from ..util import dumps, iso, loads, parse_iso
-from . import anon, weeks
+from ..util import dumps, iso, loads, now, parse_iso
+from . import anon, notices, weeks
+
+log = logging.getLogger("dandyhorse")
 
 # A session shorter than this says nothing about how fit or improved somebody is.
 MIN_RIDE = 300.0
@@ -334,6 +337,12 @@ def get(bid: str, catalog=None) -> Board | None:
 
 # --- computing -----------------------------------------------------------------------------------
 
+# How far back "where you were" reaches. The boards are recomputed every time anybody finishes a session,
+# so a previous rank taken from the last recompute would mean "before that stranger's ride" and read as
+# noise. A day back is a number worth showing: it moved because somebody rode, not because of timing.
+MOVEMENT_WINDOW = 24 * 3600.0
+
+
 def compute(conn: sqlite3.Connection, b: Board, period_key: str | None = None) -> int:
     """Run one board and replace its stored rows. Returns how many rows it has."""
     key = period_key or b.period_key()
@@ -345,16 +354,39 @@ def compute(conn: sqlite3.Connection, b: Board, period_key: str | None = None) -
     hidden = {r["uid"] for r in conn.execute("SELECT uid, preferences FROM users")
               if anon.hidden_from_boards(loads(r["preferences"]))}
     t = iso()
+    # What this board said before, so a rank from about a day ago can be carried forward (MOVEMENT_WINDOW).
+    was = {int(r["uid"]): r for r in conn.execute(
+        "SELECT uid, rank, prev_rank, prev_at FROM leaderboards WHERE board=? AND period_key=?", (b.id, key))}
+    before_ranks = {u: int(r["rank"]) for u, r in was.items()}
+    after_ranks: dict[int, int] = {}
+    now_t = now()
     conn.execute("DELETE FROM leaderboards WHERE board=? AND period_key=?", (b.id, key))
     rank = 0
     for r in rows:
         if r.uid not in hidden:
             rank += 1
+        after_ranks[int(r.uid)] = rank if r.uid not in hidden else 0
+        old = was.get(int(r.uid))
+        if old is None:
+            # First time on this board: no movement to report, but start the clock from here.
+            prev_rank, prev_at = None, t
+        elif not old["prev_at"] or (now_t - (parse_iso(old["prev_at"]) or 0)) >= MOVEMENT_WINDOW:
+            prev_rank, prev_at = int(old["rank"]) or None, t      # the snapshot has aged out: take a new one
+        else:
+            prev_rank, prev_at = old["prev_rank"], old["prev_at"]  # still inside the window: keep it
         conn.execute(
-            "INSERT INTO leaderboards(board, period_key, rank, uid, value, session_id, detail, computed_at) "
-            "VALUES (?,?,?,?,?,?,?,?)",
-            (b.id, key, rank if r.uid not in hidden else 0, r.uid, r.value, r.session_id, dumps(r.detail), t))
+            "INSERT INTO leaderboards(board, period_key, rank, uid, value, session_id, detail, computed_at, "
+            "prev_rank, prev_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+            (b.id, key, rank if r.uid not in hidden else 0, r.uid, r.value, r.session_id, dumps(r.detail), t,
+             prev_rank, prev_at))
     conn.commit()
+    # Anybody who has just been passed hears about it. Never fatal: a notice is encouragement, and a
+    # board that failed to send one must still have been computed.
+    try:
+        public = {int(r["uid"]) for r in conn.execute("SELECT uid FROM users WHERE public=1")}
+        notices.overtaken(conn, b.id, b.title, key, before_ranks, after_ranks, public)
+    except Exception:  # noqa: BLE001
+        log.exception("could not write overtake notices for %s", b.id)
     return len(rows)
 
 
@@ -385,5 +417,9 @@ def rows_for(conn: sqlite3.Connection, b: Board, viewer_uid: int, period_key: st
         # belongs on an anonymous row.
         row["sessionId"] = None if who["anonymous"] and not me else r["session_id"]
         row["detail"] = {} if who["anonymous"] and not me else loads(r["detail"])
+        # Places gained since about a day ago: positive is up the board. None where there is nothing to
+        # compare against yet, so the console shows nothing rather than a confident "no change".
+        prev = r["prev_rank"]
+        row["movement"] = (int(prev) - int(r["rank"])) if prev and r["rank"] else None
         out.append(row)
     return out

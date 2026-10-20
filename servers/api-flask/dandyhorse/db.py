@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS users (
   thumb_file    TEXT,                        -- avatar thumbnail rendered by the console (§18.6)
   action_file   TEXT,                        -- the same avatar on its bike, rendered alongside it
   cheers_seen_at TEXT,                       -- when they last looked at who had cheered them
+  notices_seen_at TEXT,                      -- and at the rest of what happened to them
   unit_system   TEXT NOT NULL DEFAULT 'metric',
   time_zone     TEXT NOT NULL DEFAULT 'UTC',
   preferences   TEXT NOT NULL DEFAULT '{}',
@@ -127,6 +128,8 @@ CREATE TABLE IF NOT EXISTS leaderboards (
   session_id  TEXT,                          -- the session behind a one-session board
   detail      TEXT NOT NULL DEFAULT '{}',
   computed_at TEXT NOT NULL,
+  prev_rank   INTEGER,                       -- where they were a day ago, for "up 2 this week" (§18.7)
+  prev_at     TEXT,                          -- when that snapshot was taken
   PRIMARY KEY (board, period_key, uid)
 );
 CREATE INDEX IF NOT EXISTS leaderboards_rank ON leaderboards(board, period_key, rank);
@@ -148,6 +151,23 @@ CREATE TABLE IF NOT EXISTS update_cheers (   -- "ride on": one tap of encouragem
   PRIMARY KEY (update_id, uid)
 );
 CREATE INDEX IF NOT EXISTS update_cheers_update ON update_cheers(update_id);
+CREATE TABLE IF NOT EXISTS follows (        -- the people somebody is keeping an eye on (PLAN.md §18.2)
+  uid        INTEGER NOT NULL REFERENCES users(uid),   -- who is following
+  followed   INTEGER NOT NULL REFERENCES users(uid),   -- who they follow
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (uid, followed)
+);
+CREATE INDEX IF NOT EXISTS follows_followed ON follows(followed);
+CREATE TABLE IF NOT EXISTS notifications (  -- things that happened TO somebody (PLAN.md §18.2)
+  id         TEXT PRIMARY KEY,              -- ULID: ordered by when it happened
+  uid        INTEGER NOT NULL REFERENCES users(uid),   -- who it happened to
+  kind       TEXT NOT NULL,                 -- 'passed' for now; cheers have their own table
+  actor      INTEGER REFERENCES users(uid), -- who did it, where that makes sense
+  text       TEXT NOT NULL,
+  data       TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS notifications_uid ON notifications(uid, id DESC);
 CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
 """
 
@@ -187,6 +207,7 @@ ADDED_COLUMNS: dict[str, dict[str, str]] = {
         "thumb_file": "TEXT",
         "action_file": "TEXT",
         "cheers_seen_at": "TEXT",
+        "notices_seen_at": "TEXT",
     },
 }
 
@@ -200,7 +221,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS users_anon_id ON users(anon_id) WHERE anon_id 
 # A table whose shape changed outright: dropped and remade when its columns are not these. Only for tables
 # nothing depends on keeping — `leaderboards` is entirely derived and recomputed (§18.7).
 REBUILT_TABLES = {
-    "leaderboards": {"board", "period_key", "rank", "uid", "value", "session_id", "detail", "computed_at"},
+    "leaderboards": {"board", "period_key", "rank", "uid", "value", "session_id", "detail", "computed_at",
+                     "prev_rank", "prev_at"},
 }
 
 
