@@ -2315,11 +2315,21 @@ one query over that player's sessions) and when the goal changes.
 | `POST /api/profile/updates` | Write your own update (`{text}`, 280 characters). |
 | `DELETE /api/profile/updates/<id>` | Remove one of yours. |
 | `PUT /api/profile/image` | Upload a profile picture: PNG or JPEG, at most 1 MB, same handling as session images (§6.7). |
-| `PUT /api/profile/thumbnail` | A PNG of at most 200 KB: the console renders the avatar once in the designer and uploads it, so a list of players costs no Babylon. |
+| `PUT /api/profile/thumbnail` | A PNG of at most 200 KB: the console renders the avatar once and uploads it, so a list of players costs no Babylon. |
+| `PUT /api/admin/users/<uid>/thumbnail` | The same for somebody else, for an admin. A bot has nobody at a keyboard, so an admin's console renders theirs. |
 
 The console gets **Players** (every profile as a card) and **Player** (one profile: the animated avatar
 from avatarkit, picture, names, country, bio, streak, and the timeline) pages. Leaderboard rows and
 History entries link to a profile.
+
+**The pictures.** An avatar is a Babylon scene and a few hundred megabytes of MakeHuman assets, so a page
+of a hundred players cannot draw one each. Every player gets one small **headshot** PNG instead, rendered
+once and stored on the server, which is what lists, boards and session pages show — a face reads at forty
+pixels where a whole figure is a smudge. `consoles/web/src/avatarPictures.ts` makes them: a player's own
+when they save a look in the designer, and everybody else's from the Admin page, through a
+`HeadshotStudio` that keeps one scene open and swaps the person, since building the scene is the slow part.
+A bot carries an `avatarSeed` rather than a spec, and the console turns it into a whole person — that is
+the only place avatarkit is loaded, so `bots/` stays a thin API client.
 
 ### 18.7 Leaderboards
 
@@ -2339,9 +2349,21 @@ Dash" needs no code here — only the stat from the game.
 
 Boards are **precomputed** into `leaderboards`: all of them, whenever a session completes (a few hundred
 sessions makes this milliseconds), on `POST /api/admin/leaderboards/recompute`, and once a day from the
-reaper thread so a week rolls over on its own. `GET /api/leaderboards` lists the boards;
-`GET /api/leaderboards/<board>` serves the rows with each player's name and thumbnail.
-Private players are computed but shown only to themselves; debug and discarded sessions count for nothing.
+reaper thread so a week rolls over on its own. `GET /api/leaderboards` lists the boards, each with where
+*you* stand on it — nineteen boards are unreadable otherwise — and `GET /api/leaderboards/<board>` serves
+the rows. Debug and discarded sessions count for nothing, and deleting a session takes it back off every
+board, out of the player's totals and off their timeline (people ride while they are setting things up).
+
+**Privacy** (`social/anon.py`). Three states, and the player picks in Preferences:
+
+| | On a board |
+|---|---|
+| Public | Their name, their country's flag and their picture, linking to their profile. |
+| Private | Their **pseudonym**, or "Anonymous 104" if they chose none. Ranked like anybody else — a board that quietly leaves people out is a lie — carrying no username, no account number, no country, no picture, no `detail`, and no session id (a session id is a ULID, so it would say when they rode). The same name on every board, so a board still tells you the person above you is the one who was there last week. |
+| Private and unlisted (`preferences.hideFromLeaderboards`) | Not there at all. They still see their own standing, unranked. |
+
+`anon.row_view()` is the only place that decides what a private player's row may carry, so there is one
+place to be careful about rather than one per board. A player always sees their own row as themselves.
 
 ### 18.8 Bots
 

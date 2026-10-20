@@ -79,8 +79,8 @@ export class Platform implements FcPlatform {
       void rivalHud(this.start.sessionId, {
         imperial: this.start.unitSystem === 'us',
         plannedSeconds: this.start.requestedDuration,
-        labels: { ringsHit: 'Rings' }, words: { ringsHit: 'ring' },
-        corner: 'top-left',
+        words: { ringsHit: 'ring' },
+        corner: 'left',
         log: this.log,
       }).then((r) => { this.rival = r })
     }

@@ -242,16 +242,74 @@ def test_sessions_and_explorer_boards(client, clock):
     assert sorted(rows[0]["detail"]["games"]) == ["mockgame", "rollinghills"]
 
 
-def test_a_private_player_is_not_ranked_but_still_sees_their_own_row(client, app, clock):
+def test_a_private_player_is_ranked_but_not_named(client, app, clock):
+    """A board that quietly leaves people out is a lie, so a private player is ranked — under a number, or
+    a pseudonym if they picked one, and carrying nothing else about them (PLAN.md §18.7)."""
     other = other_client(app, 8)
     other.put("/api/me", json={"public": False})
     ride(other, clock, minutes=40, power=200)
     ride(client, clock, minutes=10, power=120)
-    mine = client.get("/api/leaderboards/distance-week-bike").get_json()["rows"]
-    assert [r["username"] for r in mine] == ["user7"] and mine[0]["rank"] == 1
-    theirs = other.get("/api/leaderboards/distance-week-bike").get_json()["rows"]
-    assert [r["username"] for r in theirs] == ["user7", "user8"]
-    assert theirs[1]["username"] == "user8" and theirs[1]["rank"] is None
+
+    rows = client.get("/api/leaderboards/distance-week-bike").get_json()["rows"]
+    assert [r["rank"] for r in rows] == [1, 2], "they rode further, so they are first"
+    them = rows[0]
+    assert them["me"] is False
+    assert them["displayName"].startswith("Anonymous ")
+    # Nothing on that row may say who they are.
+    assert them["username"] is None and them["uid"] is None
+    assert them["firstName"] == "" and them["lastName"] == "" and them["country"] == ""
+    assert them["thumbnailUrl"] is None
+    # A session id is a ULID, so it would give away when they rode; detail can say what they played.
+    assert them["sessionId"] is None and them["detail"] == {}
+    assert them["anonymous"] is True
+    assert rows[1]["username"] == "user7" and rows[1]["anonymous"] is False
+
+    # They see themselves as themselves.
+    own = other.get("/api/leaderboards/distance-week-bike").get_json()["rows"][0]
+    assert own["me"] is True and own["username"] == "user8" and own["anonymous"] is False
+
+
+def test_a_private_player_can_choose_what_to_be_called(client, app, clock):
+    other = other_client(app, 8)
+    other.put("/api/me", json={"public": False, "pseudonym": "Blue Heron"})
+    ride(other, clock, minutes=40, power=200)
+    ride(client, clock, minutes=10, power=120)
+    rows = client.get("/api/leaderboards/distance-week-bike").get_json()["rows"]
+    assert rows[0]["displayName"] == "Blue Heron" and rows[0]["username"] is None
+    # and it is the same name on every board, so a board still tells you it is the same person
+    sessions = client.get("/api/leaderboards/sessions-all").get_json()["rows"]
+    assert [r["displayName"] for r in sessions if r["anonymous"]] == ["Blue Heron"]
+    # it cannot be made to look like a handle, or like somebody else
+    assert other.put("/api/me", json={"pseudonym": "@user7"}).status_code == 400
+    assert other.put("/api/me", json={"pseudonym": "x"}).status_code == 400
+
+
+def test_a_player_can_stay_off_the_boards_altogether(client, app, clock):
+    """Being ranked anonymously is still being ranked. Some people want neither."""
+    other = other_client(app, 8)
+    other.put("/api/me", json={"public": False, "preferences": {"hideFromLeaderboards": True}})
+    ride(other, clock, minutes=40, power=200)
+    ride(client, clock, minutes=10, power=120)
+    rows = client.get("/api/leaderboards/distance-week-bike").get_json()["rows"]
+    assert [r["username"] for r in rows] == ["user7"]
+    assert rows[0]["rank"] == 1, "and nobody above them leaves a gap"
+    # they still see where they would have stood
+    own = other.get("/api/leaderboards/distance-week-bike").get_json()["rows"]
+    assert any(r["me"] for r in own)
+    assert [r["rank"] for r in own if r["me"]] == [None]
+
+
+def test_an_anonymous_number_is_the_same_everywhere_and_unique(client, app, clock):
+    quiet = [other_client(app, uid) for uid in (8, 9)]
+    for c in quiet:
+        c.put("/api/me", json={"public": False})
+        ride(c, clock, minutes=20, power=170)
+    ride(client, clock, minutes=20, power=170)
+    distance = client.get("/api/leaderboards/distance-week-bike").get_json()["rows"]
+    sessions = client.get("/api/leaderboards/sessions-all").get_json()["rows"]
+    names = {r["displayName"] for r in distance if r["anonymous"]}
+    assert len(names) == 2, "two private players, two different numbers"
+    assert names == {r["displayName"] for r in sessions if r["anonymous"]}, "the same names on every board"
 
 
 def test_a_game_stat_gets_its_own_board(client, app, clock, root):
@@ -375,6 +433,27 @@ def test_a_session_summary_carries_the_games_numbers(client, clock):
     s = ride(client, clock, minutes=10, stats={"laps": 3})
     detail = client.get(f"/api/sessions/{s['sessionId']}").get_json()
     assert detail["stats"] == {"laps": 3}
+
+
+def test_deleting_a_session_takes_back_what_it_did(client, app, clock):
+    """People ride while they are setting things up, or messing about, and want that not to count."""
+    other = other_client(app, 8)
+    ride(other, clock, minutes=10, power=120)
+    s = ride(client, clock, minutes=30, power=200, stats={"laps": 9},
+             message="A ride I would rather forget.")
+    assert client.get("/api/profiles/user7").get_json()["updates"][0]["text"].startswith("A ride")
+    top = client.get("/api/leaderboards/distance-week-bike").get_json()["rows"]
+    assert top[0]["username"] == "user7"
+
+    assert client.delete(f"/api/sessions/{s['sessionId']}").status_code == 200
+
+    # gone from the timeline, the totals and the boards, not merely hidden from History
+    p = client.get("/api/profiles/user7").get_json()
+    assert p["updates"] == []
+    assert p["totals"]["sessions"] == 0
+    rows = client.get("/api/leaderboards/distance-week-bike").get_json()["rows"]
+    assert [r["username"] for r in rows] == ["user8"]
+    assert client.get("/api/leaderboards/stat-mockgame-laps").get_json()["rows"] == []
 
 
 # --- bots ----------------------------------------------------------------------------------------
@@ -520,6 +599,39 @@ def test_admin_edits_any_players_profile(app, clock):
 def test_only_an_admin(client):
     assert client.get("/api/admin/users").status_code == 403
     assert client.put("/api/admin/users/7", json={"firstName": "x"}).status_code == 403
+
+
+def test_a_database_made_before_these_columns_still_opens(tmp_path):
+    """The index on `anon_id` once lived in the schema script, which runs before the ALTER TABLEs that add
+    the column — so every existing database failed to open with "no such column: anon_id"."""
+    import sqlite3 as sq
+    from dandyhorse import db
+
+    path = tmp_path / "old.db"
+    old = sq.connect(path)
+    # the users table as it was before any of §18
+    old.executescript("""
+        CREATE TABLE users (uid INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, display_name TEXT,
+          profile TEXT NOT NULL DEFAULT '{}', public INTEGER NOT NULL DEFAULT 0,
+          achievements TEXT NOT NULL DEFAULT '{}', body_data TEXT NOT NULL DEFAULT '{}',
+          unit_system TEXT NOT NULL DEFAULT 'metric', time_zone TEXT NOT NULL DEFAULT 'UTC',
+          preferences TEXT NOT NULL DEFAULT '{}', created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
+        CREATE TABLE schema_version (version INTEGER NOT NULL);
+        INSERT INTO schema_version(version) VALUES (1);
+        INSERT INTO users(uid, username, created_at, updated_at) VALUES (1, 'early', '', '');
+    """)
+    old.commit()
+    old.close()
+
+    db.init_schema(path)   # must not raise
+
+    conn = db.connect(path)
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
+    assert {"anon_id", "pseudonym", "streak_goal", "fitness"} <= cols
+    # and the one-time flip to public ran for the account that was already there
+    assert conn.execute("SELECT public FROM users WHERE uid=1").fetchone()[0] == 1
+    assert conn.execute("SELECT version FROM schema_version").fetchone()[0] >= 2
+    conn.close()
 
 
 # --- week maths ----------------------------------------------------------------------------------

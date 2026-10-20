@@ -67,6 +67,9 @@ const form = reactive({
   lastName: '',
   country: '',
   streakGoal: 0,
+  // privacy (PLAN.md §18.7)
+  pseudonym: '',
+  hideFromLeaderboards: false,
   unitSystem: 'metric' as UnitSystem,
   timeZone: '',
   height: null as number | null,
@@ -95,6 +98,8 @@ function fill(me: Me) {
   form.lastName = me.lastName ?? ''
   form.country = me.country ?? ''
   form.streakGoal = me.streak?.goal ?? 0
+  form.pseudonym = me.pseudonym ?? ''
+  form.hideFromLeaderboards = me.preferences.hideFromLeaderboards === true
   form.unitSystem = me.unitSystem
   form.timeZone = me.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
   form.height = u.height(me.bodyData.height ?? null, me.unitSystem, 1).value
@@ -162,6 +167,7 @@ async function save() {
     setNum(prefs, 'maxHr', form.maxHr)
     setNum(prefs, 'efficiency', form.efficiency)
     prefs.allowSimulatorInRealSessions = form.allowSimulatorInRealSessions
+    prefs.hideFromLeaderboards = form.hideFromLeaderboards
     putFitness(prefs)
     const bodyData: Record<string, unknown> = {}
     const h = u.heightToSI(form.height, sys.value)
@@ -178,6 +184,7 @@ async function save() {
       lastName: form.lastName,
       country: form.country,
       streakGoal: form.streakGoal,
+      pseudonym: form.pseudonym,
       unitSystem: form.unitSystem,
       timeZone: form.timeZone,
       bodyData,
@@ -312,6 +319,44 @@ onMounted(async () => {
       </div>
     </div>
 
+    <form class="panel privacy" @submit.prevent="save">
+      <h2>Who can see you</h2>
+      <div class="choices" role="group" aria-label="Who can see your profile">
+        <button type="button" class="choice" :class="{ on: form.public }" @click="form.public = true">
+          <b>Public</b>
+          <span>Your name, country and avatar on the Players page and the leaderboards. Anybody signed in
+            can open your profile and see your rides.</span>
+        </button>
+        <button type="button" class="choice" :class="{ on: !form.public }" @click="form.public = false">
+          <b>Private</b>
+          <span>Nobody can open your profile. You are still ranked on the leaderboards, under the name
+            below and nothing else — no photo, no country, no link.</span>
+        </button>
+      </div>
+
+      <div v-if="!form.public" class="sub">
+        <label class="field wide">
+          <span>What to call you there</span>
+          <input v-model="form.pseudonym" type="text" maxlength="24" placeholder="e.g. Blue Heron" />
+          <small class="muted">
+            Left empty you get a number — {{ store.me?.username ? 'the same one everywhere' : 'the same one on every board' }}.
+            Two to 24 letters, digits, spaces, dots, dashes or apostrophes.
+          </small>
+        </label>
+        <label class="field check wide">
+          <input v-model="form.hideFromLeaderboards" type="checkbox" />
+          Keep me off the leaderboards altogether
+        </label>
+        <p v-if="form.hideFromLeaderboards" class="hint">
+          You will not appear on any board, even anonymously. You still see your own standing.
+        </p>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary" :disabled="busy">Save</button>
+      </div>
+    </form>
+
     <div class="panel">
       <h2>Your picture</h2>
       <p class="hint">A photo for your profile, beside your avatar. PNG or JPEG, up to 1 MB.</p>
@@ -365,7 +410,6 @@ onMounted(async () => {
           <select v-model="form.unitSystem"><option value="metric">metric (km, km/h, kg)</option><option value="us">US (mi, mph, lb)</option></select>
         </label>
         <label class="field"><span>Time zone</span><input type="text" v-model="form.timeZone" placeholder="e.g. America/Chicago" /></label>
-        <label class="field check wide"><input type="checkbox" v-model="form.public" /> Public profile (appear on the Players page and the leaderboards)</label>
       </div>
 
       <h2>Body</h2>
@@ -485,4 +529,14 @@ onMounted(async () => {
 .goal.on { background: var(--page); color: #fff; }
 .goal.on span { color: rgba(255, 255, 255, 0.82); }
 .hint.lit { font-weight: 700; }
+.privacy .choices { display: flex; gap: 10px; flex-wrap: wrap; }
+.choice { flex: 1 1 260px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
+  padding: 12px 14px; border: 2px solid transparent; border-radius: 14px; background: var(--panel-2);
+  color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.choice b { font-size: 1.05em; }
+.choice span { font-size: 0.85em; color: var(--muted); }
+.choice.on { border-color: var(--page); background: color-mix(in srgb, var(--page) 12%, var(--panel-2)); }
+.choice.on span { color: inherit; opacity: 0.85; }
+.privacy .sub { display: flex; flex-direction: column; gap: 8px; }
+.privacy .field small { font-size: 0.8em; }
 </style>

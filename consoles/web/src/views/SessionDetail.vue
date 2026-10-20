@@ -116,7 +116,10 @@ const timeLabel = (v: number) => u.duration(v)
 
 // --- actions ----------------------------------------------------------------
 async function del() {
-  if (!session.value || !confirm('Delete this session? It will be hidden everywhere (the log file is kept on disk).')) return
+  // Deleting now takes the ride back out of the leaderboards, the totals and the profile timeline
+  // (the server does that), so the warning should say so.
+  const what = session.value ? `${session.value.gameName}, ${u.dateTime(session.value.startedAt ?? session.value.createdAt, tz.value)}` : ''
+  if (!session.value || !confirm(`Delete this session?\n\n${what}\n\nIt comes off the leaderboards, your totals and your profile, and stops counting towards your streak. The log file stays on disk.`)) return
   busy.value = true
   actionError.value = null
   try {

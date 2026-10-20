@@ -126,6 +126,9 @@ async function recompute(uid: number): Promise<void> {
   await load()
 }
 
+/** Who still shows as initials rather than a face. */
+const needPictures = computed(() => users.value.filter((u) => !u.thumbnailUrl))
+
 async function recomputeBoards(): Promise<void> {
   const res = await api<{ boards: Record<string, number> }>('/api/admin/leaderboards/recompute', 'POST')
   notice.value = `Rebuilt ${Object.keys(res.boards).length} leaderboards`
@@ -141,6 +144,16 @@ async function recomputeBoards(): Promise<void> {
       <input v-model="search" class="search" type="search" placeholder="Find a player" aria-label="Find a player" />
       <button type="button" class="btn" @click="recomputeBoards">Rebuild leaderboards</button>
     </div>
+    <p v-if="needPictures.length" class="muted small needs">
+      <b>{{ needPictures.length }}</b>
+      {{ needPictures.length === 1 ? 'player has' : 'players have' }} no picture and show as initials.
+      Opening a profile draws one: the avatar has to be on screen to be drawn at all.
+      <span class="who">
+        <RouterLink v-for="u in needPictures.slice(0, 8)" :key="u.uid" :to="`/players/${u.username}`">
+          {{ u.username }}
+        </RouterLink>
+      </span>
+    </p>
 
     <div class="rows">
       <div v-for="x in shown" :key="x.uid" class="urow" :class="{ open: editing === x.uid }">
@@ -235,4 +248,6 @@ async function recomputeBoards(): Promise<void> {
 .actions.say input { flex: 1 1 220px; min-width: 0; font: inherit; padding: 8px 11px; border-radius: var(--radius-sm);
   border: 1px solid color-mix(in srgb, var(--text) 16%, transparent); background: var(--panel); color: inherit; }
 textarea.mono { font-family: ui-monospace, monospace; font-size: 0.86em; }
+.needs { margin: 0; }
+.needs .who { display: inline-flex; flex-wrap: wrap; gap: 8px; margin-left: 4px; }
 </style>

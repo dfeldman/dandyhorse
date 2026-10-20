@@ -20,7 +20,7 @@ from typing import Any, Callable
 from datetime import datetime
 
 from ..util import dumps, iso, loads, parse_iso
-from . import weeks
+from . import anon, weeks
 
 # A session shorter than this says nothing about how fit or improved somebody is.
 MIN_RIDE = 300.0
@@ -340,17 +340,20 @@ def compute(conn: sqlite3.Connection, b: Board, period_key: str | None = None) -
     since, until = b.bounds(key)
     rows = [r for r in b.fn(conn, since, until) if r.value is not None]
     rows.sort(key=lambda r: r.value, reverse=not b.lower_is_better)
-    public = {r["uid"] for r in conn.execute("SELECT uid FROM users WHERE public=1")}
+    # Everybody who rode is ranked. A private player is ranked under a pseudonym rather than left out, and
+    # one who asked to be off the boards altogether keeps a row only they are shown (PLAN.md §18.7).
+    hidden = {r["uid"] for r in conn.execute("SELECT uid, preferences FROM users")
+              if anon.hidden_from_boards(loads(r["preferences"]))}
     t = iso()
     conn.execute("DELETE FROM leaderboards WHERE board=? AND period_key=?", (b.id, key))
     rank = 0
     for r in rows:
-        if r.uid in public:
+        if r.uid not in hidden:
             rank += 1
         conn.execute(
             "INSERT INTO leaderboards(board, period_key, rank, uid, value, session_id, detail, computed_at) "
             "VALUES (?,?,?,?,?,?,?,?)",
-            (b.id, key, rank if r.uid in public else 0, r.uid, r.value, r.session_id, dumps(r.detail), t))
+            (b.id, key, rank if r.uid not in hidden else 0, r.uid, r.value, r.session_id, dumps(r.detail), t))
     conn.commit()
     return len(rows)
 
@@ -366,15 +369,21 @@ def rows_for(conn: sqlite3.Connection, b: Board, viewer_uid: int, period_key: st
     nobody else's; everybody else sees the ranked (public) rows."""
     key = period_key or b.period_key()
     rows = conn.execute(
-        "SELECT l.*, u.username, u.display_name, u.first_name, u.last_name, u.country, u.public, u.thumb_file "
+        "SELECT l.*, u.username, u.display_name, u.first_name, u.last_name, u.country, u.public, "
+        "       u.thumb_file, u.pseudonym "
         "FROM leaderboards l JOIN users u ON u.uid=l.uid WHERE l.board=? AND l.period_key=? "
         "AND (l.rank > 0 OR l.uid=?) ORDER BY l.rank=0, l.rank LIMIT ?",
         (b.id, key, viewer_uid, max(1, min(limit, 500)))).fetchall()
     out = []
     for r in rows:
-        out.append({"rank": r["rank"] or None, "uid": r["uid"], "username": r["username"],
-                    "displayName": r["display_name"], "firstName": r["first_name"], "lastName": r["last_name"],
-                    "country": r["country"], "value": r["value"], "sessionId": r["session_id"],
-                    "detail": loads(r["detail"]), "me": r["uid"] == viewer_uid,
-                    "thumbnailUrl": f"/api/profiles/{r['username']}/thumbnail" if r["thumb_file"] else None})
+        me = r["uid"] == viewer_uid
+        # Your own row is yours, however private you are. Everybody else's goes through anon.row_view,
+        # which is the one place that decides what a private player's row may carry.
+        who = (anon.row_view(conn, {**dict(r), "public": 1}) if me else anon.row_view(conn, r))
+        row = {"rank": r["rank"] or None, "value": r["value"], "me": me, **who}
+        # A session id is a ULID, so it says when somebody rode; detail can say what they played. Neither
+        # belongs on an anonymous row.
+        row["sessionId"] = None if who["anonymous"] and not me else r["session_id"]
+        row["detail"] = {} if who["anonymous"] and not me else loads(r["detail"])
+        out.append(row)
     return out

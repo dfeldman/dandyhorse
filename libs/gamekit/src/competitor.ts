@@ -27,6 +27,8 @@ export interface Competitor {
   route: string | null
   stats: Record<string, number | string | boolean | null>
   progressKeys: string[]
+  /** What the game calls each counter, from its own metadata. */
+  progressLabels: Record<string, string>
   timeline: CompetitorRow[]
 }
 
@@ -80,6 +82,7 @@ export function fromPayload(payload: CompetitorPayload): Competitor | null {
     route: payload.route ?? null,
     stats: payload.stats ?? {},
     progressKeys: payload.progressKeys ?? [],
+    progressLabels: payload.progressLabels ?? {},
     timeline: payload.timeline,
   }
 }
@@ -90,6 +93,18 @@ export function competitorName(p: CompetitorPlayer): string {
 }
 
 const lerp = (a: number, b: number, f: number): number => a + (b - a) * f
+
+/** `laps` becomes "Laps": a raw key is a last resort, but it should not look like one. */
+export function readableKey(key: string): string {
+  // Sentence case, not Title Case: "bestStreak" reads as "Best streak", beside "Speed" and "Laps".
+  const spaced = key.replace(/([a-z0-9])([A-Z])/g, (_m, a: string, b: string) => `${a} ${b.toLowerCase()}`)
+    .replace(/[_-]+/g, ' ').trim()
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1)
+}
+
+function labelFor(tracker: CompetitorTracker, key: string, own?: Record<string, string>): string {
+  return own?.[key] ?? tracker.progressLabels[key] ?? readableKey(key)
+}
 
 /**
  * Answers "where were they at elapsed t". Keeps its place in the timeline, so asking every frame costs
@@ -105,6 +120,7 @@ export class CompetitorTracker {
 
   get player(): CompetitorPlayer { return this.competitor.player }
   get progressKeys(): string[] { return this.competitor.progressKeys }
+  get progressLabels(): Record<string, string> { return this.competitor.progressLabels }
 
   /** Their last row's elapsed time: how long their session lasted. */
   get finishElapsed(): number {
@@ -167,8 +183,13 @@ export interface CompetitorBoxOptions {
   labels?: Record<string, string>
   /** Miles and mph instead of kilometres (the player's `unitSystem` is `us`). */
   imperial?: boolean
-  /** Where to sit: a corner, or `none` to let the game's own CSS place it. */
-  corner?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'none'
+  /**
+   * Where to sit. The corners, or `left` / `right` half way down the side — which is where most
+   * games have room, since HUDs crowd into the corners. `none` leaves it to the game's own CSS.
+   */
+  corner?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'left' | 'right' | 'none'
+  /** Nudge it clear of something, in pixels. */
+  offset?: { x?: number; y?: number }
   /** Shown while nothing has happened yet. */
   title?: string
 }
@@ -180,20 +201,32 @@ export interface CompetitorBox {
 }
 
 const CSS = `
-.dh-rival { position: absolute; z-index: 40; min-width: 168px; padding: 8px 10px; border-radius: 10px;
-  font: 500 13px/1.3 var(--dh-rival-font, system-ui, sans-serif); color: var(--dh-rival-fg, #eef2ff);
-  background: var(--dh-rival-bg, rgba(13, 16, 24, .72)); border: 1px solid var(--dh-rival-border, rgba(255,255,255,.14));
-  backdrop-filter: blur(4px); pointer-events: none; user-select: none }
-.dh-rival-top-left { left: 12px; top: 12px } .dh-rival-top-right { right: 12px; top: 12px }
-.dh-rival-bottom-left { left: 12px; bottom: 12px } .dh-rival-bottom-right { right: 12px; bottom: 12px }
-.dh-rival-head { display: flex; align-items: center; gap: 7px; margin-bottom: 5px }
+.dh-rival { position: absolute; z-index: 40; min-width: 176px; padding: 9px 11px 8px; border-radius: 12px;
+  font: 600 13px/1.35 var(--dh-rival-font, system-ui, sans-serif); color: var(--dh-rival-fg, #f2f6ff);
+  background: var(--dh-rival-bg, rgba(8, 11, 20, .88));
+  border: 1px solid var(--dh-rival-border, rgba(255,255,255,.18));
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  backdrop-filter: blur(6px); pointer-events: none; user-select: none;
+  --dh-rival-dx: 0px; --dh-rival-dy: 0px }
+.dh-rival-top-left { left: calc(12px + var(--dh-rival-dx)); top: calc(12px + var(--dh-rival-dy)) }
+.dh-rival-top-right { right: calc(12px - var(--dh-rival-dx)); top: calc(12px + var(--dh-rival-dy)) }
+.dh-rival-bottom-left { left: calc(12px + var(--dh-rival-dx)); bottom: calc(12px - var(--dh-rival-dy)) }
+.dh-rival-bottom-right { right: calc(12px - var(--dh-rival-dx)); bottom: calc(12px - var(--dh-rival-dy)) }
+/* Half way down a side: HUDs crowd into the corners, and this is usually the emptiest part of a screen. */
+.dh-rival-left { left: calc(12px + var(--dh-rival-dx)); top: 50%; transform: translateY(-50%) }
+.dh-rival-right { right: calc(12px - var(--dh-rival-dx)); top: 50%; transform: translateY(-50%) }
+.dh-rival-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; padding-bottom: 5px;
+  border-bottom: 1px solid var(--dh-rival-border, rgba(255,255,255,.18)) }
 .dh-rival-head img { width: 24px; height: 24px; border-radius: 50%; object-fit: cover;
   background: var(--dh-rival-border, rgba(255,255,255,.14)) }
 .dh-rival-name { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 112px }
 .dh-rival-flag { font-size: 1.05em; line-height: 1; flex: none }
-.dh-rival-row { display: flex; justify-content: space-between; gap: 10px; opacity: .92 }
+.dh-rival-row { display: flex; justify-content: space-between; gap: 12px }
+.dh-rival-row > span { opacity: .72; font-weight: 500 }
 .dh-rival-row b { font-weight: 700; font-variant-numeric: tabular-nums }
-.dh-rival-gap { margin-top: 5px; font-weight: 800; letter-spacing: .01em }
+.dh-rival-gap { margin-top: 6px; padding-top: 5px; font-weight: 800; letter-spacing: .01em;
+  border-top: 1px solid var(--dh-rival-border, rgba(255,255,255,.18)) }
+.dh-rival-gap:empty { display: none; }
 .dh-rival-ahead { color: var(--dh-rival-ahead, #6ee7a8) } .dh-rival-behind { color: var(--dh-rival-behind, #ff9d8a) }
 .dh-rival-level { color: var(--dh-rival-level, #ffd479) }
 `
@@ -230,8 +263,9 @@ export function competitorBox(parent: HTMLElement, source: Competitor | Competit
   const doc = parent.ownerDocument
   addCss(doc)
   const el = doc.createElement('div')
-  el.className = `dh-rival dh-rival-${opts.corner ?? 'top-right'}`
-  if (opts.corner === 'none') el.className = 'dh-rival'
+  el.className = opts.corner === 'none' ? 'dh-rival' : `dh-rival dh-rival-${opts.corner ?? 'top-right'}`
+  if (opts.offset?.x) el.style.setProperty('--dh-rival-dx', `${opts.offset.x}px`)
+  if (opts.offset?.y) el.style.setProperty('--dh-rival-dy', `${opts.offset.y}px`)
 
   // Everything that comes from another player's profile — their name, their thumbnail's URL, the game's own
   // labels — is set as text or as a DOM property, never built into an HTML string.
@@ -273,7 +307,7 @@ export function competitorBox(parent: HTMLElement, source: Competitor | Competit
   }
   addRow(opts.title ?? 'Their distance', 'distance')
   addRow('Speed', 'speed')
-  for (const k of tracker.progressKeys) addRow(opts.labels?.[k] ?? k, `p-${k}`)
+  for (const k of tracker.progressKeys) addRow(labelFor(tracker, k, opts.labels), `p-${k}`)
   const gapRow = doc.createElement('div')
   gapRow.className = 'dh-rival-gap'
   el.appendChild(gapRow)

@@ -3,7 +3,7 @@
 // is filtered in the browser. Each card is a door to that player's profile.
 import { computed, onMounted, ref } from 'vue'
 import { playerName, players } from '../profiles'
-import { store, unitSystem } from '../session'
+import { loadMe, store, unitSystem } from '../session'
 import * as u from '../units'
 import PlayerChip from '../components/PlayerChip.vue'
 import CountUp from '../components/CountUp.vue'
@@ -23,7 +23,25 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  void makeMyPictureIfMissing()
 })
+
+/**
+ * A player who designed an avatar before the platform kept pictures of them has a look and no picture, and
+ * would show as initials for ever. Render one once, in the background: the page does not wait for it, and a
+ * failure (no avatar assets, no WebGL) is not worth saying anything about.
+ */
+async function makeMyPictureIfMissing(): Promise<void> {
+  const me = store.me
+  if (!me || me.thumbnailUrl) return
+  const avatar = (me.profile as { avatar?: unknown } | undefined)?.avatar
+  if (!avatar || typeof avatar !== 'object') return
+  const { uploadOwnThumbnail } = await import('../avatarPictures')
+  if (await uploadOwnThumbnail(avatar)) {
+    await loadMe()
+    all.value = await players()
+  }
+}
 
 const shown = computed(() => {
   const q = search.value.trim().toLowerCase()

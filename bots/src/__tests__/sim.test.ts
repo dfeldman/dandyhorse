@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Legs, cadenceFor, gaussian, makeRng, speedFor, wattsAt } from '../sim.ts'
 import { minutesOfDay, slots, trainingDays } from '../schedule.ts'
+import { namedBots, numberFlag, stringFlag } from '../args.ts'
 
 const MODEL = { watts: 180, variability: 15, fatiguePerMinute: 0.005, skillPerMonth: 0.01 }
 
@@ -122,5 +123,24 @@ describe('the wheel speed a trainer would report', () => {
     expect(kmh).toBeLessThan(34)
     // and 300 W is faster, but not twice as fast: drag goes as the cube
     expect(speedFor(300)).toBeLessThan(speedFor(150) * 2)
+  })
+})
+
+describe('the command line', () => {
+  it('never reads a flag value as a bot name', () => {
+    expect(namedBots(['--weeks', '9', '--max', '8'])).toEqual([])
+    expect(namedBots(['marta', '--weeks', '9'])).toEqual(['marta'])
+    expect(namedBots(['--game', 'citydash', 'kenji', '--minutes', '15'])).toEqual(['kenji'])
+    // a flag that takes nothing does not swallow the name after it
+    expect(namedBots(['--dry-run', 'priya'])).toEqual(['priya'])
+  })
+
+  it('reads the values themselves', () => {
+    const argv = ['backfill', 'marta', '--weeks', '9', '--game', 'citydash']
+    expect(numberFlag(argv, 'weeks', 12)).toBe(9)
+    expect(numberFlag(argv, 'max', 12)).toBe(12)
+    expect(numberFlag(argv, 'game', 3)).toBe(3)   // not a number, so the fallback
+    expect(stringFlag(argv, 'game')).toBe('citydash')
+    expect(stringFlag(argv, 'nope')).toBeUndefined()
   })
 })

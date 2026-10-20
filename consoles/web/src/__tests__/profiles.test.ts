@@ -5,7 +5,7 @@ import type { Board } from '../types'
 
 const board = (id: string, period: Board['period']): Board => ({
   id, title: id, subtitle: '', period, unit: 'count', device: null, lowerIsBetter: false,
-  periodKey: 'all', players: 0,
+  periodKey: 'all', players: 0, me: null,
 })
 
 describe('flags', () => {

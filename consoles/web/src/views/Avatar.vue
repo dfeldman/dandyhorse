@@ -5,7 +5,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadAvatar, saveAvatar } from '../avatar'
-import { uploadThumbnail } from '../avatarStage'
+import { uploadOwnThumbnail } from '../avatarPictures'
 import { claimPresses } from '../navigation'
 import { readTheme, resolveTheme } from '../theme'
 
@@ -40,7 +40,7 @@ onMounted(async () => {
         saved.value = true
         // A small PNG of the look, so a page full of players costs no Babylon (PLAN.md §18.6). It renders in
         // the background and nobody waits for it: a saved avatar is saved whether the picture works or not.
-        void uploadThumbnail(spec).then((ok) => { thumbed.value = ok })
+        void uploadOwnThumbnail(spec).then((ok) => { thumbed.value = ok })
       },
     })
     // the bridge's d-pad drives the designer while this page is up; Back still belongs to the console, so

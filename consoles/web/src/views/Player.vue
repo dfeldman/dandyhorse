@@ -1,11 +1,11 @@
 <script setup lang="ts">
 // One player's profile (PLAN.md §18.6): their avatar turning on a bike, their picture, who they are, their
 // streak, what they have done, and their timeline — with a "ride on" on every line.
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { ApiError } from '../api'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { api, ApiError } from '../api'
 import { countryName, flagOrCode } from '../flags'
 import { cheer, deleteUpdate, playerName, postUpdate, profile, streakText, timeline, updateIcon } from '../profiles'
-import { store, timeZone, unitSystem } from '../session'
+import { loadMe, store, timeZone, unitSystem } from '../session'
 import * as u from '../units'
 import CountUp from '../components/CountUp.vue'
 import PlayerChip from '../components/PlayerChip.vue'
@@ -25,7 +25,7 @@ const posting = ref(false)
 // and never blocks it. If avatarkit or its assets are missing the thumbnail stays and nobody is told.
 const canvas = ref<HTMLCanvasElement | null>(null)
 const live = ref(false)
-let stage: { dispose: () => void } | null = null
+let stage: import('../avatarStage').Stage | null = null
 
 const mine = computed(() => p.value?.me === true)
 const name = computed(() => (p.value ? playerName(p.value) : props.username))
@@ -53,19 +53,62 @@ async function mountAvatar(avatar: unknown): Promise<void> {
   stage?.dispose()
   stage = null
   live.value = false
-  if (!avatar || !canvas.value) return
+  if (!avatar) return
+  // The canvas is `v-if`d on the profile having an avatar, so it does not exist until Vue has patched the
+  // DOM — one tick after the profile arrives. Without this wait the ref is still null and the avatar
+  // silently never appears.
+  await nextTick()
+  if (!canvas.value) return
   try {
     const { mountAvatar: mount } = await import('../avatarStage')
-    stage = await mount(canvas.value, { avatar, motion: 'cycle', transparent: true })
+    stage = await mount(canvas.value, {
+      avatar, motion: 'cycle', transparent: true,
+      // WebGL2 rather than avatarkit's preferred WebGPU, because this avatar is also where the player's
+      // small picture comes from: a WebGPU canvas is not configured to be copied out of, so reading one
+      // gives a transparent square — silently, which is the worst way to get it wrong.
+      renderer: 'webgl',
+    })
     live.value = true
-  } catch {
-    live.value = false // the thumbnail or the initials stand in
+    void makePictureIfMissing()
+  } catch (e) {
+    // The picture or the initials stand in, but say why in the console: a silent blank avatar is the
+    // hardest kind of thing to notice is broken.
+    console.warn('could not show the avatar', e)
+    live.value = false
   }
 }
 
 onMounted(load)
 watch(() => props.username, load)
 onUnmounted(() => stage?.dispose())
+
+/**
+ * Make this player's small picture, if they have not got one, from the avatar now turning on this page.
+ *
+ * It is made here because this is the canvas that works. A canvas the page is not showing — off the side,
+ * or at a hundredth of an opacity, or even visible but freshly inserted — is refused a drawing context by
+ * WebGPU, and draws nothing under WebGL; every attempt came back a transparent square. The avatar somebody
+ * is looking at has no such trouble, so the picture is a crop of it.
+ *
+ * Your own picture you may always make. Somebody else's only an admin can, and only for a player who has
+ * none — which is how the bots get theirs: open a bot's profile once.
+ */
+async function makePictureIfMissing(): Promise<void> {
+  const who = p.value
+  if (!who || who.thumbnailUrl || !stage) return
+  const admin = store.me?.isAdmin === true
+  if (!who.me && !admin) return
+  try {
+    const image = await stage.snapshot(256)
+    await api(who.me ? '/api/profile/thumbnail' : `/api/admin/users/${who.uid}/thumbnail`, 'PUT', { image })
+    // Show it straight away: the page asked for it, so the page should see it.
+    const fresh = await profile(props.username)
+    p.value = { ...fresh, updates: updates.value }
+    if (who.me) await loadMe()
+  } catch (e) {
+    console.warn('could not make a picture of this avatar', e)
+  }
+}
 
 async function loadMore(): Promise<void> {
   const last = updates.value[updates.value.length - 1]

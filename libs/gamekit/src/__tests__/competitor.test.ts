@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CompetitorTracker, competitorName, fmtDistance, fmtSpeed, fromPayload } from '../competitor.ts'
+import { CompetitorTracker, competitorName, fmtDistance, fmtSpeed, fromPayload, readableKey } from '../competitor.ts'
 import type { CompetitorPayload } from '../types.ts'
 
 const player = {
@@ -97,5 +97,18 @@ describe('names and units', () => {
     expect(fmtDistance(1609.344, true)).toBe('1.0 mi')
     expect(fmtSpeed(10)).toBe('36.0 km/h')
     expect(fmtSpeed(10, true)).toBe('22.4 mph')
+  })
+})
+
+describe('labels', () => {
+  it('prefers the game own words, then the platform, then a readable key', () => {
+    const labelled = fromPayload({ ...payload, progressLabels: { deliveries: 'Parcels' } })!
+    const t = new CompetitorTracker(labelled)
+    expect(t.progressLabels.deliveries).toBe('Parcels')
+    // a payload from an older server carries none, and the box still shows something sensible
+    expect(new CompetitorTracker(fromPayload(payload)!).progressLabels).toEqual({})
+    expect(readableKey('deliveries')).toBe('Deliveries')
+    expect(readableKey('bestStreak')).toBe('Best streak')
+    expect(readableKey('ships_home')).toBe('Ships home')
   })
 })

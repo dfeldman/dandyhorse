@@ -27,6 +27,8 @@ export interface SteadyPace {
 }
 
 export interface GlobalPreferences {
+  /** Off the leaderboards altogether, not merely unnamed (PLAN.md §18.7). */
+  hideFromLeaderboards?: boolean
   defaultDuration?: number | null // seconds
   ownedDeviceTypes?: DeviceType[]
   ftp?: number | null
@@ -66,6 +68,8 @@ export interface Me {
   fitness: Fitness
   imageUrl: string | null
   thumbnailUrl: string | null
+  /** What you are called where other people can see you while your profile is private. */
+  pseudonym: string
 }
 
 export interface Streak {
@@ -345,6 +349,8 @@ export interface LeaderboardRow {
   detail: Record<string, unknown>
   thumbnailUrl: string | null
   me: boolean
+  /** A private player: `displayName` is their pseudonym or number, and nothing else on the row names them. */
+  anonymous: boolean
 }
 
 /** What a value means, so the console can format a board it has never heard of. */
@@ -361,6 +367,8 @@ export interface Board {
   periodKey: string
   /** How many players are ranked on it now. */
   players: number
+  /** Where you stand on it, or null when you are not on it at all. `rank` is null for a private player. */
+  me: { rank: number | null; value: number } | null
 }
 
 export interface BoardsResponse {
@@ -430,6 +438,8 @@ export interface Profile extends PlayerCard {
   bio: string
   /** The AvatarSpec the designer saved; the page animates it. */
   avatar: Record<string, unknown> | null
+  /** A face not made yet (bots carry a number until an admin renders one). */
+  avatarSeed?: number | null
   timeZone: string
   unitSystem: UnitSystem
   joinedAt: string
@@ -478,6 +488,8 @@ export interface PlayersResponse {
 /** A row of the admin's player list. */
 export interface AdminUser extends PlayerCard {
   isBot: boolean
+  /** A face not made yet: the console can generate one from this (PLAN.md §18.6). */
+  avatarSeed: number | null
   timeZone: string
   unitSystem: UnitSystem
   bodyData: BodyData

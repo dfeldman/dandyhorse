@@ -351,6 +351,8 @@ export interface CompetitorPayload {
   stats?: SessionStats
   /** The progress counters this game declared, in the order the timeline carries them. */
   progressKeys?: string[]
+  /** What the game calls each of them, from its metadata — so the HUD needs no labels of its own. */
+  progressLabels?: Record<string, string>
   timeline?: CompetitorRow[]
   gameId?: string
   variant?: string

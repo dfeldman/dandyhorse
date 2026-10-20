@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS users (
   streak_goal   INTEGER NOT NULL DEFAULT 0,  -- 0 none, else 1-3 sessions a week (§18.5)
   streak_length INTEGER NOT NULL DEFAULT 0,
   streak_from   TEXT NOT NULL DEFAULT '',    -- the week the goal was set; earlier weeks never count
+  pseudonym     TEXT NOT NULL DEFAULT '',    -- what a private player is called where others can see (§18.7)
+  anon_id       INTEGER,                     -- their number, when they have chosen no pseudonym
   image_file    TEXT,                        -- profile picture, data/profiles/<uid>.<ext>
   thumb_file    TEXT,                        -- avatar thumbnail rendered by the console (§18.6)
   unit_system   TEXT NOT NULL DEFAULT 'metric',
@@ -177,10 +179,19 @@ ADDED_COLUMNS: dict[str, dict[str, str]] = {
         "streak_goal": "INTEGER NOT NULL DEFAULT 0",
         "streak_length": "INTEGER NOT NULL DEFAULT 0",
         "streak_from": "TEXT NOT NULL DEFAULT ''",
+        "anon_id": "INTEGER",
+        "pseudonym": "TEXT NOT NULL DEFAULT ''",
         "image_file": "TEXT",
         "thumb_file": "TEXT",
     },
 }
+
+# Indexes over columns that were added later. `CREATE TABLE IF NOT EXISTS` leaves an existing table alone,
+# so on a database made before the column existed these have to run *after* the ALTER TABLEs below — putting
+# them in SCHEMA would fail with "no such column" on every upgrade.
+LATE_INDEXES = """
+CREATE UNIQUE INDEX IF NOT EXISTS users_anon_id ON users(anon_id) WHERE anon_id IS NOT NULL;
+"""
 
 # A table whose shape changed outright: dropped and remade when its columns are not these. Only for tables
 # nothing depends on keeping — `leaderboards` is entirely derived and recomputed (§18.7).
@@ -202,6 +213,7 @@ def init_schema(path: Path) -> None:
             for column, decl in columns.items():
                 if column not in have:
                     conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+        conn.executescript(LATE_INDEXES)
         row = conn.execute("SELECT version FROM schema_version").fetchone()
         was = int(row["version"]) if row is not None else SCHEMA_VERSION
         if row is None:

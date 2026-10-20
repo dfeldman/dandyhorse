@@ -110,12 +110,17 @@ def player_view(row: sqlite3.Row) -> dict[str, Any]:
 def competitor_view(dh, conn: sqlite3.Connection, row: sqlite3.Row, timeline: list[dict[str, Any]],
                     game_id: str) -> dict[str, Any]:
     keys = dh.catalog.progress_keys(game_id)
+    # What the game calls each counter (metadata.json `progress`), so the HUD can label them without every
+    # game repeating itself — and without one of them getting it wrong.
+    spec = (dh.catalog.game(game_id) or {}).get("progress") or {}
+    labels = {k: (spec.get(k) or {}).get("label") or k for k in keys}
     return {
         "competitor": player_view(row),
         "sessionId": row["session_id"], "startedAt": row["started_at"],
         "duration": row["duration"], "distance": row["distance"], "route": row["route"],
         "stats": loads(row["stats"]),
         "progressKeys": keys,
+        "progressLabels": labels,
         "timeline": _downsample(timeline or [], keys),
     }
 

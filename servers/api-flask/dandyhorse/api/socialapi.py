@@ -9,7 +9,7 @@ from flask import Blueprint, g, jsonify, request, send_file
 
 from ..auth import require_auth
 from ..db import get_db
-from ..social import boards, competitors, finalize, streaks, updates
+from ..social import anon, boards, competitors, finalize, streaks, updates
 from ..util import ApiError, dumps, iso, loads
 from . import body, dh, read_image
 
@@ -78,6 +78,8 @@ def profile_view(conn: sqlite3.Connection, row: sqlite3.Row, viewer_uid: int) ->
         "bio": profile.get("bio") if isinstance(profile.get("bio"), str) else "",
         # The AvatarSpec the designer saved (avatarkit): the profile page animates it.
         "avatar": profile.get("avatar") if isinstance(profile.get("avatar"), dict) else None,
+        # A face not made yet: the console can generate one from this (PLAN.md §18.6).
+        "avatarSeed": profile.get("avatarSeed") if isinstance(profile.get("avatarSeed"), int) else None,
         "timeZone": d.get("time_zone"), "unitSystem": d.get("unit_system"),
         "joinedAt": d.get("created_at"),
         "achievements": loads(d.get("achievements")),
@@ -250,15 +252,22 @@ def session_standing(sid: str):
 @bp.get("/api/leaderboards")
 @require_auth
 def leaderboards():
-    """Every board there is, with its current period and how many players are on it."""
+    """Every board there is: its current period, how many players are on it, and where you stand on it.
+
+    That last part is what makes a page of nineteen boards readable — you can see at a glance which ones you
+    are on and which are worth opening, instead of having to try each in turn."""
     conn = get_db()
+    uid = g.user["uid"]
     out = []
     for b in boards.all_boards(dh().catalog):
         key = b.period_key()
         n = conn.execute("SELECT COUNT(*) AS n FROM leaderboards WHERE board=? AND period_key=? AND rank>0",
                          (b.id, key)).fetchone()["n"]
+        mine = conn.execute("SELECT rank, value FROM leaderboards WHERE board=? AND period_key=? AND uid=?",
+                            (b.id, key, uid)).fetchone()
         v = b.view()
-        v.update({"periodKey": key, "players": n})
+        v.update({"periodKey": key, "players": n,
+                  "me": {"rank": mine["rank"] or None, "value": mine["value"]} if mine else None})
         out.append(v)
     return jsonify({"boards": out})
 
@@ -293,10 +302,12 @@ def admin_users():
     out = []
     for r in rows:
         c = card(r, g.user["uid"])
+        profile = loads(r["profile"]) or {}
         c.update({"isBot": bool(r["is_bot"]), "timeZone": r["time_zone"], "unitSystem": r["unit_system"],
                   "bodyData": loads(r["body_data"]), "createdAt": r["created_at"],
-                  "bio": (loads(r["profile"]) or {}).get("bio") or "",
-                  "hasAvatar": bool((loads(r["profile"]) or {}).get("avatar"))})
+                  "bio": profile.get("bio") or "",
+                  "hasAvatar": bool(profile.get("avatar")),
+                  "avatarSeed": profile.get("avatarSeed") if isinstance(profile.get("avatarSeed"), int) else None})
         out.append(c)
     return jsonify({"users": out})
 
@@ -355,6 +366,12 @@ def apply_profile_edits(conn: sqlite3.Connection, uid: int, b: dict[str, Any]) -
         put("country", c.upper(), "country")
     if isinstance(b.get("public"), bool):
         put("public", int(b["public"]), "public")
+    if isinstance(b.get("pseudonym"), str):
+        name = b["pseudonym"].strip()
+        if name and not anon.valid_pseudonym(name):
+            raise ApiError(400, "pseudonym_invalid",
+                           "a pseudonym is 2 to 24 letters, digits, spaces, dots, dashes or apostrophes")
+        put("pseudonym", name[:anon.PSEUDONYM_MAX], "pseudonym")
     if isinstance(b.get("isBot"), bool):
         put("is_bot", int(b["isBot"]), "isBot")
     if isinstance(b.get("timeZone"), str) and b["timeZone"]:
@@ -366,9 +383,15 @@ def apply_profile_edits(conn: sqlite3.Connection, uid: int, b: dict[str, Any]) -
                                 if k in ("height", "weight", "sex", "age")}), "bodyData")
     if isinstance(b.get("preferences"), dict):
         put("preferences", dumps(b["preferences"]), "preferences")
-    # The bio and the avatar live inside the profile JSON, so read it first and change only what was sent.
-    if isinstance(b.get("bio"), str) or "avatar" in b:
+    # The bio, the avatar and the avatar's seed live inside the profile JSON, so read it first and change
+    # only what was sent.
+    if isinstance(b.get("bio"), str) or "avatar" in b or "avatarSeed" in b:
         profile = loads(row["profile"])
+        seed = b.get("avatarSeed")
+        if isinstance(seed, int) and not isinstance(seed, bool):
+            # A number, not a face: the console turns it into one, because that is where avatarkit lives.
+            profile["avatarSeed"] = seed
+            changed.append("avatarSeed")
         if isinstance(b.get("bio"), str):
             profile["bio"] = b["bio"][:BIO_MAX]
             changed.append("bio")
@@ -415,6 +438,21 @@ def admin_put_user(uid: int):
     finalize.recompute_player(conn, uid)
     row = conn.execute("SELECT * FROM users WHERE uid=?", (uid,)).fetchone()
     return jsonify({"changed": changed, "profile": profile_view(conn, row, g.user["uid"])})
+
+
+@bp.put("/api/admin/users/<int:uid>/thumbnail")
+@bp.post("/api/admin/users/<int:uid>/thumbnail")
+@require_auth
+def admin_put_thumbnail(uid: int):
+    """A small PNG of any player's avatar. Players upload their own when they save a look in the designer;
+    a bot has nobody at a keyboard, so an admin's console renders theirs (PLAN.md §18.6)."""
+    _admin()
+    conn = get_db()
+    if conn.execute("SELECT 1 FROM users WHERE uid=?", (uid,)).fetchone() is None:
+        raise ApiError(404, "user_not_found", "no such player")
+    data, ext = read_image(THUMB_MAX_BYTES)
+    _store_image(uid, data, ext, "thumb_file")
+    return jsonify({"ok": True, "uid": uid})
 
 
 @bp.post("/api/admin/users/<int:uid>/updates")

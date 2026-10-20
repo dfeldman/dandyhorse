@@ -12,6 +12,8 @@ const props = withDefaults(defineProps<{
     thumbnailUrl?: string | null
     streak?: Streak
     me?: boolean
+    /** A private player: show what they are called and nothing else, and never link to a profile. */
+    anonymous?: boolean
   }
   size?: 'sm' | 'md' | 'lg'
   /** Show the @handle under the name. */
@@ -20,17 +22,19 @@ const props = withDefaults(defineProps<{
 }>(), { size: 'md', handle: false, link: true })
 
 const name = computed(() => playerName(props.player))
-const initials = computed(() =>
-  name.value.split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('') || '?')
-const flag = computed(() => flagOrCode(props.player.country))
+// A private player has no profile to open, and no flag or picture to show: see the server's anon.py.
+const anon = computed(() => props.player.anonymous === true)
+const initials = computed(() => (anon.value ? '·'
+  : name.value.split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('') || '?'))
+const flag = computed(() => (anon.value ? '' : flagOrCode(props.player.country)))
 const where = computed(() => countryName(props.player.country))
 </script>
 
 <template>
   <component
-    :is="link ? 'RouterLink' : 'span'"
-    :to="link ? `/players/${player.username}` : undefined"
-    class="chip" :class="[`chip-${size}`, { mine: player.me }]"
+    :is="link && !anon ? 'RouterLink' : 'span'"
+    :to="link && !anon ? `/players/${player.username}` : undefined"
+    class="chip" :class="[`chip-${size}`, { mine: player.me, anon }]"
   >
     <span class="face" aria-hidden="true">
       <img v-if="player.thumbnailUrl" :src="player.thumbnailUrl" alt="" />
@@ -42,8 +46,9 @@ const where = computed(() => countryName(props.player.country))
         <span v-if="flag" class="flag" :title="where">{{ flag }}</span>
         <span v-if="player.me" class="you">you</span>
       </span>
-      <span v-if="handle" class="handle">@{{ player.username }}</span>
-      <span v-if="player.streak?.goal" class="streak" :title="streakText(player.streak)">
+      <span v-if="handle && !anon" class="handle">@{{ player.username }}</span>
+      <span v-else-if="anon" class="handle">private</span>
+      <span v-if="player.streak?.goal && !anon" class="streak" :title="streakText(player.streak)">
         <span class="fire" :class="{ lit: (player.streak.length ?? 0) > 0 }">{{ streakIcon(player.streak) }}</span>
         <template v-if="player.streak.length">{{ player.streak.length }}w</template>
       </span>
@@ -58,6 +63,8 @@ const where = computed(() => countryName(props.player.country))
   background: var(--panel-2); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 12%, transparent); }
 .face img { width: 100%; height: 100%; object-fit: cover; }
 .initials { font-weight: 800; color: var(--muted); }
+.chip.anon .face { background: color-mix(in srgb, var(--text) 7%, transparent); }
+.chip.anon .name { font-style: italic; opacity: 0.9; }
 .chip-sm .face { width: 28px; height: 28px; } .chip-sm .initials { font-size: 0.7em; }
 .chip-md .face { width: 40px; height: 40px; } .chip-md .initials { font-size: 0.85em; }
 .chip-lg .face { width: 76px; height: 76px; } .chip-lg .initials { font-size: 1.5em; }

@@ -11,6 +11,8 @@
     "schedule             how many days a week, when they usually start, and how long they go for",
     "",
     "Edit this file, then `npm run upsert` in bots/. Profiles can also be edited in the console's Admin page;",
+    "avatarSeed          their looks: `npm run avatars` turns it into a full AvatarSpec with avatarkit's",
+    "                    own random generator, so this file stays readable. Change the number for a new face.",
     "the performance curves live only here."
   ],
   "bots": [
@@ -49,7 +51,8 @@
       ],
       "profile": {
         "bio": "Rides before work, every week I can. Hills are the point."
-      }
+      },
+      "avatarSeed": 20260411
     },
     {
       "username": "kenji",
@@ -86,7 +89,8 @@
       ],
       "profile": {
         "bio": "Evenings, after the house is quiet. Long climbs only."
-      }
+      },
+      "avatarSeed": 19850726
     },
     {
       "username": "aoife",
@@ -123,7 +127,8 @@
       ],
       "profile": {
         "bio": "Started in the spring and I am still here. Going up."
-      }
+      },
+      "avatarSeed": 20010303
     },
     {
       "username": "tomas",
@@ -160,7 +165,8 @@
       ],
       "profile": {
         "bio": "Same time every morning. It is easier that way."
-      }
+      },
+      "avatarSeed": 19930918
     },
     {
       "username": "priya",
@@ -198,7 +204,8 @@
       ],
       "profile": {
         "bio": "Racing on the weekends. The rest is training."
-      }
+      },
+      "avatarSeed": 20071129
     }
   ]
 }

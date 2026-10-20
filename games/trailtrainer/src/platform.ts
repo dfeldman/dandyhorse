@@ -236,9 +236,8 @@ export class PlatformControls implements Controls {
         imperial: this.start.unitSystem === 'us',
         plannedSeconds: this.duration,
         route: this.routeId,
-        labels: { routeMetres: 'Along the route', climbed: 'Climbed' },
         words: { routeMetres: 'metre', climbed: 'metre climbed' },
-        corner: 'top-right',
+        corner: 'left',
         log: this.log,
       }).then((r) => { this.rival = r })
     }

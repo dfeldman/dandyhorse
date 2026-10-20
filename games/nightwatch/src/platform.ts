@@ -157,9 +157,8 @@ export class Platform implements Controls {
         anyRoute: true,
         imperial: this.start.unitSystem === 'us',
         plannedSeconds: this.duration,
-        labels: { shipsHome: 'Ships home', stars: 'Stars' },
         words: { shipsHome: 'ship', stars: 'star' },
-        corner: 'bottom-left',
+        corner: 'left',
         log: this.log,
       }).then((r) => { this.rival = r })
     }

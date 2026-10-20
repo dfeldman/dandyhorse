@@ -41,6 +41,8 @@ npm run upsert
 npm run once -- marta                 # one session now, to see a game played
 npm run once -- marta --game citydash # a particular game
 npm run backfill -- --weeks 12        # three months of history for everybody
+npm run backfill -- --weeks 8 --max 8 # eight sessions each, enough to fill the boards
+npm run backfill -- --at-once 1       # one bot at a time, if the machine is busy
 DH=http://localhost:8081 npm run upsert   # another server (the online one, say)
 CITYDASH_ORIGIN=http://localhost:5200 npm run once -- marta --game citydash   # a dev build of Cycle Dash
 ```
@@ -57,12 +59,33 @@ schedules (25–50 minutes) are fine.
 
 **A backfill takes as long as the riding does.** The platform measures a session against its own clock —
 distance is speed integrated over real seconds — so a 40-minute session takes 40 minutes, and there is no
-honest way to speed that up without making the numbers fiction. Five bots over twelve weeks is roughly a
-day of wall clock. Start it in the evening, or use `--weeks 2` to begin with and extend later: slots the
-bots have already filled are not refilled, since each run picks fresh ones from their schedules.
+honest way to speed that up without making the numbers fiction.
 
-Sessions are played **oldest first**, so a bot's fitness visibly improves across their history and their
-streak builds up in the right order.
+What it does do is ride them **at the same time**: every bot is its own player with its own session and its
+own bridge, so five of them cost the same wall clock as one. Twelve weeks for five bots is a few hours
+rather than a day. `--at-once N` turns that down if the machine is needed for something else.
+
+Five headless games on one laptop is what actually sets the pace: each is a full 3-D game, and they share
+one machine. Measured on a laptop, five at once each send about **0.5 updates a second** instead of one, and
+sessions run somewhat longer than their planned minutes.
+
+That costs resolution, not accuracy. A session's distance, calories and climbing come from the trainer feed,
+which this process sends at a steady 1 Hz whatever the game is doing; what thins out is the game's own
+record — where the rider was, how many parcels they had delivered — which a later player races against. A
+sample every two seconds is plenty for that. If you want it sharper, `--at-once 2`.
+
+Without `--disable-background-timer-throttling` and its two companions (`runner.ts` `CHROMIUM_ARGS`) it is
+far worse: Chromium slows the timers of a page nobody is looking at, and a game measured at 0.04 Hz — one
+update every 25 seconds — leaves a record too coarse to race.
+
+Each bot still rides its own sessions **oldest first**, so its fitness visibly improves across its history
+and its streak builds up the right way round. Use `--weeks 2` to begin with and extend later: slots already
+filled are not refilled, since each run picks fresh ones from the schedules.
+
+**Their faces.** `bots.json` carries an `avatarSeed`, not an avatar: a MakeHuman spec is hundreds of lines
+and nobody would read the file again afterwards. The console turns the seed into a whole person and renders
+the small headshot that lists and leaderboards show — open it as an admin and press **Give everyone a
+face**. That is where avatarkit already lives, so this stays a thin API client.
 
 ## What a bot is, on the platform
 

@@ -55,6 +55,8 @@ export interface BotDef {
   fitness: import('./sim.ts').FitnessModel
   /** Games this bot plays, as `gameId` or `gameId:variant`. */
   games: string[]
+  /** Their looks, as a number: avatars.ts turns it into a whole person (PLAN.md §18.8). */
+  avatarSeed?: number
   profile?: { bio?: string; avatar?: Record<string, unknown> }
 }
 
@@ -110,6 +112,9 @@ export class Platform {
     const bio = def.profile?.bio ?? def.bio
     if (bio !== undefined) body.bio = bio
     if (def.profile?.avatar !== undefined) body.avatar = def.profile.avatar
+    // The seed travels with the profile; the console turns it into a face and renders the picture, because
+    // that is where avatarkit already lives (PLAN.md §18.6). This tool stays a thin API client.
+    if (def.avatarSeed !== undefined) body.avatarSeed = def.avatarSeed
     return this.call('POST', '/botapi/upsert', body)
   }
 
@@ -117,45 +122,52 @@ export class Platform {
     return this.call('POST', '/botapi/backdate', { sessionId, startedAt: startedAt / 1000 })
   }
 
-  /** Become one bot: every call after this is that bot's own. */
-  async become(username: string): Promise<number> {
+  /**
+   * A handle on the platform as one bot.
+   *
+   * This returns a *new* Platform rather than logging this one in, because bots ride at the same time as
+   * each other: one object holding one login would have five bots overwriting each other's, and each would
+   * find itself looking at somebody else's session. Making that impossible is worth an allocation.
+   */
+  async as(username: string): Promise<{ platform: Platform; uid: number }> {
     const r = await this.call<{ uid: number; token: string }>('POST', '/botapi/token', { username })
-    this.login = r.token
-    return r.uid
+    const platform = new Platform(this.base, this.token)
+    platform.login = r.token
+    return { platform, uid: r.uid }
   }
 
   // --- the ordinary APIs, as that bot ---
-  private as<T>(method: string, path: string, body?: unknown): Promise<T> {
-    if (!this.login) throw new Error('call become() first')
+  private mine<T>(method: string, path: string, body?: unknown): Promise<T> {
+    if (!this.login) throw new Error('not signed in as a bot: use as(username)')
     return this.call<T>(method, path, body, this.login)
   }
 
   get loginToken(): string {
-    if (!this.login) throw new Error('call become() first')
+    if (!this.login) throw new Error('not signed in as a bot: use as(username)')
     return this.login
   }
 
   launch(gameId: string, variant: string, deviceType: string, duration: number): Promise<{ sessionId: string; gameEntryUrl?: string }> {
-    return this.as('POST', '/api/sessions/launch', { gameId, variant, deviceType, duration, debug: false })
+    return this.mine('POST', '/api/sessions/launch', { gameId, variant, deviceType, duration, debug: false })
   }
 
   current(): Promise<{ session: { sessionId: string; status: string; gameEntryUrl: string } | null }> {
-    return this.as('GET', '/api/sessions/current')
+    return this.mine('GET', '/api/sessions/current')
   }
 
   /** `GET /api/sessions/<id>` returns the summary itself, not wrapped. */
   session(sid: string): Promise<{ sessionId: string; status: string; distance: number | null; duration: number | null; startedAt: string | null; stats?: Record<string, unknown> }> {
-    return this.as('GET', `/api/sessions/${sid}`)
+    return this.mine('GET', `/api/sessions/${sid}`)
   }
 
   endSession(sid: string, status: 'complete' | 'discarded' = 'complete'): Promise<unknown> {
-    return this.as('POST', `/api/sessions/${sid}/end`, { status })
+    return this.mine('POST', `/api/sessions/${sid}/end`, { status })
   }
 
   /** One bridge report: the simulated trainer this bot is pedalling. */
   bridge(bridgeId: string, actual: Record<string, number>, deviceType: 'bike' | 'treadmill'): Promise<unknown> {
     const name = deviceType === 'bike' ? 'Bot trainer' : 'Bot treadmill'
-    return this.as('POST', '/bridgeapi/putstate', {
+    return this.mine('POST', '/bridgeapi/putstate', {
       bridgeId, label: 'bot',
       devices: [{ role: 'fitness', type: deviceType, name, address: `bot:${bridgeId}`,
                   protocol: 'ftms', status: 'connected' }],
@@ -164,6 +176,6 @@ export class Platform {
   }
 
   games(): Promise<{ games: { id: string; entryUrl: string; variants: { id: string; deviceTypes: string[]; defaultDuration?: number }[] }[] }> {
-    return this.as('GET', '/api/games')
+    return this.mine('GET', '/api/games')
   }
 }

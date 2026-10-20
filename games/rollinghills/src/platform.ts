@@ -84,8 +84,8 @@ export class Platform implements RhPlatform {
       void rivalHud(this.start.sessionId, {
         imperial: this.start.unitSystem === 'us',
         plannedSeconds: this.startInfo.duration,
-        labels: { laps: 'Laps' }, words: { laps: 'lap' },
-        corner: 'top-right',
+        words: { laps: 'lap' },
+        corner: 'left',
         log: this.log,
       }).then((r) => { this.rival = r })
     }

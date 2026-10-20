@@ -31,6 +31,8 @@ def _me(u: dict[str, Any]) -> dict[str, Any]:
             "firstName": u.get("first_name") or "", "lastName": u.get("last_name") or "",
             "country": (u.get("country") or "").upper(),
             "streak": {"length": u.get("streak_length") or 0, "goal": u.get("streak_goal") or 0},
+            # Shown wherever a private player appears; "" means they take a number instead.
+            "pseudonym": u.get("pseudonym") or "",
             "fitness": u.get("fitness") or {},
             "imageUrl": f"/api/profiles/{u['username']}/image" if u.get("image_file") else None,
             "thumbnailUrl": f"/api/profiles/{u['username']}/thumbnail" if u.get("thumb_file") else None,
@@ -142,6 +144,15 @@ def put_me():
     if isinstance(b.get("public"), bool):
         sets.append("public=?")
         args.append(int(b["public"]))
+    # What a private player is called where other people can see them (PLAN.md §18.7).
+    if isinstance(b.get("pseudonym"), str):
+        from ..social import anon
+        name = b["pseudonym"].strip()
+        if name and not anon.valid_pseudonym(name):
+            raise ApiError(400, "pseudonym_invalid",
+                           "a pseudonym is 2 to 24 letters, digits, spaces, dots, dashes or apostrophes")
+        sets.append("pseudonym=?")
+        args.append(name[:anon.PSEUDONYM_MAX])
     if isinstance(b.get("bodyData"), dict):
         bd = {k: v for k, v in b["bodyData"].items() if k in ("height", "weight", "sex", "age")}
         sets.append("body_data=?")
@@ -384,7 +395,18 @@ def delete_session(sid: str):
     if row["status"] in ("pending", "active"):
         raise ApiError(409, "session_active", "end the session before deleting it")
     conn.execute("UPDATE sessions SET status='deleted', updated_at=? WHERE session_id=?", (iso(), sid))
+    # Deleting a ride has to undo what it did, or a session somebody threw away because they were only
+    # testing keeps its line on their profile and its place on the leaderboards until the next one
+    # (PLAN.md §18). Nothing here may fail the delete itself: the row is already gone.
+    conn.execute("DELETE FROM profile_updates WHERE session_id=? AND uid=?", (sid, g.user["uid"]))
     conn.commit()
+    try:
+        from ..social import boards, finalize
+        finalize.recompute_player(conn, g.user["uid"])
+        boards.compute_all(conn, dh().catalog)
+    except Exception:  # noqa: BLE001
+        import logging
+        logging.getLogger("dandyhorse").exception("recompute after deleting %s failed", sid)
     return jsonify({"ok": True})
 
 

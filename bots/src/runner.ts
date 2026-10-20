@@ -29,6 +29,21 @@ export interface RunOptions {
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
 
 /**
+ * Chromium slows the timers of a page nobody is looking at — and nobody is ever looking at a bot's page.
+ * Left alone, a game that drives its tick from a timer or an animation frame sends a handful of updates in
+ * a quarter of an hour: measured, Rolling Hills managed one every 25 seconds against Night Racer's one a
+ * second. The ride still happens (the bridge keeps reporting, so distance and calories are right), but the
+ * record of it is too coarse to race against later.
+ *
+ * These three flags turn that throttling off. They are the reason a bot's session looks like a person's.
+ */
+export const CHROMIUM_ARGS = [
+  '--disable-background-timer-throttling',
+  '--disable-renderer-backgrounding',
+  '--disable-backgrounding-occluded-windows',
+]
+
+/**
  * How long past its planned end a game gets to finish by itself before the runner ends the session.
  * Generous on purpose: a game with a city to build (Cycle Dash) can take a minute to put the rider on the
  * street in a headless browser, and it counts its own session from there.
@@ -53,31 +68,32 @@ export async function runSession(dh: Platform, def: BotDef, opts: RunOptions = {
   const rng = makeRng(Math.round((slot?.start ?? Date.now()) / 1000) ^ def.username.length)
   const legs = new Legs(def.fitness, slot?.monthsAgo ?? 0, Math.round(rng() * 2 ** 31))
 
-  await dh.become(def.username)
+  // Our own handle on the platform, so bots riding at the same time never share a login (api.ts `as`).
+  const me = (await dh.as(def.username)).platform
   const pick = opts.game ?? def.games[Math.floor(rng() * def.games.length)]
   const [gameId, wanted] = pick.split(':')
-  const catalog = await dh.games()
+  const catalog = await me.games()
   const game = catalog.games.find((g) => g.id === gameId)
   if (!game) throw new Error(`${def.username}: this server has no game called ${gameId}`)
   const variant = game.variants.find((v) => (wanted ? v.id === wanted : v.deviceTypes.includes(def.exercise)))
   if (!variant) throw new Error(`${def.username}: ${gameId} has no ${def.exercise} variant`)
 
   // Any session still open from a crashed run would be superseded by the launch anyway; be explicit.
-  const open = (await dh.current()).session
-  if (open && open.status !== 'complete') await dh.endSession(open.sessionId, 'discarded').catch(() => {})
+  const open = (await me.current()).session
+  if (open && open.status !== 'complete') await me.endSession(open.sessionId, 'discarded').catch(() => {})
 
-  const launched = await dh.launch(gameId, variant.id, def.exercise, seconds)
+  const launched = await me.launch(gameId, variant.id, def.exercise, seconds)
   const sid = launched.sessionId
   log(`${def.username}: ${gameId}/${variant.id} for ${Math.round(seconds / 60)} min → ${sid}`)
 
-  const browser = opts.browser ?? await chromium.launch()
+  const browser = opts.browser ?? await chromium.launch({ args: CHROMIUM_ARGS })
   const context = await browser.newContext({
     // The game is served from the platform, so the bot's login rides along as the cookie every player has.
-    baseURL: dh.base,
+    baseURL: me.base,
     // A fixed window, so a game that sizes its world to the viewport is consistent between bots.
     viewport: { width: 1280, height: 720 },
   })
-  await context.addCookies([{ name: 'dh_token', value: dh.loginToken, url: dh.base }])
+  await context.addCookies([{ name: 'dh_token', value: me.loginToken, url: me.base }])
   const page = await context.newPage()
   page.on('pageerror', (e) => log(`  page error: ${e.message}`))
 
@@ -92,7 +108,7 @@ export async function runSession(dh: Platform, def: BotDef, opts: RunOptions = {
       try {
         // Power, cadence and the wheel speed a trainer would read: a game that computes its own virtual
         // speed ignores the last of those, and one that does not needs it to go anywhere at all.
-        await dh.bridge(bridgeId, {
+        await me.bridge(bridgeId, {
           power: Math.round(watts),
           cadence: cadenceFor(watts, rng),
           speed: speedFor(watts),
@@ -104,7 +120,7 @@ export async function runSession(dh: Platform, def: BotDef, opts: RunOptions = {
     }
   })()
 
-  let entry = (await dh.current()).session?.gameEntryUrl ?? `${game.entryUrl}?session=${sid}`
+  let entry = (await me.current()).session?.gameEntryUrl ?? `${game.entryUrl}?session=${sid}`
   // Cycle Dash is not served from the platform: its page frames the game from its own site (the shim in
   // games/citydash/index.html). A bot in a fresh browser has no remembered choice, so it would always get
   // the production deploy; CITYDASH_ORIGIN points it at a development build instead.
@@ -121,14 +137,14 @@ export async function runSession(dh: Platform, def: BotDef, opts: RunOptions = {
   let asked = false
   while ((Date.now() - started) / 1000 < limit) {
     await sleep(3000)
-    const s = await dh.session(sid).catch(() => null)
+    const s = await me.session(sid).catch(() => null)
     if (s && (s.status === 'complete' || s.status === 'discarded')) { status = s.status; break }
     if (!asked && (Date.now() - started) / 1000 > seconds + GRACE) {
       // Most games end themselves when their clock runs out; the ones that only end from a menu are ended
       // here, exactly as a bridge's ■ End would. Asked once — the game gets a moment to finish tidily.
       asked = true
       log(`  ${def.username}: time is up and the game has not ended — ending it`)
-      await dh.endSession(sid, 'complete').catch((e) => log(`  end: ${(e as Error).message}`))
+      await me.endSession(sid, 'complete').catch((e) => log(`  end: ${(e as Error).message}`))
     }
   }
   pedalling = false
@@ -137,10 +153,11 @@ export async function runSession(dh: Platform, def: BotDef, opts: RunOptions = {
   await context.close().catch(() => {})
   if (!opts.browser) await browser.close().catch(() => {})
 
-  const final = await dh.session(sid)
+  const final = await me.session(sid)
   let sessionId = sid
   let startedAt: string | null = null
   if (slot) {
+    // Backdating is the runner's own power, not the bot's: it goes through the shared bot token.
     const moved = await dh.backdate(sid, slot.start)
     sessionId = moved.sessionId
     startedAt = moved.startedAt
