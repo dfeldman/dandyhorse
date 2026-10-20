@@ -41,3 +41,4 @@ games/*/screenshot.*
 # API tokens and keys: never committed
 .mapillary_token
 *.token
+!.env.example
