@@ -10,6 +10,7 @@ import * as u from '../units'
 import CountUp from '../components/CountUp.vue'
 import PlayerChip from '../components/PlayerChip.vue'
 import PersonalBests from '../components/PersonalBests.vue'
+import Versus from '../components/Versus.vue'
 import type { Profile, ProfileUpdate } from '../types'
 
 const props = defineProps<{ username: string }>()
@@ -237,6 +238,8 @@ const goalRing = computed(() => {
           <span v-for="g in p.totals.byGame" :key="g.gameId" class="gamepill">{{ g.gameId }} · {{ g.sessions }}</span>
         </div>
       </section>
+
+      <Versus v-if="p && !p.me" :username="props.username" :name="name" />
 
       <PersonalBests :username="props.username" />
 

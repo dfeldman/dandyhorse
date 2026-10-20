@@ -9,7 +9,7 @@ from flask import Blueprint, g, jsonify, request, send_file
 
 from ..auth import require_auth
 from ..db import get_db
-from ..social import anon, bests, boards, competitors, feed, finalize, home, streaks, updates
+from ..social import anon, bests, boards, competitors, feed, finalize, home, streaks, updates, versus
 from ..util import ApiError, dumps, iso, loads
 from . import body, dh, read_image
 
@@ -281,6 +281,15 @@ def get_home():
         b = boards.get(standing["board"], dh().catalog)
         standing["title"] = b.title if b else standing["board"]
     return jsonify(out)
+
+
+@bp.get("/api/profiles/<username>/versus")
+@require_auth
+def get_versus(username: str):
+    """How you stand against this player: the thing anybody actually wants from somebody else's profile."""
+    conn = get_db()
+    row = _visible(_by_username(conn, username), g.user["uid"])
+    return jsonify(versus.compare(conn, g.user["uid"], row, dh().catalog))
 
 
 @bp.get("/api/profiles/<username>/bests")

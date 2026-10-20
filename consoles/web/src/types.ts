@@ -576,3 +576,20 @@ export interface HomeSummary {
   unseenCheers: number
   nudge: { text: string; action: 'ride' | 'goal'; tone: 'good' | 'normal' | 'urgent' }
 }
+
+/** You against one other player (PLAN.md §18.6). */
+export interface Versus {
+  /** True when the profile is your own: there is nothing to compare. */
+  self: boolean
+  measures: { label: string; mine: number; theirs: number; unit: string; leader: 'me' | 'them' | 'level' }[]
+  boards: { board: string; title: string; myRank: number; theirRank: number; leader: 'me' | 'them' | 'level' }[]
+  games: {
+    gameId: string
+    gameName: string
+    mine: { distance: number; duration: number; at: string }
+    theirs: { distance: number; duration: number; at: string }
+    leader: 'me' | 'them' | 'level'
+  }[]
+  ahead: number
+  behind: number
+}
