@@ -946,3 +946,58 @@ def test_a_board_shows_which_way_somebody_is_moving(app, clock):
     ride(b, clock, game="mockgame", minutes=30, power=200)
     # Nothing to compare against on a board somebody has only just joined.
     assert conn_ranks(a, "sessions-all")["user1"]["movement"] in (None, 0)
+
+
+def test_a_competitor_timeline_runs_strictly_forwards(app, clock):
+    """Anybody replaying one assumes it does, and a repeated `elapsed` gives them a zero-length step to
+    interpolate across. Two records can land in the same second — a game that wrote twice, or rounding
+    bringing them together — so the downsampler has to promise it rather than hope."""
+    them, me = other_client(app, 2), other_client(app, 1)
+    ride(them, clock, game="mockgame", minutes=40)
+    ride(me, clock, game="mockgame", minutes=20)
+
+    r = me.get("/gameapi/competitor?game=mockgame&variant=bike").get_json()
+    rows = r["competitor"] and r["timeline"]
+    assert rows and len(rows) > 5
+    assert rows[0]["elapsed"] == 0
+    assert all(b["elapsed"] > a["elapsed"] for a, b in zip(rows, rows[1:])), \
+        [x["elapsed"] for x in rows[:12]]
+    # and nobody ever goes backwards up the road
+    assert all(b["distance"] >= a["distance"] for a, b in zip(rows, rows[1:]))
+
+
+def test_ghosts_are_several_real_sessions_and_never_your_own(app, clock):
+    me, a, b = other_client(app, 1), other_client(app, 2), other_client(app, 3)
+    ride(a, clock, game="mockgame", minutes=30)
+    ride(b, clock, game="mockgame", minutes=30)
+    out = ride(me, clock, game="mockgame", minutes=30)
+
+    g = me.get(f"/gameapi/ghosts?session={out['sessionId']}&count=4").get_json()
+    assert len(g["ghosts"]) == 2, "both of them, and not me"
+    assert {x["competitor"]["username"] for x in g["ghosts"]} == {"user2", "user3"}
+    assert all(x["timeline"] for x in g["ghosts"]), "each with a ride to replay"
+    # One session per player: you are not racing the same person twice.
+    assert len({x["competitor"]["uid"] for x in g["ghosts"]}) == len(g["ghosts"])
+
+
+def test_a_private_player_is_never_a_ghost(app, clock):
+    me, quiet = other_client(app, 1), other_client(app, 2)
+    ride(quiet, clock, game="mockgame", minutes=30)
+    out = ride(me, clock, game="mockgame", minutes=30)
+    assert me.get(f"/gameapi/ghosts?session={out['sessionId']}&count=4").get_json()["ghosts"]
+
+    quiet.put("/api/me", json={"public": False, "pseudonym": "Quiet One"})
+    again = ride(me, clock, game="mockgame", minutes=30)
+    assert me.get(f"/gameapi/ghosts?session={again['sessionId']}&count=4").get_json()["ghosts"] == []
+
+
+def test_a_challenged_player_is_a_ghost_whatever_their_level(app, clock):
+    """The band would never have paired them; being challenged is what puts them on the road."""
+    me, strong = other_client(app, 1), other_client(app, 2)
+    ride(strong, clock, game="mockgame", minutes=60, power=420)
+    ride(me, clock, game="mockgame", minutes=30, power=90)
+    me.post("/api/profiles/user2/challenge")
+
+    out = ride(me, clock, game="mockgame", minutes=30, power=90)
+    g = me.get(f"/gameapi/ghosts?session={out['sessionId']}&count=4").get_json()
+    assert any(x["competitor"]["username"] == "user2" for x in g["ghosts"])

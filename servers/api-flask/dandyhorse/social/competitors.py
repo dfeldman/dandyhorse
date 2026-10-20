@@ -92,6 +92,12 @@ def _downsample(rows: list[dict[str, Any]], progress_keys: list[str]) -> list[di
             row["power"] = round(float(power), 1)
         if progress_keys:
             row["progress"] = {k: v for k, v in (r.get("progress") or {}).items() if k in progress_keys}
+        # Strictly increasing, because that is what anybody replaying this will assume. Two records can
+        # land in the same second — a game that wrote twice, or rounding bringing them together — and a
+        # repeated `elapsed` gives a replay a zero-length step to interpolate across.
+        if out and row["elapsed"] <= out[-1]["elapsed"]:
+            out[-1] = row            # keep the later reading of that instant, not the earlier
+            continue
         out.append(row)
     # Always keep the last row: a competitor who stops one sample short of the finish looks beaten.
     if rows and out and out[-1]["elapsed"] != round(rows[-1].get("elapsed") or 0.0, 1):
