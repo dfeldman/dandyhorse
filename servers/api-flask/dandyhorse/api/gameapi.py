@@ -10,7 +10,7 @@ from ..db import get_db
 from ..sessions import lifecycle
 from ..sessions import log as logmod
 from ..sessions.log import read_records
-from ..social import challenges, competitors
+from ..social import challenges, competitors, fitness
 from ..util import ApiError, dumps, iso, loads, now as _now, num_or_none
 from . import body, dh, user_session, wait_params
 from .views import device_prefs, ended_game_view, game_view
@@ -311,13 +311,18 @@ def me():
     """Who is playing. `avatar` is their own AvatarSpec, so a game that shows a rider can show THEM
     rather than a stranger (PLAN.md §18.11); null where they have never made one."""
     u = g.user
+    row = get_db().execute("SELECT fitness, preferences FROM users WHERE uid=?", (u["uid"],)).fetchone()
     profile = u.get("profile") if isinstance(u.get("profile"), dict) else loads(u.get("profile"))
     avatar = profile.get("avatar") if isinstance(profile, dict) else None
     return jsonify({"uid": u["uid"], "username": u["username"], "unitSystem": u["unit_system"],
                     "timeZone": u["time_zone"], "achievements": u.get("achievements", {}),
                     "preferences": u.get("preferences", {}),
                     "displayName": u.get("display_name") or u.get("first_name") or u["username"],
-                    "avatar": avatar if isinstance(avatar, dict) else None})
+                    "avatar": avatar if isinstance(avatar, dict) else None,
+                    # Measured steady power, the one number comparable with a competitor's: a game that
+                    # paces opponents off real people needs both sides of the comparison. Read from the
+                    # row rather than `g.user`, whose JSON columns are already parsed.
+                    "fitness": round(fitness.watts_of(row), 1) if row else 0.0})
 
 
 @bp.get("/sessions")

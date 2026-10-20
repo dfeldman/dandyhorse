@@ -11,6 +11,7 @@
  * cruising while the results show).
  */
 import { Config, laneCenter, ROAD_HALF } from '../config.ts'
+import { rivals } from '../ghosts.ts'
 import { clamp, makeRng, type Rng } from '../rng.ts'
 import { effortOf, newCar, speedFor, terrainFactor, type ButtonId, type Car } from './car.ts'
 import { Track, newPose } from './track.ts'
@@ -109,7 +110,7 @@ export class Race {
     this.rng = makeRng(opts.seed, 'race')
     const defs = [
       { id: PLAYER_ID, name: PLAYER_NAME, color: PLAYER_COLOR, pace: 1, dodge: 0, isPlayer: true },
-      ...Config.RIVALS.map((r) => ({ ...r, isPlayer: false })),
+      ...rivals().map((r) => ({ ...r, isPlayer: false })),
     ]
     const cars = opts.grid.map((id) => {
       const d = defs.find((x) => x.id === id)

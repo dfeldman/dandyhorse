@@ -125,6 +125,8 @@ export const me = () =>
   request<{
     uid: number; username: string; displayName: string; unitSystem: UnitSystem; timeZone: string
     achievements: Json; preferences: Json; avatar: Json | null
+    /** Measured steady power, the one figure comparable with a competitor's. */
+    fitness: number
   }>('GET', '/gameapi/me')
 
 /** `GET /gameapi/sessions?...` — session summaries for history and ghost selection. */

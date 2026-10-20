@@ -2494,6 +2494,46 @@ blank frame, and not loaded at all until the pointer arrives. A game without one
 **The Games page** is divided by machine, cycling first, with a variant that runs on both listed under
 both. A player owns a bike trainer, a treadmill or both, and already knows which one they are getting on.
 
+### 18.12 Ghosts: other people on the road (2026-10-20)
+
+Owner: *"In games where it makes sense, like racer and trailtrainer, we should be able to show the
+position of your competitors at the same time since start as NPCs (basically ghosts)... Also since many
+players look alike, they should have some kind of an indication that they're ghosts — probably just
+showing their name over their heads is fine."*
+
+**The platform chooses, the game draws.** `/gameapi/ghosts?session=&count=` hands back several past
+sessions, each with the 1 Hz timeline `/gameapi/competitor` already provides, and gamekit's `loadGhosts`
+replays them: `at(elapsed)` says how far somebody had got that many seconds into *their* ride. Turning a
+distance into a place on the road is the only part a game writes itself.
+
+Three rules every game inherits:
+
+- **the count varies and may be nought.** A quiet game, or a route nobody else has ridden. Every game
+  must play perfectly well with none, so `loadGhosts` never throws and returns an empty list instead.
+- **a ghost finishes.** Their ride was as long as it was, and past that they come off the road. A ghost
+  pedalling past the end of its own ride is a lie about what happened.
+- **it is not multiplayer.** Nothing synchronous, nobody told, and the ride being replayed happened days
+  ago. Anybody the player challenged (§18.11) is included whatever their level.
+
+**Trail Trainer** does it literally: a real fixed route, so a recorded ride goes back on the same road,
+metre for metre, with the rider's name floating over their head.
+
+**Night Racer cannot, and does something better.** Its own code already said why — *"Night Racer builds
+its route name from the session's seed, and a seed is fresh every launch"* — so there is no shared road
+to put a recorded line back on. Extra cars that took no part in the race would be the worst of both: the
+objection to ghosts in Cycle Dash (*"that would be too confusing"*) applies twice over in a race with
+places and overtakes. So the three rivals keep their behaviour, their drafting and their oil, and take
+the names, colours and pace of real players. You are still in a race of four; the other three are people,
+and beating Goldie becomes beating Priya. Their pace comes from measured fitness, theirs against yours —
+the one thing comparable across two different nights on two different tracks — clamped hard, because a
+rival out of reach is not a race and nor is one far behind.
+
+**Cycle Dash deliberately has none** (owner: *"Cycle Dash should not display live competitors though,
+that would be too confusing"*). A city with traffic and junctions has enough on the road already. Future
+games built on the same engine may differ.
+
+Still to come: racing your own personal best, which is the same machinery pointed at your own session.
+
 ### 18.9 Admin
 
 The console's Admin page gains **Players**: every account including bots, and a form to change any of it —

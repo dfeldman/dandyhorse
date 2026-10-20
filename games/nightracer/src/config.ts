@@ -47,7 +47,7 @@ export const Config = {
     { id: 'blue', name: 'Blue Comet', pace: 1.03, dodge: 0.55, color: '#2f7dff' },
     { id: 'gold', name: 'Goldie', pace: 0.99, dodge: 0.4, color: '#ffc21a' },
     { id: 'green', name: 'Lime Rocket', pace: 0.93, dodge: 0.3, color: '#38d45a' },
-  ],
+  ] as Array<{ id: string; name: string; pace: number; dodge: number; color: string; ghost?: boolean }>,
   DIFFICULTY: { easy: 0.9, normal: 1.0, hard: 1.08 } as Record<string, number>,
   /** Rivals' pace wobbles by this share, each on its own slow cycle, so positions change at a steady pace. */
   WOBBLE: 0.05,

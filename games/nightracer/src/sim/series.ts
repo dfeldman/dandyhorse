@@ -3,6 +3,7 @@
  * Each race's laps are chosen so it fits in the time that's left; the last one may be a single lap.
  */
 import { Config } from '../config.ts'
+import { rivals } from '../ghosts.ts'
 import { makeRng } from '../rng.ts'
 import { PLAYER_ID, Race, type RaceInput, type Result } from './race.ts'
 
@@ -50,7 +51,7 @@ export class Series {
     const rng = makeRng(opts.seed, 'names')
     this.names = [...TRACK_NAMES].sort(() => rng() - 0.5)
     this.standings = new Map()
-    const all = [{ id: PLAYER_ID, name: 'You', color: '#ff2d2d' }, ...Config.RIVALS]
+    const all = [{ id: PLAYER_ID, name: 'You', color: '#ff2d2d' }, ...rivals()]
     for (const c of all) this.standings.set(c.id, { id: c.id, name: c.name, color: c.color, points: 0, wins: 0 })
     this.trackName = this.names[0]!
     this.race = this.makeRace(['blue', 'gold', PLAYER_ID, 'green'])

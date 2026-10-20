@@ -13,10 +13,11 @@
 import {
   Color3, DirectionalLight, Engine, GlowLayer, HemisphericLight, Matrix, PointLight, Scene, Vector3,
 } from '@babylonjs/core'
-import { ApiError, startSession, units, type StartPayload, type StartSessionAdHoc, type StartSessionBySession } from '@dandyhorse/gamekit'
+import { ApiError, me, startSession, units, type StartPayload, type StartSessionAdHoc, type StartSessionBySession } from '@dandyhorse/gamekit'
 import { Config, type Difficulty } from './config.ts'
 import { LocalControls, type Controls } from './controls.ts'
 import { GAME_ID, Platform } from './platform.ts'
+import { rivals, useRealRivals } from './ghosts.ts'
 import { ChaseCamera } from './render/camera.ts'
 import { CarView } from './render/carView.ts'
 import { Effects } from './render/effects.ts'
@@ -70,6 +71,18 @@ async function boot(platform: Platform | null): Promise<void> {
   const glow = new GlowLayer('glow', scene, { mainTextureSamples: 2, blurKernelSize: 32 })
   glow.intensity = 0.85
 
+  /*
+   * THE FIELD IS REAL PEOPLE, where the platform has any to offer (src/ghosts.ts explains why they take
+   * the rivals' places rather than ride alongside them). Done before the Series is built, because the
+   * standings table is made from this list.
+   */
+  if (platform) {
+    try {
+      const who = await me()
+      await useRealRivals(platform.start.sessionId, who?.fitness ?? 0)
+    } catch { /* the invented three still make a race */ }
+  }
+
   const controls: Controls & { set?: (v: number) => void } = platform ?? new LocalControls({ pedal: pedalHold })
   const diff = platform ? platform.difficulty : difficulty
   const series = new Series({
@@ -82,7 +95,7 @@ async function boot(platform: Platform | null): Promise<void> {
   if (platform) series.useClock(() => platform.activeSeconds())
   const cam = new ChaseCamera(scene)
   const views = new Map<string, CarView>()
-  for (const id of [PLAYER_ID, ...Config.RIVALS.map((r) => r.id)]) {
+  for (const id of [PLAYER_ID, ...rivals().map((r) => r.id)]) {
     const v = new CarView(scene, id)
     views.set(id, v)
     glow.addExcludedMesh(v.model.beams)
