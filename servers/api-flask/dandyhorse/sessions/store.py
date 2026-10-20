@@ -39,6 +39,8 @@ class LiveSession:
     requested: dict[str, Any] = field(default_factory=lambda: {m: None for m in METRIC_NAMES})
     position: dict[str, Any] | None = None
     custom: dict[str, Any] = field(default_factory=dict)
+    # What the game counted (PLAN.md §18.2): sent on ticks and/or with endsession, stored on sessions.stats.
+    stats: dict[str, Any] = field(default_factory=dict)
     route: str | None = None
     score: float | None = None
     prompt: dict[str, Any] | None = None

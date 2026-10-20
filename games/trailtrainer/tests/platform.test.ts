@@ -19,7 +19,11 @@ function startPayload(over: Partial<StartPayload> = {}): StartPayload {
 }
 
 /** A SessionClient that never talks to anybody. */
-const fakeClient = (): ((o: unknown) => SessionClient) => () => ({ paused: false, start() {}, requestTick: async () => {}, end: async () => {} }) as unknown as SessionClient
+const fakeClient = (): ((o: unknown) => SessionClient) => () => ({
+  paused: false, start() {}, requestTick: async () => {}, end: async () => {},
+  // what the ride counted, which buildTick gathers every tick (dandyhorse PLAN.md §18.2)
+  countStats() {}, latest: null,
+}) as unknown as SessionClient
 
 describe('PlatformProgress', () => {
   it('reads the save state and writes it back in the same shape', () => {

@@ -11,9 +11,20 @@
  * contract asks, so History's distance matches the console's.
  */
 import {
-  SessionClient, persistentPrompt, putSave, steadyHeartRate, steadyWatts as platformSteady,
+  SessionClient,
+  persistentPrompt,
+  putSave,
+  rivalHud,
+  steadyHeartRate,
+  steadyWatts as platformSteady,
   units as dhUnits,
-  type EndInfo, type GameState, type InputAnswer, type Json, type StartPayload, type TickBody,
+  type EndInfo,
+  type GameState,
+  type InputAnswer,
+  type Json,
+  type Rival,
+  type StartPayload,
+  type TickBody,
 } from '@dandyhorse/gamekit'
 import { EMPTY, type Bests, type BestsStore } from './bests.ts'
 import { Config } from './config.ts'
@@ -115,6 +126,10 @@ export class DandyhorseMachine implements Machine {
   private asked: Dials = NO_DIALS
   private endedInfo: EndInfo | null = null
   private finishing = false
+  /** The encouragement for this workout; no rival box here (PLAN.md §18.3). */
+  private voice: Rival | null = null
+  /** Seconds spent inside the programme's tolerance, counted a tick at a time. */
+  private onTargetSeconds = 0
   private readonly bodyData: Body
   private readonly steady: number
   private readonly heart: { resting: number; max: number }
@@ -167,6 +182,16 @@ export class DandyhorseMachine implements Machine {
     this.hooks = hooks
     this.client.start()
     this.client.openPrompt(persistentPrompt(PROMPT_ID, 'Console', consoleChoices(this.device, this.choice.who)))
+    // The voice only (PLAN.md §18.3): a kilometre passed, halfway, the last stretch. A rival's box belongs
+    // on a ride through somewhere, not beside a console of dials.
+    if (!this.start.debug) {
+      void rivalHud(this.start.sessionId, {
+        voiceOnly: true,
+        imperial: this.start.unitSystem === 'us',
+        plannedSeconds: this.start.requestedDuration,
+        words: { laps: 'lap' },
+      }).then((r) => { this.voice = r })
+    }
   }
 
   /** Bests in the save state, per variant (a lap on a bike is not a lap on a treadmill). Debug sessions keep none. */
@@ -218,7 +243,24 @@ export class DandyhorseMachine implements Machine {
   finish(discard: boolean): void {
     if (this.finishing || this.endedInfo) return
     this.finishing = true
-    void this.client.requestTick().then(() => this.client.end(discard ? 'discarded' : 'complete'))
+    void this.client.requestTick().then(() => {
+      const message = discard ? undefined : this.message()
+      this.voice?.remove()
+      return this.client.end(discard ? 'discarded' : 'complete', undefined, { message })
+    })
+  }
+
+  /** The line this workout leaves on the player's timeline (PLAN.md §18.2). */
+  private message(): string {
+    const s = this.hooks?.workout.state()
+    const name = s?.plan.program ?? 'a workout'
+    const minutes = Math.round(this.onTargetSeconds / 60)
+    const laps = s?.laps ?? 0
+    if (minutes >= 1) {
+      return `${name}: ${minutes} minute${minutes === 1 ? '' : 's'} held on target`
+        + (laps > 0 ? `, ${laps} lap${laps === 1 ? '' : 's'} of the track.` : '.')
+    }
+    return laps > 0 ? `${name}, ${laps} lap${laps === 1 ? '' : 's'} of the track.` : `${name}, done.`
   }
 
   // --- input and setstate ---------------------------------------------------------------------------------
@@ -251,6 +293,18 @@ export class DandyhorseMachine implements Machine {
         base: s.base, goal: s.goal, onTarget: s.onTarget, drive: s.mode.who,
       },
     }
+    // What the workout has come to (PLAN.md §18.2). The tick is about a second, so counting the ticks spent
+    // inside the tolerance is the time spent there — which is the only number a programme is really about.
+    if (s.onTarget) this.onTargetSeconds += 1
+    this.client.countStats({
+      segments: s.segmentIndex, laps: s.laps,
+      onTarget: this.onTargetSeconds, programme: s.plan.program,
+    })
+    body.custom = { ...body.custom, laps: s.laps }
+    // No rival box here: Lane One is a console of dials, and somebody else's past ride beside them would be
+    // noise. The voice still calls out the milestones (PLAN.md §18.3).
+    this.voice?.update(this.client.latest?.activeSeconds ?? 0,
+                       { distance: this.client.latest?.distance ?? 0, progress: { laps: s.laps } })
     for (const id of w.takeAchievements()) if (!this.already.has(id)) { this.already.add(id); this.pending.push(id) }
     if (this.pending.length) { this.sent = this.pending.splice(0); body.achievements = this.sent }
     return body

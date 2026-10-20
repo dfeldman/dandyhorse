@@ -84,14 +84,36 @@ describe('ago', () => {
   test('null', () => expect(u.ago(null, now)).toBe('—'))
 })
 
-describe('metricValue', () => {
+describe('dateTime', () => {
+  test('a caller that names the parts gets only those (Intl refuses them beside dateStyle)', () => {
+    const d = '2026-10-03T07:30:00Z'
+    // (the order is the runner's own locale; what matters is that it formats at all, and has no time in it)
+    const named = u.dateTime(d, 'UTC', { day: 'numeric', month: 'short', year: 'numeric' })
+    expect(named).toMatch(/3/)
+    expect(named).toMatch(/2026/)
+    expect(named).not.toMatch(/:/)
+    // the default is still a date and a time
+    expect(u.dateTime(d, 'UTC')).toMatch(/2026/)
+    expect(u.dateTime(null, 'UTC')).toBe('—')
+    expect(u.dateTime('not a date', 'UTC')).toBe('—')
+    // an unknown zone falls back to local rather than throwing
+    expect(u.dateTime(d, 'Mars/Olympus', { year: 'numeric' })).toBe('2026')
+  })
+})
+
+describe('boardValue', () => {
   test('per metric', () => {
-    expect(u.metricValue('distance', 1000, 'metric')).toBe('1 km')
-    expect(u.metricValue('energy', 4184, 'metric')).toBe('1 kcal')
-    expect(u.metricValue('duration', 90, 'metric')).toBe('01:30')
-    expect(u.metricValue('avg_power', 185.4, 'metric')).toBe('185 W')
-    expect(u.metricValue('score', 120, 'metric')).toBe('120')
-    expect(u.metricValue('score', null, 'metric')).toBe('—')
+    expect(u.boardValue('distance', 1000, 'metric')).toBe('1 km')
+    expect(u.boardValue('distance', 640, 'metric')).toBe('640 m')
+    expect(u.boardValue('energy', 4184, 'metric')).toBe('1 kcal')
+    expect(u.boardValue('duration', 90, 'metric')).toBe('01:30')
+    expect(u.boardValue('power', 185.4, 'metric')).toBe('185 W')
+    expect(u.boardValue('elevation', 1234, 'metric')).toBe('1,234 m')
+    expect(u.boardValue('count', 12, 'metric')).toBe('12')
+    expect(u.boardValue('weeks', 1, 'metric')).toBe('1 week')
+    expect(u.boardValue('weeks', 6, 'metric')).toBe('6 weeks')
+    expect(u.boardValue('number', 120.44, 'metric')).toBe('120.4')
+    expect(u.boardValue('number', null, 'metric')).toBe('—')
   })
 })
 

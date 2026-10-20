@@ -9,7 +9,14 @@
  * - the end: Save and exit ends the session; an end from anywhere else saves and shows the farewell card;
  * - each tick: the hero's place on the map, the adventure's title, kingdoms saved, achievements, Hills targets.
  */
-import { EffortMeter, SessionClient, putSave, startSession } from '@dandyhorse/gamekit'
+import {
+  EffortMeter,
+  SessionClient,
+  putSave,
+  rivalHud,
+  startSession,
+  type Rival,
+} from '@dandyhorse/gamekit'
 import type { EndInfo, GameState, InputAnswer, Json, PauseInfo, StartPayload, TickBody, UnitSystem } from '@dandyhorse/gamekit'
 import type { GameIndex } from './content/types.ts'
 import type { EffortSource } from './effort.ts'
@@ -157,6 +164,9 @@ export class Platform {
     return !!this.endedInfo
   }
 
+  /** The encouragement for this trek; no rival box here (PLAN.md §18.3). */
+  private voice: Rival | null = null
+
   /** The game is built: measure the workout and start talking to the server. */
   attach(hooks: PlatformHooks): void {
     this.hooks = hooks
@@ -168,6 +178,14 @@ export class Platform {
       preferences: { global: s.preferences?.global ?? {}, device: s.preferences?.device ?? {} },
     }), s.unitSystem)
     this.client.start()
+    // The voice only (PLAN.md §18.3): the kilometres and the halfway point, called out over the world.
+    if (!s.debug) {
+      void rivalHud(s.sessionId, {
+        voiceOnly: true,
+        imperial: s.unitSystem === 'us',
+        plannedSeconds: s.requestedDuration,
+      }).then((r) => { this.voice = r })
+    }
   }
 
   /** Game time stops while the session is paused or over: fights hold, the road stops. The menus keep working. */
@@ -292,7 +310,20 @@ export class Platform {
     this.finishing = true
     await this.save()
     await this.client.requestTick()
-    await this.client.end('complete')
+    const message = this.message()
+    this.voice?.remove()
+    await this.client.end('complete', undefined, { message })
+  }
+
+  /** The line this trek leaves on the player's timeline (PLAN.md §18.2). */
+  private message(): string {
+    const e = this.hooks?.engine
+    if (!e) return 'A walk through the kingdom.'
+    const s = e.save
+    const where = R.whereText(s, e.world)
+    const saved = s.totals.kingdomsSaved
+    if (saved > 0) return `Level ${s.level}, ${where} — ${saved} kingdom${saved === 1 ? '' : 's'} saved so far.`
+    return `Level ${s.level}, ${where}.`
   }
 
   private onEnded(info: EndInfo): void {
@@ -321,6 +352,12 @@ export class Platform {
         effort: Math.round(h.effort.value() * 100) / 100, source: h.effort.readout()?.source ?? null, tainted: this.tainted,
       },
     }
+    // What the trek has come to (PLAN.md §18.2). No rival box: this is a world to walk through from a menu,
+    // not a race — but the voice still marks the kilometres and the halfway point (§18.3).
+    this.client.countStats({ level: s.level, where: R.whereText(s, e.world) })
+    body.custom = { ...(body.custom as Record<string, unknown>), level: s.level }
+    this.voice?.update(this.client.latest?.activeSeconds ?? 0,
+                       { distance: this.client.latest?.distance ?? 0, progress: { level: s.level } })
     const pos = mapPosition(e)
     if (pos) Object.assign(body, pos)
     if (this.hills) {

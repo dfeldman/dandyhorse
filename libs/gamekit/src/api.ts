@@ -3,8 +3,9 @@
  * same-origin by the API server and the auth cookie rides along. Errors throw `ApiError`.
  */
 import type {
-  GameState, Json, PauseInfo, SessionStatus, SessionSummary, SetStateBody, SetStateResponse, StartPayload,
-  StartSessionAdHoc, StartSessionBySession, TimelineRow, UnitSystem,
+  CompetitorPayload, GameState, Json, PauseInfo, ProfileUpdate, SessionStats, SessionStatus, SessionSummary,
+  SetStateBody, SetStateResponse, Standing, StartPayload, StartSessionAdHoc, StartSessionBySession, TimelineRow,
+  UnitSystem,
 } from './types.ts'
 
 export class ApiError extends Error {
@@ -71,9 +72,16 @@ export const answerInput = (sessionId: string, promptId: string, choice: string,
 export const pauseSession = (sessionId: string, paused: boolean) =>
   request<{ ok: boolean; sessionStatus: SessionStatus; pause: PauseInfo | null }>('POST', '/gameapi/pause', { sessionId, paused })
 
-/** `POST /gameapi/endsession` — idempotent; returns the session summary. */
-export const endSession = (sessionId: string, status: 'complete' | 'discarded', reason?: string) =>
-  request<SessionSummary>('POST', '/gameapi/endsession', { sessionId, status, reason })
+/**
+ * `POST /gameapi/endsession` — idempotent; returns the session summary.
+ *
+ * `stats` is what the game counted (PLAN.md §18.2) and `message` its own line for the player's timeline:
+ * "Seven parcels delivered — and six cars found the hard way." Both are optional; a game that sends no
+ * message gets a plain one from the server.
+ */
+export const endSession = (sessionId: string, status: 'complete' | 'discarded', reason?: string,
+                           stats?: SessionStats, message?: string) =>
+  request<SessionSummary>('POST', '/gameapi/endsession', { sessionId, status, reason, stats, message })
 
 /**
  * `GET /gameapi/endscreen?session=` — is this completed session's end screen still on (PLAN.md §6.4.1)? Only for a game
@@ -121,3 +129,22 @@ export const sessionTimeline = (sessionId: string) =>
 /** `GET /gameapi/sessions/<id>/log` — raw JSONL records (own sessions only). */
 export const sessionLog = (sessionId: string) =>
   request<{ sessionId: string; records: Json[] }>('GET', `/gameapi/sessions/${encodeURIComponent(sessionId)}/log`)
+
+
+// --- riding against somebody (PLAN.md §18.3) -------------------------------------------------
+
+/**
+ * `GET /gameapi/competitor` — a past session by another public player a little stronger than this one, with
+ * their 1 Hz timeline. `competitor` is null when nobody suitable has played the game yet, so every game must
+ * play fine without one. Pass `anyRoute` to look beyond this session's own route.
+ */
+export const getCompetitor = (params: { session?: string; game?: string; variant?: string; route?: string; anyRoute?: 1 }) =>
+  request<CompetitorPayload>('GET', `/gameapi/competitor?${query(params)}`)
+
+/** `GET /gameapi/standing?session=` — where the session that just ended stands among similar players. */
+export const getStanding = (sessionId: string) =>
+  request<Standing>('GET', `/gameapi/standing?${query({ session: sessionId })}`)
+
+/** `POST /api/profile/updates` — a line on the player's own timeline (PLAN.md §18.6). */
+export const postProfileUpdate = (text: string) =>
+  request<ProfileUpdate>('POST', '/api/profile/updates', { text })

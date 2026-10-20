@@ -6,6 +6,14 @@ history; a **bridge** connects the platform to real hardware over Bluetooth
 (FTMS) and heart-rate monitors; the **server** owns users, sessions, logs,
 preferences, achievements and leaderboards, and serves every frontend.
 
+It is also a place with other people in it: every player has a profile with
+an animated avatar and a timeline, games count what they count and leave a
+line on it, leaderboards are recomputed as sessions finish, and a game can
+put you up against a real past session by somebody a little stronger than
+you. **Bot players** keep it from being empty on day one — they play the
+real games in a headless browser, so their rides are real. See
+[PLAN.md §18](PLAN.md) and [bots/README.md](bots/README.md).
+
 Read [PLAN.md](PLAN.md) for the full design. Game developers: start with
 [docs/GAME_DEVELOPER_GUIDE.md](docs/GAME_DEVELOPER_GUIDE.md) (tutorial, uses the
 `@dandyhorse/gamekit` library in `libs/gamekit`); the wire contract is in
@@ -29,7 +37,8 @@ pace themselves by the player's own fitness rather than by raw watts.
 | `games/nightwatch/` | Night Watch: keep a lighthouse lamp bright through the night so ships make harbour, on either machine; an interval workout set by the ships' timetable (see its `INTEGRATION.md`) |
 | `games/laneone/` | Lane One: a plain console-style workout that drives every dial a machine has (belt speed, incline, grade, ERG watts) and shows requested against actual; seven programmes, the phone is the console's ± buttons (see its `INTEGRATION.md`; `npm run e2e` is its end-to-end check) |
 | `games/trailtrainer/` | Trail Trainer: real routes (Alpe d'Huez, the Katy Trail) from open map and elevation data, with coasting physics; your place on each route is kept between sessions (see its README and `INTEGRATION.md`; `npm run e2e` is its end-to-end check). Its trees, plants and rocks come from assetkit |
-| `data/` | Runtime data (SQLite DB, session logs), gitignored |
+| `bots/` | Bot players: they play the real games headless, then their sessions are moved into the past (see its README) |
+| `data/` | Runtime data (SQLite DB, session logs, profile pictures), gitignored |
 
 Every console, bridge and game is a peer folder with a `metadata.json`;
 the server discovers them by name and serves them under
@@ -158,6 +167,7 @@ through a tunnel.
 | `DANDYHORSE_AUTH` | `stub` or `oidc`, to override the choice made from the data folder. |
 | `DANDYHORSE_SECRET_KEY` | The master secret behind login tokens. Unset: one is made in `<data>/secret.key`. A new one logs everyone out. |
 | `DANDYHORSE_ADMIN_UIDS` | More admins, by user number (`2,5`). |
+| `DANDYHORSE_BOT_TOKEN` | The bot players' one shared API token (`bots/README.md`). Empty: `/botapi/*` is off. |
 
 The server is Flask's own threaded server, fine for a handful of people. The tunnel's HTTPS also lets
 phones run the bridge (Web Bluetooth needs it). How login works: PLAN.md §11.

@@ -13,41 +13,72 @@
     "ghosts": false,
     "input": true,
     "saveState": true,
-    "routes": ["manual", "steady", "hills", "intervals", "pyramid", "random", "heartrate"]
+    "routes": [
+      "manual",
+      "steady",
+      "hills",
+      "intervals",
+      "pyramid",
+      "random",
+      "heartrate"
+    ]
   },
   "achievements": {
-    "first-lap": { "name": "Round the track", "description": "Ran a full 400 m lap." },
-    "programme-done": { "name": "Saw it through", "description": "Finished a whole programme without stopping early." },
-    "ten-k": { "name": "Ten kilometres", "description": "10 km in one workout." },
-    "the-hour": { "name": "The hour", "description": "A whole hour of exercise in one session." },
-    "hill-climber": { "name": "Hill climber", "description": "Climbed 100 m in one workout." },
-    "zone-four": { "name": "Up in zone four", "description": "Ten minutes at zone 4 or above." },
-    "even-splits": { "name": "Metronome", "description": "Five laps in a row within five seconds of each other." },
-    "good-recovery": { "name": "Settles fast", "description": "Heart rate fell 40 bpm in the recovery minute." }
+    "first-lap": {
+      "name": "Round the track",
+      "description": "Ran a full 400 m lap."
+    },
+    "programme-done": {
+      "name": "Saw it through",
+      "description": "Finished a whole programme without stopping early."
+    },
+    "ten-k": {
+      "name": "Ten kilometres",
+      "description": "10 km in one workout."
+    },
+    "the-hour": {
+      "name": "The hour",
+      "description": "A whole hour of exercise in one session."
+    },
+    "hill-climber": {
+      "name": "Hill climber",
+      "description": "Climbed 100 m in one workout."
+    },
+    "zone-four": {
+      "name": "Up in zone four",
+      "description": "Ten minutes at zone 4 or above."
+    },
+    "even-splits": {
+      "name": "Metronome",
+      "description": "Five laps in a row within five seconds of each other."
+    },
+    "good-recovery": {
+      "name": "Settles fast",
+      "description": "Heart rate fell 40 bpm in the recovery minute."
+    }
   },
-  "options": {
+  "stats": {
+    "segments": {
+      "label": "Segments completed",
+      "better": "higher"
+    },
+    "laps": {
+      "label": "Laps",
+      "better": "higher"
+    },
+    "onTarget": {
+      "label": "Time on target",
+      "format": "duration",
+      "better": "higher",
+      "leaderboard": true
+    },
     "programme": {
-      "label": "Programme",
-      "enum": ["manual", "steady", "hills", "intervals", "pyramid", "random", "heartrate"],
-      "default": "steady"
-    },
-    "level": {
-      "label": "Level",
-      "enum": ["easy", "normal", "hard", "very hard"],
-      "default": "normal"
-    },
-    "goal": {
-      "label": "Finish when",
-      "enum": ["the clock runs out", "a distance is done", "the calories are burnt"],
-      "default": "the clock runs out"
-    },
-    "drive": {
-      "label": "Who follows the programme",
-      "enum": ["you", "the machine"],
-      "default": "you",
-      "controls": {
-        "the machine": { "treadmill": "speed+incline", "bike": "power" }
-      }
+      "label": "Programme"
+    }
+  },
+  "progress": {
+    "laps": {
+      "label": "Laps"
     }
   },
   "variants": [
@@ -55,19 +86,75 @@
       "id": "treadmill",
       "name": "Lane One (Treadmill)",
       "description": "Walk or run a programme. The console drives the incline and shows you the pace to keep; hand it the belt as well and it runs the whole thing.",
-      "deviceTypes": ["treadmill"],
+      "deviceTypes": [
+        "treadmill"
+      ],
       "defaultDuration": 1800,
-      "controls": { "treadmill": "incline" }
+      "controls": {
+        "treadmill": "incline"
+      }
     },
     {
       "id": "bike",
       "name": "Lane One (Bike)",
       "description": "Ride a programme. The trainer follows the hill and the watts are yours to hold; hand it the watts as well and it holds them for you in ERG.",
-      "deviceTypes": ["bike"],
+      "deviceTypes": [
+        "bike"
+      ],
       "defaultDuration": 1800,
-      "controls": { "bike": "grade" }
+      "controls": {
+        "bike": "grade"
+      }
     }
   ],
+  "options": {
+    "programme": {
+      "label": "Programme",
+      "enum": [
+        "manual",
+        "steady",
+        "hills",
+        "intervals",
+        "pyramid",
+        "random",
+        "heartrate"
+      ],
+      "default": "steady"
+    },
+    "level": {
+      "label": "Level",
+      "enum": [
+        "easy",
+        "normal",
+        "hard",
+        "very hard"
+      ],
+      "default": "normal"
+    },
+    "goal": {
+      "label": "Finish when",
+      "enum": [
+        "the clock runs out",
+        "a distance is done",
+        "the calories are burnt"
+      ],
+      "default": "the clock runs out"
+    },
+    "drive": {
+      "label": "Who follows the programme",
+      "enum": [
+        "you",
+        "the machine"
+      ],
+      "default": "you",
+      "controls": {
+        "the machine": {
+          "treadmill": "speed+incline",
+          "bike": "power"
+        }
+      }
+    }
+  },
   "preferencesSchema": {
     "type": "object",
     "properties": {

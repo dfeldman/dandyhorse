@@ -27,6 +27,13 @@ def _me(u: dict[str, Any]) -> dict[str, Any]:
             "profile": u.get("profile", {}), "public": u["public"], "achievements": u.get("achievements", {}),
             "bodyData": u.get("body_data", {}), "unitSystem": u["unit_system"], "timeZone": u["time_zone"],
             "preferences": u.get("preferences", {}), "isAdmin": dh().config.is_admin(u["uid"]),
+            # the social platform (PLAN.md §18.1)
+            "firstName": u.get("first_name") or "", "lastName": u.get("last_name") or "",
+            "country": (u.get("country") or "").upper(),
+            "streak": {"length": u.get("streak_length") or 0, "goal": u.get("streak_goal") or 0},
+            "fitness": u.get("fitness") or {},
+            "imageUrl": f"/api/profiles/{u['username']}/image" if u.get("image_file") else None,
+            "thumbnailUrl": f"/api/profiles/{u['username']}/thumbnail" if u.get("thumb_file") else None,
             # made by a Google sign-in and still on its placeholder username: the console asks for one
             "needsHandle": not u.get("handle_set", True)}
 
@@ -148,6 +155,17 @@ def put_me():
     if isinstance(b.get("preferences"), dict):
         sets.append("preferences=?")
         args.append(dumps(b["preferences"]))
+    # The social profile (PLAN.md §18.1): the name and country shown on it.
+    for key, column in (("firstName", "first_name"), ("lastName", "last_name")):
+        if isinstance(b.get(key), str):
+            sets.append(f"{column}=?")
+            args.append(b[key].strip()[:40])
+    if isinstance(b.get("country"), str):
+        c = b["country"].strip()
+        if c and not re.fullmatch(r"[A-Za-z]{2}", c):
+            raise ApiError(400, "country_invalid", "a country is a two-letter code, like ES or US")
+        sets.append("country=?")
+        args.append(c.upper())
     if sets:
         sets.append("updated_at=?")
         args.append(iso())
@@ -159,6 +177,12 @@ def put_me():
             if "UNIQUE" in str(e):
                 raise ApiError(409, "username_taken", "that username is taken")
             raise
+    # The weekly streak goal has its own rule: changing it starts the streak again (PLAN.md §18.5).
+    goal = b.get("streakGoal")
+    if isinstance(goal, int) and not isinstance(goal, bool) and goal in (0, 1, 2, 3) \
+            and goal != (g.user.get("streak_goal") or 0):
+        from ..social import streaks
+        streaks.set_goal(conn, g.user["uid"], goal, g.user["time_zone"])
     return jsonify(_me(auth.load_user(g.user["uid"])))
 
 
@@ -452,7 +476,8 @@ def merge_device(device_id: int):
     return jsonify(device_row(conn.execute("SELECT * FROM devices WHERE device_id=?", (dst["device_id"],)).fetchone()))
 
 
-# --- game preferences, leaderboards, users, admin ----------------------------
+# --- game preferences and admin ----------------------------------------------
+# Leaderboards and profiles are socialapi.py (PLAN.md §18.6-18.7).
 
 @bp.get("/api/game-preferences/<game_id>")
 @require_auth
@@ -475,48 +500,6 @@ def put_game_prefs(game_id: str):
                  (g.user["uid"], game_id, dumps(prefs), iso()))
     conn.commit()
     return jsonify({"game": game_id, "preferences": prefs})
-
-
-@bp.get("/api/leaderboards")
-@require_auth
-def leaderboards():
-    # Phase 5: precomputed table. For now, a live query over complete public sessions.
-    conn = get_db()
-    metric = request.args.get("metric", "distance")
-    col = {"distance": "distance", "energy": "energy", "duration": "duration", "avg_power": "avg_power",
-           "score": "score"}.get(metric)
-    if col is None:
-        raise ApiError(400, "metric_invalid", "unknown metric")
-    where = ["s.status='complete'", "s.debug=0", f"s.{col} IS NOT NULL", "(u.public=1 OR s.uid=?)"]
-    args: list[Any] = [g.user["uid"]]
-    for key, c in (("game", "s.game_id"), ("variant", "s.variant"), ("route", "s.route")):
-        v = request.args.get(key)
-        if v:
-            where.append(f"{c}=?")
-            args.append(v)
-    rows = conn.execute(
-        f"SELECT s.uid, u.username, u.public, s.session_id, s.game_id, s.variant, s.route, MAX(s.{col}) AS value "
-        f"FROM sessions s JOIN users u ON u.uid=s.uid WHERE {' AND '.join(where)} "
-        f"GROUP BY s.uid ORDER BY value DESC LIMIT 100", args).fetchall()
-    out = []
-    rank = 0
-    for r in rows:
-        if r["public"] or r["uid"] == g.user["uid"]:
-            rank += 1
-            out.append({"rank": rank if r["public"] else None, "uid": r["uid"], "username": r["username"],
-                        "sessionId": r["session_id"], "gameId": r["game_id"], "variant": r["variant"],
-                        "route": r["route"], "value": r["value"], "me": r["uid"] == g.user["uid"]})
-    return jsonify({"metric": metric, "rows": out})
-
-
-@bp.get("/api/users/<username>")
-@require_auth
-def public_user(username: str):
-    row = get_db().execute("SELECT * FROM users WHERE username=?", (username,)).fetchone()
-    if row is None or not (row["public"] or row["uid"] == g.user["uid"]):
-        raise ApiError(404, "user_not_found", "no such user")
-    return jsonify({"uid": row["uid"], "username": row["username"], "displayName": row["display_name"],
-                    "profile": loads(row["profile"]), "achievements": loads(row["achievements"])})
 
 
 @bp.post("/api/admin/rescan")

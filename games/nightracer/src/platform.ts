@@ -10,8 +10,8 @@
  * same buttons on screen).
  */
 import {
-  EffortMeter, SessionClient, persistentPrompt, putSave,
-  type EndInfo, type GameState, type InputAnswer, type Json, type StartPayload, type TickBody,
+  EffortMeter, SessionClient, persistentPrompt, putSave, rivalHud,
+  type EndInfo, type GameState, type InputAnswer, type Json, type Rival, type StartPayload, type TickBody,
 } from '@dandyhorse/gamekit'
 import { Config, type Difficulty } from './config.ts'
 import type { Controls } from './controls.ts'
@@ -100,6 +100,10 @@ export class Platform implements Controls {
   // achievements
   private readonly earned = new Set<string>()
   private readonly pending: string[] = []
+  /** Somebody who raced this series before, and the voice that calls out the race (PLAN.md §18.3). */
+  private rival: Rival | null = null
+  /** What the last tick counted, for the line this workout leaves on the player's timeline. */
+  private counted = { points: 0, wins: 0, races: 0 }
   private sent: string[] = []
   private winStreak = 0
   private spunThisRace = 0
@@ -153,6 +157,21 @@ export class Platform implements Controls {
     this.save.lastSeed = this.seed
     this.saveDirty = true
     this.client.start()
+    // Somebody who raced this same seeded series before (PLAN.md §18.3). The box sits bottom left, clear of
+    // the standings; a debug night is not recorded, so it is not raced either, and nothing waits on this.
+    if (!this.start.debug) {
+      // Night Racer builds its route name from the session's seed, and a seed is fresh every
+      // launch — so matching on it would mean never finding anybody. A different series is still a night of
+      // racing, and points are points.
+      void rivalHud(this.start.sessionId, {
+        anyRoute: true,
+        imperial: this.start.unitSystem === 'us',
+        plannedSeconds: this.duration,
+        labels: { points: 'Points' }, words: { points: 'point' },
+        corner: 'bottom-left', title: 'Their distance',
+        log: this.log,
+      }).then((r) => { this.rival = r })
+    }
   }
 
   // --- Controls -------------------------------------------------------------------------------
@@ -243,7 +262,31 @@ export class Platform implements Controls {
       }
       this.recordResult(series)
     }
-    setTimeout(() => void this.client.requestTick().then(() => this.client.end('complete')), END_DELAY_MS)
+    setTimeout(() => void this.client.requestTick().then(() => {
+      const message = this.message()
+      this.rival?.remove()
+      return this.client.end('complete', undefined, { message })
+    }), END_DELAY_MS)
+  }
+
+  /** The line this workout leaves on the player's timeline (PLAN.md §18.2). */
+  private message(): string {
+    const { points, wins, races } = this.counted
+    const won = wins > 0 ? ` ${wins} win${wins === 1 ? '' : 's'}.` : ''
+    const theirs = this.rival?.theirs()
+    const theirPoints = theirs?.progress.points
+    if (this.rival?.player && typeof theirPoints === 'number') {
+      const who = this.rival.player.firstName || this.rival.player.username
+      const over = races === 1 ? 'over one race' : `over ${races} races`
+      if (points > theirPoints) return `${points} points ${over}, beating ${who}'s ${theirPoints}.${won}`
+      if (points < theirPoints) return `${points} points ${over}; ${who} took ${theirPoints}.${won}`
+      return `${points} points each with ${who}, ${over}.${won}`
+    }
+    if (races === 0) {
+      // The night was cut short in the first race, which still counts for something if anything was scored.
+      return points > 0 ? `${points} point${points === 1 ? '' : 's'} in the opening race.` : 'A night at the track.'
+    }
+    return `${points} championship point${points === 1 ? '' : 's'} over ${races} race${races === 1 ? '' : 's'}.${won}`
   }
 
   /** The session ended from a bridge or the console: stop, but keep whatever was earned. */
@@ -306,6 +349,14 @@ export class Platform implements Controls {
         place: p.place, turbo: p.turbo, oil: p.oil, spinOuts: this.spunThisRace,
       },
     }
+    // What this workout has counted (PLAN.md §18.2). `races` is how many are behind the player, not the one
+    // they are in; the points are the championship's, which is what the night is actually about.
+    const wins = series.table().find((x) => x.id === PLAYER_ID)?.wins ?? 0
+    this.counted = { points: series.playerPoints, wins, races: Math.max(0, series.raceNumber - 1) }
+    this.client.countStats({ ...this.counted, spinOuts: this.spunThisRace })
+    body.custom = { ...body.custom, points: this.counted.points, races: this.counted.races }
+    this.rival?.update(this.client.latest?.activeSeconds ?? 0,
+                       { distance: this.client.latest?.distance ?? 0, progress: { points: this.counted.points } })
     if (this.pending.length) { this.sent = this.pending.splice(0); body.achievements = this.sent }
     // a new race: the oil count starts again
     if (series.raceNumber !== this.seenRace) { this.seenRace = series.raceNumber; this.spunThisRace = 0 }

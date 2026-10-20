@@ -15,43 +15,111 @@
     "saveState": true
   },
   "achievements": {
-    "first-win": { "name": "Chequered flag", "description": "Won a race." },
-    "champion": { "name": "Champion", "description": "Led the standings at the end of a workout." },
-    "rocket": { "name": "Rocket start", "description": "Tapped Turbo right at GO." },
-    "oil-slick": { "name": "Slippery", "description": "Spun out two rivals in one race." },
-    "hat-trick": { "name": "Hat trick", "description": "Won three races in a row." },
-    "full-workout": { "name": "Full distance", "description": "Raced to the end of the workout." }
+    "first-win": {
+      "name": "Chequered flag",
+      "description": "Won a race."
+    },
+    "champion": {
+      "name": "Champion",
+      "description": "Led the standings at the end of a workout."
+    },
+    "rocket": {
+      "name": "Rocket start",
+      "description": "Tapped Turbo right at GO."
+    },
+    "oil-slick": {
+      "name": "Slippery",
+      "description": "Spun out two rivals in one race."
+    },
+    "hat-trick": {
+      "name": "Hat trick",
+      "description": "Won three races in a row."
+    },
+    "full-workout": {
+      "name": "Full distance",
+      "description": "Raced to the end of the workout."
+    }
+  },
+  "stats": {
+    "points": {
+      "label": "Championship points",
+      "better": "higher",
+      "leaderboard": true
+    },
+    "wins": {
+      "label": "Races won",
+      "better": "higher",
+      "leaderboard": true
+    },
+    "races": {
+      "label": "Races finished",
+      "better": "higher"
+    },
+    "spinOuts": {
+      "label": "Spun out",
+      "better": "lower"
+    }
+  },
+  "progress": {
+    "points": {
+      "label": "Points"
+    },
+    "races": {
+      "label": "Races"
+    }
   },
   "variants": [
     {
       "id": "bike",
       "name": "Night Racer (Bike)",
       "description": "Your power is the throttle; the trainer feels the hills.",
-      "deviceTypes": ["bike"],
+      "deviceTypes": [
+        "bike"
+      ],
       "defaultDuration": 1800,
-      "controls": { "bike": "grade" }
+      "controls": {
+        "bike": "grade"
+      }
     },
     {
       "id": "treadmill",
       "name": "Night Racer (Treadmill)",
       "description": "Your pace is the throttle; the game never touches the belt.",
-      "deviceTypes": ["treadmill"],
+      "deviceTypes": [
+        "treadmill"
+      ],
       "defaultDuration": 1800,
-      "controls": { "treadmill": "none" }
+      "controls": {
+        "treadmill": "none"
+      }
     }
   ],
   "options": {
     "difficulty": {
       "label": "Rivals",
-      "enum": ["easy", "normal", "hard"],
-      "labels": ["Easy", "Normal", "Hard"],
+      "enum": [
+        "easy",
+        "normal",
+        "hard"
+      ],
+      "labels": [
+        "Easy",
+        "Normal",
+        "Hard"
+      ],
       "default": "normal",
       "description": "How fast the other three drive, compared with your steady pace."
     },
     "hills": {
       "label": "Hills",
-      "enum": ["feel", "flat"],
-      "labels": ["Feel them", "Keep it flat"],
+      "enum": [
+        "feel",
+        "flat"
+      ],
+      "labels": [
+        "Feel them",
+        "Keep it flat"
+      ],
       "default": "feel",
       "description": "Whether the trainer follows the road's climbs (bike only)."
     }

@@ -8,6 +8,7 @@ import * as u from '../units'
 import { THEMES, readTheme, setTheme, type Theme } from '../theme'
 import { DEFAULT_RESTING_HR, FITNESS_LEVELS, globalSteadyWatts, levelHint, numberOrNull, paceFromForm, paceOf, positiveOrNull, steadyHeartRate, steadyText } from '../fitness'
 import DevicesSection from '../components/DevicesSection.vue'
+import { countryOptions } from '../flags'
 
 // --- look -------------------------------------------------------------------
 const theme = ref<Theme>(readTheme())
@@ -21,10 +22,51 @@ const error = ref<string | null>(null)
 const notice = ref<string | null>(null)
 const busy = ref(false)
 
+const countries = countryOptions()
+// The profile picture is a separate upload, not part of the form's save (PLAN.md §18.6).
+const picture = ref<HTMLInputElement | null>(null)
+const pictureBusy = ref(false)
+
+async function uploadPicture(e: Event): Promise<void> {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  pictureBusy.value = true
+  error.value = null
+  try {
+    if (file.size > 1_000_000) throw new Error('that picture is over 1 MB — a smaller one please')
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const r = new FileReader()
+      r.onload = () => resolve(String(r.result))
+      r.onerror = () => reject(new Error('could not read that file'))
+      r.readAsDataURL(file)
+    })
+    await api('/api/profile/image', 'PUT', { image: dataUrl })
+    await loadMe()
+    say('Picture saved')
+  } catch (err) {
+    error.value = err instanceof ApiError ? `${err.code}: ${err.message}` : (err as Error).message
+  } finally {
+    pictureBusy.value = false
+    if (picture.value) picture.value.value = ''
+  }
+}
+
+async function removePicture(): Promise<void> {
+  await api('/api/profile/image', 'DELETE')
+  await loadMe()
+  say('Picture removed')
+}
+
+
 const form = reactive({
   username: '',
   displayName: '',
   public: false,
+  // the social profile (PLAN.md §18.1)
+  firstName: '',
+  lastName: '',
+  country: '',
+  streakGoal: 0,
   unitSystem: 'metric' as UnitSystem,
   timeZone: '',
   height: null as number | null,
@@ -49,6 +91,10 @@ function fill(me: Me) {
   form.username = me.username
   form.displayName = me.displayName ?? ''
   form.public = me.public
+  form.firstName = me.firstName ?? ''
+  form.lastName = me.lastName ?? ''
+  form.country = me.country ?? ''
+  form.streakGoal = me.streak?.goal ?? 0
   form.unitSystem = me.unitSystem
   form.timeZone = me.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
   form.height = u.height(me.bodyData.height ?? null, me.unitSystem, 1).value
@@ -128,6 +174,10 @@ async function save() {
       username: form.username,
       displayName: form.displayName,
       public: form.public,
+      firstName: form.firstName,
+      lastName: form.lastName,
+      country: form.country,
+      streakGoal: form.streakGoal,
       unitSystem: form.unitSystem,
       timeZone: form.timeZone,
       bodyData,
@@ -262,17 +312,60 @@ onMounted(async () => {
       </div>
     </div>
 
+    <div class="panel">
+      <h2>Your picture</h2>
+      <p class="hint">A photo for your profile, beside your avatar. PNG or JPEG, up to 1 MB.</p>
+      <div class="picrow">
+        <span class="picshot">
+          <img v-if="store.me?.imageUrl" :src="store.me.imageUrl" alt="Your profile picture" />
+          <span v-else class="picnone" aria-hidden="true">🙂</span>
+        </span>
+        <div class="actions">
+          <input ref="picture" type="file" accept="image/png,image/jpeg" class="file" aria-label="Choose a picture"
+                 :disabled="pictureBusy" @change="uploadPicture" />
+          <button v-if="store.me?.imageUrl" type="button" class="btn" @click="removePicture">Remove</button>
+        </div>
+      </div>
+    </div>
+
     <form class="panel" @submit.prevent="save">
+      <h2>Your streak</h2>
+      <p class="hint">
+        Pick how many sessions a week you are aiming for. Each week you reach it, your streak grows; changing
+        the goal starts it again.
+      </p>
+      <div class="goals" role="group" aria-label="Sessions a week">
+        <button
+          v-for="g in [0, 1, 2, 3]" :key="g" type="button" class="goal"
+          :class="{ on: form.streakGoal === g }" @click="form.streakGoal = g"
+        >
+          <b>{{ g === 0 ? 'None' : g }}</b>
+          <span>{{ g === 0 ? 'no streak' : g === 1 ? 'session a week' : 'sessions a week' }}</span>
+        </button>
+      </div>
+      <p v-if="store.me?.streak?.length" class="hint lit">
+        🔥 {{ store.me.streak.length }} week{{ store.me.streak.length === 1 ? '' : 's' }} running. Keep it alive.
+      </p>
+
       <h2>Profile</h2>
       <div class="form">
         <label class="field"><span>Username</span><input type="text" v-model="form.username" maxlength="24" autocapitalize="off" spellcheck="false" /></label>
         <label class="field"><span>Display name</span><input type="text" v-model="form.displayName" maxlength="80" /></label>
+        <label class="field"><span>First name</span><input type="text" v-model="form.firstName" maxlength="40" /></label>
+        <label class="field"><span>Last name</span><input type="text" v-model="form.lastName" maxlength="40" /></label>
+        <label class="field">
+          <span>Country</span>
+          <select v-model="form.country">
+            <option value="">—</option>
+            <option v-for="c in countries" :key="c.code" :value="c.code">{{ c.flag }} {{ c.name }}</option>
+          </select>
+        </label>
         <label class="field">
           <span>Units</span>
           <select v-model="form.unitSystem"><option value="metric">metric (km, km/h, kg)</option><option value="us">US (mi, mph, lb)</option></select>
         </label>
         <label class="field"><span>Time zone</span><input type="text" v-model="form.timeZone" placeholder="e.g. America/Chicago" /></label>
-        <label class="field check wide"><input type="checkbox" v-model="form.public" /> Public profile (appear on leaderboards)</label>
+        <label class="field check wide"><input type="checkbox" v-model="form.public" /> Public profile (appear on the Players page and the leaderboards)</label>
       </div>
 
       <h2>Body</h2>
@@ -378,4 +471,18 @@ onMounted(async () => {
 .level { flex: 1 1 180px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; padding: 10px 18px; border-radius: var(--radius-sm); text-align: left; }
 .level-name { font-size: 1.1em; }
 .level-sub { font-size: 0.85em; font-weight: 600; opacity: 0.85; }
+.picrow { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.picshot { width: 72px; height: 72px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
+  background: var(--panel-2); flex: none; }
+.picshot img { width: 100%; height: 100%; object-fit: cover; }
+.picnone { font-size: 1.8em; opacity: 0.6; }
+.file { font: inherit; }
+.goals { display: flex; gap: 8px; flex-wrap: wrap; }
+.goal { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 96px; padding: 10px 14px;
+  border: 0; border-radius: 12px; background: var(--panel-2); color: inherit; font: inherit; cursor: pointer; }
+.goal b { font-size: 1.3em; font-weight: 900; }
+.goal span { font-size: 0.76em; color: var(--muted); }
+.goal.on { background: var(--page); color: #fff; }
+.goal.on span { color: rgba(255, 255, 255, 0.82); }
+.hint.lit { font-weight: 700; }
 </style>

@@ -48,13 +48,14 @@ const TABS = [
   { to: '/', key: 'games', label: 'Games' },
   { to: '/sessions', key: 'history', label: 'History' },
   { to: '/leaderboards', key: 'leaderboards', label: 'Leaderboards' },
+  { to: '/players', key: 'players', label: 'Players' },
   { to: '/achievements', key: 'achievements', label: 'Achievements' },
   { to: '/preferences', key: 'preferences', label: 'Preferences' },
 ]
 function tabActive(key: string, path: string): boolean {
   if (key === 'games') return path === '/'
   if (key === 'history') return path.startsWith('/sessions')
-  return path.startsWith(`/${key}`)
+  return path.startsWith(`/${key}`)  // /players also lights the tab for one player's profile
 }
 </script>
 

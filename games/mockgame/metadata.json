@@ -18,8 +18,30 @@
     ]
   },
   "achievements": {
-    "first_lap": { "name": "First lap", "description": "Finished a lap of the loop." },
-    "speed_10ms": { "name": "Speed demon", "description": "Went faster than 10 m/s." }
+    "first_lap": {
+      "name": "First lap",
+      "description": "Finished a lap of the loop."
+    },
+    "speed_10ms": {
+      "name": "Speed demon",
+      "description": "Went faster than 10 m/s."
+    }
+  },
+  "stats": {
+    "laps": {
+      "label": "Laps",
+      "better": "higher",
+      "leaderboard": true
+    },
+    "prompts": {
+      "label": "Questions answered",
+      "better": "higher"
+    }
+  },
+  "progress": {
+    "laps": {
+      "label": "Laps"
+    }
   },
   "variants": [
     {

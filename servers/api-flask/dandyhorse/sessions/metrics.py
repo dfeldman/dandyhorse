@@ -1,7 +1,7 @@
 """Distance, energy, timeline derivation and session summary (PLAN.md §8.3–8.4)."""
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Sequence
 
 from ..config import METRIC_NAMES
 from .merge import empty_metrics, merged_metrics, owners
@@ -114,7 +114,9 @@ class Integrator:
 
     def running(self) -> dict[str, Any]:
         return {"distance": self.distance, "energy": self.energy,
-                "work": self.work if self.device_type == "bike" else None}
+                "work": self.work if self.device_type == "bike" else None,
+                # climbing so far: games show it as the ride goes on, and a competitor's timeline carries it
+                "elevationGain": self.elevation_gain}
 
     def summary(self, duration: float | None) -> dict[str, Any]:
         def avg(k: str) -> float | None:
@@ -142,8 +144,14 @@ class Integrator:
 
 def build_timeline(records: list[dict[str, Any]], *, device_type: str, allow_sim: bool,
                    fresh: float, body_data: dict[str, Any], efficiency: float,
-                   default_weight: float) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Replay a raw log into 1 Hz merged rows plus a summary."""
+                   default_weight: float,
+                   progress_keys: Sequence[str] = ()) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Replay a raw log into 1 Hz merged rows plus a summary.
+
+    `progress_keys` are the counters the game declares in `metadata.json.progress` (PLAN.md §18.2). Those
+    keys, and only those, are carried out of each tick's `custom` into the row's `progress`, so a competitor
+    can be asked how many deliveries they had made by a given second without opening the raw log.
+    """
     start: float | None = None
     end: float | None = None
     for r in records:
@@ -163,6 +171,7 @@ def build_timeline(records: list[dict[str, Any]], *, device_type: str, allow_sim
     integ = Integrator(device_type, body_data, efficiency, default_weight)
     requested: dict[str, Any] = {m: None for m in METRIC_NAMES}
     pos: dict[str, Any] | None = None
+    progress: dict[str, float] = {}
     last_game_t: float | None = None
     reports: dict[str, dict[str, Any]] = {}
     rows: list[dict[str, Any]] = []
@@ -189,6 +198,8 @@ def build_timeline(records: list[dict[str, Any]], *, device_type: str, allow_sim
         row = {"t": t, "elapsed": t - start, "position": dict(pos) if pos else None, "paused": paused}
         row.update(metrics)
         row.update(integ.running())
+        if progress_keys:
+            row["progress"] = dict(progress)
         rows.append(row)
 
     def absorb(upto: float) -> None:
@@ -204,6 +215,10 @@ def build_timeline(records: list[dict[str, Any]], *, device_type: str, allow_sim
                 requested = {m: (r.get("req") or {}).get(m) for m in METRIC_NAMES}
                 if r.get("pos"):
                     pos = r["pos"]
+                for key in progress_keys:
+                    v = (r.get("custom") or {}).get(key)
+                    if isinstance(v, (int, float)) and not isinstance(v, bool):
+                        progress[key] = float(v)
                 last_game_t = r["t"]
             else:
                 reports[r["bridgeId"]] = {"t": r["t"], "devices": r.get("devices") or [],

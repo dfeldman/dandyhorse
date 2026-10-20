@@ -13,22 +13,65 @@
     "ghosts": false,
     "input": false,
     "saveState": true,
-    "routes": ["isla-uno"]
+    "routes": [
+      "isla-uno"
+    ]
   },
   "achievements": {
-    "workout-complete": { "name": "Full flight", "description": "Flew a whole workout." },
-    "turbo": { "name": "Turbo!", "description": "Filled the Turbo meter." },
-    "race-win": { "name": "Race winner", "description": "Won a pylon race." },
-    "streak-lap": { "name": "Perfect lap", "description": "A lap's worth of rings in a row (passes count)." }
+    "workout-complete": {
+      "name": "Full flight",
+      "description": "Flew a whole workout."
+    },
+    "turbo": {
+      "name": "Turbo!",
+      "description": "Filled the Turbo meter."
+    },
+    "race-win": {
+      "name": "Race winner",
+      "description": "Won a pylon race."
+    },
+    "streak-lap": {
+      "name": "Perfect lap",
+      "description": "A lap's worth of rings in a row (passes count)."
+    }
+  },
+  "stats": {
+    "ringsHit": {
+      "label": "Rings flown through",
+      "better": "higher",
+      "leaderboard": true
+    },
+    "ringsMissed": {
+      "label": "Rings missed",
+      "better": "lower"
+    },
+    "bestStreak": {
+      "label": "Best streak",
+      "better": "higher",
+      "leaderboard": true
+    },
+    "laps": {
+      "label": "Laps",
+      "better": "higher"
+    }
+  },
+  "progress": {
+    "ringsHit": {
+      "label": "Rings"
+    }
   },
   "variants": [
     {
       "id": "bike",
       "name": "Flight Cycle",
       "description": "Your power flies the plane: your steady pace holds it level, harder climbs, easier dives. The trainer feels each Tailwind.",
-      "deviceTypes": ["bike"],
+      "deviceTypes": [
+        "bike"
+      ],
       "defaultDuration": 1800,
-      "controls": { "bike": "grade" }
+      "controls": {
+        "bike": "grade"
+      }
     }
   ]
 }

@@ -57,6 +57,31 @@ export interface Me {
   isAdmin: boolean
   /** a first Google sign-in made this account: ask for a username before anything else */
   needsHandle?: boolean
+  // --- the social platform (PLAN.md §18.1) ---
+  firstName: string
+  lastName: string
+  /** ISO 3166-1 alpha-2, uppercase, or '' */
+  country: string
+  streak: Streak
+  fitness: Fitness
+  imageUrl: string | null
+  thumbnailUrl: string | null
+}
+
+export interface Streak {
+  /** Weeks in a row that met the goal. */
+  length: number
+  /** Sessions a week the player is aiming for: 0 (none set), 1, 2 or 3. */
+  goal: number
+}
+
+/** Measured fitness (PLAN.md §18.4); `{}` before the server has computed one. */
+export interface Fitness {
+  watts?: number
+  level?: 'starting' | 'regular' | 'fit' | 'veryfit'
+  source?: 'measured' | 'declared'
+  bike?: { watts: number; sessions: number; updatedAt: string }
+  treadmill?: { speed: number; sessions: number; updatedAt: string }
 }
 
 export interface Variant {
@@ -98,6 +123,20 @@ export interface Game {
   variants: Variant[]
   /** Names of the ids the game sends as achievements (metadata.json), for the Achievements page. */
   achievements?: Record<string, { name: string; description?: string }>
+  /** What the game counts in a session, and how to show it (PLAN.md §18.2). */
+  stats?: Record<string, GameStat>
+  /** The counters it sends every tick, which the timeline keeps for competitors. */
+  progress?: Record<string, GameStat>
+}
+
+/** One number a game counts: what to call it and how to read it. */
+export interface GameStat {
+  label?: string
+  unit?: string
+  format?: 'integer' | 'number' | 'distance' | 'duration'
+  better?: 'higher' | 'lower'
+  /** This stat gets a leaderboard of its own (PLAN.md §18.7). */
+  leaderboard?: boolean
 }
 
 export interface GameOption {
@@ -160,6 +199,8 @@ export interface SessionSummary {
 
 export interface SessionDetail extends SessionSummary {
   achievements: string[]
+  /** What the game counted (PLAN.md §18.2); the labels come from its catalog entry. */
+  stats?: Record<string, number | string | boolean | null>
   gameName: string
   variantName: string
   imageUrl: string | null
@@ -250,6 +291,7 @@ export interface TimelineRow {
   distance: number | null
   energy: number | null
   work: number | null
+  elevationGain?: number | null
 }
 
 export interface TimelineResponse {
@@ -289,19 +331,157 @@ export interface Device {
   createdAt: string
 }
 
+/** One row of a precomputed board (PLAN.md §18.7). `rank` is null for a private player's own row. */
 export interface LeaderboardRow {
   rank: number | null
   uid: number
   username: string
-  sessionId: string
-  gameId: string
-  variant: string
-  route: string | null
+  displayName: string | null
+  firstName: string
+  lastName: string
+  country: string
   value: number
+  sessionId: string | null
+  detail: Record<string, unknown>
+  thumbnailUrl: string | null
   me: boolean
 }
 
-export interface LeaderboardsResponse {
-  metric: string
+/** What a value means, so the console can format a board it has never heard of. */
+export type BoardUnit = 'distance' | 'energy' | 'duration' | 'elevation' | 'count' | 'weeks' | 'number' | 'power'
+
+export interface Board {
+  id: string
+  title: string
+  subtitle: string
+  period: 'week' | 'month' | 'all'
+  unit: BoardUnit
+  device: DeviceType | null
+  lowerIsBetter: boolean
+  periodKey: string
+  /** How many players are ranked on it now. */
+  players: number
+}
+
+export interface BoardsResponse {
+  boards: Board[]
+}
+
+export interface BoardResponse extends Omit<Board, 'players'> {
   rows: LeaderboardRow[]
+}
+
+// --- profiles (PLAN.md §18.6) ---------------------------------------------------------------
+
+/** A player as a card or a leaderboard row: no extra queries behind it. */
+export interface PlayerCard {
+  uid: number
+  username: string
+  displayName: string | null
+  firstName: string
+  lastName: string
+  country: string
+  public: boolean
+  imageUrl: string | null
+  thumbnailUrl: string | null
+  streak: Streak
+  fitness: Fitness
+  me: boolean
+}
+
+export interface ProfileUpdate {
+  id: string
+  uid: number
+  kind: 'manual' | 'session' | 'streak' | 'achievement'
+  text: string
+  gameId: string | null
+  sessionId: string | null
+  data: Record<string, unknown>
+  createdAt: string
+  /** How many people have said "ride on" to this, and whether you are one of them (PLAN.md §18.6). */
+  cheers: number
+  cheered: boolean
+}
+
+export interface ProfileTotals {
+  sessions: number
+  distance: number
+  duration: number
+  energy: number
+  elevationGain: number
+  lastSession: string | null
+}
+
+export interface ProfileSession {
+  sessionId: string
+  gameId: string
+  variant: string
+  deviceType: DeviceType
+  startedAt: string | null
+  duration: number | null
+  distance: number | null
+  energy: number | null
+  elevationGain: number | null
+  stats: Record<string, number | string | boolean | null>
+  hasImage: boolean
+}
+
+export interface Profile extends PlayerCard {
+  bio: string
+  /** The AvatarSpec the designer saved; the page animates it. */
+  avatar: Record<string, unknown> | null
+  timeZone: string
+  unitSystem: UnitSystem
+  joinedAt: string
+  achievements: Record<string, Achievement>
+  totals: ProfileTotals & { byDevice: Record<string, ProfileTotals>; byGame: { gameId: string; sessions: number; distance: number }[] }
+  updates: ProfileUpdate[]
+  recentSessions: ProfileSession[]
+  /** Only on /api/admin/users/<uid>. */
+  isBot?: boolean
+  bodyData?: BodyData
+}
+
+/** One row of the end-of-session standing (PLAN.md §18.3). */
+export interface StandingRow {
+  rank: number
+  player: {
+    uid: number
+    username: string | null
+    displayName: string | null
+    firstName: string | null
+    lastName: string | null
+    country: string | null
+    fitness: number
+    thumbnailUrl: string | null
+  }
+  sessionId: string
+  distance: number
+  duration: number | null
+  startedAt: string | null
+  stats: Record<string, number | string | boolean | null>
+  me: boolean
+}
+
+export interface Standing {
+  /** null when the session is not one that counts (discarded, or a debug ride). */
+  rank: number | null
+  of: number
+  beaten: number
+  rows: StandingRow[]
+}
+
+export interface PlayersResponse {
+  players: PlayerCard[]
+}
+
+/** A row of the admin's player list. */
+export interface AdminUser extends PlayerCard {
+  isBot: boolean
+  timeZone: string
+  unitSystem: UnitSystem
+  bodyData: BodyData
+  createdAt: string
+  bio: string
+  hasAvatar: boolean
 }

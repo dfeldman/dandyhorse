@@ -14,6 +14,37 @@ SEMVER_RE = re.compile(r"^\d+\.\d+(\.\d+)?([-+][0-9A-Za-z.-]+)?$")
 CONTROLS = ("speed", "incline", "speed+incline", "grade", "power", "none")
 
 
+STAT_KEY_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_]{0,31}$")
+STAT_FORMATS = ("integer", "number", "distance", "duration")
+STAT_BETTER = ("higher", "lower")
+
+
+def _validate_stats(spec: Any, field: str) -> list[str]:
+    """`{key: {label, unit?, better?, format?, leaderboard?}}` (PLAN.md §18.2). `leaderboard` is only read
+    for `stats`; a progress counter is per-tick and never a board of its own."""
+    if not isinstance(spec, dict):
+        return [f"{field} must be an object of {{key: {{label, ...}}}}"]
+    errs: list[str] = []
+    for k, o in spec.items():
+        if not isinstance(k, str) or not STAT_KEY_RE.match(k):
+            errs.append(f"{field} key {k!r} must match ^[A-Za-z][A-Za-z0-9_]{{0,31}}$")
+            continue
+        if not isinstance(o, dict):
+            errs.append(f"{field}.{k} must be an object")
+            continue
+        if not isinstance(o.get("label"), str) or not o["label"].strip() or len(o["label"]) > 40:
+            errs.append(f"{field}.{k}: label is required (up to 40 characters)")
+        if "unit" in o and (not isinstance(o["unit"], str) or len(o["unit"]) > 12):
+            errs.append(f"{field}.{k}: unit must be a short string")
+        if "format" in o and o["format"] not in STAT_FORMATS:
+            errs.append(f"{field}.{k}: format must be one of {STAT_FORMATS}")
+        if "better" in o and o["better"] not in STAT_BETTER:
+            errs.append(f"{field}.{k}: better must be \"higher\" or \"lower\"")
+        if "leaderboard" in o and not isinstance(o["leaderboard"], bool):
+            errs.append(f"{field}.{k}: leaderboard must be true or false")
+    return errs
+
+
 def _validate_game(folder: Path, meta: Any) -> list[str]:
     errs: list[str] = []
     if not isinstance(meta, dict):
@@ -65,6 +96,10 @@ def _validate_game(folder: Path, meta: Any) -> list[str]:
             for k, a in ach.items()):
         errs.append('achievements must map ids to {"name", "description"?} (a name up to 60 characters, '
                     'a description up to 200)')
+    # What the game counts (PLAN.md §18.2): `stats` are the end-of-session totals it sends with endsession,
+    # `progress` the per-tick counters it puts in setstate.custom and the timeline keeps for competitors.
+    errs += _validate_stats(meta.get("stats", {}), "stats")
+    errs += _validate_stats(meta.get("progress", {}), "progress")
     variants = meta.get("variants")
     if not isinstance(variants, list) or not variants:
         errs.append("variants must be a non-empty list")
@@ -177,6 +212,8 @@ class Catalog:
                 "options": g.get("options", {}),
                 "variants": variants,
                 "achievements": g.get("achievements", {}),
+                "stats": g.get("stats", {}),
+                "progress": g.get("progress", {}),
             })
         return out
 
@@ -208,3 +245,12 @@ class Catalog:
         if a is None:
             return f"/{kind}/{name}/index.html"
         return f"/{kind}/{a['id']}/{a['entry']}"
+
+
+    # --- what a game counts (PLAN.md §18.2) ------------------------------
+    def stats_spec(self, game_id: str) -> dict[str, Any]:
+        return dict((self.game(game_id) or {}).get("stats") or {})
+
+    def progress_keys(self, game_id: str) -> list[str]:
+        """The per-tick counters this game declares; only these are kept in the derived timeline."""
+        return sorted((self.game(game_id) or {}).get("progress") or {})

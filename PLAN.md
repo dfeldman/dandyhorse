@@ -2136,3 +2136,281 @@ FTMS only for now. THe logical addition is more device types, not more protocols
     over automatically from an owner that sends nulls? Today the user
     presses "Take control here". AnswerL
     No. 
+
+---
+
+## 18. The social platform (2026-10-19)
+
+Dandyhorse works for one person at a time. This section turns it into a place with other people in it:
+profiles, a status timeline, leaderboards, a competitor to ride against, weekly streaks, and bot players
+who actually play the games so the place is not empty on day one.
+
+Owner's decisions, 2026-10-19: realtime bot sessions are acceptable (try to make them faster anyway);
+new accounts are public by default; the fun end-of-session message is composed by the game; competitor
+matching uses *measured* fitness; games declare their per-tick progress counters; bots are
+indistinguishable from people for now; avatar thumbnails are rendered client-side and cached.
+No backward compatibility is owed to existing data.
+
+### 18.1 Data model
+
+**`users`** gains:
+
+| Column | |
+|---|---|
+| `first_name`, `last_name` | Shown on the profile; `display_name` stays the short name used everywhere else. |
+| `country` | ISO 3166-1 alpha-2, uppercase, or `''`. |
+| `is_bot` | 1 for a bot player. Not shown anywhere today (owner's choice); the admin page and `/botapi/*` use it. |
+| `fitness` | Measured fitness (§18.4), recomputed when a session completes. |
+| `streak_goal` | 0 (none), 1, 2 or 3 sessions a week. |
+| `streak_length` | Completed weeks in a row that met the goal (§18.5). |
+| `streak_from` | The week the current goal was set: weeks before it never count. |
+| `image_file` | The profile picture, `data/profiles/<uid>.<ext>`. |
+| `thumb_file` | A small PNG of the avatar, rendered by the console and uploaded (§18.6). |
+
+`public` now defaults to **1**. The bio lives where it already does, in `profile.bio`; the avatar stays
+`profile.avatar` (an AvatarSpec, §8.1).
+
+**`sessions`** gains `stats TEXT NOT NULL DEFAULT '{}'` — what the game counted this session (§18.2).
+
+**`profile_updates`** is the status timeline, one row per update:
+
+```sql
+CREATE TABLE profile_updates (
+  update_id  TEXT PRIMARY KEY,          -- ulid, so rows sort by time
+  uid        INTEGER NOT NULL REFERENCES users(uid),
+  kind       TEXT NOT NULL,             -- manual | session | streak | achievement
+  text       TEXT NOT NULL,             -- at most 280 characters, shown as written
+  game_id    TEXT,
+  session_id TEXT,
+  data       TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL
+);
+```
+
+**`leaderboards`** is replaced (the old shape was never written to):
+
+```sql
+CREATE TABLE leaderboards (
+  board       TEXT NOT NULL,            -- a board id from the registry, §18.7
+  period_key  TEXT NOT NULL,            -- '2026-W43', '2026-10' or 'all'
+  rank        INTEGER NOT NULL,
+  uid         INTEGER NOT NULL,
+  value       REAL NOT NULL,
+  session_id  TEXT,                     -- the session behind a one-session board
+  detail      TEXT NOT NULL DEFAULT '{}',
+  computed_at TEXT NOT NULL,
+  PRIMARY KEY (board, period_key, uid)
+);
+```
+
+### 18.2 Session stats, and what a game declares
+
+A game ends a session with what it counted:
+
+```
+POST /gameapi/endsession
+{ "sessionId": "...", "status": "complete",
+  "stats":   { "deliveries": 7, "crashes": 6, "tips": 18.5 },
+  "message": "Seven parcels delivered — and six cars found the hard way." }
+```
+
+`stats` is an object of numbers (and short strings), at most 8 KB, stored on `sessions.stats`.
+`message` is the game's own fun line about the session, at most 280 characters; the server posts it to the
+player's timeline as a `session` update. A game that sends no message gets a plain one
+("rode 12.4 km in Rolling Hills"). A game may also send `stats` on its last `setstate`, which is kept as
+the session's stats if `endsession` brings none — a game killed by the reaper still keeps its numbers.
+
+A session finished by crash recovery (`lifecycle.recover`, after a server restart) keeps its numbers and its
+achievements but gets **no timeline line**: nobody was there to compose one, and a plain line dated to the
+restart would be worse than silence. The player's fitness and streak catch up when they next finish a session.
+
+`metadata.json` declares what the numbers mean, so the console, the leaderboards and the profile can show
+them without knowing the game:
+
+```json
+"stats": {
+  "deliveries": { "label": "Deliveries", "better": "higher", "leaderboard": true },
+  "crashes":    { "label": "Cars hit", "better": "lower" },
+  "tips":       { "label": "Tips", "unit": "$", "format": "number" }
+},
+"progress": {
+  "deliveries": { "label": "Deliveries" }
+}
+```
+
+- `stats` — end-of-session totals. `format` is `integer` (default), `number`, `distance`, `duration`.
+  `leaderboard: true` gives the stat its own all-time board (§18.7).
+- `progress` — counters the game sends **every tick** in `setstate.custom`, which the derived timeline
+  keeps under `progress` so a competitor's progress at any moment is known (§18.3). Only declared keys are
+  kept, and only numbers, so timelines stay small.
+
+### 18.3 Riding against somebody
+
+```
+GET /gameapi/competitor?session=<sid>[&route=<r>]
+```
+
+Picks a complete, non-debug session of the same game and variant (and route, if given) belonging to another
+**public** player whose measured fitness is **a little above** the player's own — the first band tried is
++0 % to +15 %, then ±30 %, then anyone — preferring recent sessions, and returns:
+
+```json
+{ "competitor": { "uid": 12, "username": "ana", "displayName": "Ana", "country": "ES",
+                  "thumbnailUrl": "/api/profiles/ana/thumbnail", "fitness": 152.0 },
+  "sessionId": "01M…", "startedAt": "…", "summary": { … §8.4 … },
+  "timeline": [ { "elapsed": 0, "distance": 0, "speed": 0, "energy": 0,
+                  "elevationGain": 0, "progress": { "deliveries": 0 } }, … ] }
+```
+
+At most 900 rows, downsampled to whole seconds. `null` competitor when nobody suitable exists —
+every game must play fine without one.
+
+`libs/gamekit/src/competitor.ts` is the common client half: `fetchCompetitor()`, a `CompetitorTracker`
+that answers "where were they at elapsed t" by interpolation, and `competitorBox()`, a small HUD element
+(name, their distance and speed, their progress counters, and whether you are ahead) that any game can
+drop on screen. Games keep their own look; the box styles itself from CSS custom properties.
+
+When the session ends:
+
+```
+GET /gameapi/standing?session=<sid>
+```
+
+ranks the just-finished session against the most recent sessions of the same game and variant by other
+players at a similar level — the individualised leaderboard the player sees on the end screen.
+
+### 18.4 Measured fitness
+
+`users.fitness` is recomputed whenever a session completes, from that player's last 10 complete non-debug
+sessions of each device type:
+
+```json
+{ "bike": { "watts": 148.2, "sessions": 7, "updatedAt": "…" },
+  "treadmill": { "speed": 2.31, "sessions": 2, "updatedAt": "…" },
+  "level": "fit" }
+```
+
+`watts` is the mean of those sessions' `avg_power`, `speed` the mean of `avg_speed`. `level` is the
+nearest of the four `FITNESS_LEVELS` buckets (100/130/160/200 W, `consoles/web/src/fitness.ts`). With no
+history, the declared setting (`preferences.steadyWatts`, `0.65 × ftp`, else 130 W) stands in, and
+`fitness.source` says `measured` or `declared`. Competitor matching and bot pairing read this one number.
+
+### 18.5 Streaks
+
+A week is the **ISO week** (Monday start) in the player's own `time_zone`. A streak is the number of
+consecutive weeks, counting back from the current one, in which the player completed at least
+`streak_goal` sessions. The week in progress counts once it has met the goal and never breaks the streak
+before it is over. Weeks before `streak_from` — the week the goal was last changed — never count, so
+changing the goal starts again from zero, as the owner asked. Recomputed when a session completes (cheap:
+one query over that player's sessions) and when the goal changes.
+
+### 18.6 Profiles
+
+| Endpoint | |
+|---|---|
+| `GET /api/profiles` | Every public player (and yourself): names, country, thumbnail, streak, totals. 100–200 people, so no paging. |
+| `GET /api/profiles/<username>` | One profile: names, country, bio, avatar spec, picture, streak, measured fitness, totals, recent sessions, latest updates. |
+| `GET /api/profiles/<username>/updates?limit=&before=` | The status timeline. |
+| `GET /api/profiles/<username>/image`, `/thumbnail` | The profile picture and the avatar thumbnail. |
+| `POST /api/profile/updates` | Write your own update (`{text}`, 280 characters). |
+| `DELETE /api/profile/updates/<id>` | Remove one of yours. |
+| `PUT /api/profile/image` | Upload a profile picture: PNG or JPEG, at most 1 MB, same handling as session images (§6.7). |
+| `PUT /api/profile/thumbnail` | A PNG of at most 200 KB: the console renders the avatar once in the designer and uploads it, so a list of players costs no Babylon. |
+
+The console gets **Players** (every profile as a card) and **Player** (one profile: the animated avatar
+from avatarkit, picture, names, country, bio, streak, and the timeline) pages. Leaderboard rows and
+History entries link to a profile.
+
+### 18.7 Leaderboards
+
+Every board is a function in a registry (`dandyhorse/social/boards.py`), so each one computes however it
+likes:
+
+```python
+@board("distance-week-bike", "Distance this week", period="week", device="bike", unit="distance")
+def distance_week_bike(conn, since, until):
+    return [Row(uid=…, value=…, session_id=…), …]
+```
+
+The first boards: distance this week on a bike, distance this week on a treadmill, metres climbed this
+week on a bike, calories this week, sessions all time, and longest current streak. On top of those, every
+game stat declared `leaderboard: true` gets an all-time board of its own, so "most deliveries in Cycle
+Dash" needs no code here — only the stat from the game.
+
+Boards are **precomputed** into `leaderboards`: all of them, whenever a session completes (a few hundred
+sessions makes this milliseconds), on `POST /api/admin/leaderboards/recompute`, and once a day from the
+reaper thread so a week rolls over on its own. `GET /api/leaderboards` lists the boards;
+`GET /api/leaderboards/<board>` serves the rows with each player's name and thumbnail.
+Private players are computed but shown only to themselves; debug and discarded sessions count for nothing.
+
+### 18.8 Bots
+
+Bots are ordinary users with `is_bot=1` that **play the real games** in headless Chromium, the way
+`games/laneone/tools/platform-e2e.ts` already does: launch a session over the console API, feed a
+simulated bike through `/bridgeapi/putstate`, let the real game run and end itself, then backdate it.
+Their numbers are therefore real — hills, crashes, deliveries and all.
+
+`bots/bots.json` holds each bot (not in the server, not in the database):
+
+```json
+{ "username": "marta", "firstName": "Marta", "lastName": "Rey", "country": "ES",
+  "body": { "height": 1.66, "weight": 61, "sex": "female", "age": 34 },
+  "schedule": { "daysPerWeek": 4, "timeOfDay": "07:15", "jitterMinutes": 50,
+                "sessionMinutes": 35, "sessionJitter": 10 },
+  "exercise": "bike",
+  "fitness": { "watts": 155, "variability": 18, "fatiguePerMinute": 0.005, "skillPerMonth": 0.01 },
+  "games": ["rollinghills", "trailtrainer", "citydash"],
+  "profile": { "bio": "…", "avatar": { … } },
+  "streakGoal": 3 }
+```
+
+The model is deliberately thin: no energy budget. Power is a smoothed random walk around `watts`
+(a 20 W `variability` means the walk's standard deviation, not per-tick noise), falls by
+`fatiguePerMinute` of its value each minute of the session, and rises by `skillPerMonth` for each month
+between the session's backdated time and now — so older sessions are slower, and a bot visibly improves.
+
+**Authentication.** One token for every bot, `DANDYHORSE_BOT_TOKEN` in the repo's `.env` (never committed;
+`.env.example` carries the name only), sent as `Authorization: Bearer <token>`:
+
+| Endpoint | |
+|---|---|
+| `POST /botapi/upsert` | Create or update a bot user from its `bots.json` entry; returns its uid. |
+| `POST /botapi/token` | A normal login token for that bot, so every other code path is untouched. |
+| `POST /botapi/backdate` | Move a finished session into the past. |
+
+**Backdating** is not a timestamp update: session ids are ULIDs, history pages on
+`(created_at, session_id)`, and logs live under `data/sessions/YYYY/MM/` by date. So `/botapi/backdate`
+mints a new ULID for the chosen instant, moves the log, timeline and image files to the new month, and
+rewrites `created_at`, `started_at`, `ended_at` and the ids — in one transaction. The runner picks the
+instant from the bot's schedule: a weekday it exercises, near its usual time, with jitter, skipping
+slots already taken.
+
+`bots/README.md` and `make bots-backfill` cover running it.
+
+### 18.10 What each game does with it
+
+Every game counts something and leaves a line on the player's timeline. A rival's box belongs on a ride
+through somewhere; a game that is a console of dials or a world walked from a menu gets the voice alone.
+
+| Game | Counts | Rival |
+|---|---|---|
+| Cycle Dash | deliveries, earned, stars, cars hit, streets | box, matched on the city |
+| Rolling Hills | laps, timed segments | box, matched on the route profile |
+| Trail Trainer | metres along the route, metres climbed, finished | box, matched on the trail |
+| Night Racer | championship points, wins, races, spin-outs | box; `anyRoute`, since its route carries the seed |
+| Night Watch | ships home, ships aground, stars | box; `anyRoute`, for the same reason |
+| Flight Cycle | rings flown through and missed, best streak, laps | box |
+| Lane One | segments, laps, time on target, programme | voice only — a console of dials wants no second rider |
+| Kingdom Trek | level reached, where they got to | voice only — a world to walk through, not a race |
+| Mock Game | laps, questions answered | none; it is the reference, and it demonstrates the contract |
+
+Bots play all of them but Mock Game, which is the reference game rather than something anybody rides.
+
+### 18.9 Admin
+
+The console's Admin page gains **Players**: every account including bots, and a form to change any of it —
+names, country, bio, public, streak goal, body data, and the avatar as pasted JSON (nobody types an
+AvatarSpec; the admin copies it out of the avatar designer). An admin can also post or delete a status
+update as any player. Bot performance curves and schedules stay in `bots/bots.json`, which the page links
+to but does not edit.
+

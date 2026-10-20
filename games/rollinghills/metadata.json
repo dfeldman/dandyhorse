@@ -13,44 +13,103 @@
     "ghosts": false,
     "input": false,
     "saveState": true,
-    "routes": ["flat", "rolling", "hilly"]
+    "routes": [
+      "flat",
+      "rolling",
+      "hilly"
+    ]
   },
   "achievements": {
-    "first-lap": { "name": "Round the loop", "description": "Rode a whole lap." },
-    "full-ride": { "name": "The whole ride", "description": "Rode until the workout's end." },
-    "kom": { "name": "King of the mountain", "description": "Finished a timed climb." },
-    "sprint": { "name": "Sprinter", "description": "Finished a timed sprint." }
+    "first-lap": {
+      "name": "Round the loop",
+      "description": "Rode a whole lap."
+    },
+    "full-ride": {
+      "name": "The whole ride",
+      "description": "Rode until the workout's end."
+    },
+    "kom": {
+      "name": "King of the mountain",
+      "description": "Finished a timed climb."
+    },
+    "sprint": {
+      "name": "Sprinter",
+      "description": "Finished a timed sprint."
+    }
+  },
+  "stats": {
+    "laps": {
+      "label": "Laps",
+      "better": "higher",
+      "leaderboard": true
+    },
+    "segments": {
+      "label": "Timed segments",
+      "better": "higher",
+      "leaderboard": true
+    }
+  },
+  "progress": {
+    "laps": {
+      "label": "Laps"
+    }
   },
   "variants": [
     {
       "id": "bike",
       "name": "Rolling Hills (Bike)",
       "description": "Your power against your own steady pace moves the bike; the trainer feels every hill.",
-      "deviceTypes": ["bike"],
+      "deviceTypes": [
+        "bike"
+      ],
       "defaultDuration": 1800,
-      "controls": { "bike": "grade" }
+      "controls": {
+        "bike": "grade"
+      }
     },
     {
       "id": "treadmill",
       "name": "Rolling Hills (Treadmill)",
       "description": "Your pace against your own steady pace moves the bike; the game sets the incline.",
-      "deviceTypes": ["treadmill"],
+      "deviceTypes": [
+        "treadmill"
+      ],
       "defaultDuration": 1800,
-      "controls": { "treadmill": "incline" }
+      "controls": {
+        "treadmill": "incline"
+      }
     }
   ],
   "options": {
     "route": {
       "label": "Route",
-      "enum": ["flat", "rolling", "hilly"],
-      "labels": ["Flat", "Rolling", "Hilly"],
+      "enum": [
+        "flat",
+        "rolling",
+        "hilly"
+      ],
+      "labels": [
+        "Flat",
+        "Rolling",
+        "Hilly"
+      ],
       "default": "rolling",
       "description": "How much relief the loop has (grade cap 5% / 9% / 13%)."
     },
     "timeOfDay": {
       "label": "Time of day",
-      "enum": ["day", "dusk", "night", "dawn"],
-      "labels": ["Day", "Dusk", "Night", "Dawn"],
+      "enum": [
+        "day",
+        "dusk",
+        "night",
+        "dawn"
+      ],
+      "labels": [
+        "Day",
+        "Dusk",
+        "Night",
+        "Dawn"
+      ],
       "default": "day",
       "description": "Where in the day/night cycle the ride starts."
     }

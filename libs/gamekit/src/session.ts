@@ -18,7 +18,7 @@
  */
 import * as api from './api.ts'
 import { newInputs, type InputCursor } from './inputs.ts'
-import { isEnded, type GameState, type InputAnswer, type PauseInfo, type Prompt, type SessionSummary, type SessionStatus, type TickBody } from './types.ts'
+import { isEnded, type GameState, type InputAnswer, type PauseInfo, type Prompt, type SessionStats, type SessionSummary, type SessionStatus, type TickBody } from './types.ts'
 
 export interface EndInfo {
   status: SessionStatus | 'discarded'
@@ -71,6 +71,7 @@ export class SessionClient {
   private cursor: InputCursor = { n: null, t: null }
   private firstState = true
   private pausedSince: number | null = null
+  private stats: SessionStats = {}
   private readonly opts: SessionClientOptions
 
   constructor(opts: SessionClientOptions) {
@@ -80,6 +81,20 @@ export class SessionClient {
 
   get isRunning(): boolean { return this.running }
   get isEnded(): boolean { return this.ended }
+
+  // --- what the game counted (PLAN.md §18.2) --------------------------------------------------
+
+  /**
+   * Record what the game has counted so far: `countStats({ deliveries: 7, crashes: 6 })`. Merged into what
+   * is already there, sent with every tick (so a session the reaper ends keeps its numbers) and again with
+   * endsession. The keys are the ones the game declares in `metadata.json.stats`.
+   */
+  countStats(stats: SessionStats): void {
+    this.stats = { ...this.stats, ...stats }
+  }
+
+  /** What would be sent now. */
+  get countedStats(): SessionStats { return { ...this.stats } }
 
   start(): void {
     if (this.running || this.ended) return
@@ -145,13 +160,22 @@ export class SessionClient {
 
   // --- ending ---------------------------------------------------------------------------------
 
-  /** End the session. Uploads the session image first on `complete`. Safe to call twice. */
-  async end(status: 'complete' | 'discarded', reason?: string): Promise<void> {
+  /**
+   * End the session. Uploads the session image first on `complete`. Safe to call twice.
+   *
+   * `message` is the game's own line for the player's timeline (PLAN.md §18.2) — "Seven parcels delivered —
+   * and six cars found the hard way." Compose it from the session; without one the server writes a plain
+   * line. `stats` defaults to whatever countStats() has gathered.
+   */
+  async end(status: 'complete' | 'discarded', reason?: string,
+            extra?: { stats?: SessionStats; message?: string }): Promise<void> {
     if (this.ended) return
     this.stop()
+    if (extra?.stats) this.countStats(extra.stats)
     if (status === 'complete') await this.sendImage()
+    const stats = Object.keys(this.stats).length > 0 ? this.stats : undefined
     try {
-      const summary = await api.endSession(this.sessionId, status, reason)
+      const summary = await api.endSession(this.sessionId, status, reason, stats, extra?.message)
       this.finish(summary.status, summary.endReason, summary)
     } catch (e) {
       this.opts.onError?.('endsession', e)
@@ -309,6 +333,8 @@ export class SessionClient {
     const partial = this.opts.buildTick()
     if (!partial) return
     const body = { ...partial, sessionId: this.sessionId, timestamp: Date.now() / 1000, requestedInput: this.prompt }
+    // Stats the game set with countStats(), unless this tick's body named its own.
+    if (partial.stats === undefined && Object.keys(this.stats).length > 0) body.stats = this.stats
     try {
       const res = await api.setState(body)
       this.opts.onTick?.(true)

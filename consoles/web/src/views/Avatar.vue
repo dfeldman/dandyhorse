@@ -5,6 +5,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { loadAvatar, saveAvatar } from '../avatar'
+import { uploadThumbnail } from '../avatarStage'
 import { claimPresses } from '../navigation'
 import { readTheme, resolveTheme } from '../theme'
 
@@ -12,6 +13,7 @@ const router = useRouter()
 const host = ref<HTMLElement | null>(null)
 const error = ref<string | null>(null)
 const saved = ref(false)
+const thumbed = ref(false)
 let designer: { dispose: () => void; press: (p: 'up' | 'down' | 'left' | 'right' | 'select' | 'back') => void } | null = null
 let release: (() => void) | null = null
 
@@ -36,6 +38,9 @@ onMounted(async () => {
       onSave: async (spec) => {
         await saveAvatar(spec)
         saved.value = true
+        // A small PNG of the look, so a page full of players costs no Babylon (PLAN.md §18.6). It renders in
+        // the background and nobody waits for it: a saved avatar is saved whether the picture works or not.
+        void uploadThumbnail(spec).then((ok) => { thumbed.value = ok })
       },
     })
     // the bridge's d-pad drives the designer while this page is up; Back still belongs to the console, so
@@ -62,6 +67,7 @@ function back(): void {
     <div class="actions">
       <button type="button" class="btn back" @click="back">Back</button>
       <span v-if="saved" class="pill ok">Saved to your profile</span>
+      <span v-if="thumbed" class="pill ok">Picture made for the Players page</span>
     </div>
     <p v-if="error" class="notice error">The designer didn’t load: {{ error }}</p>
     <div ref="host" class="designer-host"></div>

@@ -57,6 +57,8 @@ class Config:
         self.data_dir = Path(o.get("DATA_DIR") or env.get("DANDYHORSE_DATA") or self.root / "data").resolve()
         self.db_path = self.data_dir / "dandyhorse.db"
         self.sessions_dir = self.data_dir / "sessions"
+        # Profile pictures and avatar thumbnails (PLAN.md §18.6), one small file per player.
+        self.profiles_dir = self.data_dir / "profiles"
         self.games_dir = Path(o.get("GAMES_DIR") or self.root / "games")
         self.consoles_dir = Path(o.get("CONSOLES_DIR") or self.root / "consoles")
         self.bridges_dir = Path(o.get("BRIDGES_DIR") or self.root / "bridges")
@@ -77,6 +79,8 @@ class Config:
         self.resume_streak = float(o.get("RESUME_STREAK", 0.9))
         self.watchdog_interval = float(o.get("WATCHDOG_INTERVAL", 1.0))
         self.reaper_interval = float(o.get("REAPER_INTERVAL", 30.0))
+        # Rebuild every leaderboard this often (PLAN.md §18.7), so a week rolls over on a quiet day.
+        self.boards_interval = float(o.get("BOARDS_INTERVAL", 24 * 3600.0))
         self.reaper_enabled = bool(o.get("REAPER", True))
         self.max_wait = 2.0
         self.efficiency = 0.24
@@ -109,6 +113,11 @@ class Config:
         self.allowed_emails = {e.strip().lower() for e in emails if e.strip()}
         # The master secret behind login tokens and the sign-in cookie. Unset: made once into data/secret.key.
         self.secret_key = str(o.get("SECRET_KEY") or env.get("DANDYHORSE_SECRET_KEY") or "")
+        # The bots' one shared API token (PLAN.md §18.8): in the repo's .env, never committed. Empty turns
+        # /botapi/* off altogether, which is what a server with no bots wants.
+        # An explicit "" here turns them off even when the developer's own .env has a token (the tests rely
+        # on that), so this reads the override by key rather than by truth.
+        self.bot_token = str(o.get("BOT_TOKEN", env.get("DANDYHORSE_BOT_TOKEN", "")) or "")
         self.admin_uid = int(o.get("ADMIN_UID", env.get("DANDYHORSE_ADMIN_UID", "1")))
         # Short list of admin users (the console shows them the Admin tab). ADMIN_UIDS="1,7" or a list.
         raw = o.get("ADMIN_UIDS", env.get("DANDYHORSE_ADMIN_UIDS", ""))

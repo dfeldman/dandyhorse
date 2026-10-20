@@ -10,8 +10,18 @@
  * `onInput`, so a tap on the screen and a tap on the phone take exactly the same path.
  */
 import {
-  EffortMeter, SessionClient, persistentPrompt, putSave,
-  type EndInfo, type GameState, type InputAnswer, type Json, type StartPayload, type TickBody,
+  EffortMeter,
+  SessionClient,
+  persistentPrompt,
+  putSave,
+  rivalHud,
+  type EndInfo,
+  type GameState,
+  type InputAnswer,
+  type Json,
+  type Rival,
+  type StartPayload,
+  type TickBody,
 } from '@dandyhorse/gamekit'
 import { Config, type Difficulty, type WeatherMode } from './config.ts'
 import type { Controls } from './controls.ts'
@@ -82,6 +92,8 @@ export class Platform implements Controls {
   private promptOpen = false
 
   // achievements
+  /** Another keeper's night to stand against, and the voice for this one (PLAN.md §18.3). */
+  private rival: Rival | null = null
   private readonly earned = new Set<string>()
   private readonly pending: string[] = []
   private sent: string[] = []
@@ -136,6 +148,21 @@ export class Platform implements Controls {
     this.client.start()
     this.promptOpen = true
     this.client.openPrompt(persistentPrompt(PROMPT_ID, 'Horn', [HORN_LABEL]))
+    // Another keeper who stood this same watch (PLAN.md §18.3): the route is the seed and the night's
+    // length, so the timetable they faced was the one this player faces. A debug night is not raced.
+    if (!this.start.debug) {
+      // The route name carries the seed and the night's length, and a seed is fresh every launch, so
+      // matching on it would find nobody. A different timetable is still a night at the lamp.
+      void rivalHud(this.start.sessionId, {
+        anyRoute: true,
+        imperial: this.start.unitSystem === 'us',
+        plannedSeconds: this.duration,
+        labels: { shipsHome: 'Ships home', stars: 'Stars' },
+        words: { shipsHome: 'ship', stars: 'star' },
+        corner: 'bottom-left',
+        log: this.log,
+      }).then((r) => { this.rival = r })
+    }
   }
 
   // --- Controls -------------------------------------------------------------------------------
@@ -205,7 +232,30 @@ export class Platform implements Controls {
       if (whole && night.blasts === 0 && night.shipsAground === 0) this.achievement('steady-hand')
       this.recordBest(night)
     }
-    setTimeout(() => void this.client.requestTick().then(() => this.client.end('complete')), END_DELAY_MS)
+    setTimeout(() => void this.client.requestTick().then(() => {
+      const message = this.message()
+      this.rival?.remove()
+      return this.client.end('complete', undefined, { message })
+    }), END_DELAY_MS)
+  }
+
+  /** The line this night leaves on the player's timeline (PLAN.md §18.2). */
+  private message(): string {
+    const night = this.hooks?.night
+    if (!night) return 'A night at the lamp.'
+    const s = night.snapshot()
+    const home = s.shipsHome
+    const lost = s.shipsAground
+    const theirs = this.rival?.theirs()?.progress.shipsHome
+    const who = this.rival?.player?.firstName || this.rival?.player?.username
+    const ships = `${home} ship${home === 1 ? '' : 's'} brought home`
+    const aground = lost > 0 ? `, ${lost} aground` : ' and not one aground'
+    if (who && typeof theirs === 'number') {
+      if (home > theirs) return `${ships}${aground} — ${theirs} was all ${who} managed.`
+      if (home < theirs) return `${ships}${aground}. ${who} got ${theirs} home.`
+      return `${ships}${aground}, the same as ${who}.`
+    }
+    return `${ships}${aground}. ${s.stars} star${s.stars === 1 ? '' : 's'} on the night.`
   }
 
   /** The session ended from a bridge or the console. */
@@ -276,6 +326,12 @@ export class Platform implements Controls {
         shipsAground: s.shipsAground, weather: s.weather, target: s.target, watching: s.watching.length,
       },
     }
+    // What the night has come to (PLAN.md §18.2).
+    this.client.countStats({ shipsHome: s.shipsHome, shipsAground: s.shipsAground, stars: s.stars })
+    body.custom = { ...body.custom, shipsHome: s.shipsHome }
+    this.rival?.update(this.client.latest?.activeSeconds ?? 0,
+                       { distance: this.client.latest?.distance ?? 0,
+                         progress: { shipsHome: s.shipsHome, stars: s.stars } })
     if (this.pending.length) { this.sent = this.pending.splice(0); body.achievements = this.sent }
     return body
   }

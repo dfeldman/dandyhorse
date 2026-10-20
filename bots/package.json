@@ -1,0 +1,20 @@
+{
+  "name": "dandyhorse-bots",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Bot players: they play the real games in a headless browser, then their sessions are moved into the past.",
+  "scripts": {
+    "upsert": "node --experimental-strip-types src/cli.ts upsert",
+    "once": "node --experimental-strip-types src/cli.ts once",
+    "backfill": "node --experimental-strip-types src/cli.ts backfill",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "playwright": "^1.50",
+    "typescript": "^5.8",
+    "vitest": "^3.2"
+  }
+}

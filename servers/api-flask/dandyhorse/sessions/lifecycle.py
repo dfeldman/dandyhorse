@@ -18,6 +18,29 @@ if TYPE_CHECKING:
     from .. import Platform
 
 MAX_CUSTOM = 8 * 1024
+MAX_STATS = 8 * 1024
+# A game's fun line about the session, posted to the player's timeline (PLAN.md §18.2).
+MAX_MESSAGE = 280
+
+
+def validate_stats(v: Any) -> dict[str, Any] | None:
+    """`stats` from a game: an object of numbers and short strings, at most 8 KB (PLAN.md §18.2). None when
+    the game sent nothing, which leaves whatever it sent earlier alone."""
+    if v is None:
+        return None
+    if not isinstance(v, dict):
+        raise ApiError(400, "stats_invalid", "stats must be an object")
+    if len(dumps(v)) > MAX_STATS:
+        raise ApiError(400, "stats_invalid", f"stats must be under {MAX_STATS // 1024} KB")
+    for k, x in v.items():
+        if not isinstance(k, str) or not k or len(k) > 32:
+            raise ApiError(400, "stats_invalid", "every stats key must be a string of at most 32 characters")
+        if isinstance(x, bool) or x is None or isinstance(x, (int, float)):
+            continue
+        if isinstance(x, str) and len(x) <= 80:
+            continue
+        raise ApiError(400, "stats_invalid", f"stats.{k} must be a number, a boolean or a short string")
+    return dict(v)
 
 
 def _allow_sim(user: dict[str, Any], debug: bool) -> bool:
@@ -142,6 +165,9 @@ def game_tick(dh: "Platform", live: LiveSession, body: dict[str, Any]) -> int:
     custom = body.get("custom")
     if custom is not None and (not isinstance(custom, dict) or len(dumps(custom)) > MAX_CUSTOM):
         raise ApiError(400, "custom_invalid", "custom must be an object of at most 8 KB")
+    # What the game has counted so far (PLAN.md §18.2). Kept on every tick so a session the reaper ends still
+    # has its numbers; endsession's own `stats` wins if it sends any.
+    stats = validate_stats(body.get("stats"))
     prompt = _validate_prompt(body.get("requestedInput"))
     ach = body.get("achievements") or []
     if not isinstance(ach, list) or any(not isinstance(a, str) for a in ach):
@@ -152,6 +178,8 @@ def game_tick(dh: "Platform", live: LiveSession, body: dict[str, Any]) -> int:
         live.position = pos
     if custom is not None:
         live.custom = custom
+    if stats is not None:
+        live.stats = stats
     if isinstance(body.get("route"), str) and body["route"]:
         live.route = body["route"][:120]
     score = num_or_none(body.get("score"))
@@ -397,8 +425,13 @@ def session_brief(dh: "Platform", live: LiveSession) -> dict[str, Any]:
 END_SCREEN_SECONDS = 120.0
 
 
-def end(dh: "Platform", conn: sqlite3.Connection, live: LiveSession, status: str, reason: str) -> dict[str, Any]:
-    """Finalize a live session. Idempotent."""
+def end(dh: "Platform", conn: sqlite3.Connection, live: LiveSession, status: str, reason: str,
+        stats: dict[str, Any] | None = None, message: str | None = None) -> dict[str, Any]:
+    """Finalize a live session. Idempotent.
+
+    `stats` and `message` are what the game sends with endsession (PLAN.md §18.2): the numbers it counted and
+    its own line for the player's timeline. Stats sent earlier on a tick stand in when endsession brings none.
+    """
     if live.terminal:
         return summary_from_db(conn, live.session_id) or {}
     t = _now()
@@ -409,6 +442,8 @@ def end(dh: "Platform", conn: sqlite3.Connection, live: LiveSession, status: str
     # end screen together, or it takes the screen back from the game.
     if status == "complete" and live.end_screen:
         dh.store.open_end_screen(live.uid, live.session_id, t + END_SCREEN_SECONDS)
+    if stats is not None:
+        live.stats = stats
     live.status = status
     live.end_reason = reason
     live.ended_at = t
@@ -416,13 +451,15 @@ def end(dh: "Platform", conn: sqlite3.Connection, live: LiveSession, status: str
     summary: dict[str, Any] = live.integrator.summary(None)
     log_rel = live.log_rel
     if live.writer is not None:
-        live.append({"k": "end", "t": t, "status": status, "endReason": reason})
+        live.append({"k": "end", "t": t, "status": status, "endReason": reason,
+                     "stats": live.stats or None, "message": (message or None)})
         live.writer.close()
         live.writer = None
         rows, summary = build_timeline(
             live.records, device_type=live.device_type, allow_sim=live.allow_sim,
             fresh=dh.config.fresh_seconds, body_data=live.body_data, efficiency=dh.config.efficiency,
-            default_weight=dh.config.default_weight)
+            default_weight=dh.config.default_weight,
+            progress_keys=dh.catalog.progress_keys(live.game_id))
         assert live.log_rel is not None
         log_rel = logmod.finalize(dh.config.sessions_dir, live.log_rel)
         logmod.write_timeline(dh.config.sessions_dir, log_rel, rows)
@@ -431,26 +468,39 @@ def end(dh: "Platform", conn: sqlite3.Connection, live: LiveSession, status: str
         live.paused_total += t - live.paused_since
         live.paused_since = None
     summary.setdefault("pausedSeconds", live.paused_total)
-    _write_final_row(conn, live.session_id, status, reason, t, summary, log_rel, live.route, live.score)
+    _write_final_row(conn, live.session_id, status, reason, t, summary, log_rel, live.route, live.score,
+                     live.stats)
     if status == "complete" and not live.debug:
         _apply_achievements(conn, live.uid, live.achievements)
         _platform_achievements(conn, live.uid, live.session_id, live.device_type)
     dh.store.remove(live.session_id)
     live.bump()
-    return summary_from_db(conn, live.session_id) or {}
+    out = summary_from_db(conn, live.session_id) or {}
+    if status == "complete" and not live.debug:
+        # Profiles, streaks, fitness and the leaderboards (PLAN.md §18). Never let the social side cost a
+        # player their session: the workout is already saved above.
+        from ..social import finalize as social_finalize
+        try:
+            out["social"] = social_finalize.after_session(dh, conn, live.uid, out, message)
+        except Exception:  # noqa: BLE001
+            import logging
+            logging.getLogger("dandyhorse").exception("social finalize failed for %s", live.session_id)
+    return out
 
 
 def _write_final_row(conn: sqlite3.Connection, session_id: str, status: str, reason: str, t: float,
-                     s: dict[str, Any], log_rel: str | None, route: str | None, score: float | None) -> None:
+                     s: dict[str, Any], log_rel: str | None, route: str | None, score: float | None,
+                     stats: dict[str, Any] | None = None) -> None:
     conn.execute(
         """UPDATE sessions SET status=?, end_reason=?, ended_at=?, duration=?, distance=?, energy=?, work=?,
            avg_power=?, max_power=?, avg_speed=?, max_speed=?, avg_hr=?, max_hr=?, avg_cadence=?,
            elevation_gain=?, energy_source=?, sample_count=?, log_file=?, log_finalized=?, route=?, score=?,
-           paused_seconds=?, updated_at=? WHERE session_id=?""",
+           paused_seconds=?, stats=?, updated_at=? WHERE session_id=?""",
         (status, reason, iso(t), s.get("duration"), s.get("distance"), s.get("energy"), s.get("work"),
          s.get("avgPower"), s.get("maxPower"), s.get("avgSpeed"), s.get("maxSpeed"), s.get("avgHr"),
          s.get("maxHr"), s.get("avgCadence"), s.get("elevationGain"), s.get("energySource"),
-         s.get("sampleCount"), log_rel, 1 if log_rel else 0, route, score, s.get("pausedSeconds"), iso(t), session_id))
+         s.get("sampleCount"), log_rel, 1 if log_rel else 0, route, score, s.get("pausedSeconds"),
+         dumps(stats or {}), iso(t), session_id))
     conn.commit()
 
 
@@ -513,6 +563,7 @@ def row_to_summary(row: sqlite3.Row) -> dict[str, Any]:
         "pausedSeconds": d["paused_seconds"] if "paused_seconds" in d.keys() else None,
         "hasImage": bool(d.get("image_file")),
         "bodyData": loads(d["body_data"]), "options": loads(d["options"]), "hasLog": bool(d["log_finalized"]),
+        "stats": loads(d.get("stats")),
     }
 
 
@@ -560,7 +611,8 @@ def recover(dh: "Platform", conn: sqlite3.Connection) -> list[tuple[str, str]]:
             rel = logmod.finalize(dh.config.sessions_dir, rel)
         rows_tl, summary = build_timeline(records, device_type=row["device_type"], allow_sim=allow_sim,
                                           fresh=dh.config.fresh_seconds, body_data=body,
-                                          efficiency=dh.config.efficiency, default_weight=dh.config.default_weight)
+                                          efficiency=dh.config.efficiency, default_weight=dh.config.default_weight,
+                                          progress_keys=dh.catalog.progress_keys(row["game_id"]))
         logmod.write_timeline(dh.config.sessions_dir, rel, rows_tl)
         started = parse_iso(row["started_at"])
         summary["duration"] = (end_t - started) if started else summary.get("duration")
@@ -583,7 +635,8 @@ def timeline_for(dh: "Platform", conn: sqlite3.Connection, session_id: str) -> l
     if live is not None:
         rows, _ = build_timeline(live.records, device_type=live.device_type, allow_sim=live.allow_sim,
                                  fresh=dh.config.fresh_seconds, body_data=live.body_data,
-                                 efficiency=dh.config.efficiency, default_weight=dh.config.default_weight)
+                                 efficiency=dh.config.efficiency, default_weight=dh.config.default_weight,
+                                 progress_keys=dh.catalog.progress_keys(live.game_id))
         return rows
     row = conn.execute("SELECT log_file FROM sessions WHERE session_id=?", (session_id,)).fetchone()
     if row is None or not row["log_file"]:

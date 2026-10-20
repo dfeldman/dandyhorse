@@ -10,6 +10,7 @@ from ..db import get_db
 from ..sessions import lifecycle
 from ..sessions import log as logmod
 from ..sessions.log import read_records
+from ..social import competitors
 from ..util import ApiError, dumps, iso, loads, now as _now, num_or_none
 from . import body, dh, user_session, wait_params
 from .views import device_prefs, ended_game_view, game_view
@@ -152,7 +153,11 @@ def endsession():
     reason = "completed" if status == "complete" else "discarded_by_game"
     if isinstance(b.get("reason"), str) and b["reason"]:
         reason = b["reason"][:80] if status == "discarded" else reason
-    return jsonify(lifecycle.end(dh(), conn, live, status, reason))
+    # What the game counted, and its own line for the player's timeline (PLAN.md §18.2).
+    stats = lifecycle.validate_stats(b.get("stats"))
+    message = b.get("message") if isinstance(b.get("message"), str) else None
+    return jsonify(lifecycle.end(dh(), conn, live, status, reason, stats=stats,
+                                 message=(message or "").strip()[:lifecycle.MAX_MESSAGE] or None))
 
 
 # --- end screen (PLAN.md §6.4.1) -----------------------------------------------
@@ -372,3 +377,55 @@ def log(sid: str):
     live = dh().store.get(sid)
     records = list(live.records) if live else read_records(dh().config.sessions_dir, row["log_file"])
     return jsonify({"sessionId": sid, "records": records})
+
+
+# --- riding against somebody (PLAN.md §18.3) ----------------------------------
+
+@bp.get("/competitor")
+@require_auth
+def competitor():
+    """A past session by another public player a little stronger than this one, with their 1 Hz timeline, so
+    the game can show where they were at any moment. `{"competitor": null}` when nobody suitable has played
+    this game yet — every game must play fine without one."""
+    conn = get_db()
+    sid = request.args.get("session")
+    if sid:
+        row = conn.execute("SELECT game_id, variant, route, seed FROM sessions WHERE session_id=? AND uid=?",
+                           (sid, g.user["uid"])).fetchone()
+        if row is None:
+            raise ApiError(404, "session_not_found", "no such session of yours")
+        game_id, variant, route = row["game_id"], row["variant"], row["route"]
+        # `sessions.route` is only written at finalize, and a game names its route at startsession — so for a
+        # session still running the live object is the one that knows which route to match against.
+        live = dh().store.get(sid)
+        if live is not None and live.route:
+            route = live.route
+    else:
+        game_id, variant = request.args.get("game"), request.args.get("variant")
+        route = request.args.get("route")
+        if not game_id or not variant:
+            raise ApiError(400, "game_required", "session, or game and variant, required")
+    if request.args.get("route"):
+        route = request.args["route"]
+    if request.args.get("anyRoute") == "1":
+        route = None
+    pick = competitors.pick(conn, g.user["uid"], game_id, variant, route, seed=sid or "")
+    if pick is None:
+        return jsonify({"competitor": None, "gameId": game_id, "variant": variant, "route": route})
+    timeline = lifecycle.timeline_for(dh(), conn, pick["session_id"]) or []
+    return jsonify(competitors.competitor_view(dh(), conn, pick, timeline, game_id))
+
+
+@bp.get("/standing")
+@require_auth
+def standing():
+    """Where the session that just ended stands against recent sessions by players at a similar level:
+    the small, personal leaderboard the end screen shows (PLAN.md §18.3)."""
+    conn = get_db()
+    sid = request.args.get("session")
+    if not sid:
+        raise ApiError(400, "session_required", "session query parameter required")
+    row = conn.execute("SELECT * FROM sessions WHERE session_id=? AND uid=?", (sid, g.user["uid"])).fetchone()
+    if row is None:
+        raise ApiError(404, "session_not_found", "no such session of yours")
+    return jsonify(competitors.standing(conn, g.user["uid"], row))

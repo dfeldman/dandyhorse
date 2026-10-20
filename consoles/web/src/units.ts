@@ -17,7 +17,7 @@ export interface Quantity {
   text: string
 }
 
-function round(v: number, digits: number): number {
+export function round(v: number, digits: number): number {
   const f = 10 ** digits
   return Math.round(v * f) / f
 }
@@ -132,12 +132,24 @@ export function duration(s: number | null): string {
   return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`
 }
 
-/** ISO string or epoch seconds → localized date/time in a time zone; invalid zones fall back to local. */
+/** The options Intl refuses to see beside `dateStyle` or `timeStyle`. */
+const COMPONENT_OPTS = ['weekday', 'era', 'year', 'month', 'day', 'hour', 'minute', 'second',
+                        'timeZoneName', 'dayPeriod', 'fractionalSecondDigits'] as const
+
+/**
+ * ISO string or epoch seconds → localized date/time in a time zone; invalid zones fall back to local.
+ *
+ * The default is a medium date and a short time, but a caller that names the parts it wants ("3 Oct 2026")
+ * gets only those: Intl throws if `dateStyle` is passed beside `day`, and a date on a page is never worth
+ * an exception.
+ */
 export function dateTime(v: string | number | null, timeZone: string, opts: Intl.DateTimeFormatOptions = {}): string {
   if (v === null || v === undefined) return '—'
   const d = typeof v === 'number' ? new Date(v * 1000) : new Date(v)
   if (Number.isNaN(d.getTime())) return '—'
-  const base: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short', ...opts }
+  const named = COMPONENT_OPTS.some((k) => opts[k] !== undefined)
+  const base: Intl.DateTimeFormatOptions = named ? { ...opts }
+    : { dateStyle: 'medium', timeStyle: 'short', ...opts }
   try {
     return new Intl.DateTimeFormat(undefined, { ...base, timeZone }).format(d)
   } catch {
@@ -159,18 +171,29 @@ export function ago(v: string | number | null, now: number = Date.now()): string
   return `${Math.floor(h / 24)} d ago`
 }
 
-/** Leaderboard metric value → display text. */
-export function metricValue(metric: string, v: number | null, sys: UnitSystem): string {
-  switch (metric) {
+/**
+ * A leaderboard value as text, from the board's own `unit` (PLAN.md §18.7) — so the console can show a board
+ * it has never heard of, including the ones a game declares for its own stats.
+ */
+export function boardValue(unit: string, v: number | null, sys: UnitSystem): string {
+  if (v === null || v === undefined) return '—'
+  switch (unit) {
     case 'distance':
-      return distance(v, sys).text
+      // Under a kilometre, say so in metres: three people on "0 km" is not a leaderboard.
+      return Math.abs(v) < 1000 ? length(v, sys, 0).text : distance(v, sys, 1).text
+    case 'elevation':
+      return length(v, sys, 0).text
     case 'energy':
       return energy(v).text
     case 'duration':
       return duration(v)
-    case 'avg_power':
+    case 'power':
       return power(v).text
+    case 'weeks':
+      return `${round(v, 0)} week${v === 1 ? '' : 's'}`
+    case 'count':
+      return String(round(v, 0))
     default:
-      return v === null ? '—' : String(round(v, 1))
+      return String(round(v, 1))
   }
 }

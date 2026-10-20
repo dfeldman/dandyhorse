@@ -1,4 +1,4 @@
-.PHONY: install build test serve devicelib assets assets-upload avatar-assets dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek dev-bikeplane dev-nightracer dev-nightwatch dev-trailtrainer dev-laneone dev-avatar
+.PHONY: install build test serve devicelib assets assets-upload avatar-assets bots-upsert bots-backfill dev-console dev-bridge dev-mockgame dev-rollinghills dev-kingdomtrek dev-bikeplane dev-nightracer dev-nightwatch dev-trailtrainer dev-laneone dev-avatar
 
 LIBS := libs/gamekit devicelib
 FRONTENDS := consoles/web bridges/web games/mockgame games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch games/laneone games/trailtrainer
@@ -10,6 +10,8 @@ STANDALONE :=
 # (mh/ and env/, about 300 MB, not in git) come from the shared asset bucket: `make avatar-assets` runs its
 # `npm run assets`. See ../avatarkit/ASSETS.md.
 AVATARKIT_DIR ?= $(abspath $(CURDIR)/../avatarkit)
+# how far back `make bots-backfill` goes
+WEEKS ?= 12
 AVATAR_DIR := $(AVATARKIT_DIR)/public
 VUE_APPS := consoles/web bridges/web
 SERVER := servers/api-flask
@@ -51,6 +53,8 @@ test: devicelib
 	for d in $(VUE_APPS) games/rollinghills games/kingdomtrek games/bikeplane games/nightracer games/nightwatch games/laneone games/trailtrainer $(STANDALONE); do (cd $$d && npm test) || exit 1; done
 	cd libs/gamekit && npm test
 	cd devicelib && npm test
+	@if [ -d bots/node_modules ]; then (cd bots && npm test) || exit 1; \
+	else echo "skipping the bots' tests: not installed (make bots-install)"; fi
 	@if [ -d $(AVATAR_DIR)/mh ]; then (cd $(AVATARKIT_DIR) && npm test) || exit 1; \
 	else echo "skipping avatarkit tests: no MakeHuman assets (make avatar-assets)"; fi
 
@@ -90,4 +94,16 @@ dev-trailtrainer:
 
 dev-avatar:
 	cd $(AVATARKIT_DIR) && npm run dev
+
+# Bot players (PLAN.md §18.8, bots/README.md). `make install` does not install them: they pull Chromium,
+# and a server with no DANDYHORSE_BOT_TOKEN has no use for them.
+bots-install:
+	cd bots && npm install && npx playwright install chromium
+
+bots-upsert:
+	cd bots && npm run upsert
+
+# Months of history. This runs in real time (see bots/README.md); leave it going.
+bots-backfill:
+	cd bots && npm run backfill -- --weeks $(WEEKS)
 

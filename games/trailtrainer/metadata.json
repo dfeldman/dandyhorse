@@ -13,46 +13,113 @@
     "ghosts": false,
     "input": false,
     "saveState": true,
-    "routes": ["alpe-dhuez", "katy-trail"]
+    "routes": [
+      "alpe-dhuez",
+      "katy-trail"
+    ]
   },
   "achievements": {
-    "first-session": { "name": "Out the door", "description": "Rode part of a real route." },
-    "ten-k": { "name": "Ten kilometres in", "description": "Got 10 km into a route." },
-    "hundred-k": { "name": "A hundred kilometres in", "description": "Got 100 km into a route." },
-    "resumed": { "name": "Where you left it", "description": "Picked a route up part-way through." },
-    "summit": { "name": "The whole climb", "description": "Rode Alpe d'Huez end to end." },
-    "end-to-end": { "name": "End to end", "description": "Finished a route, however many sessions it took." }
+    "first-session": {
+      "name": "Out the door",
+      "description": "Rode part of a real route."
+    },
+    "ten-k": {
+      "name": "Ten kilometres in",
+      "description": "Got 10 km into a route."
+    },
+    "hundred-k": {
+      "name": "A hundred kilometres in",
+      "description": "Got 100 km into a route."
+    },
+    "resumed": {
+      "name": "Where you left it",
+      "description": "Picked a route up part-way through."
+    },
+    "summit": {
+      "name": "The whole climb",
+      "description": "Rode Alpe d'Huez end to end."
+    },
+    "end-to-end": {
+      "name": "End to end",
+      "description": "Finished a route, however many sessions it took."
+    }
+  },
+  "stats": {
+    "routeMetres": {
+      "label": "Along the route",
+      "format": "distance",
+      "better": "higher",
+      "leaderboard": true
+    },
+    "climbed": {
+      "label": "Climbed",
+      "format": "distance",
+      "better": "higher"
+    },
+    "finished": {
+      "label": "Reached the end"
+    }
+  },
+  "progress": {
+    "routeMetres": {
+      "label": "Along the route"
+    },
+    "climbed": {
+      "label": "Climbed"
+    }
   },
   "variants": [
     {
       "id": "bike",
       "name": "Trail Trainer (Bike)",
       "description": "Your measured power moves the bike against the real gradient, and the trainer holds it. Stop pedalling and you coast.",
-      "deviceTypes": ["bike"],
+      "deviceTypes": [
+        "bike"
+      ],
       "defaultDuration": 2700,
-      "controls": { "bike": "grade" }
+      "controls": {
+        "bike": "grade"
+      }
     },
     {
       "id": "treadmill",
       "name": "Trail Trainer (Run)",
-      "description": "The belt speed you choose is your speed on the trail; the game sets the incline from the route. No coasting — you run every metre.",
-      "deviceTypes": ["treadmill"],
+      "description": "The belt speed you choose is your speed on the trail; the game sets the incline from the route. No coasting \u2014 you run every metre.",
+      "deviceTypes": [
+        "treadmill"
+      ],
       "defaultDuration": 2700,
-      "controls": { "treadmill": "incline" }
+      "controls": {
+        "treadmill": "incline"
+      }
     }
   ],
   "options": {
     "route": {
       "label": "Route",
-      "enum": ["alpe-dhuez", "katy-trail"],
-      "labels": ["Alpe d'Huez — 14.7 km, 1134 m up", "Katy Trail — 385.6 km, flat"],
+      "enum": [
+        "alpe-dhuez",
+        "katy-trail"
+      ],
+      "labels": [
+        "Alpe d'Huez \u2014 14.7 km, 1134 m up",
+        "Katy Trail \u2014 385.6 km, flat"
+      ],
       "default": "alpe-dhuez",
       "description": "Which real route to ride. You keep your place on each one separately."
     },
     "others": {
       "label": "Other people",
-      "enum": ["none", "few", "busy"],
-      "labels": ["Empty road", "A few", "Busy"],
+      "enum": [
+        "none",
+        "few",
+        "busy"
+      ],
+      "labels": [
+        "Empty road",
+        "A few",
+        "Busy"
+      ],
       "default": "few",
       "description": "How many other riders and walkers are out. Each one is a full avatar; turn them off on a weak GPU."
     }
@@ -67,14 +134,18 @@
       },
       "viewDistance": {
         "type": "string",
-        "enum": ["near", "normal", "far"],
+        "enum": [
+          "near",
+          "normal",
+          "far"
+        ],
         "default": "normal",
         "description": "How much of the landscape is drawn. 'Far' shows the other side of the valley on mountain routes."
       }
     }
   },
   "notes": {
-    "saveState": "Progress is a position per route, not a score: { routes: { <id>: { s, elapsed, sessions, completed } } }. A session that ends part-way along a route is a success, not an abandonment — see INTEGRATION.md §5.",
+    "saveState": "Progress is a position per route, not a score: { routes: { <id>: { s, elapsed, sessions, completed } } }. A session that ends part-way along a route is a success, not an abandonment \u2014 see INTEGRATION.md \u00a75.",
     "duration": "requestedDuration ends the session, not the route. Routes are hours or days long by design."
   }
 }

@@ -250,6 +250,55 @@ else choose(a.id)                            // a tap on an item
   never count for leaderboards, achievements or totals, and simulators are
   only accepted in them.
 
+## 7a. What your game counted, and somebody to ride against
+
+Two things turn a session into part of a social platform
+(PLAN.md §18.2–18.3), and gamekit makes each of them a couple of lines.
+
+**Count what only your game knows**, declare it in `metadata.json`
+(`stats` for the end-of-session totals, `progress` for the counters you
+send every tick), and leave a line on the player's timeline:
+
+```ts
+client.countStats({ deliveries, crashes })       // every tick; merged, sent with the tick and at the end
+await client.end('complete', undefined, {
+  message: `${deliveries} parcels delivered — and ${crashes} cars found the hard way.`,
+})
+```
+
+A stat marked `"leaderboard": true` gets a board of its own with no server
+code at all. A game that sends no message gets a plain one.
+
+**Ride against somebody** — a real past session by a player a little
+stronger than this one:
+
+```ts
+const rival = await rivalHud(start.sessionId, {
+  imperial: start.unitSystem === 'us',
+  plannedSeconds: start.requestedDuration,
+  labels: { deliveries: 'Parcels' },
+  words: { deliveries: 'delivery' },
+  corner: 'top-right',
+})
+// about once a second:
+rival.update(elapsed, { distance, progress: { deliveries } })
+// at the end:
+const theirs = rival.theirs()   // where they had got to, for your own closing line
+rival.remove()
+```
+
+`rivalHud` puts a small box on the HUD (who you are racing, their distance
+and speed, their counters beside yours, and whether you are in front) and
+a voice that calls out the kilometres, the milestones and the moment you
+pass them or they pass you. **Nobody is guaranteed**: with no suitable
+session it quietly returns the voice alone, and with no `document` at all
+(a test, a worker) it returns a no-op. Pass `voiceOnly: true` for a game
+with no room for a box.
+
+The pieces are there separately too — `loadCompetitor`,
+`CompetitorTracker`, `competitorBox`, `Encouragement`, `banner`,
+`getStanding`, `flagOrCode` — if you want to draw it yourself.
+
 ## 8. The session image
 
 Every session gets **one picture to remember it by**, shown in History: a

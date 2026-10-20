@@ -91,8 +91,10 @@ def read(token: str) -> dict[str, Any] | None:
 
 def _new_user(conn: sqlite3.Connection, uid: int) -> None:
     t = iso()
+    # `public` is named rather than left to the column default: a database made before PLAN.md §18.1 still
+    # has the old default of 0, and a new account there should be public like any other.
     conn.execute(
-        "INSERT INTO users(uid, username, display_name, created_at, updated_at) VALUES (?,?,?,?,?)",
+        "INSERT INTO users(uid, username, display_name, public, created_at, updated_at) VALUES (?,?,?,1,?,?)",
         (uid, f"user{uid}", f"User {uid}", t, t),
     )
 
@@ -139,7 +141,7 @@ def _token_from_request() -> str | None:
 
 def user_from_row(row: sqlite3.Row) -> dict[str, Any]:
     d = dict(row)
-    for k in ("profile", "achievements", "body_data", "preferences"):
+    for k in ("profile", "achievements", "body_data", "preferences", "fitness"):
         d[k] = loads(d.get(k))
     d["public"] = bool(d["public"])
     d["handle_set"] = bool(d.get("handle_set", 1))

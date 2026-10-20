@@ -62,8 +62,10 @@ def root(tmp_path: Path) -> Path:
 
 
 def make_app(root: Path, **over):
-    # AUTH pinned so Google credentials in the developer's environment cannot switch the tests' login
-    return create_app({"ROOT": str(root), "REAPER": False, "AUTH": "stub", "AVATARS_DIR": str(root / "avatarkit-public"), **over})
+    # AUTH and BOT_TOKEN pinned so credentials in the developer's own .env cannot change how the tests log in
+    # or whether /botapi/* is on (the bot tests pass their own BOT_TOKEN).
+    return create_app({"ROOT": str(root), "REAPER": False, "AUTH": "stub", "BOT_TOKEN": "",
+                       "AVATARS_DIR": str(root / "avatarkit-public"), **over})
 
 
 @pytest.fixture()

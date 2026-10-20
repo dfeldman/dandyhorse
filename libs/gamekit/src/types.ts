@@ -192,6 +192,8 @@ export type GameState = {
   energy: number | null
   /** Joules of mechanical work; null for treadmills. */
   work: number | null
+  /** Metres climbed so far, from the positions the game has sent. */
+  elevationGain?: number | null
   input: InputAnswer | null
   /** The last 32 answers with a rising `n` (see InputAnswer). */
   inputs?: InputAnswer[]
@@ -221,6 +223,12 @@ export interface SetStateBody {
   z?: number
   /** Game-scoped ids; the server stores `<gameId>:<id>` and ignores them in debug sessions. */
   achievements?: string[]
+  /**
+   * What the game has counted so far (PLAN.md §18.2): `{deliveries: 7, crashes: 6}`. Numbers, booleans and
+   * short strings, at most 8 KB in all, with the keys the game declares in `metadata.json.stats`. Sending
+   * them every tick means a session the reaper ends still keeps its numbers; `endsession` may send them again.
+   */
+  stats?: SessionStats
   /** Level-triggered: send the open prompt every tick, stop sending it to close it. */
   requestedInput?: Prompt | null
   route?: string
@@ -276,6 +284,95 @@ export interface SessionSummary {
   options: Json
   hasLog: boolean
   username?: string
+  /** What the game counted (PLAN.md §18.2). */
+  stats?: SessionStats
+  /** What the session did to the player's profile: their new streak, their measured fitness, the update posted. */
+  social?: {
+    update: ProfileUpdate | null
+    streakUpdate: ProfileUpdate | null
+    streak: number
+    fitness: Json
+  }
+}
+
+/** The numbers a game counts in a session (PLAN.md §18.2). Declared in `metadata.json.stats`. */
+export type SessionStats = Record<string, number | string | boolean | null>
+
+/** One entry on a player's status timeline (PLAN.md §18.1). */
+export interface ProfileUpdate {
+  id: string
+  uid: number
+  kind: 'manual' | 'session' | 'streak' | 'achievement'
+  text: string
+  gameId: string | null
+  sessionId: string | null
+  data: Json
+  createdAt: string
+  cheers?: number
+  cheered?: boolean
+}
+
+// --- riding against somebody (PLAN.md §18.3) ------------------------------------------------
+
+/** The player whose session you are racing. */
+export interface CompetitorPlayer {
+  uid: number
+  username: string
+  displayName: string | null
+  firstName: string | null
+  lastName: string | null
+  country: string | null
+  /** Their measured fitness in watts, for showing how close a match it is. */
+  fitness: number
+  /** A small PNG of their avatar, or null if they have not made one. */
+  thumbnailUrl: string | null
+}
+
+/** One second of a competitor's past session. Totals are from their start; `progress` is their own counters. */
+export interface CompetitorRow {
+  elapsed: number
+  distance?: number
+  energy?: number
+  work?: number
+  elevationGain?: number
+  speed?: number
+  power?: number
+  progress?: Record<string, number>
+}
+
+/** `GET /gameapi/competitor` — `competitor` is null when nobody suitable has played this game yet. */
+export interface CompetitorPayload {
+  competitor: CompetitorPlayer | null
+  sessionId?: string
+  startedAt?: string | null
+  duration?: number | null
+  distance?: number | null
+  route?: string | null
+  stats?: SessionStats
+  /** The progress counters this game declared, in the order the timeline carries them. */
+  progressKeys?: string[]
+  timeline?: CompetitorRow[]
+  gameId?: string
+  variant?: string
+}
+
+/** One row of the end-of-session standing (`GET /gameapi/standing`). */
+export interface StandingRow {
+  rank: number
+  player: CompetitorPlayer
+  sessionId: string
+  distance: number
+  duration: number | null
+  startedAt: string | null
+  stats: SessionStats
+  me: boolean
+}
+
+export interface Standing {
+  rank: number
+  of: number
+  beaten: number
+  rows: StandingRow[]
 }
 
 export interface TimelineRow extends Json {

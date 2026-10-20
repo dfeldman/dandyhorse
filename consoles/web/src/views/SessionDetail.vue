@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { api, ApiError } from '../api'
 import { loadCurrent, timeZone, unitSystem } from '../session'
-import type { SessionDetail, TimelineResponse, TimelineRow } from '../types'
+import type { Game, GamesResponse, SessionDetail, TimelineResponse, TimelineRow } from '../types'
 import * as u from '../units'
 import * as charts from '../charts'
 import { deviceTypeName, hueIndex, initialOf } from '../status'
 import LineChart from '../components/LineChart.vue'
 import AchievementPills from '../components/AchievementPills.vue'
+import SessionStanding from '../components/SessionStanding.vue'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -29,13 +30,58 @@ async function load() {
     timeline.value = (await api<TimelineResponse>(`/api/sessions/${props.id}/timeline`)).timeline
     error.value = null
   } catch (e) {
+    session.value = null
+    timeline.value = []
     error.value = e instanceof ApiError ? `${e.code}: ${e.message}` : (e as Error).message
   }
 }
 
+async function loadGame(): Promise<void> {
+  try {
+    const res = await api<GamesResponse>('/api/games')
+    game.value = res.games.find((g) => g.id === session.value?.gameId) ?? null
+  } catch {
+    game.value = null // the labels are a nicety; the numbers still show under their keys
+  }
+}
+
+// One session page serves them all, and a profile's recent rides link straight from one to the next, so the
+// route changing must reload everything rather than leave the last one (or its error) on screen.
+watch(() => props.id, async () => {
+  error.value = null
+  await load()
+  await loadGame()
+})
+
+/**
+ * What the game itself counted (PLAN.md §18.2), named and formatted from the labels its metadata declares —
+ * so the session page can show "Deliveries 7" for a game the console has never heard of.
+ */
+const gameStats = computed(() => {
+  const stats = session.value?.stats ?? {}
+  const spec = game.value?.stats ?? {}
+  const out: { key: string; label: string; text: string }[] = []
+  for (const [key, raw] of Object.entries(stats)) {
+    if (raw === null || raw === undefined || raw === '') continue
+    const s = spec[key] ?? {}
+    const n = typeof raw === 'number' ? raw : null
+    const text = n === null ? String(raw)
+      : s.format === 'duration' ? u.duration(n)
+      : s.format === 'distance' ? u.distance(n, sys.value, 1).text
+      : s.format === 'number' ? `${s.unit ?? ''}${u.round(n, 2)}`
+      : `${s.unit ?? ''}${u.round(n, 0)}`
+    out.push({ key, label: s.label ?? key, text })
+  }
+  return out
+})
+
+/** The game's catalog entry, for those labels. Loaded once; a game with no stats costs nothing. */
+const game = ref<Game | null>(null)
+
 let poll: number | undefined
 onMounted(async () => {
   await load()
+  await loadGame()
   poll = window.setInterval(() => {
     if (live.value) load()
   }, 4000)
@@ -136,6 +182,16 @@ async function end() {
         <div class="stat"><div class="k">Score</div><div class="v">{{ session.score ?? '—' }}</div></div>
         <div class="stat"><div class="k">Energy source</div><div class="v">{{ session.energySource ?? '—' }}</div></div>
       </div>
+
+      <div v-if="gameStats.length" class="stats game-stats">
+        <div v-for="g in gameStats" :key="g.key" class="stat">
+          <div class="k">{{ g.label }}</div>
+          <div class="v">{{ g.text }}</div>
+        </div>
+      </div>
+
+      <SessionStanding v-if="session.status === 'complete' && !session.debug"
+                       :session-id="session.sessionId" :game-name="session.gameName" />
 
       <div v-if="timeline.length === 0" class="empty">No timeline data{{ live ? ' yet' : '' }}.</div>
       <template v-else>

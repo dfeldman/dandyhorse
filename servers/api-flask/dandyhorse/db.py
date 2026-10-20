@@ -6,17 +6,28 @@ from pathlib import Path
 
 from flask import Flask, g
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
   uid           INTEGER PRIMARY KEY,
   username      TEXT UNIQUE NOT NULL,
   display_name  TEXT,
-  profile       TEXT NOT NULL DEFAULT '{}',
-  public        INTEGER NOT NULL DEFAULT 0,
+  profile       TEXT NOT NULL DEFAULT '{}',  -- bio and avatar (an AvatarSpec); PLAN.md §8.1
+  public        INTEGER NOT NULL DEFAULT 1,  -- a social platform: public unless the player opts out (§18.1)
   achievements  TEXT NOT NULL DEFAULT '{}',
   body_data     TEXT NOT NULL DEFAULT '{}',
+  -- the social platform (PLAN.md §18.1)
+  first_name    TEXT NOT NULL DEFAULT '',
+  last_name     TEXT NOT NULL DEFAULT '',
+  country       TEXT NOT NULL DEFAULT '',    -- ISO 3166-1 alpha-2, uppercase
+  is_bot        INTEGER NOT NULL DEFAULT 0,
+  fitness       TEXT NOT NULL DEFAULT '{}',  -- measured fitness, recomputed at finalize (§18.4)
+  streak_goal   INTEGER NOT NULL DEFAULT 0,  -- 0 none, else 1-3 sessions a week (§18.5)
+  streak_length INTEGER NOT NULL DEFAULT 0,
+  streak_from   TEXT NOT NULL DEFAULT '',    -- the week the goal was set; earlier weeks never count
+  image_file    TEXT,                        -- profile picture, data/profiles/<uid>.<ext>
+  thumb_file    TEXT,                        -- avatar thumbnail rendered by the console (§18.6)
   unit_system   TEXT NOT NULL DEFAULT 'metric',
   time_zone     TEXT NOT NULL DEFAULT 'UTC',
   preferences   TEXT NOT NULL DEFAULT '{}',
@@ -73,6 +84,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   sample_count  INTEGER,
   body_data     TEXT NOT NULL,
   options       TEXT NOT NULL DEFAULT '{}',
+  stats         TEXT NOT NULL DEFAULT '{}',  -- what the game counted this session (PLAN.md §18.2)
   log_file      TEXT,
   log_finalized INTEGER NOT NULL DEFAULT 0,
   created_at    TEXT NOT NULL,
@@ -103,12 +115,35 @@ CREATE TABLE IF NOT EXISTS save_states (
   PRIMARY KEY (uid, game_id, variant)
 );
 CREATE TABLE IF NOT EXISTS leaderboards (
-  game_id TEXT NOT NULL, variant TEXT NOT NULL, route TEXT NOT NULL DEFAULT '',
-  metric  TEXT NOT NULL, period TEXT NOT NULL, period_key TEXT NOT NULL,
-  uid INTEGER NOT NULL, session_id TEXT NOT NULL,
-  value REAL NOT NULL, rank INTEGER NOT NULL, computed_at TEXT NOT NULL,
-  PRIMARY KEY (game_id, variant, route, metric, period, period_key, uid)
+  board       TEXT NOT NULL,                 -- a board id from the registry (PLAN.md §18.7)
+  period_key  TEXT NOT NULL,                 -- '2026-W43', '2026-10' or 'all'
+  rank        INTEGER NOT NULL,
+  uid         INTEGER NOT NULL,
+  value       REAL NOT NULL,
+  session_id  TEXT,                          -- the session behind a one-session board
+  detail      TEXT NOT NULL DEFAULT '{}',
+  computed_at TEXT NOT NULL,
+  PRIMARY KEY (board, period_key, uid)
 );
+CREATE INDEX IF NOT EXISTS leaderboards_rank ON leaderboards(board, period_key, rank);
+CREATE TABLE IF NOT EXISTS profile_updates (  -- the status timeline (PLAN.md §18.1)
+  update_id  TEXT PRIMARY KEY,               -- ulid, so rows sort by time
+  uid        INTEGER NOT NULL REFERENCES users(uid),
+  kind       TEXT NOT NULL,                  -- manual | session | streak | achievement
+  text       TEXT NOT NULL,
+  game_id    TEXT,
+  session_id TEXT,
+  data       TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS profile_updates_uid ON profile_updates(uid, created_at DESC);
+CREATE TABLE IF NOT EXISTS update_cheers (   -- "ride on": one tap of encouragement per player (PLAN.md §18.6)
+  update_id  TEXT NOT NULL REFERENCES profile_updates(update_id) ON DELETE CASCADE,
+  uid        INTEGER NOT NULL REFERENCES users(uid),
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (update_id, uid)
+);
+CREATE INDEX IF NOT EXISTS update_cheers_update ON update_cheers(update_id);
 CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
 """
 
@@ -123,21 +158,61 @@ def connect(path: Path) -> sqlite3.Connection:
     return conn
 
 
+# Columns added after a table first shipped: SQLite can only add them one at a time, and `CREATE TABLE IF NOT
+# EXISTS` leaves an existing table alone. {table: {column: "<type and default>"}}.
+ADDED_COLUMNS: dict[str, dict[str, str]] = {
+    "sessions": {
+        "paused_seconds": "REAL",                          # 2026-09-11
+        "image_file": "TEXT",                              # 2026-09-11: the game's session picture (§6.7)
+        "stats": "TEXT NOT NULL DEFAULT '{}'",             # 2026-10-19: what the game counted (§18.2)
+    },
+    "users": {
+        "handle_set": "INTEGER NOT NULL DEFAULT 1",        # 2026-09-14: Google sign-in asks for a username
+        # 2026-10-19, the social platform (§18.1)
+        "first_name": "TEXT NOT NULL DEFAULT ''",
+        "last_name": "TEXT NOT NULL DEFAULT ''",
+        "country": "TEXT NOT NULL DEFAULT ''",
+        "is_bot": "INTEGER NOT NULL DEFAULT 0",
+        "fitness": "TEXT NOT NULL DEFAULT '{}'",
+        "streak_goal": "INTEGER NOT NULL DEFAULT 0",
+        "streak_length": "INTEGER NOT NULL DEFAULT 0",
+        "streak_from": "TEXT NOT NULL DEFAULT ''",
+        "image_file": "TEXT",
+        "thumb_file": "TEXT",
+    },
+}
+
+# A table whose shape changed outright: dropped and remade when its columns are not these. Only for tables
+# nothing depends on keeping — `leaderboards` is entirely derived and recomputed (§18.7).
+REBUILT_TABLES = {
+    "leaderboards": {"board", "period_key", "rank", "uid", "value", "session_id", "detail", "computed_at"},
+}
+
+
 def init_schema(path: Path) -> None:
     conn = connect(path)
     try:
+        for table, want in REBUILT_TABLES.items():
+            have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+            if have and have != want:
+                conn.execute(f"DROP TABLE {table}")
         conn.executescript(SCHEMA)
-        cols = {r[1] for r in conn.execute("PRAGMA table_info(sessions)")}
-        if "paused_seconds" not in cols:  # added 2026-09-11
-            conn.execute("ALTER TABLE sessions ADD COLUMN paused_seconds REAL")
-        if "image_file" not in cols:  # added 2026-09-11: the game's session picture (PLAN.md §6.7)
-            conn.execute("ALTER TABLE sessions ADD COLUMN image_file TEXT")
-        ucols = {r[1] for r in conn.execute("PRAGMA table_info(users)")}
-        if "handle_set" not in ucols:  # added 2026-09-14: Google sign-in asks new users for a username
-            conn.execute("ALTER TABLE users ADD COLUMN handle_set INTEGER NOT NULL DEFAULT 1")
+        for table, columns in ADDED_COLUMNS.items():
+            have = {r[1] for r in conn.execute(f"PRAGMA table_info({table})")}
+            for column, decl in columns.items():
+                if column not in have:
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
         row = conn.execute("SELECT version FROM schema_version").fetchone()
+        was = int(row["version"]) if row is not None else SCHEMA_VERSION
         if row is None:
             conn.execute("INSERT INTO schema_version(version) VALUES (?)", (SCHEMA_VERSION,))
+        else:
+            conn.execute("UPDATE schema_version SET version=?", (SCHEMA_VERSION,))
+        if was < 2:
+            # 2026-10-19: a social platform is public unless somebody opts out (PLAN.md §18.1). The column's
+            # own default cannot be changed in place, so accounts made before this are flipped once here;
+            # `auth._new_user` names the value for every account made since.
+            conn.execute("UPDATE users SET public=1")
         conn.commit()
     finally:
         conn.close()

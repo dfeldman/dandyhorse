@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { api, ApiError } from '../api'
 import type { GamesResponse } from '../types'
+import AdminPlayers from '../components/AdminPlayers.vue'
 
 const valid = ref<string[]>([])
 const invalid = ref<Record<string, unknown>>({})
@@ -39,6 +40,7 @@ onMounted(load)
     <div class="page-head"><h1>Admin</h1></div>
     <p v-if="error" class="notice error">{{ error }}</p>
     <p v-if="notice" class="notice ok">{{ notice }}</p>
+    <AdminPlayers />
     <div class="panel">
       <h2>Game catalog</h2>
       <div class="actions"><button type="button" class="btn big primary" :disabled="busy" @click="rescan">Rescan games</button></div>

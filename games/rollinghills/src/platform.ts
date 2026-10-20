@@ -2,7 +2,10 @@
  * The platform side of the game: owns the SessionClient and implements the RhPlatform contract the
  * classic scripts read every frame. One instance per page.
  */
-import { DEFAULT_STEADY_WATTS, EffortMeter, SessionClient, putSave, units, type EndInfo, type GameState, type StartPayload, type TickBody } from '@dandyhorse/gamekit'
+import {
+  DEFAULT_STEADY_WATTS, EffortMeter, SessionClient, putSave, rivalHud, units,
+  type EndInfo, type GameState, type Rival, type StartPayload, type TickBody,
+} from '@dandyhorse/gamekit'
 import { activeSeconds, guardTreadmill, machineEffort, measured, prefsWithDefaults, targets } from './drive.ts'
 import type { EndedInfo, Measured, RhHandle, RhPlatform, RhStart } from './globals.d.ts'
 
@@ -22,6 +25,12 @@ export class Platform implements RhPlatform {
   private readonly earned = new Set<string>()
   private readonly queue: string[] = []
   private sent: string[] = []
+  // Somebody to ride against, and the voice that calls out milestones (PLAN.md §18.3). Null until the
+  // platform answers, and a ride with no rival simply never gets one.
+  private rival: Rival | null = null
+  private lastTick: { distance: number; laps: number } = { distance: 0, laps: 0 }
+  private onSegment: string | null = null
+  private segments = 0
 
   constructor(readonly start: StartPayload, private readonly log: (line: string) => void, private readonly onEndedUi: (e: EndInfo) => void) {
     const sys = start.unitSystem
@@ -70,6 +79,16 @@ export class Platform implements RhPlatform {
   attach(handle: RhHandle): void {
     this.handle = handle
     this.client.start()
+    // Debug rides are not recorded, so they are not raced either; nothing else waits on this.
+    if (!this.start.debug) {
+      void rivalHud(this.start.sessionId, {
+        imperial: this.start.unitSystem === 'us',
+        plannedSeconds: this.startInfo.duration,
+        labels: { laps: 'Laps' }, words: { laps: 'lap' },
+        corner: 'top-right',
+        log: this.log,
+      }).then((r) => { this.rival = r })
+    }
   }
 
   // --- RhPlatform (read by the game every frame) ---------------------------------------------
@@ -97,7 +116,37 @@ export class Platform implements RhPlatform {
     if (this.finishing) return
     this.finishing = true
     // let the finish banner show, flush the last tick (score, the full-ride achievement), then end
-    setTimeout(() => void this.client.requestTick().then(() => this.client.end('complete')), 2000)
+    setTimeout(() => void this.client.requestTick().then(() => {
+      const { distance, laps } = this.lastTick
+      this.rival?.remove()
+      return this.client.end('complete', undefined, { message: this.message(distance, laps) })
+    }), 2000)
+  }
+
+  /** The line this ride leaves on the player's timeline (PLAN.md §18.2). */
+  private message(distance: number, laps: number): string {
+    const sys = this.start.unitSystem
+    const theirs = this.rival?.theirs()
+    const who = this.rival?.player?.firstName || this.rival?.player?.username
+    if (who && theirs) {
+      const gap = distance - theirs.distance
+      const d = units.distance(Math.abs(gap), sys, 1)
+      const mine = units.distance(distance, sys, 1)
+      // "over 0 laps" is not a thing anybody says; a short ride is just a ride round the loop.
+      const over = laps >= 1 ? `over ${laps} lap${laps === 1 ? '' : 's'}` : 'round the loop'
+      return gap > 0
+        ? `${mine.value ?? 0} ${mine.unit} ${over} — ${d.value ?? 0} ${d.unit} further than ${who}.`
+        : `${mine.value ?? 0} ${mine.unit} ${over}, ${d.value ?? 0} ${d.unit} behind ${who}. Next time.`
+    }
+    const d = units.distance(distance, sys, 1)
+    const where = { flat: 'the flat loop', rolling: 'the rolling loop', hilly: 'the hilly loop' }[this.startInfo.route]
+      ?? 'the loop'
+    const timed = this.segments > 0
+      ? ` ${this.segments} timed segment${this.segments === 1 ? '' : 's'} on the way.` : ''
+    if (laps >= 1) {
+      return `${laps} lap${laps === 1 ? '' : 's'} of ${where}, ${d.value ?? 0} ${d.unit}.${timed}`
+    }
+    return `${d.value ?? 0} ${d.unit} around ${where}.${timed}`
   }
 
   /** The player gave up (or closed the page): end without counting it. */
@@ -115,6 +164,17 @@ export class Platform implements RhPlatform {
       custom: { lap: t.laps + 1, area: t.area, weather: t.weather, segment: t.segment, started: t.started, finished: t.finished, gradePercent: Math.round(t.grade * 1000) / 10 },
     }
     if (this.queue.length) { this.sent = this.queue.splice(0); body.achievements = this.sent }
+    // What this ride counted, and the rival box (PLAN.md §18.2-18.3). Both ride on the 1 Hz tick: a HUD
+    // box of somebody else's past ride does not need a frame-rate update.
+    const laps = t.laps
+    const distance = this.latest?.distance ?? t.dist
+    this.lastTick = { distance, laps }
+    // A timed segment counts once it is behind the rider: `segment` is its name while they are on it.
+    if (this.onSegment !== null && t.segment === null) this.segments += 1
+    this.onSegment = t.segment
+    this.client.countStats({ laps, segments: this.segments })
+    body.custom = { ...body.custom, laps }
+    this.rival?.update(this.client.latest?.activeSeconds ?? 0, { distance, progress: { laps } })
     return guardTreadmill(this.start.deviceType, body)
   }
 }

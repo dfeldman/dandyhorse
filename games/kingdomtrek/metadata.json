@@ -8,39 +8,98 @@
   "entry": "index.html",
   "screenshot": "screenshot.png",
   "minPlatformVersion": "1.0",
-  "capabilities": { "seed": false, "input": true, "saveState": true, "ghosts": false, "autoPause": false },
+  "capabilities": {
+    "seed": false,
+    "input": true,
+    "saveState": true,
+    "ghosts": false,
+    "autoPause": false
+  },
   "achievements": {
-    "kingdom-saved": { "name": "Kingdom saved", "description": "Saved a kingdom from its threat." },
-    "first-craft": { "name": "Made by hand", "description": "Made something at a workshop." },
-    "level-2": { "name": "Level 2", "description": "Your hero reached level 2." },
-    "level-5": { "name": "Level 5", "description": "Your hero reached level 5." },
-    "level-10": { "name": "Level 10", "description": "Your hero reached level 10." }
+    "kingdom-saved": {
+      "name": "Kingdom saved",
+      "description": "Saved a kingdom from its threat."
+    },
+    "first-craft": {
+      "name": "Made by hand",
+      "description": "Made something at a workshop."
+    },
+    "level-2": {
+      "name": "Level 2",
+      "description": "Your hero reached level 2."
+    },
+    "level-5": {
+      "name": "Level 5",
+      "description": "Your hero reached level 5."
+    },
+    "level-10": {
+      "name": "Level 10",
+      "description": "Your hero reached level 10."
+    }
+  },
+  "stats": {
+    "level": {
+      "label": "Level reached",
+      "better": "higher",
+      "leaderboard": true
+    },
+    "where": {
+      "label": "Got as far as"
+    }
+  },
+  "progress": {
+    "level": {
+      "label": "Level"
+    }
   },
   "variants": [
     {
       "id": "trek",
       "name": "Kingdom Trek",
       "description": "One hero on either machine. Energy comes from your effort against your own steady pace, so a level takes everyone about the same time.",
-      "deviceTypes": ["bike", "treadmill"],
+      "deviceTypes": [
+        "bike",
+        "treadmill"
+      ],
       "defaultDuration": 2700,
-      "controls": { "bike": "none", "treadmill": "none" }
+      "controls": {
+        "bike": "none",
+        "treadmill": "none"
+      }
     }
   ],
   "options": {
     "effortFrom": {
       "label": "Effort from",
-      "enum": ["machine", "heartRate"],
-      "labels": ["Machine", "Heart rate"],
+      "enum": [
+        "machine",
+        "heartRate"
+      ],
+      "labels": [
+        "Machine",
+        "Heart rate"
+      ],
       "default": "machine",
       "description": "What turns your workout into Energy. Heart rate lags by up to a minute, so fights feel slower."
     },
     "hills": {
       "label": "Hills",
-      "enum": ["off", "on"],
-      "labels": ["Off", "On"],
+      "enum": [
+        "off",
+        "on"
+      ],
+      "labels": [
+        "Off",
+        "On"
+      ],
       "default": "off",
       "description": "The game sets your incline (treadmill) or grade (bike) from the road. Turn on if your treadmill doesn't report its incline.",
-      "controls": { "on": { "treadmill": "incline", "bike": "grade" } }
+      "controls": {
+        "on": {
+          "treadmill": "incline",
+          "bike": "grade"
+        }
+      }
     }
   }
 }

@@ -92,6 +92,8 @@ export class Game {
   private lastTickAt: number | null = null
   private activeClockSeeded = false
   private promptCounter = 0
+  /** Prompts answered this session, one of the two numbers the reference game counts (PLAN.md §18.2). */
+  private promptsAnswered = 0
   private readonly earnedSet = new Set<string>()
   private achievementQueue: string[] = []
   /** Achievements in the tick in flight: re-queued if that setstate fails. */
@@ -222,6 +224,11 @@ export class Game {
     this.sentAch = this.achievementQueue
     this.achievementQueue = []
     body.achievements = this.sentAch
+    // What this ride counted (PLAN.md §18.2). The reference game demonstrates the contract: the numbers it
+    // sends are the ones metadata.json declares, and `laps` is also a progress counter, so a later player
+    // racing this session can be told how many laps it had done by any given second.
+    this.client.countStats({ laps: m.previousLaps + m.lap, prompts: this.promptsAnswered })
+    body.custom = { ...(body.custom ?? {}), laps: m.previousLaps + m.lap }
     m.ticks++
     this.events.onModel(m)
     return body
@@ -405,6 +412,7 @@ export class Game {
     } else {
       m.lastDirection = input.choice
       m.openPrompt = null
+      this.promptsAnswered++
       this.client.prompt = null
       this.log(`prompt ${p.promptId} answered "${input.choice}" via ${input.source}`)
     }
@@ -423,7 +431,19 @@ export class Game {
   }
 
   private async end(status: 'complete' | 'discarded', reason: string | undefined): Promise<void> {
-    await this.client.end(status, reason) // uploads the session image first, then endsession → onEnded
+    // The game's own line for the player's timeline (PLAN.md §18.2); the server writes a plain one for a
+    // game that sends none, which is what a discarded ride gets.
+    const message = status === 'complete' ? this.message() : undefined
+    await this.client.end(status, reason, { message }) // uploads the image first, then endsession → onEnded
+  }
+
+  /** What this ride leaves on the profile. */
+  private message(): string {
+    const laps = this.model.previousLaps + this.model.lap
+    const answered = this.promptsAnswered
+    const asked = answered > 0 ? ` ${answered} question${answered === 1 ? '' : 's'} answered on the way.` : ''
+    if (laps >= 1) return `${laps} lap${laps === 1 ? '' : 's'} of the mock route.${asked}`
+    return `A turn round the mock route.${asked}`
   }
 
 }

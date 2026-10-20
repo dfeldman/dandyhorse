@@ -12,7 +12,10 @@
  * "Bike games also send speed"); a trainer cannot be told a speed, so this is a report, not a command. A treadmill
  * NEVER gets a speed: the runner keeps the belt and the game only tilts it.
  */
-import { SessionClient, putSave, type EndInfo, type GameState, type Json, type StartPayload, type TickBody } from '@dandyhorse/gamekit'
+import {
+  SessionClient, putSave, rivalHud,
+  type EndInfo, type GameState, type Json, type Rival, type StartPayload, type TickBody,
+} from '@dandyhorse/gamekit'
 import { NO_READING, type Controls, type Measured } from './controls.ts'
 import type { ProgressStore, RouteProgress } from './sim/progress.ts'
 
@@ -183,6 +186,8 @@ export class PlatformControls implements Controls {
   private endInfo: EndInfo | null = null
   private image: string | null = null
   private completing = false
+  /** Somebody who rode this same route before, and the voice for the climb (PLAN.md §18.3). */
+  private rival: Rival | null = null
 
   // achievements, sent once each and re-queued if the tick carrying them failed
   private readonly earned = new Set<string>()
@@ -224,6 +229,19 @@ export class PlatformControls implements Controls {
   attach(): void {
     if (this.startAt > 50) this.achievement('resumed')
     this.client.start()
+    // A rider who has been up this same road before (PLAN.md §18.3). The route is the match, so Alpe d'Huez
+    // is never compared with the Katy Trail. A debug ride is not recorded, so it is not raced either.
+    if (!this.start.debug) {
+      void rivalHud(this.start.sessionId, {
+        imperial: this.start.unitSystem === 'us',
+        plannedSeconds: this.duration,
+        route: this.routeId,
+        labels: { routeMetres: 'Along the route', climbed: 'Climbed' },
+        words: { routeMetres: 'metre', climbed: 'metre climbed' },
+        corner: 'top-right',
+        log: this.log,
+      }).then((r) => { this.rival = r })
+    }
   }
 
   // --- Controls ---------------------------------------------------------------------------------------
@@ -291,7 +309,9 @@ export class PlatformControls implements Controls {
     if (this.completing || this.ended()) return
     this.completing = true
     await this.client.requestTick()
-    await this.client.end('complete', reason)
+    const message = this.message()
+    this.rival?.remove()
+    await this.client.end('complete', reason, { message })
   }
 
   // --- achievements -----------------------------------------------------------------------------------
@@ -313,7 +333,38 @@ export class PlatformControls implements Controls {
       report: this.report_,
       routeLength: this.routeLength,
     })
+    // How far up the road, and how much of it was upwards (PLAN.md §18.2). The platform counts the climbing
+    // itself, but a rider wants it beside the distance as the ride goes on, so it is a progress counter too.
+    const r = this.report_
+    if (r) {
+      const along = Math.round(r.s)
+      const climbed = Math.round(this.latest?.elevationGain ?? 0)
+      this.client.countStats({ routeMetres: along, climbed, finished: r.finished })
+      body.custom = { ...body.custom, routeMetres: along, climbed }
+      this.rival?.update(this.latest?.activeSeconds ?? 0,
+                         { distance: along, progress: { routeMetres: along, climbed } })
+    }
     if (this.pending.length) { this.sent = this.pending.splice(0); body.achievements = this.sent }
     return body
+  }
+
+  /** The line this ride leaves on the player's timeline (PLAN.md §18.2). */
+  private message(): string {
+    const r = this.report_
+    const imperial = this.start.unitSystem === 'us'
+    const far = (m: number): string => imperial ? `${(m / 1609.344).toFixed(1)} mi` : `${(m / 1000).toFixed(1)} km`
+    const along = Math.round(r?.s ?? 0)
+    const climbed = Math.round(this.latest?.elevationGain ?? 0)
+    const hill = climbed > 20 ? `, ${climbed} m of it upwards` : ''
+    const theirs = this.rival?.theirs()
+    const who = this.rival?.player?.firstName || this.rival?.player?.username
+    if (r?.finished) return `Finished ${this.routeId}${hill}.`
+    if (who && theirs && typeof theirs.progress.routeMetres === 'number') {
+      const gap = along - theirs.progress.routeMetres
+      return gap >= 0
+        ? `${far(along)} up ${this.routeId}${hill} — ${far(gap)} further than ${who}.`
+        : `${far(along)} up ${this.routeId}${hill}; ${who} got ${far(-gap)} further.`
+    }
+    return `${far(along)} up ${this.routeId}${hill}.`
   }
 }

@@ -51,3 +51,33 @@ def user_session(session_id: str | None):
     if live.uid != g.user["uid"]:
         raise ApiError(403, "forbidden", "not your session")
     return live
+
+
+def read_image(max_bytes: int) -> tuple[bytes, str]:
+    """An uploaded PNG or JPEG, from a raw `image/*` body or JSON `{"image": "data:image/png;base64,..."}`.
+    Returns the bytes and the extension, having checked the size and the file's own magic bytes — a client
+    cannot pass off a script as a picture by naming its content type. Used for session pictures (§6.7) and
+    for profile pictures and avatar thumbnails (§18.6)."""
+    import base64
+
+    ctype = (request.content_type or "").split(";")[0].strip()
+    if ctype in ("image/png", "image/jpeg"):
+        data, ext = request.get_data(), ("png" if ctype == "image/png" else "jpg")
+    else:
+        src = body().get("image")
+        if not isinstance(src, str) or not src.startswith("data:image/"):
+            raise ApiError(400, "image_invalid", "send image/png, image/jpeg, or {image: data URL}")
+        header, _, payload = src.partition(",")
+        ext = "png" if "image/png" in header else "jpg" if "image/jpeg" in header else ""
+        if not ext:
+            raise ApiError(400, "image_invalid", "only PNG and JPEG images are accepted")
+        try:
+            data = base64.b64decode(payload, validate=True)
+        except Exception:
+            raise ApiError(400, "image_invalid", "bad base64 data") from None
+    if not data or len(data) > max_bytes:
+        raise ApiError(413, "image_too_large", f"image must be 1..{max_bytes} bytes")
+    magic_ok = data[:8] == b"\x89PNG\r\n\x1a\n" if ext == "png" else data[:3] == b"\xff\xd8\xff"
+    if not magic_ok:
+        raise ApiError(400, "image_invalid", "file content does not match its type")
+    return data, ext

@@ -1,0 +1,204 @@
+{
+  "_comment": [
+    "The bot players (PLAN.md \u00a718.8). Each one is a person the platform treats like any other: a name, a",
+    "body (used for calories), a weekly habit, and a pair of legs. They play the real games, so what the",
+    "platform records about them is real.",
+    "",
+    "fitness.watts        what they hold on a steady ride today",
+    "fitness.variability  how far their effort wanders around it (a slow walk, not per-second noise)",
+    "fitness.fatiguePerMinute  the fraction of their power they lose each minute of a session",
+    "fitness.skillPerMonth     how much they improve a month; a backdated ride is weaker by this much per month",
+    "schedule             how many days a week, when they usually start, and how long they go for",
+    "",
+    "Edit this file, then `npm run upsert` in bots/. Profiles can also be edited in the console's Admin page;",
+    "the performance curves live only here."
+  ],
+  "bots": [
+    {
+      "username": "marta",
+      "firstName": "Marta",
+      "lastName": "Rey",
+      "country": "ES",
+      "timeZone": "Europe/Madrid",
+      "exercise": "bike",
+      "streakGoal": 3,
+      "body": {
+        "height": 1.66,
+        "weight": 61,
+        "sex": "f",
+        "age": 34
+      },
+      "schedule": {
+        "daysPerWeek": 4,
+        "timeOfDay": "07:15",
+        "jitterMinutes": 45,
+        "sessionMinutes": 38,
+        "sessionJitter": 9
+      },
+      "fitness": {
+        "watts": 178,
+        "variability": 16,
+        "fatiguePerMinute": 0.004,
+        "skillPerMonth": 0.012
+      },
+      "games": [
+        "rollinghills",
+        "citydash",
+        "trailtrainer",
+        "laneone"
+      ],
+      "profile": {
+        "bio": "Rides before work, every week I can. Hills are the point."
+      }
+    },
+    {
+      "username": "kenji",
+      "firstName": "Kenji",
+      "lastName": "Ito",
+      "country": "JP",
+      "timeZone": "Asia/Tokyo",
+      "exercise": "bike",
+      "streakGoal": 2,
+      "body": {
+        "height": 1.73,
+        "weight": 68,
+        "sex": "m",
+        "age": 41
+      },
+      "schedule": {
+        "daysPerWeek": 3,
+        "timeOfDay": "21:30",
+        "jitterMinutes": 60,
+        "sessionMinutes": 45,
+        "sessionJitter": 12
+      },
+      "fitness": {
+        "watts": 205,
+        "variability": 22,
+        "fatiguePerMinute": 0.006,
+        "skillPerMonth": 0.006
+      },
+      "games": [
+        "trailtrainer",
+        "rollinghills",
+        "nightwatch",
+        "kingdomtrek"
+      ],
+      "profile": {
+        "bio": "Evenings, after the house is quiet. Long climbs only."
+      }
+    },
+    {
+      "username": "aoife",
+      "firstName": "Aoife",
+      "lastName": "Byrne",
+      "country": "IE",
+      "timeZone": "Europe/Dublin",
+      "exercise": "bike",
+      "streakGoal": 1,
+      "body": {
+        "height": 1.7,
+        "weight": 72,
+        "sex": "f",
+        "age": 29
+      },
+      "schedule": {
+        "daysPerWeek": 2,
+        "timeOfDay": "18:00",
+        "jitterMinutes": 70,
+        "sessionMinutes": 25,
+        "sessionJitter": 8
+      },
+      "fitness": {
+        "watts": 134,
+        "variability": 14,
+        "fatiguePerMinute": 0.008,
+        "skillPerMonth": 0.022
+      },
+      "games": [
+        "citydash",
+        "rollinghills",
+        "bikeplane",
+        "nightracer"
+      ],
+      "profile": {
+        "bio": "Started in the spring and I am still here. Going up."
+      }
+    },
+    {
+      "username": "tomas",
+      "firstName": "Tom\u00e1\u0161",
+      "lastName": "Nov\u00e1k",
+      "country": "CZ",
+      "timeZone": "Europe/Prague",
+      "exercise": "bike",
+      "streakGoal": 3,
+      "body": {
+        "height": 1.84,
+        "weight": 83,
+        "sex": "m",
+        "age": 37
+      },
+      "schedule": {
+        "daysPerWeek": 5,
+        "timeOfDay": "06:00",
+        "jitterMinutes": 25,
+        "sessionMinutes": 30,
+        "sessionJitter": 6
+      },
+      "fitness": {
+        "watts": 162,
+        "variability": 11,
+        "fatiguePerMinute": 0.003,
+        "skillPerMonth": 0.009
+      },
+      "games": [
+        "rollinghills",
+        "citydash",
+        "nightracer",
+        "laneone"
+      ],
+      "profile": {
+        "bio": "Same time every morning. It is easier that way."
+      }
+    },
+    {
+      "username": "priya",
+      "firstName": "Priya",
+      "lastName": "Nair",
+      "country": "IN",
+      "timeZone": "Asia/Kolkata",
+      "exercise": "bike",
+      "streakGoal": 2,
+      "body": {
+        "height": 1.61,
+        "weight": 58,
+        "sex": "f",
+        "age": 26
+      },
+      "schedule": {
+        "daysPerWeek": 3,
+        "timeOfDay": "05:45",
+        "jitterMinutes": 35,
+        "sessionMinutes": 50,
+        "sessionJitter": 14
+      },
+      "fitness": {
+        "watts": 221,
+        "variability": 26,
+        "fatiguePerMinute": 0.005,
+        "skillPerMonth": 0.004
+      },
+      "games": [
+        "trailtrainer",
+        "citydash",
+        "nightracer",
+        "bikeplane",
+        "nightwatch"
+      ],
+      "profile": {
+        "bio": "Racing on the weekends. The rest is training."
+      }
+    }
+  ]
+}

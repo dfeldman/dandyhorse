@@ -269,9 +269,66 @@ on a canvas and uploads `canvas.toDataURL('image/png')`.
 sessions; `GET /gameapi/sessions/<id>/timeline` returns 1 Hz merged rows
 (`elapsed`, all nine metrics, `position`, `distance`) to replay as a ghost.
 
+## What your game counted (PLAN.md §18.2)
+
+End a session with the numbers only your game knows, and a line about it
+for the player's profile:
+
+```json
+POST /gameapi/endsession
+{ "sessionId": "…", "status": "complete",
+  "stats":   { "deliveries": 7, "crashes": 6 },
+  "message": "Seven parcels delivered — and six cars found the hard way." }
+```
+
+Declare what the numbers mean in `metadata.json`, and the console, the
+leaderboards and every profile can show them without knowing your game:
+
+```json
+"stats": {
+  "deliveries": { "label": "Deliveries", "better": "higher", "leaderboard": true },
+  "crashes":    { "label": "Cars hit", "better": "lower" }
+},
+"progress": { "deliveries": { "label": "Deliveries" } }
+```
+
+- `stats` are end-of-session totals. `format` is `integer` (the default),
+  `number`, `distance` or `duration`; `leaderboard: true` gives the stat a
+  board of its own — a `higher` stat is totalled over every session, a
+  `lower` one takes the best single session.
+- `progress` are counters you send **every tick** in `setstate.custom`.
+  The derived timeline keeps those keys, and only those, so a later
+  player racing your session can be told what you had reached by any
+  given second.
+- Send `stats` on ticks as well as at the end (`countStats()` in gamekit
+  does both): a session the reaper finishes then still keeps its numbers.
+- `message` is at most 280 characters, in your game's own voice. Without
+  one the server writes a plain line ("Rode 12.4 km in Rolling Hills").
+
+## Somebody to ride against (PLAN.md §18.3)
+
+`GET /gameapi/competitor?session=<id>` returns a past session by another
+public player a little stronger than this one — their summary, their
+progress counters and their 1 Hz timeline — or `{"competitor": null}`
+when nobody suitable has played your game yet. **Every game must play
+fine without one.**
+
+`GET /gameapi/standing?session=<id>` ranks the session that just ended
+against recent sessions by players at a similar level: the small, personal
+league for your end screen. The console shows the same thing on the
+session page, so you get it for free if you would rather not.
+
+Matching is on game, variant and route. If your `route` carries the
+session's seed, nobody will ever share it — pass `anyRoute` so a
+competitor can be found at all. If your route is a real place (a named
+trail), leave it alone: a climb up Alpe d'Huez is not comparable with a
+ride along the Katy Trail.
+
 ## Rules of thumb
 
 - Deterministic from `seed` + variant so ghosts and leaderboards compare.
+- Count something, and say something: a session with no `stats` and no
+  `message` leaves a blank line on the player's profile.
 - Read `unitSystem` before displaying speeds or distances.
 - Poll at 1 Hz; you may push faster briefly (max 10 Hz).
 - Never assume which page hosts you; never use `postMessage` to the parent.
