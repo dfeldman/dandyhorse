@@ -7,6 +7,7 @@
   "description": "Pedal a biplane around an island city. Push harder to climb, ease off to dive, and fly through the rings, with races, Turbo and Tailwinds along the way.",
   "entry": "index.html",
   "screenshot": "screenshot.jpg",
+  "preview": "preview.mp4",
   "minPlatformVersion": "1.0",
   "capabilities": {
     "seed": false,

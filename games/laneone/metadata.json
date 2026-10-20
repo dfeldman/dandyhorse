@@ -7,6 +7,7 @@
   "description": "A treadmill and bike console, and a track to go round. Manual, hills, intervals, pyramid, random and heart-rate programmes, every number a machine's own console shows, and a lap of a real 400 m track for each one you run.",
   "entry": "index.html",
   "screenshot": "screenshot.png",
+  "preview": "preview.mp4",
   "minPlatformVersion": "1.0",
   "capabilities": {
     "seed": true,

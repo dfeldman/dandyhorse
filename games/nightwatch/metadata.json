@@ -7,6 +7,7 @@
   "description": "Keep the lighthouse lamp bright through the night. Ships come in on a timetable; below the target pace the lamp dims and they drift toward the rocks. Tap the horn to pull them back and answer their signals.",
   "entry": "index.html",
   "screenshot": "screenshot.jpg",
+  "preview": "preview.mp4",
   "minPlatformVersion": "1.0",
   "capabilities": {
     "seed": true,

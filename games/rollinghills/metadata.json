@@ -7,6 +7,7 @@
   "description": "A cartoon bike rolls around a generated loop of hills, forests, villages and lakes. The game sets the hill; you set the pace, measured against your own.",
   "entry": "index.html",
   "screenshot": "screenshot.jpg",
+  "preview": "preview.mp4",
   "minPlatformVersion": "1.0",
   "capabilities": {
     "seed": true,
