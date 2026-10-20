@@ -31,10 +31,28 @@ def _default_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
+def load_env_file(path: Path) -> None:
+    """KEY=value lines from a .env file into os.environ, never overriding what is already set (the standard for
+    credentials since 2026-10-19: the repo root's git-ignored .env; names in .env.example). Quotes round a value are
+    stripped; blank lines and # comments are skipped."""
+    if not path.is_file():
+        return
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.removeprefix("export ").partition("=")
+        key, value = key.strip(), value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "'\"":
+            value = value[1:-1]
+        os.environ.setdefault(key, value)
+
+
 class Config:
     def __init__(self, overrides: dict[str, Any] | None = None) -> None:
         o = overrides or {}
         env = os.environ
+        load_env_file(_default_root() / ".env")
         self.root = Path(o.get("ROOT") or env.get("DANDYHORSE_ROOT") or _default_root()).resolve()
         self.data_dir = Path(o.get("DATA_DIR") or env.get("DANDYHORSE_DATA") or self.root / "data").resolve()
         self.db_path = self.data_dir / "dandyhorse.db"
