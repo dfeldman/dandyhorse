@@ -9,6 +9,7 @@
 // why it differs from the leaderboards (where they are ranked under a pseudonym).
 import { computed, onMounted, ref } from 'vue'
 import { cheer, cheersForMe, feed, markCheersSeen, updateIcon } from '../profiles'
+import { loadMe, store } from '../session'
 import { ago } from '../units'
 import PlayerChip from '../components/PlayerChip.vue'
 import type { CheerReceived, FeedEntry } from '../types'
@@ -35,7 +36,20 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+  // This page is full of faces, so it is one of the places that quietly draws yours if you have none.
+  void myPictures()
 })
+
+async function myPictures(): Promise<void> {
+  const me = store.me
+  if (!me || (me.thumbnailUrl && me.actionUrl)) return
+  const avatar = (me.profile as { avatar?: unknown } | undefined)?.avatar
+  const { ensureMyPictures } = await import('../avatarPictures')
+  if (await ensureMyPictures(avatar, { thumbnail: !me.thumbnailUrl, action: !me.actionUrl })) {
+    await loadMe()
+    entries.value = (await feed()).entries
+  }
+}
 
 async function older(): Promise<void> {
   const last = entries.value[entries.value.length - 1]

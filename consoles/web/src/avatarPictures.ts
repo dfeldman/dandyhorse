@@ -143,6 +143,38 @@ export async function uploadOwnThumbnail(avatar: unknown, size = 256,
   }
 }
 
+/** What a player needs drawing, if anything. */
+export interface PictureGaps { thumbnail: boolean; action: boolean }
+
+/**
+ * Draw whichever of your own two pictures are missing, from one scene.
+ *
+ * Nobody should have to ask an administrator for a face. A player who designed an avatar before the
+ * platform kept pictures of them — or who has simply never opened their own profile — would otherwise show
+ * as initials everywhere for ever, and the only cure would be an admin opening the Admin page and pressing
+ * a button on their behalf. So any page that shows faces calls this, and it costs nothing when there is
+ * nothing to draw.
+ *
+ * Both pictures come out of one mount because building the scene is all the cost and taking a second frame
+ * is none. It is deliberately quiet: no avatar assets, or no WebGL, means initials, which is a perfectly
+ * good way to show a person and not worth an error message.
+ */
+export async function ensureMyPictures(avatar: unknown, gaps: PictureGaps): Promise<boolean> {
+  if (!avatar || typeof avatar !== 'object' || (!gaps.thumbnail && !gaps.action)) return false
+  const studio = new HeadshotStudio()
+  try {
+    const { thumbnail, action } = await studio.shootBoth(avatar)
+    if (gaps.thumbnail) await api('/api/profile/thumbnail', 'PUT', { image: thumbnail })
+    if (gaps.action) await api('/api/profile/action', 'PUT', { image: action })
+    return true
+  } catch (e) {
+    console.warn('could not render your avatar pictures', e)
+    return false
+  } finally {
+    studio.close()
+  }
+}
+
 export interface NeedsPicture {
   uid: number
   username: string

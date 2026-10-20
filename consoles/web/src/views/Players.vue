@@ -27,17 +27,16 @@ onMounted(async () => {
 })
 
 /**
- * A player who designed an avatar before the platform kept pictures of them has a look and no picture, and
- * would show as initials for ever. Render one once, in the background: the page does not wait for it, and a
- * failure (no avatar assets, no WebGL) is not worth saying anything about.
+ * Draw your own pictures if you have not got them, in the background: the page never waits for it.
+ *
+ * This is the reason nobody has to ask an administrator for a face — see `ensureMyPictures`.
  */
 async function makeMyPictureIfMissing(): Promise<void> {
   const me = store.me
-  if (!me || me.thumbnailUrl) return
+  if (!me || (me.thumbnailUrl && me.actionUrl)) return
   const avatar = (me.profile as { avatar?: unknown } | undefined)?.avatar
-  if (!avatar || typeof avatar !== 'object') return
-  const { uploadOwnThumbnail } = await import('../avatarPictures')
-  if (await uploadOwnThumbnail(avatar)) {
+  const { ensureMyPictures } = await import('../avatarPictures')
+  if (await ensureMyPictures(avatar, { thumbnail: !me.thumbnailUrl, action: !me.actionUrl })) {
     await loadMe()
     all.value = await players()
   }
