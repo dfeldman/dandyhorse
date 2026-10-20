@@ -88,8 +88,27 @@
     padding: 10px 16px; cursor: pointer; color: inherit; }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 
-  #loading { position: fixed; inset: 0; display: none; place-items: center; background: #cfe6f7; font-size: 15px; }
-  #loading.on { display: grid; }
+  /* The loading screen (owner, 2026-10-20: "Trail Trainer needs a proper loading screen"). The same
+     card Dandyhorse's other games use, so arriving here from the console does not feel like leaving it:
+     a name, where you are going, and a bar that says how far through the building it is. */
+  #loading { position: fixed; inset: 0; z-index: 50; display: none; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 30%, #1d3a2a 0%, #0a1510 70%); transition: opacity .5s ease;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+    color: #eef6f1; }
+  #loading.on { display: flex; }
+  #loading.gone { opacity: 0; pointer-events: none; }
+  #loading .tt-card { width: min(520px, 86vw); padding: 30px 34px 28px; text-align: center;
+    background: rgba(16,36,26,.84); border: 1px solid rgba(120,200,160,.3); border-radius: 18px;
+    box-shadow: 0 14px 36px rgba(0,0,0,.35); }
+  #loading .tt-pill { display: inline-block; font-weight: 700; font-size: 12px; letter-spacing: .06em;
+    text-transform: uppercase; background: #4ade80; color: #06240f; border-radius: 999px; padding: 5px 10px; }
+  #loading h1 { margin: 10px 0 2px; font-size: 38px; font-weight: 800; line-height: 1.1; }
+  #loading .tt-where { font-size: 18px; font-weight: 600; color: #9dc3ad; margin-bottom: 22px; min-height: 1.4em; }
+  #loading .tt-bar { height: 12px; border-radius: 999px; background: rgba(22,48,34,.9); overflow: hidden; }
+  #loading .tt-fill { height: 100%; width: 100%; border-radius: 999px;
+    background: linear-gradient(90deg, #4ade80, #22c7ee); transform-origin: left; transform: scaleX(.04);
+    transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  #loadingText { margin-top: 12px; font-size: 15px; color: #9dc3ad; min-height: 1.4em; }
   #banner { position: fixed; left: 50%; top: 34%; transform: translateX(-50%); display: none;
     background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px 34px; text-align: center;
     box-shadow: 0 18px 44px rgba(0,0,0,0.2); }
@@ -194,7 +213,13 @@
   </div>
 </div>
 
-<div id="loading"><div id="loadingText">Loading the route…</div></div>
+<div id="loading" class="on"><div class="tt-card">
+  <span class="tt-pill">Dandyhorse</span>
+  <h1>Trail Trainer</h1>
+  <div class="tt-where" id="loadingWhere">Real roads, real climbs</div>
+  <div class="tt-bar"><div class="tt-fill" id="loadingFill"></div></div>
+  <div id="loadingText">Loading the route…</div>
+</div></div>
 <!-- the whole route from above; M shows and hides it (src/ui/minimap.ts) -->
 <div id="map"><canvas id="mapCanvas" width="800" height="1040"></canvas><div class="hint">M closes the map</div></div>
 

@@ -10,8 +10,11 @@
  * see INTEGRATION.md.
  */
 import { Color3, Scene, Tools } from '@babylonjs/core'
-import { ApiError, startSession, type StartPayload, type StartSessionAdHoc, type StartSessionBySession } from '@dandyhorse/gamekit'
-import { createEngine } from 'avatarkit'
+import {
+  ApiError, loadGhosts, me, startSession,
+  type Ghost, type StartPayload, type StartSessionAdHoc, type StartSessionBySession,
+} from '@dandyhorse/gamekit'
+import { createEngine, normalizeSpec, type AvatarSpec } from 'avatarkit'
 import { applyQuery, Config } from './config.ts'
 import { LocalControls, type Controls } from './controls.ts'
 import { GAME_ID, OTHERS, PlatformControls, PlatformProgress, option, putSaveWriter } from './platform.ts'
@@ -38,12 +41,21 @@ import { Terrain } from './render/terrain.ts'
 import { Trail } from './render/trail.ts'
 import { Water } from './render/water.ts'
 import { CompanionRiders, companionPlan } from './render/companions.ts'
+import { GhostRiders } from './render/ghosts.ts'
 import { Companions } from './sim/companions.ts'
 import { Ride } from './sim/ride.ts'
 import { LocalProgress, ProgressTracker, type ProgressStore } from './sim/progress.ts'
 import { Hud, km } from './ui/hud.ts'
 import { Minimap } from './ui/minimap.ts'
 import { StartScreen, type Chosen } from './ui/start.ts'
+
+/**
+ * How many other players' rides to put on the road at once.
+ *
+ * More than a handful and they stop being people you are racing and become traffic — and the companions
+ * (render/companions.ts) are already there to make the road feel used.
+ */
+const GHOST_COUNT = 4
 
 const el = (id: string): HTMLElement => document.getElementById(id) as HTMLElement
 const log = (line: string): void => console.log('trailtrainer:', line)
@@ -53,6 +65,32 @@ function say(text: string, extra?: HTMLElement): void {
   el('loading').classList.add('on')
   el('loadingText').textContent = text
   if (extra) el('loadingText').append(document.createElement('br'), extra)
+}
+
+/**
+ * The loading screen's stages, in the order they happen, with roughly how long each takes as a share of
+ * the whole. Guessed proportions rather than measured ones: a bar that is honest about ORDER and roughly
+ * right about pace reads as progress, where one that jumps 0 → 90 → done reads as broken.
+ */
+const STAGES = ['session', 'route', 'world', 'trees', 'ready'] as const
+const STAGE_AT: Record<(typeof STAGES)[number], number> = {
+  session: 0.08, route: 0.22, world: 0.55, trees: 0.86, ready: 1,
+}
+
+/** Move the bar to a stage, and say what is happening. `where` names the route once it is known. */
+function stage(name: (typeof STAGES)[number], text: string, where?: string): void {
+  el('loading').classList.add('on')
+  const fill = document.getElementById('loadingFill')
+  if (fill) fill.style.transform = `scaleX(${STAGE_AT[name]})`
+  el('loadingText').textContent = text
+  if (where) el('loadingWhere').textContent = where
+}
+
+/** Fade it out rather than cutting: the world behind it has only just stopped being built. */
+function doneLoading(): void {
+  const box = el('loading')
+  box.classList.add('gone')
+  window.setTimeout(() => box.classList.remove('on', 'gone'), 520)
 }
 
 /**
@@ -144,6 +182,10 @@ async function main(): Promise<void> {
   // On Dandyhorse the session starts first (?session= from a bridge, or the picker's debug button), and the
   // route, the machine and the resume point come from it; the picker and the resume question are skipped.
   let platform: PlatformControls | null = null
+  /** The player's own avatar from Dandyhorse, where they have one. */
+  let playerSpec: AvatarSpec | null = null
+  /** Other players' past rides, to put on the road beside them (render/ghosts.ts). */
+  let ghosts: Ghost[] = []
   let progress: ProgressStore
   let chosen: Chosen
   // ?s= or ?go skips the picker: the way to look at one spot on a route while building it
@@ -174,7 +216,20 @@ async function main(): Promise<void> {
     const s = fromSession(session, manifests)
     chosen = s.chosen
     progress = s.progress
+    stage('session', 'Starting your session…')
     platform = new PlatformControls(session, { routeId: s.chosen.routeId, routeLength: s.manifest.length, startAt: s.chosen.startAt, log })
+    // Their own avatar, where they have one. Never fatal: a rider is decoration.
+    try {
+      const who = await me()
+      if (who?.avatar) playerSpec = normalizeSpec(who.avatar)
+    } catch { /* the preset body will do */ }
+    /*
+     * GHOSTS: other players' past rides, replayed on the road beside you (owner, 2026-10-20). The
+     * platform picks them; `loadGhosts` never throws, so a quiet route simply has none and the ride is
+     * the ride. Loaded here rather than with the world so a slow reply does not hold the route up.
+     */
+    ghosts = await loadGhosts(session.sessionId, GHOST_COUNT)
+    if (ghosts.length) log(`riding against ${ghosts.length} ghost${ghosts.length === 1 ? '' : 's'}`)
   }
   // (definitely assigned on every path above; TypeScript cannot follow the race)
   chosen = chosen!
@@ -183,8 +238,7 @@ async function main(): Promise<void> {
   Config.routeId = chosen.routeId
   Config.deviceType = chosen.deviceType
 
-  el('loading').classList.add('on')
-  el('loadingText').textContent = `Loading ${manifests.find((m) => m.id === chosen.routeId)?.name ?? chosen.routeId}…`
+  stage('route', 'Reading the route…', manifests.find((m) => m.id === chosen.routeId)?.name ?? chosen.routeId)
   const route = await Route.load(chosen.routeId)
   Config.trailWidth = Config.trailWidthByKind[route.manifest.kind]
   Config.laneOffset = (Config.trailWidth / 2) * Config.laneFraction
@@ -262,7 +316,7 @@ async function main(): Promise<void> {
   // belong at. See render/ecology.ts — a biome name alone cannot tell a Missouri bottomland from an alpine
   // conifer belt, and it certainly cannot say where a tree line is.
   const eco = ecologyFor(route.manifest.id)
-  el('loadingText').textContent = 'Growing the trees…'
+  stage('trees', 'Growing the trees…')
   const planted = await loadEcology(scene, eco, Config.treeDetail, (material, kind) => {
     material.diffuseColor = Color3.White().scale(kind === 'leaves' ? Config.leafLift : Config.barkLift)
     if (kind === 'leaves') {
@@ -277,6 +331,7 @@ async function main(): Promise<void> {
   }, (done, total) => {
     el('loadingText').textContent = `Growing the trees… ${done} of ${total}`
   })
+  stage('world', 'Laying out the ground…')
   const scatter = new Scatter(scene, route, frame, sky.atmosphere, planted)
   // nothing grows in the river
   scatter.wet = (x, z) => water.isWater(x, z)
@@ -284,11 +339,19 @@ async function main(): Promise<void> {
   const markers = new Markers(scene, route, frame, sky.atmosphere)
   // and a bridge wherever it crosses water
   const bridges = new Bridges(scene, route, frame, water, sky.atmosphere)
-  const rider = Rider.create(scene, frame)
+  /*
+   * THE RIDER IS THE PLAYER (owner, 2026-10-20: "in Trail trainer and cycle dash, the player avatar
+   * should be YOUR specific avatar from dandyhorse, not a random one"). Fetched alongside the world
+   * rather than before it, so a slow or absent platform never holds the route up; the rider builds
+   * asynchronously anyway, and falls back to the preset body where there is no avatar to use.
+   */
+  const rider = Rider.create(scene, frame, playerSpec ? { spec: playerSpec } : {})
   const plan = companionPlan(route)
   const others = new Companions(route, { ...plan, seed: Math.round(startAt) })
   others.place(startAt)
   const otherRiders = new CompanionRiders(scene, frame, route, others)
+  const ghostRiders = new GhostRiders(scene, frame, route, ghosts,
+                                      Config.deviceType === 'bike' ? 'bike' : 'foot')
   const chase = new Chase(scene)
   // drag to look around, wheel to pull the boom in and out, right-click or Home to put it back
   chase.attachLook(canvas)
@@ -335,7 +398,8 @@ async function main(): Promise<void> {
   const ride = new Ride(route, startAt)
   const hud = new Hud(route, Config.deviceType, chosen.previous)
   const minimap = new Minimap(route)
-  el('loading').classList.remove('on')
+  stage('ready', 'Ready')
+  doneLoading()
   const how = platform
     ? 'Picking up where you left off.'
     : Config.deviceType === 'bike' ? 'Arrows set the power, space coasts.' : 'Arrows set the belt speed.'
@@ -507,6 +571,9 @@ async function main(): Promise<void> {
       others.update(state.s, playerLane, state.speed, dt)
     }
     otherRiders.update(active ? dt : 0)
+    // Where everybody else had got to by this point in THEIR ride. The player's own elapsed time is the
+    // clock for all of them, which is the whole idea.
+    ghostRiders.update(active ? dt : 0, sessionSeconds)
     chase.origin.x = frame.x
     chase.origin.z = frame.z
     chase.update(rider.root.position, pose.hx, pose.hz, state.speed, state.grade, dt)

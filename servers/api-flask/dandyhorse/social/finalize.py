@@ -10,7 +10,8 @@ import logging
 import sqlite3
 from typing import Any
 
-from . import bests, boards, fitness, streaks, updates
+from ..util import dumps
+from . import bests, boards, challenges, fitness, streaks, updates
 
 log = logging.getLogger("dandyhorse")
 
@@ -20,6 +21,14 @@ def after_session(dh, conn: sqlite3.Connection, uid: int, summary: dict[str, Any
     game = dh.catalog.game(summary.get("gameId") or "") or {}
     name = game.get("name") or summary.get("gameId") or "a game"
     stats = summary.get("stats") or {}
+
+    # Anybody they challenged is taken now and written against this session: a challenge lasts exactly
+    # one session, and keeping it here is what makes the standing reproducible afterwards.
+    taken = challenges.take(conn, uid)
+    if taken:
+        conn.execute("UPDATE sessions SET challenged=? WHERE session_id=?",
+                     (dumps(taken), summary.get("sessionId")))
+        conn.commit()
 
     update = updates.for_session(conn, uid, summary, name, message, stats, t=t)
 
@@ -54,7 +63,7 @@ def after_session(dh, conn: sqlite3.Connection, uid: int, summary: dict[str, Any
         log.exception("leaderboard recompute failed")
 
     return {"update": update, "streakUpdate": streak_update, "bestUpdate": best_update,
-            "bests": records, "streak": length, "fitness": f}
+            "bests": records, "streak": length, "fitness": f, "challenged": taken}
 
 
 def recompute_player(conn: sqlite3.Connection, uid: int) -> dict[str, Any]:

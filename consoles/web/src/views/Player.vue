@@ -269,7 +269,10 @@ const goalRing = computed(() => {
         </div>
       </section>
 
-      <Versus v-if="p && !p.me" :username="props.username" :name="name" />
+      <Versus
+        v-if="p && !p.me" :username="props.username" :name="name" :challenged="p.challenged"
+        @challenged="(v) => { if (p) p.challenged = v }"
+      />
 
       <PersonalBests :username="props.username" />
 

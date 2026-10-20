@@ -7,7 +7,6 @@
   "description": "Real routes, ridden as they are. The shape and the climbing come from open map and elevation data; the scenery is drawn from it. Routes take hours, so stop whenever you like and pick up where you left off.",
   "entry": "index.html",
   "screenshot": "screenshot.jpg",
-  "preview": "preview.mp4",
   "minPlatformVersion": "1.0",
   "capabilities": {
     "seed": false,
@@ -72,7 +71,7 @@
   "variants": [
     {
       "id": "bike",
-      "name": "Trail Trainer (Bike)",
+      "name": "Trail Trainer",
       "description": "Your measured power moves the bike against the real gradient, and the trainer holds it. Stop pedalling and you coast.",
       "deviceTypes": [
         "bike"
@@ -84,7 +83,7 @@
     },
     {
       "id": "treadmill",
-      "name": "Trail Trainer (Run)",
+      "name": "Trail Trainer",
       "description": "The belt speed you choose is your speed on the trail; the game sets the incline from the route. No coasting \u2014 you run every metre.",
       "deviceTypes": [
         "treadmill"

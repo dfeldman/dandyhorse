@@ -762,61 +762,91 @@ def test_the_home_strip_counts_this_week_and_says_something_useful(app, clock):
     assert " of 3 sessions" not in done["text"]
 
 
-# --- you against one other player (PLAN.md §18.6) --------------------------------------------
+# --- you against one other player, and challenging them (PLAN.md §18.11) ----------------------
 
-def test_versus_says_who_leads_on_what(app, clock):
-    """A profile that does not answer "how do I compare?" is a page of somebody else's numbers."""
+def test_versus_is_one_line_about_fitness(app, clock):
+    """Deliberately small. A board-by-board ledger of who beat whom is an argument waiting to happen."""
     mine, theirs = other_client(app, 1), other_client(app, 2)
-    mine.put("/api/me", json={"streakGoal": 1})
-    theirs.put("/api/me", json={"streakGoal": 1})
-    # Once somebody has ridden, their measured power is what counts, not the figure they typed in —
-    # so the difference has to be in the riding.
     ride(mine, clock, game="mockgame", minutes=30, power=150)
-    ride(theirs, clock, game="mockgame", minutes=30, power=250)
-    ride(mine, clock, game="mockgame", minutes=30, power=150)   # two sessions to their one
+    ride(theirs, clock, game="mockgame", minutes=30, power=260)
 
     v = mine.get("/api/profiles/user2/versus").get_json()
     assert v["self"] is False
-    by = {m["label"]: m for m in v["measures"]}
-    assert by["Steady power"]["leader"] == "them"       # 250 W against 150 W
-    assert by["Sessions this week"]["leader"] == "me"   # two against one
-    # Ahead and behind are counted across everything, so the page can lead with the shape of it.
-    assert v["ahead"] >= 1 and v["behind"] >= 1
+    assert v["leader"] == "them" and v["unit"] == "W"
+    assert v["theirs"] > v["mine"]
+    # Nothing else is offered: no boards, no games, no running total of who is ahead.
+    assert set(v) == {"self", "mine", "theirs", "unit", "leader"}
 
 
-def test_versus_compares_the_games_you_have_both_ridden(app, clock):
-    mine, theirs = other_client(app, 1), other_client(app, 2)
-    ride(mine, clock, game="mockgame", minutes=40, power=250)     # further
-    ride(theirs, clock, game="mockgame", minutes=20, power=120)
-
-    games = {g["gameId"]: g for g in mine.get("/api/profiles/user2/versus").get_json()["games"]}
-    assert "mockgame" in games
-    assert games["mockgame"]["leader"] == "me"
-    assert games["mockgame"]["mine"]["distance"] > games["mockgame"]["theirs"]["distance"]
-    assert games["mockgame"]["gameName"]        # the catalogue's title, not the id
-
-
-def test_a_game_only_one_of_you_has_ridden_is_not_a_comparison(app, clock):
-    mine, theirs = other_client(app, 1), other_client(app, 2)
-    ride(mine, clock, game="mockgame", minutes=30)
-    # user2 has ridden nothing, so there is nothing to put side by side.
-    assert mine.get("/api/profiles/user2/versus").get_json()["games"] == []
+def test_two_riders_of_the_same_strength_are_level(app, clock):
+    a, b = other_client(app, 1), other_client(app, 2)
+    ride(a, clock, game="mockgame", minutes=30, power=200)
+    ride(b, clock, game="mockgame", minutes=30, power=200)
+    assert a.get("/api/profiles/user2/versus").get_json()["leader"] == "level"
 
 
 def test_your_own_profile_has_nothing_to_compare(app, clock):
     c = other_client(app, 1)
     ride(c, clock, game="mockgame", minutes=30)
-    v = c.get("/api/profiles/user1/versus").get_json()
-    assert v["self"] is True
-    assert v["measures"] == [] and v["boards"] == [] and v["games"] == []
+    assert c.get("/api/profiles/user1/versus").get_json() == {"self": True}
 
 
 def test_versus_will_not_open_a_private_player(app, clock):
-    """The same rule as the rest of a private profile: you cannot read them through this either."""
     quiet, nosy = other_client(app, 1), other_client(app, 2)
     ride(quiet, clock, game="mockgame", minutes=30)
     quiet.put("/api/me", json={"public": False, "pseudonym": "Night Owl"})
     assert nosy.get("/api/profiles/user1/versus").status_code == 404
+
+
+def test_challenging_somebody_puts_them_in_your_next_standing(app, clock):
+    """The friendly end of the same urge: you measure yourself against them by riding, not by reading."""
+    me, them = other_client(app, 1), other_client(app, 2)
+    # They are far stronger, so the fitness band would never have paired us.
+    ride(them, clock, game="mockgame", minutes=60, power=400)
+    before = ride(me, clock, game="mockgame", minutes=30, power=90)
+    plain = me.get(f"/api/sessions/{before['sessionId']}/standing").get_json()
+    assert all(not r["player"]["uid"] == 2 for r in plain["rows"]), "not matched on fitness alone"
+
+    assert me.post("/api/profiles/user2/challenge").get_json()["challenged"] is True
+    out = ride(me, clock, game="mockgame", minutes=30, power=90)
+    st = me.get(f"/api/sessions/{out['sessionId']}/standing").get_json()
+    theirs = [r for r in st["rows"] if r["player"]["uid"] == 2]
+    assert theirs and theirs[0]["challenged"] is True
+
+
+def test_a_challenge_lasts_exactly_one_session(app, clock):
+    me, them = other_client(app, 1), other_client(app, 2)
+    ride(them, clock, game="mockgame", minutes=60, power=400)
+    me.post("/api/profiles/user2/challenge")
+    assert me.get("/api/challenges").get_json()["players"]
+
+    first = ride(me, clock, game="mockgame", minutes=30, power=90)
+    assert me.get("/api/challenges").get_json()["players"] == [], "taken by the session just ridden"
+    second = ride(me, clock, game="mockgame", minutes=30, power=90)
+
+    was = me.get(f"/api/sessions/{first['sessionId']}/standing").get_json()
+    now = me.get(f"/api/sessions/{second['sessionId']}/standing").get_json()
+    assert any(r.get("challenged") for r in was["rows"])
+    assert not any(r.get("challenged") for r in now["rows"])
+
+
+def test_you_cannot_challenge_a_private_player(app, clock):
+    """They are not in the standings anybody else reads, so there is nothing to put you beside."""
+    me, quiet = other_client(app, 3), other_client(app, 2)
+    ride(quiet, clock, game="mockgame", minutes=30)
+    quiet.put("/api/me", json={"public": False})
+    assert me.post("/api/profiles/user2/challenge").status_code == 404
+
+
+def test_the_person_challenged_is_never_told(app, clock):
+    """Being measured against is not something anybody has to consent to, and telling them would turn a
+    private "I want to beat Priya" into a provocation."""
+    me, them = other_client(app, 1), other_client(app, 2)
+    ride(them, clock, game="mockgame", minutes=30)
+    me.post("/api/profiles/user2/challenge")
+    assert them.get("/api/feed/notices").get_json()["notices"] == []
+    assert them.get("/api/challenges").get_json()["players"] == []
+    assert them.get("/api/profiles/user1").get_json().get("challenged") in (False, None)
 
 
 # --- following, movement and notices (PLAN.md §18.2, §18.7) -----------------------------------

@@ -2428,6 +2428,72 @@ through somewhere; a game that is a console of dials or a world walked from a me
 
 Bots play all of them but Mock Game, which is the reference game rather than something anybody rides.
 
+### 18.11 What was added after the first cut (2026-10-20)
+
+The sections above are the design as it was written. These are the pieces built on top of it, each with
+the reasoning that is worth keeping; the modules themselves carry the detail.
+
+**Activity** (`social/feed.py`). The same `profile_updates` rows read across players instead of down one:
+what is going on here, rather than what one person has been up to. Two tabs — everybody, and the people
+you follow.
+
+*Private players are not in it at all*, which is deliberately unlike the leaderboards. A board that
+quietly left people out would misstate who is fastest, so there a private player is ranked under a
+pseudonym. A feed ranks nothing, so leaving somebody out of it says nothing untrue — and a feed entry is
+far harder to anonymise, since its text is written by the game and may name anybody, and its timestamp
+says exactly when somebody rode.
+
+**Following** (`social/follows.py`). One-directional and needing no permission: you are choosing what you
+want to read, not asking anything of them. Hence you cannot follow a private player — that would be a way
+to keep a handle on somebody who opted out — and nobody is told who follows them. No follower list is
+readable; a profile carries only whether *you* follow them. Somebody who goes private leaves their
+followers' feeds on their own.
+
+**For you** (`social/notices.py`, plus the cheers that were already there). Being passed on a board is
+the notice that actually makes people ride: a board you are third on is an abstraction until somebody
+goes past. Only a real crossing counts — they were behind you, or not on the board, and are now ahead —
+and only once a day per person per board, because the boards recompute whenever anybody anywhere
+finishes and a busy board would otherwise arrive as a dozen notices. A private player is never the actor.
+
+**Movement** (`leaderboards.prev_rank`). Where you were about a day ago, so a row can say ▲2. A day
+rather than "since the last recompute", which would mean "before that stranger's ride" and read as noise.
+
+**Personal bests** (`social/bests.py`). The leaderboards compare you with everybody, which stops
+motivating once everybody ahead is out of reach; a personal best only ever compares you with yourself.
+The four every session already measures, with floors so a first short ride does not announce four
+records at once, and a margin so rounding is not a record. Deliberately not rates: a best *average speed*
+rewards stopping early.
+
+**You against them** (`social/versus.py`). A profile without any comparison is a page of somebody
+else's numbers, when the question anybody opens one with is "how do I compare?".
+
+Owner, 2026-10-20, after seeing the first version: *"I don't love the head-to-head comparison on profile
+screens. Maybe a very limited comparison. We don't want players all getting mad at each other. Maybe just
+show fitness level comparison."* So it is one line — your steady power against theirs — and not the
+board-by-board and game-by-game scoreboard it started as. A full ledger of who beat whom on eleven boards
+is an argument waiting to happen between two people who came here to ride.
+
+**Challenging** (`social/challenges.py`). The friendly version of the same urge: pick somebody and they
+turn up among your competitors in your next session's standing. Nothing synchronous, nothing multiplayer,
+and it lasts exactly one session.
+
+**The home strip** (`social/home.py`). This week against your goal, your streak, your proudest rank, and
+one sentence saying what would help. The server picks the sentence, because which nudge matters most is a
+product decision rather than a layout one, and the ordering of its cases is the whole design: "one more
+session keeps your streak" beats "you are 3rd on a board", because one is a thing to do this evening.
+
+**Pictures.** Every player gets two, drawn from one mount of their avatar: a face for lists and boards,
+and the whole rider on a bike for their profile card. A player draws their own the first time they open
+Players or Activity, so nobody needs an administrator for a face; the Admin page's button exists for the
+bots, which have nobody at a keyboard.
+
+**Game previews.** A game may ship a `preview` beside its `screenshot` — thirty seconds of a real
+session, played when the pointer is over its card on the Games page, over the still so there is never a
+blank frame, and not loaded at all until the pointer arrives. A game without one keeps its still.
+
+**The Games page** is divided by machine, cycling first, with a variant that runs on both listed under
+both. A player owns a bike trainer, a treadmill or both, and already knows which one they are getting on.
+
 ### 18.9 Admin
 
 The console's Admin page gains **Players**: every account including bots, and a form to change any of it —

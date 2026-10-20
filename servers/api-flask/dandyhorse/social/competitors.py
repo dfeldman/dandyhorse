@@ -125,12 +125,72 @@ def competitor_view(dh, conn: sqlite3.Connection, row: sqlite3.Row, timeline: li
     }
 
 
+# --- ghosts: several of them, to ride among (PLAN.md §18.12) -------------------------------------
+
+# More than this on the road at once and they stop being people you are racing and become traffic.
+GHOSTS_MAX = 6
+
+
+def ghosts(conn: sqlite3.Connection, uid: int, game_id: str, variant: str, route: str | None,
+           want: int, challenged: list[int] | None = None) -> list[sqlite3.Row]:
+    """Several past sessions to ride against at once, newest-best first.
+
+    Anybody the player challenged comes first and regardless of their level — that is the point of having
+    challenged them. The rest fill up from the same fitness-banded pool a single competitor is drawn from,
+    one session per player, so you are not racing the same person three times.
+    """
+    want = max(0, min(want, GHOSTS_MAX))
+    if not want:
+        return []
+    out: list[sqlite3.Row] = []
+    seen: set[int] = set()
+    for target in (challenged or []):
+        best = _best_for(conn, int(target), game_id, variant)
+        if best is not None and int(best["uid"]) not in seen:
+            out.append(best)
+            seen.add(int(best["uid"]))
+        if len(out) >= want:
+            return out
+
+    me = conn.execute("SELECT fitness, preferences FROM users WHERE uid=?", (uid,)).fetchone()
+    mine = fitness.watts_of(me) if me else fitness.DEFAULT_STEADY_WATTS
+    rows = _candidates(conn, uid, game_id, variant, route)
+    if not rows and route:
+        rows = _candidates(conn, uid, game_id, variant, None)
+    # Nearest in strength first: a ghost you can almost hold is worth more than one you will never see.
+    rows = sorted(rows, key=lambda r: abs(fitness.watts_of(r) - mine))
+    for r in rows:
+        if int(r["uid"]) in seen or not r["distance"]:
+            continue
+        out.append(r)
+        seen.add(int(r["uid"]))
+        if len(out) >= want:
+            break
+    return out
+
+
 # --- the end-of-session standing ----------------------------------------------------------------
 
 # How many other players' recent sessions the standing compares against.
 STANDING_POOL = 40
 # Fitness band for the standing: close enough that the comparison means something.
 STANDING_BAND = (0.8, 1.25)
+
+
+def _best_for(conn: sqlite3.Connection, uid: int, game_id: str, variant: str) -> sqlite3.Row | None:
+    """This player's furthest complete session of a game, for putting beside somebody who challenged them.
+
+    The same columns `_candidates` selects, because `player_view` reads the player off the row.
+    """
+    return conn.execute(
+        "SELECT s.session_id, s.uid, s.started_at, s.duration, s.distance, s.route, s.stats, "
+        "       u.username, u.display_name, u.first_name, u.last_name, u.country, u.fitness, "
+        "       u.preferences, u.thumb_file "
+        "FROM sessions s JOIN users u ON u.uid=s.uid "
+        "WHERE s.uid=? AND s.game_id=? AND s.variant=? AND s.status='complete' AND s.debug=0 "
+        "AND u.public=1 AND s.distance > 0 AND s.duration >= ? "
+        "ORDER BY s.distance DESC LIMIT 1",
+        (int(uid), game_id, variant, MIN_DURATION)).fetchone()
 
 
 def standing(conn: sqlite3.Connection, uid: int, session_row: sqlite3.Row) -> dict[str, Any]:
@@ -151,14 +211,32 @@ def standing(conn: sqlite3.Connection, uid: int, session_row: sqlite3.Row) -> di
             pool.setdefault(r["uid"], r)
     entries = [{"player": player_view(r), "sessionId": r["session_id"], "distance": float(r["distance"]),
                 "duration": r["duration"], "startedAt": r["started_at"], "stats": loads(r["stats"]),
-                "me": False}
+                "me": False, "challenged": False}
                for r in list(pool.values())[:STANDING_POOL]]
+
+    # Anybody they took on before this ride goes in whatever their level: the whole point of a challenge
+    # is to measure yourself against somebody you chose, not somebody the band picked for you.
+    taken = [int(u) for u in loads(session_row["challenged"] if "challenged" in session_row.keys() else "[]")]
+    have = {e["player"]["uid"] for e in entries}
+    for target in taken:
+        if target in have:
+            for e in entries:
+                if e["player"]["uid"] == target:
+                    e["challenged"] = True
+            continue
+        best = _best_for(conn, target, session_row["game_id"], session_row["variant"])
+        if best is None:
+            continue           # they have never ridden this one; nothing to put beside you
+        entries.append({"player": player_view(best), "sessionId": best["session_id"],
+                        "distance": float(best["distance"]), "duration": best["duration"],
+                        "startedAt": best["started_at"], "stats": loads(best["stats"]),
+                        "me": False, "challenged": True})
     d = session_row["distance"]
     own = {"player": {"uid": uid, "username": None, "displayName": None, "firstName": None, "lastName": None,
                       "country": None, "fitness": round(mine, 1), "thumbnailUrl": None},
            "sessionId": session_row["session_id"], "distance": float(d) if d else 0.0,
            "duration": session_row["duration"], "startedAt": session_row["started_at"],
-           "stats": loads(session_row["stats"]), "me": True}
+           "stats": loads(session_row["stats"]), "me": True, "challenged": False}
     entries.append(own)
     entries.sort(key=lambda e: -e["distance"])
     for i, e in enumerate(entries, 1):

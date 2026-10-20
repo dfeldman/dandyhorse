@@ -168,6 +168,12 @@ CREATE TABLE IF NOT EXISTS notifications (  -- things that happened TO somebody 
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS notifications_uid ON notifications(uid, id DESC);
+CREATE TABLE IF NOT EXISTS challenges (     -- who to ride against next time out (PLAN.md §18.11)
+  uid        INTEGER NOT NULL REFERENCES users(uid),   -- who made the challenge
+  target     INTEGER NOT NULL REFERENCES users(uid),   -- who they want in their standing
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (uid, target)
+);
 CREATE TABLE IF NOT EXISTS schema_version (version INTEGER NOT NULL);
 """
 
@@ -189,6 +195,7 @@ ADDED_COLUMNS: dict[str, dict[str, str]] = {
         "paused_seconds": "REAL",                          # 2026-09-11
         "image_file": "TEXT",                              # 2026-09-11: the game's session picture (§6.7)
         "stats": "TEXT NOT NULL DEFAULT '{}'",             # 2026-10-19: what the game counted (§18.2)
+        "challenged": "TEXT NOT NULL DEFAULT '[]'",        # 2026-10-20: who they took on (§18.11)
     },
     "users": {
         "handle_set": "INTEGER NOT NULL DEFAULT 1",        # 2026-09-14: Google sign-in asks for a username

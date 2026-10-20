@@ -9,8 +9,8 @@ from flask import Blueprint, g, jsonify, request, send_file
 
 from ..auth import require_auth
 from ..db import get_db
-from ..social import (anon, bests, boards, competitors, feed, finalize, follows, home, notices,
-                      streaks, updates, versus)
+from ..social import (anon, bests, boards, challenges, competitors, feed, finalize, follows, home,
+                      notices, streaks, updates, versus)
 from ..util import ApiError, dumps, iso, loads
 from . import body, dh, read_image
 
@@ -90,6 +90,9 @@ def profile_view(conn: sqlite3.Connection, row: sqlite3.Row, viewer_uid: int) ->
         # Whether the viewer follows them. Their own follower count is not here on purpose: being
         # followed is not something anybody consents to, so it is not something others may inspect.
         "following": follows.is_following(conn, viewer_uid, int(d["uid"])),
+        # Whether YOU have taken them on. The person challenged never sees this on their own view
+        # of somebody, because `viewer_uid` is always the reader.
+        "challenged": challenges.challenged(conn, viewer_uid, int(d["uid"])),
     })
     rows = conn.execute(
         "SELECT session_id, game_id, variant, device_type, started_at, duration, distance, energy, "
@@ -323,13 +326,50 @@ def get_following():
                     **follows.counts(conn, g.user["uid"])})
 
 
+@bp.post("/api/profiles/<username>/challenge")
+@require_auth
+def post_challenge(username: str):
+    """Take somebody on: they join your competitors in your next session's standing, for that one
+    session. They are never told — see social/challenges.py."""
+    conn = get_db()
+    row = _visible(_by_username(conn, username), g.user["uid"])
+    if not challenges.add(conn, g.user["uid"], int(row["uid"])):
+        raise ApiError(400, "cannot_challenge",
+                       f"that player cannot be challenged, or you already have {challenges.MAX}")
+    return jsonify({"challenged": True, "lined_up": len(challenges.listed(conn, g.user["uid"]))})
+
+
+@bp.delete("/api/profiles/<username>/challenge")
+@require_auth
+def delete_challenge(username: str):
+    conn = get_db()
+    row = _by_username(conn, username)
+    if row is None:
+        raise ApiError(404, "user_not_found", "no such player")
+    challenges.remove(conn, g.user["uid"], int(row["uid"]))
+    return jsonify({"challenged": False, "lined_up": len(challenges.listed(conn, g.user["uid"]))})
+
+
+@bp.get("/api/challenges")
+@require_auth
+def get_challenges():
+    """Who you have lined up for your next ride. Yours alone, and emptied by riding."""
+    conn = get_db()
+    ids = challenges.listed(conn, g.user["uid"])
+    if not ids:
+        return jsonify({"players": [], "max": challenges.MAX})
+    marks = ",".join("?" * len(ids))
+    rows = conn.execute(f"SELECT * FROM users WHERE uid IN ({marks})", ids).fetchall()
+    return jsonify({"players": [card(r, g.user["uid"]) for r in rows], "max": challenges.MAX})
+
+
 @bp.get("/api/profiles/<username>/versus")
 @require_auth
 def get_versus(username: str):
     """How you stand against this player: the thing anybody actually wants from somebody else's profile."""
     conn = get_db()
     row = _visible(_by_username(conn, username), g.user["uid"])
-    return jsonify(versus.compare(conn, g.user["uid"], row, dh().catalog))
+    return jsonify(versus.compare(conn, g.user["uid"], row))
 
 
 @bp.get("/api/profiles/<username>/bests")

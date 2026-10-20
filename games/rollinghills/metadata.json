@@ -7,7 +7,6 @@
   "description": "A cartoon bike rolls around a generated loop of hills, forests, villages and lakes. The game sets the hill; you set the pace, measured against your own.",
   "entry": "index.html",
   "screenshot": "screenshot.jpg",
-  "preview": "preview.mp4",
   "minPlatformVersion": "1.0",
   "capabilities": {
     "seed": true,
@@ -58,7 +57,7 @@
   "variants": [
     {
       "id": "bike",
-      "name": "Rolling Hills (Bike)",
+      "name": "Rolling Hills",
       "description": "Your power against your own steady pace moves the bike; the trainer feels every hill.",
       "deviceTypes": [
         "bike"
@@ -70,7 +69,7 @@
     },
     {
       "id": "treadmill",
-      "name": "Rolling Hills (Treadmill)",
+      "name": "Rolling Hills",
       "description": "Your pace against your own steady pace moves the bike; the game sets the incline.",
       "deviceTypes": [
         "treadmill"

@@ -7,7 +7,6 @@
   "description": "A treadmill and bike console, and a track to go round. Manual, hills, intervals, pyramid, random and heart-rate programmes, every number a machine's own console shows, and a lap of a real 400 m track for each one you run.",
   "entry": "index.html",
   "screenshot": "screenshot.png",
-  "preview": "preview.mp4",
   "minPlatformVersion": "1.0",
   "capabilities": {
     "seed": true,
@@ -85,7 +84,7 @@
   "variants": [
     {
       "id": "treadmill",
-      "name": "Lane One (Treadmill)",
+      "name": "Lane One",
       "description": "Walk or run a programme. The console drives the incline and shows you the pace to keep; hand it the belt as well and it runs the whole thing.",
       "deviceTypes": [
         "treadmill"
@@ -97,7 +96,7 @@
     },
     {
       "id": "bike",
-      "name": "Lane One (Bike)",
+      "name": "Lane One",
       "description": "Ride a programme. The trainer follows the hill and the watts are yours to hold; hand it the watts as well and it holds them for you in ERG.",
       "deviceTypes": [
         "bike"

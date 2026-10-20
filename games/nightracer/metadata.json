@@ -7,7 +7,6 @@
   "description": "Race three rivals through a neon city at night. Your pace is your throttle; tap Turbo and Oil on your phone to pass and to fend them off.",
   "entry": "index.html",
   "screenshot": "screenshot.jpg",
-  "preview": "preview.mp4",
   "minPlatformVersion": "1.0",
   "capabilities": {
     "seed": true,
@@ -72,7 +71,7 @@
   "variants": [
     {
       "id": "bike",
-      "name": "Night Racer (Bike)",
+      "name": "Night Racer",
       "description": "Your power is the throttle; the trainer feels the hills.",
       "deviceTypes": [
         "bike"
@@ -84,7 +83,7 @@
     },
     {
       "id": "treadmill",
-      "name": "Night Racer (Treadmill)",
+      "name": "Night Racer",
       "description": "Your pace is the throttle; the game never touches the belt.",
       "deviceTypes": [
         "treadmill"

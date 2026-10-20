@@ -46,7 +46,7 @@
   "variants": [
     {
       "id": "treadmill",
-      "name": "Mock Game (Treadmill)",
+      "name": "Mock Game",
       "description": "Exercises every platform API on a treadmill.",
       "deviceTypes": [
         "treadmill"
@@ -58,7 +58,7 @@
     },
     {
       "id": "treadmill-speed",
-      "name": "Mock Game (Treadmill, game-controlled speed)",
+      "name": "Mock Game (game-controlled speed)",
       "description": "Same course, but the game also commands belt speed. For testing the speed pipeline.",
       "deviceTypes": [
         "treadmill"
@@ -70,7 +70,7 @@
     },
     {
       "id": "bike",
-      "name": "Mock Game (Bike)",
+      "name": "Mock Game",
       "description": "Exercises every platform API on a bike trainer.",
       "deviceTypes": [
         "bike"

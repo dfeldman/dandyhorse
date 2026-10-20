@@ -115,8 +115,17 @@ export const putSave = (game: string, variant: string, saveState: Json | null) =
   request<{ game: string; variant: string; saveState: Json | null }>('PUT', '/gameapi/putsave', { game, variant, saveState })
 
 /** `GET /gameapi/me` */
+/**
+ * Who is playing.
+ *
+ * `avatar` is their own AvatarSpec, so a game that puts a rider on screen can show THEM rather than a
+ * stranger. Null where they have never made one — fall back to whatever you did before.
+ */
 export const me = () =>
-  request<{ uid: number; username: string; unitSystem: UnitSystem; timeZone: string; achievements: Json; preferences: Json }>('GET', '/gameapi/me')
+  request<{
+    uid: number; username: string; displayName: string; unitSystem: UnitSystem; timeZone: string
+    achievements: Json; preferences: Json; avatar: Json | null
+  }>('GET', '/gameapi/me')
 
 /** `GET /gameapi/sessions?...` — session summaries for history and ghost selection. */
 export const listSessions = (params: { game?: string; variant?: string; route?: string; status?: SessionStatus; scope?: 'me' | 'public'; limit?: number; before?: string } = {}) =>

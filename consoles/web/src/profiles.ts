@@ -111,3 +111,17 @@ export const noticesForMe = (before?: string) =>
     `/api/feed/notices${before ? `?before=${encodeURIComponent(before)}` : ''}`)
 
 export const markNoticesSeen = () => api<{ unseen: number }>('/api/feed/notices/seen', 'POST')
+
+// --- challenging (PLAN.md §18.11) --------------------------------------------------------------
+
+export const challenge = (username: string) =>
+  api<{ challenged: boolean; lined_up: number }>(
+    `/api/profiles/${encodeURIComponent(username)}/challenge`, 'POST')
+
+export const unchallenge = (username: string) =>
+  api<{ challenged: boolean; lined_up: number }>(
+    `/api/profiles/${encodeURIComponent(username)}/challenge`, 'DELETE')
+
+/** Who you have lined up for your next ride. Emptied by riding. */
+export const challengeList = () =>
+  api<{ players: PlayerCard[]; max: number }>('/api/challenges')

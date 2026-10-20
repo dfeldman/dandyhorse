@@ -40,7 +40,9 @@ async function main(): Promise<void> {
         + (b.avatarSeed ? `, avatar from seed ${b.avatarSeed}` : ''))
     }
     log('')
-    log('To give them faces and pictures: open the console as an admin and press "Give everyone a face".')
+    log('To give them faces and pictures: open the console as an admin and press "Draw N missing '
+        + 'pictures" on the Admin page. Real players draw their own the first time they open Players '
+        + 'or Activity; a bot has nobody at a keyboard, which is why theirs needs an admin.')
     return
   }
 

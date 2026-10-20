@@ -447,6 +447,8 @@ export interface ProfileSession {
 export interface Profile extends PlayerCard {
   /** Whether you follow them. Their own follower count is deliberately not here — see social/follows.py. */
   following: boolean
+  /** Whether YOU have taken them on for your next ride. They are never told (social/challenges.py). */
+  challenged: boolean
   bio: string
   /** The AvatarSpec the designer saved; the page animates it. */
   avatar: Record<string, unknown> | null
@@ -581,21 +583,14 @@ export interface HomeSummary {
   nudge: { text: string; action: 'ride' | 'goal'; tone: 'good' | 'normal' | 'urgent' }
 }
 
-/** You against one other player (PLAN.md §18.6). */
+/** You against one other player: their steady power beside yours, and nothing else (PLAN.md §18.11). */
 export interface Versus {
-  /** True when the profile is your own: there is nothing to compare. */
+  /** True on your own profile, where there is nothing to compare. */
   self: boolean
-  measures: { label: string; mine: number; theirs: number; unit: string; leader: 'me' | 'them' | 'level' }[]
-  boards: { board: string; title: string; myRank: number; theirRank: number; leader: 'me' | 'them' | 'level' }[]
-  games: {
-    gameId: string
-    gameName: string
-    mine: { distance: number; duration: number; at: string }
-    theirs: { distance: number; duration: number; at: string }
-    leader: 'me' | 'them' | 'level'
-  }[]
-  ahead: number
-  behind: number
+  mine?: number
+  theirs?: number
+  unit?: string
+  leader?: 'me' | 'them' | 'level'
 }
 
 /** Something that happened to you that was not a cheer (PLAN.md §18.2). */

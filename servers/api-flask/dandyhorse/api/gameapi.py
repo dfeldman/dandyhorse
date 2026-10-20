@@ -10,7 +10,7 @@ from ..db import get_db
 from ..sessions import lifecycle
 from ..sessions import log as logmod
 from ..sessions.log import read_records
-from ..social import competitors
+from ..social import challenges, competitors
 from ..util import ApiError, dumps, iso, loads, now as _now, num_or_none
 from . import body, dh, user_session, wait_params
 from .views import device_prefs, ended_game_view, game_view
@@ -308,10 +308,16 @@ def putsave():
 @bp.get("/me")
 @require_auth
 def me():
+    """Who is playing. `avatar` is their own AvatarSpec, so a game that shows a rider can show THEM
+    rather than a stranger (PLAN.md §18.11); null where they have never made one."""
     u = g.user
+    profile = u.get("profile") if isinstance(u.get("profile"), dict) else loads(u.get("profile"))
+    avatar = profile.get("avatar") if isinstance(profile, dict) else None
     return jsonify({"uid": u["uid"], "username": u["username"], "unitSystem": u["unit_system"],
                     "timeZone": u["time_zone"], "achievements": u.get("achievements", {}),
-                    "preferences": u.get("preferences", {})})
+                    "preferences": u.get("preferences", {}),
+                    "displayName": u.get("display_name") or u.get("first_name") or u["username"],
+                    "avatar": avatar if isinstance(avatar, dict) else None})
 
 
 @bp.get("/sessions")
@@ -414,6 +420,48 @@ def competitor():
         return jsonify({"competitor": None, "gameId": game_id, "variant": variant, "route": route})
     timeline = lifecycle.timeline_for(dh(), conn, pick["session_id"]) or []
     return jsonify(competitors.competitor_view(dh(), conn, pick, timeline, game_id))
+
+
+@bp.get("/ghosts")
+@require_auth
+def ghosts():
+    """Several competitors at once, each with their timeline, for a game that can draw them on the road.
+
+    Owner, 2026-10-20: *"we should be able to show the position of your competitors at the same time
+    since start as NPCs (basically ghosts)... the number of competitors may vary."* So `count` is a
+    request rather than a promise: a quiet game, or a route nobody else has ridden, returns fewer, and a
+    game must ride perfectly well with none.
+
+    Anybody the player challenged before this session is included whatever their level.
+    """
+    conn = get_db()
+    sid = request.args.get("session")
+    if not sid:
+        raise ApiError(400, "session_required", "session query parameter required")
+    row = conn.execute("SELECT game_id, variant, route, challenged FROM sessions "
+                       "WHERE session_id=? AND uid=?", (sid, g.user["uid"])).fetchone()
+    if row is None:
+        raise ApiError(404, "session_not_found", "no such session of yours")
+    route = row["route"]
+    live = dh().store.get(sid)
+    if live is not None and live.route:
+        route = live.route
+    if request.args.get("route"):
+        route = request.args["route"]
+
+    try:
+        want = int(request.args.get("count", "4"))
+    except ValueError:
+        want = 4
+    # A challenge is consumed at finalize; while the session is still running it is still listed.
+    taken = challenges.listed(conn, g.user["uid"]) or [
+        int(u) for u in loads(row["challenged"] if "challenged" in row.keys() else "[]")]
+    picks = competitors.ghosts(conn, g.user["uid"], row["game_id"], row["variant"], route, want, taken)
+    out = []
+    for p in picks:
+        timeline = lifecycle.timeline_for(dh(), conn, p["session_id"]) or []
+        out.append(competitors.competitor_view(dh(), conn, p, timeline, row["game_id"]))
+    return jsonify({"ghosts": out, "max": competitors.GHOSTS_MAX})
 
 
 @bp.get("/standing")

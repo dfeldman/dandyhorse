@@ -1,26 +1,32 @@
 <script setup lang="ts">
-// You against this player (PLAN.md §18.6).
+// You against this player, in one line, and a way to take it further (PLAN.md §18.11).
 //
-// Without this a profile is a page of somebody else's numbers. The question anybody actually has when
-// they open another rider on a competitive platform is "how do I compare?", and until now the page did
-// not answer it. The server works it out — see social/versus.py, which explains why this is a list of
-// where each of you leads rather than a single score.
+// This started as a full head-to-head — board by board, game by game, eleven rows of who beat whom —
+// and the owner was right that it was too much: "we don't want players all getting mad at each other."
+// A ledger of every way somebody beats you is an argument waiting to happen between two people who came
+// here to ride. So it is steady power, theirs beside yours, and that is all it says.
+//
+// The competitive urge goes somewhere better: challenge them, and they turn up among your competitors
+// next time you ride. You measure yourself against them by riding, not by reading.
 import { computed, onMounted, ref, watch } from 'vue'
 import { api } from '../api'
-import { unitSystem } from '../session'
+import { challenge, unchallenge } from '../profiles'
 import * as u from '../units'
 import type { Versus } from '../types'
 
-const props = defineProps<{ username: string; name: string }>()
+const props = defineProps<{ username: string; name: string; challenged: boolean }>()
+const emit = defineEmits<{ (e: 'challenged', v: boolean): void }>()
+
 const v = ref<Versus | null>(null)
 const loading = ref(true)
+const busy = ref(false)
 
 async function load(): Promise<void> {
   loading.value = true
   try {
     v.value = await api<Versus>(`/api/profiles/${encodeURIComponent(props.username)}/versus`)
   } catch {
-    v.value = null    // a comparison is a bonus; a profile without one is still a profile
+    v.value = null      // a comparison is a bonus; a profile without one is still a profile
   } finally {
     loading.value = false
   }
@@ -28,86 +34,72 @@ async function load(): Promise<void> {
 onMounted(load)
 watch(() => props.username, load)
 
-const sys = computed(() => unitSystem())
-const show = computed(() => v.value && !v.value.self
-  && (v.value.measures.length || v.value.boards.length || v.value.games.length))
+const show = computed(() => v.value && !v.value.self && typeof v.value.mine === 'number')
 
-/** "3 ahead, 10 behind" — the shape of it before any of the detail. */
-const headline = computed(() => {
+const verdict = computed(() => {
   const x = v.value
-  if (!x) return ''
-  if (x.ahead > x.behind) return `You lead on ${x.ahead} of ${x.ahead + x.behind}`
-  if (x.behind > x.ahead) return `${props.name} leads on ${x.behind} of ${x.ahead + x.behind}`
-  return `Level: ${x.ahead} each`
+  if (!x || x.leader === 'level') return 'You are about level'
+  return x.leader === 'me' ? 'You are the stronger rider' : `${props.name} is the stronger rider`
 })
 
-const measure = (m: Versus['measures'][number], value: number): string =>
-  m.unit === 'W' ? `${value} W`
-    : m.unit === 'weeks' ? `${value} ${value === 1 ? 'week' : 'weeks'}`
-      : `${value}`
-
-const km = (m: number): string => u.distance(m, sys.value, 1).text
+async function toggleChallenge(): Promise<void> {
+  if (busy.value) return
+  busy.value = true
+  const was = props.challenged
+  emit('challenged', !was)              // move the button at once
+  try {
+    const r = was ? await unchallenge(props.username) : await challenge(props.username)
+    emit('challenged', r.challenged)
+  } catch {
+    emit('challenged', was)
+  } finally {
+    busy.value = false
+  }
+}
 </script>
 
 <template>
   <section v-if="!loading && show" class="panel versus">
-    <div class="vhead">
-      <h2>You against {{ name }}</h2>
-      <span class="head-line" :class="v!.ahead >= v!.behind ? 'good' : 'chase'">{{ headline }}</span>
+    <h2>You and {{ name }}</h2>
+    <div class="line">
+      <span class="side" :class="{ lead: v!.leader === 'me' }">
+        <b>{{ u.power(v!.mine!).text }}</b><span class="who">you</span>
+      </span>
+      <span class="vs" aria-hidden="true">v</span>
+      <span class="side" :class="{ lead: v!.leader === 'them' }">
+        <b>{{ u.power(v!.theirs!).text }}</b><span class="who">{{ name }}</span>
+      </span>
     </div>
+    <p class="verdict">{{ verdict }} — steady power, measured from what you have each ridden.</p>
 
-    <ul v-if="v!.measures.length" class="rows">
-      <li v-for="m in v!.measures" :key="m.label" class="row" :class="m.leader">
-        <span class="label">{{ m.label }}</span>
-        <span class="mine">{{ measure(m, m.mine) }}</span>
-        <span class="vs" aria-hidden="true">v</span>
-        <span class="theirs">{{ measure(m, m.theirs) }}</span>
-      </li>
-    </ul>
-
-    <template v-if="v!.games.length">
-      <h3>Games you have both ridden</h3>
-      <ul class="rows">
-        <li v-for="g in v!.games" :key="g.gameId" class="row" :class="g.leader">
-          <span class="label">{{ g.gameName }}</span>
-          <span class="mine">{{ km(g.mine.distance) }}</span>
-          <span class="vs" aria-hidden="true">v</span>
-          <span class="theirs">{{ km(g.theirs.distance) }}</span>
-        </li>
-      </ul>
-    </template>
-
-    <template v-if="v!.boards.length">
-      <h3>Boards you are both on</h3>
-      <ul class="rows">
-        <li v-for="b in v!.boards" :key="b.board" class="row" :class="b.leader">
-          <span class="label">{{ b.title }}</span>
-          <span class="mine">{{ b.myRank }}{{ b.myRank === 1 ? 'st' : b.myRank === 2 ? 'nd' : b.myRank === 3 ? 'rd' : 'th' }}</span>
-          <span class="vs" aria-hidden="true">v</span>
-          <span class="theirs">{{ b.theirRank }}{{ b.theirRank === 1 ? 'st' : b.theirRank === 2 ? 'nd' : b.theirRank === 3 ? 'rd' : 'th' }}</span>
-        </li>
-      </ul>
-    </template>
+    <div class="act">
+      <button type="button" class="btn challenge" :class="{ on: challenged }" :disabled="busy"
+              @click="toggleChallenge">
+        {{ challenged ? 'Challenged' : `Challenge ${name}` }}
+      </button>
+      <span class="muted small">
+        <template v-if="challenged">
+          They will be among your competitors next time you ride, for that session only.
+        </template>
+        <template v-else>Put them among your competitors next time you ride.</template>
+      </span>
+    </div>
   </section>
 </template>
 
 <style scoped>
-.vhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
-.vhead h2 { margin: 0; }
-.head-line { font-weight: 800; padding: 2px 11px; border-radius: 999px; font-size: 0.88em; }
-.head-line.good { background: color-mix(in srgb, #6ee7a8 45%, transparent); }
-.head-line.chase { background: color-mix(in srgb, #ffb648 45%, transparent); }
-h3 { margin: 14px 0 6px; font-size: 0.94em; opacity: 0.75; }
+.versus h2 { margin: 0 0 10px; }
+.line { display: flex; align-items: baseline; justify-content: center; gap: 22px; }
+.side { display: flex; flex-direction: column; align-items: center; gap: 1px; opacity: 0.65; }
+.side.lead { opacity: 1; }
+.side b { font-size: 1.7em; font-weight: 900; font-variant-numeric: tabular-nums; }
+.side.lead b { color: var(--page); }
+.who { font-size: 0.8em; opacity: 0.75; }
+.vs { opacity: 0.4; font-weight: 800; }
+.verdict { margin: 8px 0 0; text-align: center; font-weight: 600; opacity: 0.85; }
 
-.rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
-.row { display: grid; grid-template-columns: 1fr auto 18px auto; gap: 10px; align-items: baseline;
-  padding: 7px 11px; border-radius: 10px; }
-.row:nth-child(odd) { background: color-mix(in srgb, var(--text) 3%, transparent); }
-.label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.mine, .theirs { font-weight: 900; font-variant-numeric: tabular-nums; }
-.vs { text-align: center; opacity: 0.45; font-size: 0.82em; }
-/* The one who is ahead is the one in colour; the other is simply there. */
-.row.me .mine { color: #12a874; }
-.row.them .theirs { color: #e5157f; }
-.row.me .theirs, .row.them .mine { opacity: 0.6; }
+.act { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 14px; }
+.challenge { border: 2px solid var(--page); background: none; color: var(--page); font-weight: 800; }
+.challenge.on { background: var(--page); color: var(--on-page); }
+.small { font-size: 0.86em; }
 </style>
