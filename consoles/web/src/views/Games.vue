@@ -64,6 +64,36 @@ function owned(device: DeviceType): boolean {
 function alsoOn(v: Variant, device: DeviceType): DeviceType[] {
   return v.deviceTypes.filter((d) => d !== device)
 }
+
+/** A short clip of a real session, if the game ships one. Its own, else the game's. */
+function preview(p: Playable): string | null {
+  return p.variant.previewUrl ?? p.game.previewUrl ?? null
+}
+
+/**
+ * The card the pointer is over, so only that one's clip is loaded and playing.
+ *
+ * Preloading a dozen videos to play none of them would cost a great deal of a player's connection for
+ * nothing, so the `<video>` does not exist until the pointer arrives.
+ */
+const hovered = ref<string | null>(null)
+
+function enter(p: Playable): void {
+  if (preview(p)) hovered.value = p.key
+}
+
+function leave(p: Playable): void {
+  if (hovered.value === p.key) hovered.value = null
+}
+
+/** Start it muted from the beginning: a preview that resumes halfway through looks broken. */
+function playFrom(el: Element | null): void {
+  const v = el as HTMLVideoElement | null
+  if (!v) return
+  v.currentTime = 0
+  // A refused autoplay is not a problem worth reporting: the still underneath is still there.
+  void v.play().catch(() => undefined)
+}
 </script>
 
 <template>
@@ -90,13 +120,19 @@ function alsoOn(v: Variant, device: DeviceType): DeviceType[] {
           v-for="p in s.items" :key="p.key" type="button" class="card"
           @click="picked = { game: p.game, variant: p.variant }"
         >
-          <!-- A fixed 16/9 box: a hover video preview drops in here later without the grid reflowing. -->
-          <div class="shot">
+          <!-- A fixed 16/9 box, so swapping the still for a clip does not reflow the grid. -->
+          <div class="shot" @pointerenter="enter(p)" @pointerleave="leave(p)">
             <img
               v-if="p.variant.screenshotUrl ?? p.game.screenshotUrl"
               :src="(p.variant.screenshotUrl ?? p.game.screenshotUrl)!" :alt="p.variant.name" loading="lazy"
             />
             <span v-else class="initial">{{ initialOf(p.game.name) }}</span>
+            <!-- Over the still rather than instead of it, so there is never a blank frame while it loads. -->
+            <video
+              v-if="hovered === p.key && preview(p)" class="clip" :src="preview(p)!"
+              muted loop playsinline preload="auto" aria-hidden="true"
+              @canplay="playFrom($event.target as Element)"
+            ></video>
             <span v-if="alsoOn(p.variant, s.device).length" class="pills">
               <span v-for="d in alsoOn(p.variant, s.device)" :key="d" class="pill device">
                 also {{ deviceTypeName(d) }}
@@ -121,4 +157,7 @@ function alsoOn(v: Variant, device: DeviceType): DeviceType[] {
 .machine-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 10px; }
 .machine-head h2 { margin: 0; }
 .note { font-style: italic; }
+/* The clip sits exactly over the still, so there is never a blank frame while it loads. */
+.shot .clip { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (prefers-reduced-motion: reduce) { .shot .clip { display: none; } }
 </style>

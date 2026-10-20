@@ -13,6 +13,7 @@ server over `/gameapi/*`. It never talks to the bridge or to hardware. The
 games/<gameId>/
   metadata.json      required, at the folder root
   screenshot.png     shown in the console
+  preview.mp4        optional: played when the console hovers your card
   dist/index.html    your built app (or index.html at the root if unbuilt)
 ```
 
@@ -29,6 +30,7 @@ first, then `<path>`. With Vite set `base: '/games/<gameId>/'`.
   "version": "1.0.0",
   "entry": "index.html",
   "screenshot": "screenshot.png",
+  "preview": "preview.mp4",
   "capabilities": {"seed": true, "input": true, "saveState": false, "ghosts": false},
   "options": {"route": {"label": "Route", "enum": ["flat", "rolling", "hilly"], "default": "rolling"}},
   "variants": [
@@ -261,6 +263,14 @@ At the end of a session (just before or after `endsession`, within 10
 minutes) call `PUT /gameapi/sessions/<id>/image` with
 `{"image": "<PNG or JPEG data URL>"}` (or a raw `image/png` body), at most
 1 MB, ideally 640×360. A route map, the player's inventory, a final
+preview: a short silent clip of a real session — about thirty seconds — played
+while the pointer is over your card on the Games page, over the still rather
+than instead of it, so there is never a blank frame. It is only loaded on
+hover, so a player who never hovers never downloads it; keep it small all the
+same, and expect it to be muted and looped. A variant may give its own, else
+the game's is used, and a game without one simply keeps its still. Honour
+`prefers-reduced-motion`: the console already does, and will not play it.
+
 screenshot: anything the user will recognise. Without it History falls
 back to your variant's `screenshot`. The mock game renders its route map
 on a canvas and uploads `canvas.toDataURL('image/png')`.

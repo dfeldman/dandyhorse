@@ -201,12 +201,17 @@ class Catalog:
                 vv = dict(v)
                 shot = v.get("screenshot") or g.get("screenshot")
                 vv["screenshotUrl"] = base + shot if shot else None
+                # A short silent clip of a real session, played when the console hovers the card. Optional
+                # everywhere: a game without one simply keeps its still.
+                clip = v.get("preview") or g.get("preview")
+                vv["previewUrl"] = base + clip if clip else None
                 variants.append(vv)
             out.append({
                 "id": g["id"], "name": g["name"], "version": g["version"],
                 "author": g.get("author"), "description": g.get("description"),
                 "capabilities": g.get("capabilities", {}),
                 "screenshotUrl": base + g["screenshot"] if g.get("screenshot") else None,
+                "previewUrl": base + g["preview"] if g.get("preview") else None,
                 "entryUrl": base + g["entry"],
                 "preferencesSchema": g.get("preferencesSchema"),
                 "options": g.get("options", {}),

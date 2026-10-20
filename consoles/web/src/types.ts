@@ -98,6 +98,8 @@ export interface Variant {
   defaultDuration: number | null
   controls?: Record<string, string>
   screenshotUrl: string | null
+  /** A short silent clip of a real session, played while the pointer is over the card. */
+  previewUrl?: string | null
 }
 
 export interface JsonSchemaProperty {
@@ -122,6 +124,8 @@ export interface Game {
   description: string | null
   capabilities: Record<string, unknown>
   screenshotUrl: string | null
+  /** A short silent clip of a real session; a variant may give its own instead. */
+  previewUrl?: string | null
   entryUrl: string
   preferencesSchema: PreferencesSchema | null
   /** Options chosen at launch (PLAN.md §7.1): one row of choices each in the launch dialog. */
