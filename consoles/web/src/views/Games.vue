@@ -78,8 +78,19 @@ function preview(p: Playable): string | null {
  */
 const hovered = ref<string | null>(null)
 
+/**
+ * Whether this device has a pointer that can hover at all.
+ *
+ * Owner, 2026-10-20: *"Don't bother with clips on iOS Safari, clips play on hover and touch devices
+ * don't have hover."* Quite right, and it is worth being explicit rather than relying on a touch device
+ * never firing `pointerenter`: some fire one on tap, and a tap that silently downloads a video on a
+ * phone connection is the opposite of what this was for. A preview is a thing you get for having a
+ * mouse.
+ */
+const canHover = typeof matchMedia === 'function' ? matchMedia('(hover: hover)').matches : true
+
 function enter(p: Playable): void {
-  if (preview(p)) hovered.value = p.key
+  if (canHover && preview(p)) hovered.value = p.key
 }
 
 function leave(p: Playable): void {

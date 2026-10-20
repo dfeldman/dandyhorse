@@ -267,7 +267,10 @@ preview: a short silent clip of a real session — about thirty seconds — play
 while the pointer is over your card on the Games page, over the still rather
 than instead of it, so there is never a blank frame. It is only loaded on
 hover, so a player who never hovers never downloads it; keep it small all the
-same, and expect it to be muted and looped. A variant may give its own, else
+same, and expect it to be muted and looped. A touch device never loads it at
+all — there is no hover to trigger it, and the console checks for a hovering
+pointer rather than hoping, so nobody spends phone data on a video they cannot
+play. A variant may give its own, else
 the game's is used, and a game without one simply keeps its still. Honour
 `prefers-reduced-motion`: the console already does, and will not play it.
 
