@@ -7,6 +7,7 @@
   "description": "Deliver parcels across a real San Francisco, hills and all. Your power moves the bike, the trainer feels every grade, and you pick the turns from your phone \u2014 or let the route guide you.",
   "entry": "index.html",
   "screenshot": "screenshot.jpg",
+  "preview": "preview.mp4",
   "minPlatformVersion": "1.0",
   "capabilities": {
     "seed": false,

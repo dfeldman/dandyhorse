@@ -86,13 +86,18 @@ function leave(p: Playable): void {
   if (hovered.value === p.key) hovered.value = null
 }
 
-/** Start it muted from the beginning: a preview that resumes halfway through looks broken. */
-function playFrom(el: Element | null): void {
-  const v = el as HTMLVideoElement | null
-  if (!v) return
-  v.currentTime = 0
-  // A refused autoplay is not a problem worth reporting: the still underneath is still there.
-  void v.play().catch(() => undefined)
+/**
+ * Start the clip, once it has frames to show.
+ *
+ * It deliberately does NOT rewind. An earlier version set `currentTime = 0` here so a preview always
+ * began at the beginning — but seeking re-fires `canplay`, which rewound it again: `canplay` fired 3183
+ * times in six seconds and the clip sat at zero for ever, playing nothing. There is nothing to rewind
+ * anyway, because the element is created fresh each time the pointer arrives.
+ *
+ * A refused autoplay is not worth reporting: the still underneath is still there.
+ */
+function startClip(el: Element | null): void {
+  void (el as HTMLVideoElement | null)?.play().catch(() => undefined)
 }
 </script>
 
@@ -130,8 +135,8 @@ function playFrom(el: Element | null): void {
             <!-- Over the still rather than instead of it, so there is never a blank frame while it loads. -->
             <video
               v-if="hovered === p.key && preview(p)" class="clip" :src="preview(p)!"
-              muted loop playsinline preload="auto" aria-hidden="true"
-              @canplay="playFrom($event.target as Element)"
+              autoplay muted loop playsinline preload="auto" aria-hidden="true"
+              @loadeddata="startClip($event.target as Element)"
             ></video>
             <span v-if="alsoOn(p.variant, s.device).length" class="pills">
               <span v-for="d in alsoOn(p.variant, s.device)" :key="d" class="pill device">
