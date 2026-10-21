@@ -272,21 +272,25 @@ export class Platform implements Controls {
   /** The line this workout leaves on the player's timeline (PLAN.md §18.2). */
   private message(): string {
     const { points, wins, races } = this.counted
-    const won = wins > 0 ? ` ${wins} win${wins === 1 ? '' : 's'}.` : ''
+    /*
+     * "28 points over 5 races, beating Kenji's 8. 2 wins." — the tail was a sentence with no verb in it,
+     * and read as something that had been cut off. It is a clause of the sentence it belongs to now.
+     */
+    const won = wins > 0 ? `, with ${wins} win${wins === 1 ? '' : 's'}` : ''
     const theirs = this.rival?.theirs()
     const theirPoints = theirs?.progress.points
     if (this.rival?.player && typeof theirPoints === 'number') {
       const who = this.rival.player.firstName || this.rival.player.username
       const over = races === 1 ? 'over one race' : `over ${races} races`
-      if (points > theirPoints) return `${points} points ${over}, beating ${who}'s ${theirPoints}.${won}`
-      if (points < theirPoints) return `${points} points ${over}; ${who} took ${theirPoints}.${won}`
-      return `${points} points each with ${who}, ${over}.${won}`
+      if (points > theirPoints) return `${points} points ${over}, beating ${who}'s ${theirPoints}${won}.`
+      if (points < theirPoints) return `${points} points ${over}; ${who} took ${theirPoints}${won}.`
+      return `${points} points each with ${who}, ${over}${won}.`
     }
     if (races === 0) {
       // The night was cut short in the first race, which still counts for something if anything was scored.
       return points > 0 ? `${points} point${points === 1 ? '' : 's'} in the opening race.` : 'A night at the track.'
     }
-    return `${points} championship point${points === 1 ? '' : 's'} over ${races} race${races === 1 ? '' : 's'}.${won}`
+    return `${points} championship point${points === 1 ? '' : 's'} over ${races} race${races === 1 ? '' : 's'}${won}.`
   }
 
   /** The session ended from a bridge or the console: stop, but keep whatever was earned. */

@@ -161,8 +161,15 @@ No sentence, just the person: `{Their first name}` floating over their head, in 
 
 - **No contractions anywhere.** `do not look back`, `that is how it is done`, `{name}'s` only as a
   possessive. Consistent, and deliberate, but it reads formally in the shouty moments.
-- **Names** are the first name where somebody has one, else their handle — so a player who has filled
-  in no name appears as `user21` mid-sentence.
-- **"Next time."** appears only in Rolling Hills' losing line; no other game commiserates.
-- **Night Racer's `{won}`** can leave a bare ` 2 wins.` after a full stop, which reads as a fragment.
+- **Names** are the first name, else the display name, else the handle. Every account is created with a
+  display name of `User {number}`, so somebody who has filled nothing in reads as "User 21 is back in
+  front — dig in." Plain, but it is a name and it scans. (I had this wrong first time round and wrote
+  that it showed the raw handle; checked against `auth._new_user`, it does not.)
+- **"Next time."** appears only in Rolling Hills' losing line; no other game commiserates. Worth
+  deciding whether that is a house voice or an accident.
+- **No contractions** is consistent across every line. A deliberate-looking choice, but it is worth
+  knowing it applies even to "do not look back", where a contraction would sound more like somebody
+  shouting at you from the roadside.
 - Numbers are never spelled out: `1 car found the hard way`, not `one car`.
+- **Fixed since this was written:** Night Racer's wins tail was a sentence with no verb — "…beating
+  Kenji's 8. 2 wins." It is a clause now: "…beating Kenji's 8, with 2 wins."
