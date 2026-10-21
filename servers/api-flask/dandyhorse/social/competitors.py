@@ -131,6 +131,22 @@ def competitor_view(dh, conn: sqlite3.Connection, row: sqlite3.Row, timeline: li
     }
 
 
+def avatar_of(conn: sqlite3.Connection, uid: int) -> dict[str, Any] | None:
+    """A player's own AvatarSpec, for a game that draws them (PLAN.md §18.12).
+
+    Owner, 2026-10-20: *"In Trail Trainer only, the ghost should be the avatar of that competitor."* So a
+    ghost is recognisably the person rather than a body seeded from their account number.
+
+    Only ever called for a public player — a ghost is one by construction — and it hands over the same
+    look their public profile already shows anybody. Null where they have never made one.
+    """
+    row = conn.execute("SELECT profile, public FROM users WHERE uid=?", (int(uid),)).fetchone()
+    if row is None or not row["public"]:
+        return None
+    spec = (loads(row["profile"]) or {}).get("avatar")
+    return spec if isinstance(spec, dict) else None
+
+
 # --- ghosts: several of them, to ride among (PLAN.md §18.12) -------------------------------------
 
 # More than this on the road at once and they stop being people you are racing and become traffic.

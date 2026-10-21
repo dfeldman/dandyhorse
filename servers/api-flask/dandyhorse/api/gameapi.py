@@ -465,7 +465,11 @@ def ghosts():
     out = []
     for p in picks:
         timeline = lifecycle.timeline_for(dh(), conn, p["session_id"]) or []
-        out.append(competitors.competitor_view(dh(), conn, p, timeline, row["game_id"]))
+        view = competitors.competitor_view(dh(), conn, p, timeline, row["game_id"])
+        # Their own avatar, so a game that draws a body draws THEM. Only on the ghosts: the single
+        # competitor's HUD box shows a face from a thumbnail and has no body to dress.
+        view["avatar"] = competitors.avatar_of(conn, int(p["uid"]))
+        out.append(view)
     return jsonify({"ghosts": out, "max": competitors.GHOSTS_MAX})
 
 

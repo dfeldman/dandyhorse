@@ -21,7 +21,7 @@
  * - **they do not collide, steer or react.** They are a recording. Nothing they do depends on the player.
  */
 import { Matrix, Vector3, type Scene } from '@babylonjs/core'
-import { randomSpec } from 'avatarkit'
+import { normalizeSpec, randomSpec } from 'avatarkit'
 import { ghostLabel, type Ghost, type GhostLabel } from '@dandyhorse/gamekit'
 import { Config } from '../config.ts'
 import type { Frame } from './frame.ts'
@@ -55,20 +55,23 @@ export class GhostRiders {
     this.route = route
     ghosts.forEach((ghost, i) => {
       /*
-       * A body per ghost, seeded by who they are.
+       * A ghost is the person, not a stand-in.
        *
-       * Their actual avatar is not available here — the platform hands over a card and a timeline, not an
-       * AvatarSpec — and it does not matter, because the name over their head is what identifies them.
-       * Seeding from the uid at least means the same person looks the same every time you ride against
-       * them, which is what makes "there's Priya again" possible.
+       * Owner, 2026-10-20: *"In Trail Trainer only, the ghost should be the avatar of that competitor."*
+       * So the platform sends each ghost's own AvatarSpec and this builds it — which is better than the
+       * name tag alone, because you recognise somebody up the road before you can read it.
+       *
+       * Anybody who has never made an avatar still gets a body seeded from their account number, so the
+       * same person at least looks the same every time you ride against them.
        */
       const seed = (ghost.player.uid ?? i + 1) * 2654435761
       const rider = Rider.create(scene, frame, {
-        spec: randomSpec(seed),
+        spec: ghost.avatar ? normalizeSpec(ghost.avatar) : randomSpec(seed),
         bikeColour: JERSEYS[i % JERSEYS.length],
         offset: LANE + (i % 2 === 0 ? 0 : 0.9),
         mode,
       })
+      console.debug(`ghost ${ghost.name}: ${ghost.avatar ? 'their own avatar' : 'a seeded body (no avatar saved)'}`)
       this.mounted.push({ ghost, rider, label: ghostLabel(ghost), gone: false })
     })
   }

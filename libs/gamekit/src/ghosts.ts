@@ -32,6 +32,13 @@ export interface Ghost {
   readonly player: CompetitorPlayer
   /** What to write over their head. Their first name where they have one, else their handle. */
   readonly name: string
+  /**
+   * Their own AvatarSpec, so a game that draws a body can draw THEM rather than a stranger.
+   *
+   * Null where they have never made one — fall back to whatever body you would otherwise have used. Only
+   * public players are ever ghosts, and this is the same look their profile already shows anybody.
+   */
+  readonly avatar: Record<string, unknown> | null
   /** Their whole ride's length in seconds; past this they are `done`. */
   readonly finishElapsed: number
   /** Where they were `elapsed` seconds into their own ride. */
@@ -43,10 +50,12 @@ export interface Ghost {
 class Playback implements Ghost {
   private readonly track: CompetitorTracker
   readonly name: string
+  readonly avatar: Record<string, unknown> | null
 
-  constructor(track: CompetitorTracker) {
+  constructor(track: CompetitorTracker, avatar: Record<string, unknown> | null) {
     this.track = track
     this.name = competitorName(track.player)
+    this.avatar = avatar
   }
 
   get player(): CompetitorPlayer { return this.track.player }
@@ -63,12 +72,14 @@ class Playback implements Ghost {
  */
 export async function loadGhosts(sessionId: string, count = 4): Promise<Ghost[]> {
   try {
-    const r = await request<{ ghosts: CompetitorPayload[] }>(
+    const r = await request<{ ghosts: (CompetitorPayload & { avatar?: Record<string, unknown> | null })[] }>(
       'GET', `/gameapi/ghosts?session=${encodeURIComponent(sessionId)}&count=${count}`)
-    return (r.ghosts ?? [])
-      .map((p) => fromPayload(p))
-      .filter((c): c is NonNullable<ReturnType<typeof fromPayload>> => c !== null)
-      .map((c) => new Playback(new CompetitorTracker(c)))
+    const out: Ghost[] = []
+    for (const p of r.ghosts ?? []) {
+      const c = fromPayload(p)
+      if (c) out.push(new Playback(new CompetitorTracker(c), p.avatar ?? null))
+    }
+    return out
   } catch {
     return []
   }
